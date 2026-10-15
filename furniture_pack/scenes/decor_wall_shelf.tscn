@@ -1,0 +1,34 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/oak.tres" id="1_lsss4"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_9dee75b8f582.res" id="2_lw44r"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="3_xr7wp"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_33acf45966f3.res" id="4_v7bi7"]
+
+[node name="DecorWallShelf" type="Node3D" unique_id=1286737240]
+metadata/furniture = {
+"bounds_min_m": [-0.4, 0.0, -0.12],
+"collision_shapes": 0,
+"dimensions_m": [0.8, 0.2, 0.24],
+"id": "decor_wall_shelf",
+"name": "浴室洗衣间壁架",
+"note": "零点位于层板底面，靠墙侧为 -Z。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_wall_shelf.tscn",
+"triangles": 2916
+}
+
+[node name="Shelf" type="MeshInstance3D" parent="." unique_id=1658710548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.018, 0)
+material_override = ExtResource("1_lsss4")
+mesh = ExtResource("2_lw44r")
+
+[node name="Bracket" type="MeshInstance3D" parent="." unique_id=352248383]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27, 0.1, -0.095)
+material_override = ExtResource("3_xr7wp")
+mesh = ExtResource("4_v7bi7")
+
+[node name="Bracket2" type="MeshInstance3D" parent="." unique_id=1693406166]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.27, 0.1, -0.095)
+material_override = ExtResource("3_xr7wp")
+mesh = ExtResource("4_v7bi7")

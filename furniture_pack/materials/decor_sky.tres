@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "decor_sky"
+albedo_color = Color(0.61960787, 0.70980394, 0.7058824, 1)
+roughness = 0.95

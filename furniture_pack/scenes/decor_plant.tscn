@@ -1,0 +1,306 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_terra.tres" id="1_8jsyp"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Terracotta_pot.res" id="2_jrfr8"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_soil.tres" id="3_84isk"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_leaf.tres" id="4_o3kfy"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_leaf_light.tres" id="5_m7rxa"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf.res" id="6_fqi0l"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf2.res" id="7_bbmvv"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf3.res" id="8_mlkln"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf4.res" id="9_f8lhq"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf5.res" id="10_trf8v"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf6.res" id="11_0x3mm"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf7.res" id="12_foobs"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf8.res" id="13_x26gu"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf9.res" id="14_5ctgn"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf10.res" id="15_bmy6n"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf11.res" id="16_u7hjf"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf12.res" id="17_2xeo8"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf13.res" id="18_p7blx"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf14.res" id="19_783d7"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf15.res" id="20_meir5"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf16.res" id="21_g0u0x"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf17.res" id="22_kbblq"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf18.res" id="23_lgg6t"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf19.res" id="24_d4oed"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf20.res" id="25_iq4eg"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf21.res" id="26_hxqgn"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf22.res" id="27_rxf34"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf23.res" id="28_lr6vw"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf24.res" id="29_w26s8"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf25.res" id="30_tunr7"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf26.res" id="31_vmey7"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_plant_Leaf27.res" id="32_s5coh"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_i0ddf"]
+top_radius = 0.17
+bottom_radius = 0.17
+height = 0.004999995
+radial_segments = 32
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_b1uur"]
+size = Vector3(0.34, 0.3, 0.34)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1kmcq"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.32449964
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_4lp0l"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.43863425
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_k4t2f"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.5597321
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_rl7nr"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.6841052
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_y3xw0"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.3244996
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_8bx3x"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.43863425
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_nscyb"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.5597321
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_thbv3"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.6841052
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_e4sik"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.3244996
+radial_segments = 32
+
+[node name="DecorPlant" type="Node3D" unique_id=400780681]
+metadata/furniture = {
+"bounds_min_m": [-0.34323227, 0.0, -0.34156173],
+"collision_shapes": 1,
+"dimensions_m": [0.6950000000000001, 1.0110000000000001, 0.681],
+"id": "decor_plant",
+"name": "陶盆绿植",
+"note": "枝叶为双面立体折叶，陶盆保留落地碰撞。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_plant.tscn",
+"triangles": 4952
+}
+
+[node name="Terracotta_pot" type="MeshInstance3D" parent="." unique_id=846377836]
+material_override = ExtResource("1_8jsyp")
+mesh = ExtResource("2_jrfr8")
+
+[node name="Soil" type="MeshInstance3D" parent="." unique_id=479959643]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2775, 0)
+material_override = ExtResource("3_84isk")
+mesh = SubResource("CylinderMesh_i0ddf")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=1208511560]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=1754604702]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+shape = SubResource("BoxShape3D_b1uur")
+
+[node name="Stem" type="MeshInstance3D" parent="." unique_id=866885617]
+transform = Transform3D(0.83205026, 0.55470026, 0, -0.55470026, 0.83205026, 0, 0, 0, 1, 0.09, 0.41500002, 0)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_1kmcq")
+
+[node name="Leaf" type="MeshInstance3D" parent="." unique_id=1848349759]
+transform = Transform3D(0.3552177, 0.9347836, 0, -0.9347836, 0.3552177, 0, 0, 0, 1, 0.0864, 0.40960002, 0)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("6_fqi0l")
+
+[node name="Leaf2" type="MeshInstance3D" parent="." unique_id=578239405]
+transform = Transform3D(0.6870225, 0.65127003, -0.32225367, -0.65127003, 0.3552177, -0.6705727, -0.32225367, 0.6705727, 0.66819525, 0.1242, 0.4663, 0)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("7_bbmvv")
+
+[node name="Leaf3" type="MeshInstance3D" parent="." unique_id=15129913]
+transform = Transform3D(0.99945027, -0.027295236, 0.018819308, 0.027295236, 0.35521775, -0.934385, 0.018819308, 0.934385, 0.3557675, 0.162, 0.523, 0)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("8_mlkln")
+
+[node name="Stem2" type="MeshInstance3D" parent="." unique_id=2068565903]
+transform = Transform3D(0.9521951, -0.302323, 0.043877963, 0.302323, 0.9119215, -0.27748874, 0.043877963, 0.27748874, 0.9597264, -0.06630461, 0.48000002, 0.060858022)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_4lp0l")
+
+[node name="Leaf4" type="MeshInstance3D" parent="." unique_id=823047444]
+transform = Transform3D(0.6500423, -0.6886718, 0.3212104, 0.6886718, 0.3552177, -0.6321009, 0.3212104, 0.6321009, 0.7051754, -0.063652426, 0.472, 0.0584237)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("9_f8lhq")
+
+[node name="Leaf5" type="MeshInstance3D" parent="." unique_id=1095436890]
+transform = Transform3D(0.3573404, -0.93324363, -0.036933966, 0.93324363, 0.35521775, 0.053633973, -0.036933966, -0.053633973, 0.99787736, -0.09150036, 0.556, 0.08398407)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("10_trf8v")
+
+[node name="Leaf6" type="MeshInstance3D" parent="." unique_id=1806557010]
+transform = Transform3D(0.7238788, -0.6117224, -0.31905347, 0.6117224, 0.3552178, 0.70683515, -0.31905347, -0.70683515, 0.631339, -0.119348295, 0.64, 0.10954444)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("11_0x3mm")
+
+[node name="Stem3" type="MeshInstance3D" parent="." unique_id=251560734]
+transform = Transform3D(0.9996116, 0.027497385, 0.004525335, -0.027497385, 0.9468816, 0.3204047, 0.004525335, -0.3204047, 0.9472699, 0.007695583, 0.545, -0.08967038)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_k4t2f")
+
+[node name="Leaf7" type="MeshInstance3D" parent="." unique_id=740975619]
+transform = Transform3D(0.99528575, 0.07993006, 0.054931145, -0.07993006, 0.3552177, 0.93136007, 0.054931145, -0.93136007, 0.35993195, 0.0073877596, 0.5344, -0.08608357)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("12_foobs")
+
+[node name="Leaf8" type="MeshInstance3D" parent="." unique_id=252480383]
+transform = Transform3D(0.6134252, 0.72380453, 0.31593743, -0.72380453, 0.3552178, 0.5915465, 0.31593743, -0.5915465, 0.7417926, 0.010619905, 0.6457, -0.12374513)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("13_x26gu")
+
+[node name="Leaf9" type="MeshInstance3D" parent="." unique_id=816886706]
+transform = Transform3D(0.36368024, 0.928629, -0.07338159, -0.928629, 0.35521775, -0.10709124, -0.07338159, 0.10709124, 0.9915375, 0.01385205, 0.75699997, -0.16140668)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("14_5ctgn")
+
+[node name="Stem4" type="MeshInstance3D" parent="." unique_id=26553339]
+transform = Transform3D(0.98685724, 0.16069362, -0.01704021, -0.16069362, 0.9647638, -0.20834672, -0.01704021, 0.20834672, 0.9779066, 0.054965664, 0.61, 0.07126553)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_rl7nr")
+
+[node name="Leaf10" type="MeshInstance3D" parent="." unique_id=845273719]
+transform = Transform3D(0.7595023, 0.5708999, -0.31181642, -0.5708999, 0.3552178, -0.7401983, -0.31181642, 0.7401983, 0.5957155, 0.052767035, 0.59679997, 0.06841491)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("15_bmy6n")
+
+[node name="Leaf11" type="MeshInstance3D" parent="." unique_id=2128973597]
+transform = Transform3D(0.98690116, -0.13323593, 0.09096337, 0.13323593, 0.35521775, -0.92523974, 0.09096337, 0.92523974, 0.3683166, 0.07585262, 0.73539996, 0.098346435)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("16_u7hjf")
+
+[node name="Leaf12" type="MeshInstance3D" parent="." unique_id=437933908]
+transform = Transform3D(0.57765305, -0.75655276, 0.30650434, 0.75655276, 0.3552177, -0.5490432, 0.30650434, 0.5490432, 0.7775646, 0.09893819, 0.87399995, 0.12827796)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("17_2xeo8")
+
+[node name="Stem5" type="MeshInstance3D" parent="." unique_id=927212068]
+transform = Transform3D(0.83692616, -0.546589, -0.028197939, 0.546589, 0.8320503, 0.09451351, -0.028197939, -0.09451351, 0.99512416, -0.088683955, 0.41500002, -0.015334798)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_y3xw0")
+
+[node name="Leaf13" type="MeshInstance3D" parent="." unique_id=1349390232]
+transform = Transform3D(0.37393677, -0.92111456, -0.1082558, 0.92111456, 0.3552177, 0.15927464, -0.1082558, -0.15927464, 0.9812809, -0.08513659, 0.40960002, -0.014721406)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("18_p7blx")
+
+[node name="Leaf14" type="MeshInstance3D" parent="." unique_id=1936805199]
+transform = Transform3D(0.7946856, -0.52748996, -0.30038154, 0.52748996, 0.35521775, 0.77173483, -0.30038154, -0.77173483, 0.5605321, -0.122383855, 0.4663, -0.021162022)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("19_783d7")
+
+[node name="Leaf15" type="MeshInstance3D" parent="." unique_id=1824158299]
+transform = Transform3D(0.9744438, 0.18610282, 0.1257978, -0.18610282, 0.35521764, 0.91607106, 0.1257978, -0.91607106, 0.38077384, -0.15963112, 0.523, -0.027602635)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("20_meir5")
+
+[node name="Stem6" type="MeshInstance3D" parent="." unique_id=724140447]
+transform = Transform3D(0.93767995, 0.3451826, 0.040065795, -0.3451826, 0.9119215, 0.22191925, 0.040065795, -0.22191925, 0.97424155, 0.07570445, 0.48000002, -0.04867069)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_8bx3x")
+
+[node name="Leaf16" type="MeshInstance3D" parent="." unique_id=577080375]
+transform = Transform3D(0.5437836, 0.7863031, 0.29330337, -0.7863031, 0.3552177, 0.5055174, 0.29330337, -0.5055174, 0.8114341, 0.07267627, 0.472, -0.04672386)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("21_g0u0x")
+
+[node name="Leaf17" type="MeshInstance3D" parent="." unique_id=144972808]
+transform = Transform3D(0.38833827, 0.91045856, -0.14233251, -0.91045856, 0.35521775, -0.21186195, -0.14233251, 0.21186195, 0.9668795, 0.10447214, 0.556, -0.06716555)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("22_kbblq")
+
+[node name="Leaf18" type="MeshInstance3D" parent="." unique_id=521132076]
+transform = Transform3D(0.82832724, 0.48234218, -0.28499126, -0.48234218, 0.3552177, -0.8007287, -0.28499126, 0.8007287, 0.5268905, 0.136268, 0.64, -0.08760724)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("23_lgg6t")
+
+[node name="Stem7" type="MeshInstance3D" parent="." unique_id=508423719]
+transform = Transform3D(0.9965725, -0.08168799, 0.013050495, 0.08168799, 0.9468816, -0.31103432, 0.013050495, 0.31103432, 0.9503091, -0.02286169, 0.545, 0.087047935)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_nscyb")
+
+[node name="Leaf19" type="MeshInstance3D" parent="." unique_id=691823306]
+transform = Transform3D(0.95839506, -0.23745257, 0.15841447, 0.23745257, 0.3552177, -0.90412205, 0.15841447, 0.90412205, 0.39682263, -0.021947222, 0.5344, 0.08356602)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("24_d4oed")
+
+[node name="Leaf20" type="MeshInstance3D" parent="." unique_id=656862930]
+transform = Transform3D(0.5110631, -0.8140123, 0.27604088, 0.8140123, 0.3552177, -0.45956984, 0.27604088, 0.45956984, 0.8441546, -0.03154913, 0.6457, 0.12012615)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("25_iq4eg")
+
+[node name="Leaf21" type="MeshInstance3D" parent="." unique_id=1459813073]
+transform = Transform3D(0.4065488, -0.89680296, -0.17453498, 0.89680296, 0.35521775, 0.26375124, -0.17453498, -0.26375124, 0.94866896, -0.04115104, 0.75699997, 0.15668628)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("26_hxqgn")
+
+[node name="Stem8" type="MeshInstance3D" parent="." unique_id=1865846192]
+transform = Transform3D(0.99231935, -0.12284433, -0.014548029, 0.12284433, 0.9647638, 0.23268019, -0.014548029, -0.23268019, 0.9724445, -0.04201922, 0.61, -0.07958885)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_thbv3")
+
+[node name="Leaf22" type="MeshInstance3D" parent="." unique_id=1256064326]
+transform = Transform3D(0.8594522, -0.43643197, -0.2662124, 0.43643197, 0.35521775, 0.8266483, -0.2662124, -0.8266483, 0.49576557, -0.04033845, 0.59679997, -0.076405294)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("27_rxf34")
+
+[node name="Leaf23" type="MeshInstance3D" parent="." unique_id=1302165288]
+transform = Transform3D(0.938398, 0.28893617, 0.1895391, -0.28893617, 0.35521764, 0.88900864, 0.1895391, -0.88900864, 0.41681963, -0.05798652, 0.73539996, -0.109832615)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("28_lr6vw")
+
+[node name="Leaf24" type="MeshInstance3D" parent="." unique_id=1370579056]
+transform = Transform3D(0.48053563, 0.8390395, 0.25514352, -0.8390395, 0.3552177, 0.41210812, 0.25514352, -0.41210812, 0.87468207, -0.07563459, 0.87399995, -0.14325993)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("29_w26s8")
+
+[node name="Stem9" type="MeshInstance3D" parent="." unique_id=441893699]
+transform = Transform3D(0.85098743, 0.5224926, -0.053121354, -0.5224926, 0.83205026, -0.18626294, -0.053121354, 0.18626294, 0.9810628, 0.08477431, 0.41500002, 0.030221123)
+material_override = ExtResource("4_o3kfy")
+mesh = SubResource("CylinderMesh_e4sik")
+
+[node name="Leaf25" type="MeshInstance3D" parent="." unique_id=620197850]
+transform = Transform3D(0.42792016, 0.88050705, -0.20394026, -0.88050705, 0.3552177, -0.31389123, -0.20394026, 0.31389123, 0.9272975, 0.08138333, 0.40960002, 0.029012278)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("30_tunr7")
+
+[node name="Leaf26" type="MeshInstance3D" parent="." unique_id=1021268240]
+transform = Transform3D(0.88875294, 0.3882834, -0.24362724, -0.3882834, 0.3552177, -0.85032725, -0.24362724, 0.85032725, 0.46646476, 0.11698855, 0.4663, 0.04170515)
+material_override = ExtResource("5_m7rxa")
+mesh = ExtResource("31_vmey7")
+
+[node name="Leaf27" type="MeshInstance3D" parent="." unique_id=1190826168]
+transform = Transform3D(0.9149669, -0.3394678, 0.21816786, 0.3394678, 0.3552177, -0.87096614, 0.21816786, 0.87096614, 0.4402508, 0.15259375, 0.523, 0.05439802)
+material_override = ExtResource("4_o3kfy")
+mesh = ExtResource("32_s5coh")

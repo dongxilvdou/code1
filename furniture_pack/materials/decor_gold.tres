@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "decor_gold"
+albedo_color = Color(0.78039217, 0.6431373, 0.3529412, 1)
+roughness = 0.75

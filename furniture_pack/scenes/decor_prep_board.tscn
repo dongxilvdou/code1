@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/oak.tres" id="1_x3ois"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_501c9a85112e.res" id="2_ipnwh"]
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="3_vdsq4"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_uuog4"]
+top_radius = 0.048
+bottom_radius = 0.048
+height = 0.153
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_6ijem"]
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.012999997
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_s6qnt"]
+top_radius = 0.048
+bottom_radius = 0.048
+height = 0.153
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_de56i"]
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.012999997
+radial_segments = 32
+
+[node name="DecorPrepBoard" type="Node3D" unique_id=601051541]
+metadata/furniture = {
+"bounds_min_m": [-0.17, 0.0, -0.12],
+"collision_shapes": 0,
+"dimensions_m": [0.34, 0.183, 0.24],
+"id": "decor_prep_board",
+"name": "砧板与储物罐",
+"note": "以台面或地面为零点摆放的小型生活陈设。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_prep_board.tscn",
+"triangles": 2508
+}
+
+[node name="Board" type="MeshInstance3D" parent="." unique_id=806282535]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.008, 0)
+material_override = ExtResource("1_x3ois")
+mesh = ExtResource("2_ipnwh")
+
+[node name="Jar" type="MeshInstance3D" parent="." unique_id=1096229150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.0935, 0)
+material_override = ExtResource("3_vdsq4")
+mesh = SubResource("CylinderMesh_uuog4")
+
+[node name="Jar_lid" type="MeshInstance3D" parent="." unique_id=1694642856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.1765, 0)
+material_override = ExtResource("1_x3ois")
+mesh = SubResource("CylinderMesh_6ijem")
+
+[node name="Jar2" type="MeshInstance3D" parent="." unique_id=245174859]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.0935, 0)
+material_override = ExtResource("3_vdsq4")
+mesh = SubResource("CylinderMesh_s6qnt")
+
+[node name="Jar_lid2" type="MeshInstance3D" parent="." unique_id=2086406955]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.1765, 0)
+material_override = ExtResource("1_x3ois")
+mesh = SubResource("CylinderMesh_de56i")

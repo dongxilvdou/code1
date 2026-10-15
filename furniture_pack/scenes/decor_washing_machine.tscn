@@ -1,0 +1,112 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/ivory.tres" id="1_gtgf3"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_63bcadc62101.res" id="2_x5fln"]
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="3_1i32g"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_96894f380787.res" id="4_eraag"]
+[ext_resource type="Material" path="res://furniture_pack/materials/steel.tres" id="5_hm8uj"]
+[ext_resource type="Material" path="res://furniture_pack/materials/glass_black.tres" id="6_rfyb5"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_37105bb5b6b8.res" id="7_snpmi"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="8_g4p2c"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vwnpp"]
+size = Vector3(0.6, 0.85, 0.59)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_yorqr"]
+top_radius = 0.028
+bottom_radius = 0.028
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="TorusMesh" id="TorusMesh_wpo87"]
+inner_radius = 0.17
+outer_radius = 0.205
+rings = 48
+ring_segments = 12
+
+[sub_resource type="SphereMesh" id="SphereMesh_tyimr"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_uyr7h"]
+top_radius = 0.006
+bottom_radius = 0.006
+height = 0.120000005
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2ryf2"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_c2lbh"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[node name="DecorWashingMachine" type="Node3D" unique_id=1155780938]
+metadata/furniture = {
+"bounds_min_m": [-0.3, 0.0, -0.295],
+"collision_shapes": 1,
+"dimensions_m": [0.6, 0.85, 0.651],
+"id": "decor_washing_machine",
+"name": "滚筒洗衣机",
+"note": "标准 0.60 m 宽、0.85 m 高。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_washing_machine.tscn",
+"triangles": 6692
+}
+
+[node name="Appliance" type="MeshInstance3D" parent="." unique_id=628984993]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.425, 0)
+material_override = ExtResource("1_gtgf3")
+mesh = ExtResource("2_x5fln")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=278401939]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=2049421824]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.425, 0)
+shape = SubResource("BoxShape3D_vwnpp")
+
+[node name="Control_panel" type="MeshInstance3D" parent="." unique_id=1906916879]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.74, 0.3)
+material_override = ExtResource("3_1i32g")
+mesh = ExtResource("4_eraag")
+
+[node name="Selector" type="MeshInstance3D" parent="." unique_id=744187952]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.17, 0.75, 0.33249998)
+material_override = ExtResource("5_hm8uj")
+mesh = SubResource("CylinderMesh_yorqr")
+
+[node name="Display" type="MeshInstance3D" parent="." unique_id=351320147]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.04, 0.75, 0.32)
+material_override = ExtResource("6_rfyb5")
+mesh = ExtResource("7_snpmi")
+
+[node name="Door_ring" type="MeshInstance3D" parent="." unique_id=691854697]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.4, 0.31)
+material_override = ExtResource("5_hm8uj")
+mesh = SubResource("TorusMesh_wpo87")
+
+[node name="Door_glass" type="MeshInstance3D" parent="." unique_id=998490479]
+transform = Transform3D(0.35, 0, 0, 0, 0.35, 0, 0, 0, 0.055, 0, 0.4, 0.315)
+material_override = ExtResource("6_rfyb5")
+mesh = SubResource("SphereMesh_tyimr")
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=1154950923]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16, 0.4, 0.35)
+material_override = ExtResource("8_g4p2c")
+mesh = SubResource("CylinderMesh_uyr7h")
+
+[node name="Handle_mount" type="MeshInstance3D" parent="." unique_id=2085094054]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.16, 0.34, 0.33749998)
+material_override = ExtResource("8_g4p2c")
+mesh = SubResource("CylinderMesh_2ryf2")
+
+[node name="Handle_mount2" type="MeshInstance3D" parent="." unique_id=574389671]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.16, 0.46, 0.33749998)
+material_override = ExtResource("8_g4p2c")
+mesh = SubResource("CylinderMesh_c2lbh")

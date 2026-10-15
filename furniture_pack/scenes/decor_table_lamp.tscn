@@ -1,0 +1,49 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_terra.tres" id="1_2pkro"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_table_lamp_Ceramic_base.res" id="2_vqpgt"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="3_kvrpp"]
+[ext_resource type="Material" path="res://furniture_pack/materials/cream.tres" id="4_yr6u6"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_table_lamp_Linen_shade.res" id="5_1l5u7"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_lamp.tres" id="6_k604i"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_r2gqw"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.13
+radial_segments = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_nr2tj"]
+radial_segments = 32
+rings = 16
+
+[node name="DecorTableLamp" type="Node3D" unique_id=1371431652]
+metadata/furniture = {
+"bounds_min_m": [-0.15, 0.0, -0.15],
+"collision_shapes": 0,
+"dimensions_m": [0.3, 0.45, 0.3],
+"id": "decor_table_lamp",
+"name": "陶瓷床头台灯",
+"note": "发光材质用于灯罩细节，照明由房间光源统一控制。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_table_lamp.tscn",
+"triangles": 2368
+}
+
+[node name="Ceramic_base" type="MeshInstance3D" parent="." unique_id=1492047719]
+material_override = ExtResource("1_2pkro")
+mesh = ExtResource("2_vqpgt")
+
+[node name="Lamp_neck" type="MeshInstance3D" parent="." unique_id=102438447]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.255, 0)
+material_override = ExtResource("3_kvrpp")
+mesh = SubResource("CylinderMesh_r2gqw")
+
+[node name="Linen_shade" type="MeshInstance3D" parent="." unique_id=1681123473]
+material_override = ExtResource("4_yr6u6")
+mesh = ExtResource("5_1l5u7")
+
+[node name="Bulb" type="MeshInstance3D" parent="." unique_id=434255217]
+transform = Transform3D(0.05, 0, 0, 0, 0.06, 0, 0, 0, 0.05, 0, 0.32, 0)
+material_override = ExtResource("6_k604i")
+mesh = SubResource("SphereMesh_nr2tj")

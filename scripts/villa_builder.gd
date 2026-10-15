@@ -117,6 +117,7 @@ func build() -> Node3D:
 	build_exterior_details()
 	build_lighting()
 	register_plan()
+	load("res://scripts/villa_furnishings.gd").new().apply(self)
 	root.set_meta("door_count",door_count)
 	return root
 
@@ -176,6 +177,8 @@ func wall(label: String, axis: String, value: float, start: float, finish: float
 		wall_piece(label,axis,value,cursor,hole.a,base_y,0,WALL_TOP,parent,outer)
 		var window: bool = hole.kind=="window"
 		var sill := .75 if window else 0.0
+		# A working kitchen counter is 0.90 m high; its window sill sits above it.
+		if window and label=="GroundNorth" and hole.a>7:sill = 1.08
 		var lintel := 2.25 if window else 2.20
 		if window:wall_piece(label+"_SillWall",axis,value,hole.a,hole.b,base_y,0,sill,parent,outer)
 		wall_piece(label+"_Header",axis,value,hole.a,hole.b,base_y,lintel,WALL_TOP,parent,outer)
@@ -548,8 +551,11 @@ func build_lighting() -> void:
 			lamp.shadow_enabled = true
 			lamp.omni_attenuation = 1.0
 			attach(lamp,light_group)
-			cylinder(pos,.14,.04,"brass",-1,ground_floor if floor_y==0 else upper_floor)
-			cylinder(pos-Vector3.UP*.025,.12,.012,"glow",-1,ground_floor if floor_y==0 else upper_floor)
+			var rim := cylinder(pos,.14,.04,"brass",-1,ground_floor if floor_y==0 else upper_floor)
+			var diffuser := cylinder(pos-Vector3.UP*.025,.12,.012,"glow",-1,ground_floor if floor_y==0 else upper_floor)
+			# The fixture surrounds its own point light: do not project a large disc onto the ceiling.
+			rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			diffuser.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# Light the staircase separately so the landing remains legible from cat height.
 	var landing_light := OmniLight3D.new()
 	landing_light.position = at(10.6,4.8,4.5)

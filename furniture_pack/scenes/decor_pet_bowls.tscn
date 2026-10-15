@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/sage_fabric.tres" id="1_h01sj"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_d09621c0ae62.res" id="2_rw6w0"]
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="3_xsc26"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_pet_bowls_Bowl.res" id="4_to4v1"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_water.tres" id="5_buj8p"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_pet_bowls_Bowl2.res" id="6_1l7io"]
+[ext_resource type="Material" path="res://furniture_pack/materials/walnut.tres" id="7_drqiu"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_oe82b"]
+top_radius = 0.069
+bottom_radius = 0.069
+height = 0.0020000003
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fx0fx"]
+top_radius = 0.069
+bottom_radius = 0.069
+height = 0.0020000003
+radial_segments = 32
+
+[node name="DecorPetBowls" type="Node3D" unique_id=2074440475]
+metadata/furniture = {
+"bounds_min_m": [-0.24, 0.0, -0.14],
+"collision_shapes": 0,
+"dimensions_m": [0.48, 0.073, 0.28],
+"id": "decor_pet_bowls",
+"name": "猫咪食水碗",
+"note": "以台面或地面为零点摆放的小型生活陈设。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_pet_bowls.tscn",
+"triangles": 3020
+}
+
+[node name="Feeding_mat" type="MeshInstance3D" parent="." unique_id=678603120]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.004, 0)
+material_override = ExtResource("1_h01sj")
+mesh = ExtResource("2_rw6w0")
+
+[node name="Bowl" type="MeshInstance3D" parent="." unique_id=1579719537]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.008, 0)
+material_override = ExtResource("3_xsc26")
+mesh = ExtResource("4_to4v1")
+
+[node name="Water_or_food" type="MeshInstance3D" parent="." unique_id=1906215603]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.034, 0)
+material_override = ExtResource("5_buj8p")
+mesh = SubResource("CylinderMesh_oe82b")
+
+[node name="Bowl2" type="MeshInstance3D" parent="." unique_id=1776677862]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.008, 0)
+material_override = ExtResource("3_xsc26")
+mesh = ExtResource("6_1l7io")
+
+[node name="Water_or_food2" type="MeshInstance3D" parent="." unique_id=1554213141]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.034, 0)
+material_override = ExtResource("7_drqiu")
+mesh = SubResource("CylinderMesh_fx0fx")

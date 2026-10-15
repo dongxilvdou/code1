@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "decor_lamp"
+albedo_color = Color(1, 0.94509804, 0.8156863, 1)
+roughness = 0.7
+emission_enabled = true
+emission = Color(1, 0.8862745, 0.6745098, 1)
+emission_energy_multiplier = 0.55

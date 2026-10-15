@@ -1,0 +1,112 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/charcoal.tres" id="1_umg5u"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_d44914dd69ac.res" id="2_doeai"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_sky.tres" id="3_3o41g"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_5b0177b24e65.res" id="4_7iyke"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_gold.tres" id="5_2gjai"]
+[ext_resource type="Material" path="res://furniture_pack/materials/sage.tres" id="6_k5iv3"]
+[ext_resource type="Material" path="res://furniture_pack/materials/sage_fabric.tres" id="7_wtr04"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_terra.tres" id="8_0grqw"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_88a982269f05.res" id="9_l7ffv"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_rfi3e"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_spgi5"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_mpssc"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_wxx5y"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1bewo"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.1261943
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1gxci"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.1261943
+radial_segments = 32
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_u7xsi"]
+size = Vector3(1.18, 0.7, 0.045)
+
+[node name="DecorTelevision" type="Node3D" unique_id=829682966]
+metadata/furniture = {
+"bounds_min_m": [-0.59, 0.0, -0.0225],
+"collision_shapes": 1,
+"dimensions_m": [1.18, 0.78, 0.157],
+"id": "decor_television",
+"name": "风景电视",
+"note": "画面为原创几何风景，无外部图片依赖。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_television.tscn",
+"triangles": 9008
+}
+
+[node name="Frame" type="MeshInstance3D" parent="." unique_id=1465829877]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+material_override = ExtResource("1_umg5u")
+mesh = ExtResource("2_doeai")
+
+[node name="Print_field" type="MeshInstance3D" parent="." unique_id=857700862]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0.025)
+material_override = ExtResource("3_3o41g")
+mesh = ExtResource("4_7iyke")
+
+[node name="Sun" type="MeshInstance3D" parent="." unique_id=1228779024]
+transform = Transform3D(0.175, 0, 0, 0, 0.175, 0, 0, 0, 0.004, 0.2242, 0.556, 0.031)
+material_override = ExtResource("5_2gjai")
+mesh = SubResource("SphereMesh_rfi3e")
+
+[node name="Layered_hills" type="MeshInstance3D" parent="." unique_id=771261656]
+transform = Transform3D(0.5074, 0, 0, 0, 0.175, 0, 0, 0, 0.006, -0.2596, 0.283, 0.034)
+material_override = ExtResource("6_k5iv3")
+mesh = SubResource("SphereMesh_spgi5")
+
+[node name="Layered_hills2" type="MeshInstance3D" parent="." unique_id=1366979028]
+transform = Transform3D(0.5074, 0, 0, 0, 0.217, 0, 0, 0, 0.006, 0, 0.283, 0.038)
+material_override = ExtResource("7_wtr04")
+mesh = SubResource("SphereMesh_mpssc")
+
+[node name="Layered_hills3" type="MeshInstance3D" parent="." unique_id=1524460008]
+transform = Transform3D(0.5074, 0, 0, 0, 0.259, 0, 0, 0, 0.006, 0.2596, 0.283, 0.042)
+material_override = ExtResource("8_0grqw")
+mesh = SubResource("SphereMesh_wxx5y")
+
+[node name="Screen_foot" type="MeshInstance3D" parent="." unique_id=1293981388]
+transform = Transform3D(1, 0, 0, 0, 0.83205026, 0.55470026, 0, -0.55470026, 0.83205026, -0.4, 0.067499995, 0.035)
+material_override = ExtResource("1_umg5u")
+mesh = SubResource("CylinderMesh_1bewo")
+
+[node name="Foot_pad" type="MeshInstance3D" parent="." unique_id=1727915285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.004, 0.07)
+material_override = ExtResource("1_umg5u")
+mesh = ExtResource("9_l7ffv")
+
+[node name="Screen_foot2" type="MeshInstance3D" parent="." unique_id=972435815]
+transform = Transform3D(1, 0, 0, 0, 0.83205026, 0.55470026, 0, -0.55470026, 0.83205026, 0.4, 0.067499995, 0.035)
+material_override = ExtResource("1_umg5u")
+mesh = SubResource("CylinderMesh_1gxci")
+
+[node name="Foot_pad2" type="MeshInstance3D" parent="." unique_id=312001809]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.004, 0.07)
+material_override = ExtResource("1_umg5u")
+mesh = ExtResource("9_l7ffv")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=921705598]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=2039147080]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+shape = SubResource("BoxShape3D_u7xsi")

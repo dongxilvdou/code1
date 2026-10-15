@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/linen.tres" id="1_ctpdt"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_pendant_Pleated_shade.res" id="2_rdfs6"]
+[ext_resource type="Material" path="res://furniture_pack/materials/charcoal.tres" id="3_jq87g"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="4_a0o0k"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_lamp.tres" id="5_kr3bc"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_j5o24"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.35
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_t5jbw"]
+top_radius = 0.07
+bottom_radius = 0.07
+height = 0.029999971
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_o0ve3"]
+top_radius = 0.27
+bottom_radius = 0.27
+height = 0.005000001
+radial_segments = 32
+
+[node name="DecorPendant" type="Node3D" unique_id=1530127696]
+metadata/furniture = {
+"bounds_min_m": [-0.3, 0.0, -0.3],
+"collision_shapes": 0,
+"dimensions_m": [0.6, 0.65, 0.6],
+"id": "decor_pendant",
+"name": "亚麻餐吊灯",
+"note": "发光材质用于灯罩细节，照明由房间光源统一控制。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_pendant.tscn",
+"triangles": 1792
+}
+
+[node name="Pleated_shade" type="MeshInstance3D" parent="." unique_id=1062325856]
+material_override = ExtResource("1_ctpdt")
+mesh = ExtResource("2_rdfs6")
+
+[node name="Cable" type="MeshInstance3D" parent="." unique_id=20683940]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.445, 0)
+material_override = ExtResource("3_jq87g")
+mesh = SubResource("CylinderMesh_j5o24")
+
+[node name="Canopy" type="MeshInstance3D" parent="." unique_id=1632401305]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.635, 0)
+material_override = ExtResource("4_a0o0k")
+mesh = SubResource("CylinderMesh_t5jbw")
+
+[node name="Diffuser" type="MeshInstance3D" parent="." unique_id=1214023787]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0145000005, 0)
+material_override = ExtResource("5_kr3bc")
+mesh = SubResource("CylinderMesh_o0ve3")

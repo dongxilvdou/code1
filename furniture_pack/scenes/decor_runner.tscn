@@ -1,0 +1,87 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/rust.tres" id="1_58l63"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_ed2911141940.res" id="2_rstbh"]
+[ext_resource type="Material" path="res://furniture_pack/materials/cream.tres" id="3_yrhw7"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_8ac364944bd2.res" id="4_qpr5t"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_f40fdf01b2d3.res" id="5_hxxoq"]
+[ext_resource type="Material" path="res://furniture_pack/materials/linen.tres" id="6_387wu"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_6ebfbef8fdf5.res" id="7_udj6c"]
+
+[node name="DecorRunner" type="Node3D" unique_id=1430930828]
+metadata/furniture = {
+"bounds_min_m": [-0.35, 0.0, -1.2],
+"collision_shapes": 0,
+"dimensions_m": [0.7000000000000001, 0.015, 2.4],
+"id": "decor_runner",
+"name": "玄关长毯",
+"note": "薄织物无阻挡碰撞，避免猫脚与地面接缝卡住。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_runner.tscn",
+"triangles": 12636
+}
+
+[node name="Woven_base" type="MeshInstance3D" parent="." unique_id=1344484074]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.006, 0)
+material_override = ExtResource("1_58l63")
+mesh = ExtResource("2_rstbh")
+
+[node name="Long_border" type="MeshInstance3D" parent="." unique_id=1870445403]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, 0.013, 0)
+material_override = ExtResource("3_yrhw7")
+mesh = ExtResource("4_qpr5t")
+
+[node name="End_border" type="MeshInstance3D" parent="." unique_id=349363880]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.013, -1.13)
+material_override = ExtResource("3_yrhw7")
+mesh = ExtResource("5_hxxoq")
+
+[node name="Long_border2" type="MeshInstance3D" parent="." unique_id=1014337314]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, 0.013, 0)
+material_override = ExtResource("3_yrhw7")
+mesh = ExtResource("4_qpr5t")
+
+[node name="End_border2" type="MeshInstance3D" parent="." unique_id=725520116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.013, 1.13)
+material_override = ExtResource("3_yrhw7")
+mesh = ExtResource("5_hxxoq")
+
+[node name="Woven_accent" type="MeshInstance3D" parent="." unique_id=279758436]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent2" type="MeshInstance3D" parent="." unique_id=1617955711]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.175, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent3" type="MeshInstance3D" parent="." unique_id=1345328934]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.105, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent4" type="MeshInstance3D" parent="." unique_id=1354736028]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.035, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent5" type="MeshInstance3D" parent="." unique_id=892250674]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.035, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent6" type="MeshInstance3D" parent="." unique_id=753902940]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.105, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent7" type="MeshInstance3D" parent="." unique_id=320321853]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")
+
+[node name="Woven_accent8" type="MeshInstance3D" parent="." unique_id=723962922]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.245, 0.014, 0)
+material_override = ExtResource("6_387wu")
+mesh = ExtResource("7_udj6c")

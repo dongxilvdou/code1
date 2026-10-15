@@ -1,0 +1,33 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/sage_fabric.tres" id="1_ll6lv"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_8d828e3dc008.res" id="2_uja0j"]
+[ext_resource type="Material" path="res://furniture_pack/materials/cream.tres" id="3_g3tih"]
+
+[node name="DecorTowels" type="Node3D" unique_id=429978624]
+metadata/furniture = {
+"bounds_min_m": [-0.17, 0.0, -0.12],
+"collision_shapes": 0,
+"dimensions_m": [0.34, 0.14, 0.24],
+"id": "decor_towels",
+"name": "叠放毛巾",
+"note": "以台面或地面为零点摆放的小型生活陈设。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_towels.tscn",
+"triangles": 2916
+}
+
+[node name="Folded_towel" type="MeshInstance3D" parent="." unique_id=594435157]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0)
+material_override = ExtResource("1_ll6lv")
+mesh = ExtResource("2_uja0j")
+
+[node name="Folded_towel2" type="MeshInstance3D" parent="." unique_id=1274771031]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07, 0)
+material_override = ExtResource("3_g3tih")
+mesh = ExtResource("2_uja0j")
+
+[node name="Folded_towel3" type="MeshInstance3D" parent="." unique_id=1755598334]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.115, 0)
+material_override = ExtResource("1_ll6lv")
+mesh = ExtResource("2_uja0j")
