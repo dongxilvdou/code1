@@ -1,0 +1,237 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/walnut.tres" id="1_50bgj"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_1c6104a13de5.res" id="2_edg24"]
+[ext_resource type="Material" path="res://furniture_pack/materials/oak.tres" id="3_lra8f"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_c1377fec20b9.res" id="4_eiysl"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_a96582f37100.res" id="5_04j5f"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_239245e220d7.res" id="6_gw7wq"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_30da02b17549.res" id="7_d84u4"]
+[ext_resource type="Material" path="res://furniture_pack/materials/sage.tres" id="8_0phbx"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_450d6ddd6ebb.res" id="9_fb1y4"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_7162fc7dfd74.res" id="10_jwdx1"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_22ab8ee13fce.res" id="11_pxgxx"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="12_ahqwf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hxulc"]
+size = Vector3(1.36, 0.11, 0.54)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q4t38"]
+size = Vector3(0.035, 2.01, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5kwno"]
+size = Vector3(0.035, 2.01, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_be8ir"]
+size = Vector3(1.33, 2.01, 0.03)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xcmp3"]
+size = Vector3(1.4, 0.036, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1aai5"]
+size = Vector3(1.4, 0.036, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vmjf3"]
+size = Vector3(1.46, 0.05, 0.65)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jtw8g"]
+size = Vector3(1.4, 2, 0.045)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_hp6h0"]
+top_radius = 0.006
+bottom_radius = 0.006
+height = 0.20000005
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jferf"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_adh7o"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ujr0b"]
+top_radius = 0.006
+bottom_radius = 0.006
+height = 0.20000005
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_25n43"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_mj777"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[node name="Wardrobe" type="Node3D" unique_id=541191151]
+metadata/furniture = {
+"bounds_min_m": [-0.73, 0.0, -0.325],
+"collision_shapes": 8,
+"dimensions_m": [1.46, 2.17, 0.6910000000000001],
+"id": "wardrobe",
+"name": "双门衣柜",
+"note": "高 2.17 m；适配 3 m 层高与现有门洞。柜门为静态部件。",
+"room": "卧室",
+"scene": "res://furniture_pack/scenes/wardrobe.tscn",
+"triangles": 18828
+}
+
+[node name="Plinth" type="MeshInstance3D" parent="." unique_id=1102170502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.055, 0)
+material_override = ExtResource("1_50bgj")
+mesh = ExtResource("2_edg24")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=1975576669]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=701778502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.055, 0)
+shape = SubResource("BoxShape3D_hxulc")
+
+[node name="Solid_001" type="CollisionShape3D" parent="Collision" unique_id=1668095130]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6825, 1.115, 0)
+shape = SubResource("BoxShape3D_q4t38")
+
+[node name="Solid_002" type="CollisionShape3D" parent="Collision" unique_id=1318788531]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6825, 1.115, 0)
+shape = SubResource("BoxShape3D_5kwno")
+
+[node name="Solid_003" type="CollisionShape3D" parent="Collision" unique_id=1719967145]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.115, -0.285)
+shape = SubResource("BoxShape3D_be8ir")
+
+[node name="Solid_004" type="CollisionShape3D" parent="Collision" unique_id=1470658662]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.128, 0)
+shape = SubResource("BoxShape3D_xcmp3")
+
+[node name="Solid_005" type="CollisionShape3D" parent="Collision" unique_id=174744188]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.102, 0)
+shape = SubResource("BoxShape3D_1aai5")
+
+[node name="Solid_006" type="CollisionShape3D" parent="Collision" unique_id=1483102286]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.145, 0)
+shape = SubResource("BoxShape3D_vmjf3")
+
+[node name="Solid_007" type="CollisionShape3D" parent="Collision" unique_id=1521858097]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.12, 0.31)
+shape = SubResource("BoxShape3D_jtw8g")
+
+[node name="Cabinet_side" type="MeshInstance3D" parent="." unique_id=1641860640]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6825, 1.115, 0)
+material_override = ExtResource("3_lra8f")
+mesh = ExtResource("4_eiysl")
+
+[node name="Cabinet_side2" type="MeshInstance3D" parent="." unique_id=1310964063]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6825, 1.115, 0)
+material_override = ExtResource("3_lra8f")
+mesh = ExtResource("4_eiysl")
+
+[node name="Cabinet_back" type="MeshInstance3D" parent="." unique_id=411026206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.115, -0.285)
+material_override = ExtResource("3_lra8f")
+mesh = ExtResource("5_04j5f")
+
+[node name="Cabinet_shelf" type="MeshInstance3D" parent="." unique_id=1670913681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.128, 0)
+material_override = ExtResource("3_lra8f")
+mesh = ExtResource("6_gw7wq")
+
+[node name="Cabinet_shelf2" type="MeshInstance3D" parent="." unique_id=1623290576]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.102, 0)
+material_override = ExtResource("3_lra8f")
+mesh = ExtResource("6_gw7wq")
+
+[node name="Crown" type="MeshInstance3D" parent="." unique_id=47972192]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.145, 0)
+material_override = ExtResource("3_lra8f")
+mesh = ExtResource("7_d84u4")
+
+[node name="Door_inset" type="MeshInstance3D" parent="." unique_id=1812187899]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.345, 1.115, 0.313)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("9_fb1y4")
+
+[node name="Door_stile" type="MeshInstance3D" parent="." unique_id=1529852999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6675, 1.115, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("10_jwdx1")
+
+[node name="Door_rail" type="MeshInstance3D" parent="." unique_id=1125367627]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.345, 0.15250003, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("11_pxgxx")
+
+[node name="Door_stile2" type="MeshInstance3D" parent="." unique_id=721312275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.022500008, 1.115, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("10_jwdx1")
+
+[node name="Door_rail2" type="MeshInstance3D" parent="." unique_id=1805952407]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.345, 2.0774999, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("11_pxgxx")
+
+[node name="Door_inset2" type="MeshInstance3D" parent="." unique_id=1912075609]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.345, 1.115, 0.313)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("9_fb1y4")
+
+[node name="Door_stile3" type="MeshInstance3D" parent="." unique_id=143211954]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022500008, 1.115, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("10_jwdx1")
+
+[node name="Door_rail3" type="MeshInstance3D" parent="." unique_id=840069261]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.345, 0.15250003, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("11_pxgxx")
+
+[node name="Door_stile4" type="MeshInstance3D" parent="." unique_id=371833311]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6675, 1.115, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("10_jwdx1")
+
+[node name="Door_rail4" type="MeshInstance3D" parent="." unique_id=460800837]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.345, 2.0774999, 0.325)
+material_override = ExtResource("8_0phbx")
+mesh = ExtResource("11_pxgxx")
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=2106841635]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.055, 1.03, 0.36)
+material_override = ExtResource("12_ahqwf")
+mesh = SubResource("CylinderMesh_hp6h0")
+
+[node name="Handle_mount" type="MeshInstance3D" parent="." unique_id=580251009]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.055, 0.92999995, 0.34750003)
+material_override = ExtResource("12_ahqwf")
+mesh = SubResource("CylinderMesh_jferf")
+
+[node name="Handle_mount2" type="MeshInstance3D" parent="." unique_id=401840687]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.055, 1.13, 0.34750003)
+material_override = ExtResource("12_ahqwf")
+mesh = SubResource("CylinderMesh_adh7o")
+
+[node name="Handle2" type="MeshInstance3D" parent="." unique_id=627686810]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.055, 1.03, 0.36)
+material_override = ExtResource("12_ahqwf")
+mesh = SubResource("CylinderMesh_ujr0b")
+
+[node name="Handle_mount3" type="MeshInstance3D" parent="." unique_id=1019233392]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.055, 0.92999995, 0.34750003)
+material_override = ExtResource("12_ahqwf")
+mesh = SubResource("CylinderMesh_25n43")
+
+[node name="Handle_mount4" type="MeshInstance3D" parent="." unique_id=1959449562]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.055, 1.13, 0.34750003)
+material_override = ExtResource("12_ahqwf")
+mesh = SubResource("CylinderMesh_mj777")

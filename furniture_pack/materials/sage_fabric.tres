@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://furniture_pack/materials/surface.gdshader" id="1_ug87y"]
+
+[resource]
+resource_name = "sage_fabric"
+render_priority = 0
+shader = ExtResource("1_ug87y")
+shader_parameter/tint = Color(0.47058824, 0.5372549, 0.46666667, 1)
+shader_parameter/finish = 0.92
+shader_parameter/pattern = 2

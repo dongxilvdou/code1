@@ -1,0 +1,129 @@
+{
+	"capsule_m": {
+		"height": 0.288,
+		"radius": 0.096
+	},
+	"failures": [],
+	"items": [
+		{
+			"cat_route_samples": 0,
+			"colliders": 12,
+			"id": "sofa",
+			"meshes": 18
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 10,
+			"id": "armchair",
+			"meshes": 12
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 6,
+			"id": "coffee_table",
+			"meshes": 8
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 14,
+			"id": "tv_console",
+			"meshes": 42
+		},
+		{
+			"cat_route_samples": 41,
+			"colliders": 9,
+			"id": "dining_table",
+			"meshes": 9
+		},
+		{
+			"cat_route_samples": 41,
+			"colliders": 11,
+			"id": "dining_chair",
+			"meshes": 11
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 8,
+			"id": "kitchen_cabinet",
+			"meshes": 31
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 12,
+			"id": "sink_cabinet",
+			"meshes": 36
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 2,
+			"id": "cooker",
+			"meshes": 23
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 3,
+			"id": "fridge",
+			"meshes": 19
+		},
+		{
+			"cat_route_samples": 41,
+			"colliders": 7,
+			"id": "bed",
+			"meshes": 17
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 11,
+			"id": "nightstand",
+			"meshes": 18
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 8,
+			"id": "wardrobe",
+			"meshes": 23
+		},
+		{
+			"cat_route_samples": 41,
+			"colliders": 7,
+			"id": "desk",
+			"meshes": 15
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 9,
+			"id": "bookcase",
+			"meshes": 39
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 11,
+			"id": "bath_vanity",
+			"meshes": 32
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 4,
+			"id": "toilet",
+			"meshes": 6
+		},
+		{
+			"cat_route_samples": 41,
+			"colliders": 18,
+			"id": "garden_bench",
+			"meshes": 18
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 6,
+			"id": "cat_tree",
+			"meshes": 11
+		},
+		{
+			"cat_route_samples": 0,
+			"colliders": 2,
+			"id": "floor_lamp",
+			"meshes": 6
+		}
+	]
+}

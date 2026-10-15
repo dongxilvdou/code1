@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://furniture_pack/materials/surface.gdshader" id="1_tpvjr"]
+
+[resource]
+resource_name = "linen"
+render_priority = 0
+shader = ExtResource("1_tpvjr")
+shader_parameter/tint = Color(0.8392157, 0.7764706, 0.6666667, 1)
+shader_parameter/finish = 0.93
+shader_parameter/pattern = 2

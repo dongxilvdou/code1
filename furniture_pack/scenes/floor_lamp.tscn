@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/charcoal.tres" id="1_gn4e1"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="2_kj1kw"]
+[ext_resource type="Material" path="res://furniture_pack/materials/cream.tres" id="3_mmc3w"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/floor_lamp_Linen_shade.res" id="4_js4o1"]
+[ext_resource type="Material" path="res://furniture_pack/materials/linen.tres" id="5_wvorx"]
+[ext_resource type="Material" path="res://furniture_pack/materials/ivory.tres" id="6_eutfo"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1ekbs"]
+top_radius = 0.18
+bottom_radius = 0.19
+height = 0.04
+radial_segments = 32
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_emhtn"]
+size = Vector3(0.38, 0.04, 0.38)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3f0jh"]
+size = Vector3(0.028, 1.46, 0.028)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_etdgu"]
+top_radius = 0.014
+bottom_radius = 0.014
+height = 1.46
+radial_segments = 32
+
+[sub_resource type="TorusMesh" id="TorusMesh_b5qkv"]
+inner_radius = 0.236
+outer_radius = 0.244
+rings = 48
+ring_segments = 10
+
+[sub_resource type="TorusMesh" id="TorusMesh_5m803"]
+inner_radius = 0.146
+outer_radius = 0.154
+rings = 48
+ring_segments = 10
+
+[sub_resource type="SphereMesh" id="SphereMesh_2aj53"]
+radial_segments = 32
+rings = 16
+
+[node name="FloorLamp" type="Node3D" unique_id=2099748414]
+metadata/furniture = {
+"bounds_min_m": [-0.24400002, 0.0, -0.24400002],
+"collision_shapes": 2,
+"dimensions_m": [0.488, 1.6340000000000001, 0.488],
+"id": "floor_lamp",
+"name": "亚麻黄铜落地灯",
+"note": "高 1.634 m；灯罩开放，预设不带实时光源，摆放后按房间需要添加。",
+"room": "客厅",
+"scene": "res://furniture_pack/scenes/floor_lamp.tscn",
+"triangles": 4160
+}
+
+[node name="Weighted_base" type="MeshInstance3D" parent="." unique_id=1429838486]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+material_override = ExtResource("1_gn4e1")
+mesh = SubResource("CylinderMesh_1ekbs")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=1294750726]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=533227534]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+shape = SubResource("BoxShape3D_emhtn")
+
+[node name="Solid_001" type="CollisionShape3D" parent="Collision" unique_id=1707501560]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.77, 0)
+shape = SubResource("BoxShape3D_3f0jh")
+
+[node name="Stem" type="MeshInstance3D" parent="." unique_id=1971473149]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.77, 0)
+material_override = ExtResource("2_kj1kw")
+mesh = SubResource("CylinderMesh_etdgu")
+
+[node name="Linen_shade" type="MeshInstance3D" parent="." unique_id=1921396520]
+material_override = ExtResource("3_mmc3w")
+mesh = ExtResource("4_js4o1")
+
+[node name="Shade_binding" type="MeshInstance3D" parent="." unique_id=2121594525]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.26, 0)
+material_override = ExtResource("5_wvorx")
+mesh = SubResource("TorusMesh_b5qkv")
+
+[node name="Shade_binding2" type="MeshInstance3D" parent="." unique_id=415577988]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.63, 0)
+material_override = ExtResource("5_wvorx")
+mesh = SubResource("TorusMesh_5m803")
+
+[node name="Bulb" type="MeshInstance3D" parent="." unique_id=1215604532]
+transform = Transform3D(0.07, 0, 0, 0, 0.1, 0, 0, 0, 0.07, 0, 1.41, 0)
+material_override = ExtResource("6_eutfo")
+mesh = SubResource("SphereMesh_2aj53")

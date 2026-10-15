@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "sage"
+albedo_color = Color(0.5686275, 0.6313726, 0.54509807, 1)
+roughness = 0.64

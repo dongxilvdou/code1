@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="1_b4oyf"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/toilet_Pedestal.res" id="2_qqafc"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/toilet_Open_bowl.res" id="3_eqv4y"]
+[ext_resource type="Material" path="res://furniture_pack/materials/ivory.tres" id="4_1lnp3"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_0be3796ef56b.res" id="5_s0rns"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_1b343edeaf60.res" id="6_n1cla"]
+[ext_resource type="Material" path="res://furniture_pack/materials/steel.tres" id="7_sxiov"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_06v8s"]
+inner_radius = 0.168
+outer_radius = 0.212
+rings = 48
+ring_segments = 10
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_boqfi"]
+size = Vector3(0.39, 0.43, 0.18)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_x0ieh"]
+size = Vector3(0.4, 0.035, 0.19)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tabla"]
+size = Vector3(0.27, 0.36, 0.37)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_p6m33"]
+size = Vector3(0.39, 0.11, 0.55)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_gakxq"]
+top_radius = 0.022
+bottom_radius = 0.022
+height = 0.004999995
+radial_segments = 32
+
+[node name="Toilet" type="Node3D" unique_id=257433885]
+metadata/furniture = {
+"bounds_min_m": [-0.212, 0.0, -0.315],
+"collision_shapes": 4,
+"dimensions_m": [0.424, 0.796, 0.682],
+"id": "toilet",
+"name": "圆润陶瓷坐便器",
+"note": "座圈高 0.442 m；凹盆与底座独立建模。",
+"room": "卫浴",
+"scene": "res://furniture_pack/scenes/toilet.tscn",
+"triangles": 4824
+}
+
+[node name="Pedestal" type="MeshInstance3D" parent="." unique_id=36444447]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.055)
+material_override = ExtResource("1_b4oyf")
+mesh = ExtResource("2_qqafc")
+
+[node name="Open_bowl" type="MeshInstance3D" parent="." unique_id=695745996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.07)
+material_override = ExtResource("1_b4oyf")
+mesh = ExtResource("3_eqv4y")
+
+[node name="Seat_ring" type="MeshInstance3D" parent="." unique_id=1635230870]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.4, 0, 0.42, 0.07)
+material_override = ExtResource("4_1lnp3")
+mesh = SubResource("TorusMesh_06v8s")
+
+[node name="Cistern" type="MeshInstance3D" parent="." unique_id=1267155706]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.545, -0.22)
+material_override = ExtResource("1_b4oyf")
+mesh = ExtResource("5_s0rns")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=348799018]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=1947904973]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.545, -0.22)
+shape = SubResource("BoxShape3D_boqfi")
+
+[node name="Solid_001" type="CollisionShape3D" parent="Collision" unique_id=2071781923]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.772, -0.22)
+shape = SubResource("BoxShape3D_x0ieh")
+
+[node name="Solid_002" type="CollisionShape3D" parent="Collision" unique_id=1542247776]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0.07)
+shape = SubResource("BoxShape3D_tabla")
+
+[node name="Solid_003" type="CollisionShape3D" parent="Collision" unique_id=1645944675]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0.07)
+shape = SubResource("BoxShape3D_p6m33")
+
+[node name="Cistern_lid" type="MeshInstance3D" parent="." unique_id=1976877256]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.772, -0.22)
+material_override = ExtResource("1_b4oyf")
+mesh = ExtResource("6_n1cla")
+
+[node name="Flush_button" type="MeshInstance3D" parent="." unique_id=1534152503]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.7935, -0.22)
+material_override = ExtResource("7_sxiov")
+mesh = SubResource("CylinderMesh_gakxq")

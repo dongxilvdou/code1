@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://furniture_pack/materials/surface.gdshader" id="1_h44jx"]
+
+[resource]
+resource_name = "walnut"
+render_priority = 0
+shader = ExtResource("1_h44jx")
+shader_parameter/tint = Color(0.38431373, 0.27450982, 0.18039216, 1)
+shader_parameter/finish = 0.7
+shader_parameter/pattern = 1
