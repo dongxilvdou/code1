@@ -1,0 +1,211 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/walnut.tres" id="1_eifs3"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="2_usdhq"]
+[ext_resource type="Material" path="res://furniture_pack/materials/linen.tres" id="3_gor2a"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_curtains_Pleated_linen.res" id="4_e6p0g"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_curtains_Pleated_linen2.res" id="5_bijy0"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1jevv"]
+top_radius = 0.017
+bottom_radius = 0.017
+height = 2.36
+radial_segments = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_kj3y3"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="TorusMesh" id="TorusMesh_ieyuj"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_rpy6c"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_jf4wh"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_8fwmf"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_g1srn"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_72p4j"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_15usa"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_wh4s3"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="TorusMesh" id="TorusMesh_a5ebx"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_gg4rl"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_ob6va"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_nba3e"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_x4l1p"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_4qo0b"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_gcach"]
+inner_radius = 0.022
+outer_radius = 0.026
+rings = 16
+ring_segments = 8
+
+[node name="DecorCurtains" type="Node3D" unique_id=1572231690]
+metadata/furniture = {
+"bounds_min_m": [-1.2348508, 0.0, -0.034850694],
+"collision_shapes": 0,
+"dimensions_m": [2.47, 2.4050000000000002, 0.09],
+"id": "decor_curtains",
+"name": "开敞亚麻窗帘",
+"note": "基准杆宽 2.44 m；按窗宽沿 X 轴调整，中央保持敞开。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_curtains.tscn",
+"triangles": 7680
+}
+
+[node name="Curtain_pole" type="MeshInstance3D" parent="." unique_id=474467516]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 2.37, 0)
+material_override = ExtResource("1_eifs3")
+mesh = SubResource("CylinderMesh_1jevv")
+
+[node name="Finial" type="MeshInstance3D" parent="." unique_id=397122806]
+transform = Transform3D(0.07, 0, 0, 0, 0.07, 0, 0, 0, 0.07, -1.2, 2.37, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("SphereMesh_kj3y3")
+
+[node name="Pleated_linen" type="MeshInstance3D" parent="." unique_id=283653227]
+material_override = ExtResource("3_gor2a")
+mesh = ExtResource("4_e6p0g")
+
+[node name="Curtain_ring" type="MeshInstance3D" parent="." unique_id=25958911]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -1.108, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_ieyuj")
+
+[node name="Curtain_ring2" type="MeshInstance3D" parent="." unique_id=1118658805]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -1.042, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_rpy6c")
+
+[node name="Curtain_ring3" type="MeshInstance3D" parent="." unique_id=545376603]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.976, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_jf4wh")
+
+[node name="Curtain_ring4" type="MeshInstance3D" parent="." unique_id=1391685194]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.91, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_8fwmf")
+
+[node name="Curtain_ring5" type="MeshInstance3D" parent="." unique_id=1753302819]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.844, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_g1srn")
+
+[node name="Curtain_ring6" type="MeshInstance3D" parent="." unique_id=560247367]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.778, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_72p4j")
+
+[node name="Curtain_ring7" type="MeshInstance3D" parent="." unique_id=1413290105]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.712, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_15usa")
+
+[node name="Finial2" type="MeshInstance3D" parent="." unique_id=838532025]
+transform = Transform3D(0.07, 0, 0, 0, 0.07, 0, 0, 0, 0.07, 1.2, 2.37, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("SphereMesh_wh4s3")
+
+[node name="Pleated_linen2" type="MeshInstance3D" parent="." unique_id=410020384]
+material_override = ExtResource("3_gor2a")
+mesh = ExtResource("5_bijy0")
+
+[node name="Curtain_ring8" type="MeshInstance3D" parent="." unique_id=1262437585]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.712, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_a5ebx")
+
+[node name="Curtain_ring9" type="MeshInstance3D" parent="." unique_id=702752525]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.778, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_gg4rl")
+
+[node name="Curtain_ring10" type="MeshInstance3D" parent="." unique_id=964617660]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.844, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_ob6va")
+
+[node name="Curtain_ring11" type="MeshInstance3D" parent="." unique_id=1013464688]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.91, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_nba3e")
+
+[node name="Curtain_ring12" type="MeshInstance3D" parent="." unique_id=1366977402]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.976, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_x4l1p")
+
+[node name="Curtain_ring13" type="MeshInstance3D" parent="." unique_id=716260919]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 1.042, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_4qo0b")
+
+[node name="Curtain_ring14" type="MeshInstance3D" parent="." unique_id=844105345]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 1.108, 2.33, 0)
+material_override = ExtResource("2_usdhq")
+mesh = SubResource("TorusMesh_gcach")

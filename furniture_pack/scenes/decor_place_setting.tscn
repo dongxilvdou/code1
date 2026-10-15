@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="1_uhvx5"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_place_setting_Cup.res" id="2_nwp8a"]
+[ext_resource type="Material" path="res://furniture_pack/materials/steel.tres" id="3_trfcb"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_bdaa6ab13e6e.res" id="4_tjh7f"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_4lpq7"]
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.012
+radial_segments = 32
+
+[sub_resource type="TorusMesh" id="TorusMesh_5xeox"]
+inner_radius = 0.106
+outer_radius = 0.118
+rings = 48
+ring_segments = 10
+
+[node name="DecorPlaceSetting" type="Node3D" unique_id=354657419]
+metadata/furniture = {
+"bounds_min_m": [-0.156, 0.0, -0.14],
+"collision_shapes": 0,
+"dimensions_m": [0.376, 0.08, 0.26],
+"id": "decor_place_setting",
+"name": "瓷盘与茶杯餐具",
+"note": "以台面或地面为零点摆放的小型生活陈设。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_place_setting.tscn",
+"triangles": 3928
+}
+
+[node name="Plate" type="MeshInstance3D" parent="." unique_id=1893040491]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.006, 0)
+material_override = ExtResource("1_uhvx5")
+mesh = SubResource("CylinderMesh_4lpq7")
+
+[node name="Plate_rim" type="MeshInstance3D" parent="." unique_id=1737121322]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.014, 0)
+material_override = ExtResource("1_uhvx5")
+mesh = SubResource("TorusMesh_5xeox")
+
+[node name="Cup" type="MeshInstance3D" parent="." unique_id=1816419292]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0, -0.1)
+material_override = ExtResource("1_uhvx5")
+mesh = ExtResource("2_nwp8a")
+
+[node name="Cutlery" type="MeshInstance3D" parent="." unique_id=1186445568]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.005, 0)
+material_override = ExtResource("3_trfcb")
+mesh = ExtResource("4_tjh7f")
+
+[node name="Cutlery2" type="MeshInstance3D" parent="." unique_id=855669099]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.005, 0)
+material_override = ExtResource("3_trfcb")
+mesh = ExtResource("4_tjh7f")

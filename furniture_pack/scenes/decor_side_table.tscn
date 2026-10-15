@@ -1,0 +1,74 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/walnut.tres" id="1_x1h0y"]
+[ext_resource type="Material" path="res://furniture_pack/materials/oak.tres" id="2_wa4ad"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_yvbyk"]
+top_radius = 0.15
+bottom_radius = 0.16
+height = 0.03
+radial_segments = 32
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_b4l3e"]
+size = Vector3(0.32, 0.03, 0.32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_od2if"]
+size = Vector3(0.052, 0.46, 0.052)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_525aq"]
+size = Vector3(0.46, 0.03999996, 0.46)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_5vyb6"]
+top_radius = 0.026
+bottom_radius = 0.026
+height = 0.46
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_xcid6"]
+top_radius = 0.23
+bottom_radius = 0.23
+height = 0.03999996
+radial_segments = 32
+
+[node name="DecorSideTable" type="Node3D" unique_id=2072645580]
+metadata/furniture = {
+"bounds_min_m": [-0.23, 0.0, -0.23],
+"collision_shapes": 3,
+"dimensions_m": [0.46, 0.53, 0.46],
+"id": "decor_side_table",
+"name": "圆形边几",
+"note": "",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_side_table.tscn",
+"triangles": 1152
+}
+
+[node name="Foot" type="MeshInstance3D" parent="." unique_id=55698619]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, 0)
+material_override = ExtResource("1_x1h0y")
+mesh = SubResource("CylinderMesh_yvbyk")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=1417948243]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=645500201]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, 0)
+shape = SubResource("BoxShape3D_b4l3e")
+
+[node name="Solid_001" type="CollisionShape3D" parent="Collision" unique_id=1912019140]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
+shape = SubResource("BoxShape3D_od2if")
+
+[node name="Solid_002" type="CollisionShape3D" parent="Collision" unique_id=1325172776]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.51, 0)
+shape = SubResource("BoxShape3D_525aq")
+
+[node name="Pedestal" type="MeshInstance3D" parent="." unique_id=1718029229]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
+material_override = ExtResource("1_x1h0y")
+mesh = SubResource("CylinderMesh_5vyb6")
+
+[node name="Round_top" type="MeshInstance3D" parent="." unique_id=1181516196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.51, 0)
+material_override = ExtResource("2_wa4ad")
+mesh = SubResource("CylinderMesh_xcid6")

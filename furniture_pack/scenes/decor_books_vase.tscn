@@ -1,0 +1,102 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/book_green.tres" id="1_i0x48"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_1233d2af51e3.res" id="2_o3kde"]
+[ext_resource type="Material" path="res://furniture_pack/materials/book_red.tres" id="3_u85uf"]
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="4_pkolk"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_books_vase_Vase.res" id="5_q77bo"]
+[ext_resource type="Material" path="res://furniture_pack/materials/walnut.tres" id="6_wvy1f"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_gold.tres" id="7_3puru"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_8yoig"]
+top_radius = 0.002
+bottom_radius = 0.002
+height = 0.22561029
+radial_segments = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_6v4ls"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_kdunq"]
+top_radius = 0.002
+bottom_radius = 0.002
+height = 0.255
+radial_segments = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_bij28"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_40jr6"]
+top_radius = 0.002
+bottom_radius = 0.002
+height = 0.29427877
+radial_segments = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_unslh"]
+radial_segments = 32
+rings = 16
+
+[node name="DecorBooksVase" type="Node3D" unique_id=1204573567]
+metadata/furniture = {
+"bounds_min_m": [-0.20370087, 0.0, -0.100258954],
+"collision_shapes": 0,
+"dimensions_m": [0.454, 0.433, 0.201],
+"id": "decor_books_vase",
+"name": "书册与花瓶",
+"note": "以台面或地面为零点摆放的小型生活陈设。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_books_vase.tscn",
+"triangles": 8100
+}
+
+[node name="Book" type="MeshInstance3D" parent="." unique_id=90773137]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.018, 0)
+material_override = ExtResource("1_i0x48")
+mesh = ExtResource("2_o3kde")
+
+[node name="Book2" type="MeshInstance3D" parent="." unique_id=627677672]
+transform = Transform3D(0.9950042, 0, 0.09983342, 0, 1, 0, -0.09983342, 0, 0.9950042, -0.08, 0.048, 0)
+material_override = ExtResource("3_u85uf")
+mesh = ExtResource("2_o3kde")
+
+[node name="Book3" type="MeshInstance3D" parent="." unique_id=1561286541]
+transform = Transform3D(0.9800666, 0, 0.19866933, 0, 1, 0, -0.19866933, 0, 0.9800666, -0.08, 0.078, 0)
+material_override = ExtResource("1_i0x48")
+mesh = ExtResource("2_o3kde")
+
+[node name="Vase" type="MeshInstance3D" parent="." unique_id=352560995]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0, 0)
+material_override = ExtResource("4_pkolk")
+mesh = ExtResource("5_q77bo")
+
+[node name="Dried_stem" type="MeshInstance3D" parent="." unique_id=968408489]
+transform = Transform3D(0.984085, -0.17729692, -0.011936232, 0.17729692, 0.9751328, 0.13297267, -0.011936232, -0.13297267, 0.9910478, 0.15, 0.23, -0.015)
+material_override = ExtResource("6_wvy1f")
+mesh = SubResource("CylinderMesh_8yoig")
+
+[node name="Dried_flower" type="MeshInstance3D" parent="." unique_id=424851252]
+transform = Transform3D(0.03, 0, 0, 0, 0.045, 0, 0, 0, 0.03, 0.13, 0.34, -0.03)
+material_override = ExtResource("7_3puru")
+mesh = SubResource("SphereMesh_6v4ls")
+
+[node name="Dried_stem2" type="MeshInstance3D" parent="." unique_id=1094567230]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.2475, 0)
+material_override = ExtResource("6_wvy1f")
+mesh = SubResource("CylinderMesh_kdunq")
+
+[node name="Dried_flower2" type="MeshInstance3D" parent="." unique_id=824914944]
+transform = Transform3D(0.03, 0, 0, 0, 0.045, 0, 0, 0, 0.03, 0.17, 0.375, 0)
+material_override = ExtResource("7_3puru")
+mesh = SubResource("SphereMesh_bij28")
+
+[node name="Dried_stem3" type="MeshInstance3D" parent="." unique_id=1260135597]
+transform = Transform3D(0.99069446, 0.13592553, -0.006979145, -0.13592553, 0.9854601, -0.10194416, -0.006979145, 0.10194416, 0.99476564, 0.19, 0.265, 0.015)
+material_override = ExtResource("6_wvy1f")
+mesh = SubResource("CylinderMesh_40jr6")
+
+[node name="Dried_flower3" type="MeshInstance3D" parent="." unique_id=1642632586]
+transform = Transform3D(0.03, 0, 0, 0, 0.045, 0, 0, 0, 0.03, 0.21, 0.41, 0.03)
+material_override = ExtResource("7_3puru")
+mesh = SubResource("SphereMesh_unslh")

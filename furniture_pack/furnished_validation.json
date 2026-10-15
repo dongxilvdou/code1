@@ -1,0 +1,78 @@
+{
+	"door_sweep_samples": 399,
+	"failures": [],
+	"instances": 163,
+	"rooms": [
+		{
+			"floor": 0,
+			"reachable_points": 763,
+			"room": "客厅"
+		},
+		{
+			"floor": 0,
+			"reachable_points": 408,
+			"room": "餐厅"
+		},
+		{
+			"floor": 0,
+			"reachable_points": 439,
+			"room": "厨房"
+		},
+		{
+			"floor": 0,
+			"reachable_points": 79,
+			"room": "卫生间"
+		},
+		{
+			"floor": 0,
+			"reachable_points": 27,
+			"room": "洗衣间"
+		},
+		{
+			"floor": 0,
+			"reachable_points": 263,
+			"room": "客卧"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 509,
+			"room": "主卧"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 496,
+			"room": "次卧 A"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 332,
+			"room": "书房"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 214,
+			"room": "露台"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 101,
+			"room": "阅读角"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 79,
+			"room": "卫生间"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 36,
+			"room": "衣帽储物"
+		},
+		{
+			"floor": 1,
+			"reachable_points": 263,
+			"room": "次卧 B"
+		}
+	],
+	"solid_overlaps": []
+}

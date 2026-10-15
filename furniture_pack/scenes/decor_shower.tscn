@@ -1,0 +1,146 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/porcelain.tres" id="1_riqvm"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_c056bc5e466a.res" id="2_ka31r"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_16c7e05e9521.res" id="3_dgsnm"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_8209213d7e91.res" id="4_6obps"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="5_ngj8c"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_glass.tres" id="6_qpkun"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_01bf1db1d8e9.res" id="7_faik7"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_be53ae4278a6.res" id="8_684gs"]
+[ext_resource type="Material" path="res://furniture_pack/materials/steel.tres" id="9_d7em1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_b1hjv"]
+size = Vector3(0.94, 0.05, 0.94)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_f5hap"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 1.98
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lq04r"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 1.98
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_huyin"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 1.1800001
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_p1sow"]
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.26999998
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_w2wt0"]
+top_radius = 0.1
+bottom_radius = 0.1
+height = 0.01999998
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_udegr"]
+top_radius = 0.022
+bottom_radius = 0.022
+height = 0.2
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_b7jfj"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.0030000024
+radial_segments = 32
+
+[node name="DecorShower" type="Node3D" unique_id=1569986842]
+metadata/furniture = {
+"bounds_min_m": [-0.47000003, 0.0, -0.47000003],
+"collision_shapes": 1,
+"dimensions_m": [0.9400000000000001, 2.02, 0.9400000000000001],
+"id": "decor_shower",
+"name": "玻璃淋浴角",
+"note": "0.94 m 方形淋浴底盘；入口敞开，猫可进入。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_shower.tscn",
+"triangles": 9492
+}
+
+[node name="Shower_tray" type="MeshInstance3D" parent="." unique_id=871919053]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0)
+material_override = ExtResource("1_riqvm")
+mesh = ExtResource("2_ka31r")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=1602819623]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=2076153601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0)
+shape = SubResource("BoxShape3D_b1hjv")
+
+[node name="Tray_lip" type="MeshInstance3D" parent="." unique_id=1255102825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.045, 0)
+material_override = ExtResource("1_riqvm")
+mesh = ExtResource("3_dgsnm")
+
+[node name="Tray_lip2" type="MeshInstance3D" parent="." unique_id=1922375846]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.045, 0)
+material_override = ExtResource("1_riqvm")
+mesh = ExtResource("3_dgsnm")
+
+[node name="Tray_lip3" type="MeshInstance3D" parent="." unique_id=1427264156]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.045, -0.45)
+material_override = ExtResource("1_riqvm")
+mesh = ExtResource("4_6obps")
+
+[node name="Tray_lip4" type="MeshInstance3D" parent="." unique_id=2025974594]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.045, 0.45)
+material_override = ExtResource("1_riqvm")
+mesh = ExtResource("4_6obps")
+
+[node name="Upright" type="MeshInstance3D" parent="." unique_id=679063932]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 1.03, -0.45)
+material_override = ExtResource("5_ngj8c")
+mesh = SubResource("CylinderMesh_f5hap")
+
+[node name="Upright2" type="MeshInstance3D" parent="." unique_id=889303145]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 1.03, -0.45)
+material_override = ExtResource("5_ngj8c")
+mesh = SubResource("CylinderMesh_lq04r")
+
+[node name="Back_glass" type="MeshInstance3D" parent="." unique_id=1377321560]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02, -0.45)
+material_override = ExtResource("6_qpkun")
+mesh = ExtResource("7_faik7")
+
+[node name="Side_glass" type="MeshInstance3D" parent="." unique_id=1486266952]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 1.02, 0)
+material_override = ExtResource("6_qpkun")
+mesh = ExtResource("8_684gs")
+
+[node name="Shower_riser" type="MeshInstance3D" parent="." unique_id=977585]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.39, -0.39)
+material_override = ExtResource("9_d7em1")
+mesh = SubResource("CylinderMesh_huyin")
+
+[node name="Shower_arm" type="MeshInstance3D" parent="." unique_id=427032448]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1.98, -0.255)
+material_override = ExtResource("9_d7em1")
+mesh = SubResource("CylinderMesh_p1sow")
+
+[node name="Rain_head" type="MeshInstance3D" parent="." unique_id=1702878095]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.97, -0.12)
+material_override = ExtResource("9_d7em1")
+mesh = SubResource("CylinderMesh_w2wt0")
+
+[node name="Mixer" type="MeshInstance3D" parent="." unique_id=775631390]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 0.94, -0.36)
+material_override = ExtResource("9_d7em1")
+mesh = SubResource("CylinderMesh_udegr")
+
+[node name="Drain" type="MeshInstance3D" parent="." unique_id=2064257181]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.052500002, 0.25)
+material_override = ExtResource("9_d7em1")
+mesh = SubResource("CylinderMesh_b7jfj")

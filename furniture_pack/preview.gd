@@ -22,6 +22,8 @@ var grid: Node3D
 
 func _ready() -> void:
 	items = JSON.parse_string(FileAccess.get_file_as_string("res://furniture_pack/catalog.json")).items
+	if FileAccess.file_exists("res://furniture_pack/decor_catalog.json"):
+		items.append_array(JSON.parse_string(FileAccess.get_file_as_string("res://furniture_pack/decor_catalog.json")).items)
 	var world := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -109,7 +111,7 @@ func make_ui() -> void:
 	heading.add_theme_font_size_override("font_size",23)
 	ui.add_child(heading)
 	var subtitle := Label.new()
-	subtitle.text = "20 件独立资产 · 暖木与鼠尾草绿"
+	subtitle.text = "%d 件家具与陈设 · 暖木与鼠尾草绿" % items.size()
 	subtitle.position = Vector2(44,82)
 	subtitle.add_theme_font_size_override("font_size",13)
 	ui.add_child(subtitle)
@@ -202,7 +204,7 @@ func overview() -> void:
 		add_child(grid)
 		for i in range(items.size()):
 			var n: Node3D = load(items[i].scene).instantiate()
-			n.position = Vector3((i%5-2)*3.1,0,(i/5-1.5)*3.5)
+			n.position = Vector3((i%5-2)*3.1,0,(floori(i/5.0)-(ceili(items.size()/5.0)-1)*.5)*3.5)
 			grid.add_child(n)
 			var label := Label3D.new()
 			label.text = "%02d  %s" % [i+1,items[i].name]
@@ -218,13 +220,13 @@ func overview() -> void:
 			label.font = font
 			grid.add_child(label)
 	grid.show()
-	title.text = "CALICO   /   20 件家具总览"
+	title.text = "CALICO   /   %d 件家具与陈设" % items.size()
 	dimensions.text = "全部保持真实尺寸 · 单独场景 · 原点位于地面"
 	description.text = "点击左侧名称返回单件预览。"
 	eye_view = false
 	yaw = .17
 	pitch = .91
-	distance = 28
+	distance = maxf(28,ceili(items.size()/5.0)*5.6)
 	focus = Vector3(0,0,0)
 	update_camera()
 
@@ -232,7 +234,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:dragging = event.pressed
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
-			distance = clampf(distance*(.90 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 1.11),.5,45)
+			distance = clampf(distance*(.90 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 1.11),.5,70)
 			update_camera()
 	if event is InputEventMouseMotion and dragging:
 		yaw -= event.relative.x*.008

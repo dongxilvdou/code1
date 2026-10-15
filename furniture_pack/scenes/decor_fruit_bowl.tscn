@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/stone.tres" id="1_g6tq5"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/decor_fruit_bowl_Bowl.res" id="2_7srgq"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_terra.tres" id="3_lvh61"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_gold.tres" id="4_x2dt4"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_qvjqu"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_yiwo4"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_guyg7"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_317r0"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_uxk5h"]
+radial_segments = 32
+rings = 16
+
+[node name="DecorFruitBowl" type="Node3D" unique_id=2082126290]
+metadata/furniture = {
+"bounds_min_m": [-0.17, 0.0, -0.17],
+"collision_shapes": 0,
+"dimensions_m": [0.34, 0.16, 0.34],
+"id": "decor_fruit_bowl",
+"name": "果盘",
+"note": "以台面或地面为零点摆放的小型生活陈设。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_fruit_bowl.tscn",
+"triangles": 6336
+}
+
+[node name="Bowl" type="MeshInstance3D" parent="." unique_id=1630527305]
+material_override = ExtResource("1_g6tq5")
+mesh = ExtResource("2_7srgq")
+
+[node name="Fruit" type="MeshInstance3D" parent="." unique_id=150312098]
+transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, 0.08, 0.115, 0)
+material_override = ExtResource("3_lvh61")
+mesh = SubResource("SphereMesh_qvjqu")
+
+[node name="Fruit2" type="MeshInstance3D" parent="." unique_id=1725928621]
+transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, 0.02472136, 0.115, 0.076084524)
+material_override = ExtResource("4_x2dt4")
+mesh = SubResource("SphereMesh_yiwo4")
+
+[node name="Fruit3" type="MeshInstance3D" parent="." unique_id=426255226]
+transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, -0.06472136, 0.115, 0.04702282)
+material_override = ExtResource("3_lvh61")
+mesh = SubResource("SphereMesh_guyg7")
+
+[node name="Fruit4" type="MeshInstance3D" parent="." unique_id=2074687675]
+transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, -0.06472136, 0.115, -0.04702282)
+material_override = ExtResource("4_x2dt4")
+mesh = SubResource("SphereMesh_317r0")
+
+[node name="Fruit5" type="MeshInstance3D" parent="." unique_id=1458177821]
+transform = Transform3D(0.09, 0, 0, 0, 0.09, 0, 0, 0, 0.09, 0.02472136, 0.115, -0.076084524)
+material_override = ExtResource("3_lvh61")
+mesh = SubResource("SphereMesh_uxk5h")

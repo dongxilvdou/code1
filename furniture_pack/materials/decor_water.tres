@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "decor_water"
+albedo_color = Color(0.27450982, 0.49803922, 0.53333336, 1)
+roughness = 0.2

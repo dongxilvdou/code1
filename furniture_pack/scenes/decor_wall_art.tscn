@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/oak.tres" id="1_073mr"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_e271a6b857ce.res" id="2_n8cit"]
+[ext_resource type="Material" path="res://furniture_pack/materials/cream.tres" id="3_xenlu"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_bdc47966ea02.res" id="4_mx8fx"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_gold.tres" id="5_0v2jf"]
+[ext_resource type="Material" path="res://furniture_pack/materials/sage.tres" id="6_aon0n"]
+[ext_resource type="Material" path="res://furniture_pack/materials/sage_fabric.tres" id="7_u6h1y"]
+[ext_resource type="Material" path="res://furniture_pack/materials/decor_terra.tres" id="8_4yuec"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_0au7g"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_rd3kc"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_pveqp"]
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_i3okh"]
+radial_segments = 32
+rings = 16
+
+[node name="DecorWallArt" type="Node3D" unique_id=1516663514]
+metadata/furniture = {
+"bounds_min_m": [-0.4, 0.0, -0.0225],
+"collision_shapes": 0,
+"dimensions_m": [0.8, 0.64, 0.067],
+"id": "decor_wall_art",
+"name": "暖色风景挂画",
+"note": "画面为原创几何风景，无外部图片依赖。",
+"room": "陈设与生活设备",
+"scene": "res://furniture_pack/scenes/decor_wall_art.tscn",
+"triangles": 6296
+}
+
+[node name="Frame" type="MeshInstance3D" parent="." unique_id=387881539]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0)
+material_override = ExtResource("1_073mr")
+mesh = ExtResource("2_n8cit")
+
+[node name="Print_field" type="MeshInstance3D" parent="." unique_id=439380799]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0.025)
+material_override = ExtResource("3_xenlu")
+mesh = ExtResource("4_mx8fx")
+
+[node name="Sun" type="MeshInstance3D" parent="." unique_id=885474029]
+transform = Transform3D(0.16, 0, 0, 0, 0.16, 0, 0, 0, 0.004, 0.152, 0.4352, 0.031)
+material_override = ExtResource("5_0v2jf")
+mesh = SubResource("SphereMesh_0au7g")
+
+[node name="Layered_hills" type="MeshInstance3D" parent="." unique_id=1750649368]
+transform = Transform3D(0.344, 0, 0, 0, 0.16, 0, 0, 0, 0.006, -0.176, 0.1856, 0.034)
+material_override = ExtResource("6_aon0n")
+mesh = SubResource("SphereMesh_rd3kc")
+
+[node name="Layered_hills2" type="MeshInstance3D" parent="." unique_id=1823752618]
+transform = Transform3D(0.344, 0, 0, 0, 0.1984, 0, 0, 0, 0.006, 0, 0.1856, 0.038)
+material_override = ExtResource("7_u6h1y")
+mesh = SubResource("SphereMesh_pveqp")
+
+[node name="Layered_hills3" type="MeshInstance3D" parent="." unique_id=1525608177]
+transform = Transform3D(0.344, 0, 0, 0, 0.2368, 0, 0, 0, 0.006, 0.176, 0.1856, 0.042)
+material_override = ExtResource("8_4yuec")
+mesh = SubResource("SphereMesh_i3okh")
