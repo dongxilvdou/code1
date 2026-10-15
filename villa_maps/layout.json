@@ -1,0 +1,1274 @@
+{
+  "schema_version": 1,
+  "source_project": "../code1",
+  "source_scene": "scenes/villa.tscn",
+  "source_builder": "scripts/villa_builder.gd",
+  "coordinate_system": "Godot world metres; map right=+X, map down=+Z, north=-Z. Player position is feet/root, not camera. Apartment currently has identity transform.",
+  "maps": {
+    "floor_1": {
+      "id": "floor_1",
+      "name": "一层",
+      "world_rect_xz": [
+        -6.5,
+        -6.5,
+        13,
+        13
+      ],
+      "pixel_size": [
+        2048,
+        2048
+      ],
+      "regions": [
+        {
+          "id": "living",
+          "name": "客厅",
+          "polygon_xz": [
+            [
+              -6.0,
+              -1.6
+            ],
+            [
+              -0.8,
+              -1.6
+            ],
+            [
+              -0.8,
+              6.0
+            ],
+            [
+              -6.0,
+              6.0
+            ]
+          ],
+          "label_xz": [
+            -3.4,
+            2.1999999999999993
+          ],
+          "mask": "assets/masks/floor_1_living.png",
+          "highlight": "assets/highlights/floor_1_living.png"
+        },
+        {
+          "id": "dining",
+          "name": "餐厅",
+          "polygon_xz": [
+            [
+              -6.0,
+              -6.0
+            ],
+            [
+              -0.8,
+              -6.0
+            ],
+            [
+              -0.8,
+              -1.6
+            ],
+            [
+              -6.0,
+              -1.6
+            ]
+          ],
+          "label_xz": [
+            -3.4,
+            -3.8
+          ],
+          "mask": "assets/masks/floor_1_dining.png",
+          "highlight": "assets/highlights/floor_1_dining.png"
+        },
+        {
+          "id": "kitchen",
+          "name": "厨房",
+          "polygon_xz": [
+            [
+              -0.8,
+              -6.0
+            ],
+            [
+              6.0,
+              -6.0
+            ],
+            [
+              6.0,
+              -2.4
+            ],
+            [
+              -0.8,
+              -2.4
+            ]
+          ],
+          "label_xz": [
+            2.5999999999999996,
+            -4.2
+          ],
+          "mask": "assets/masks/floor_1_kitchen.png",
+          "highlight": "assets/highlights/floor_1_kitchen.png"
+        },
+        {
+          "id": "bathroom",
+          "name": "卫生间",
+          "polygon_xz": [
+            [
+              0.7,
+              -2.4
+            ],
+            [
+              3.2,
+              -2.4
+            ],
+            [
+              3.2,
+              0.2
+            ],
+            [
+              0.7,
+              0.2
+            ]
+          ],
+          "label_xz": [
+            1.9499999999999993,
+            -1.0999999999999996
+          ],
+          "mask": "assets/masks/floor_1_bathroom.png",
+          "highlight": "assets/highlights/floor_1_bathroom.png"
+        },
+        {
+          "id": "laundry",
+          "name": "洗衣间",
+          "polygon_xz": [
+            [
+              0.7,
+              0.2
+            ],
+            [
+              3.2,
+              0.2
+            ],
+            [
+              3.2,
+              1.5
+            ],
+            [
+              0.7,
+              1.5
+            ]
+          ],
+          "label_xz": [
+            1.9499999999999993,
+            0.8499999999999996
+          ],
+          "mask": "assets/masks/floor_1_laundry.png",
+          "highlight": "assets/highlights/floor_1_laundry.png"
+        },
+        {
+          "id": "guest",
+          "name": "客卧",
+          "polygon_xz": [
+            [
+              0.7,
+              2.9
+            ],
+            [
+              6.0,
+              2.9
+            ],
+            [
+              6.0,
+              6.0
+            ],
+            [
+              0.7,
+              6.0
+            ]
+          ],
+          "label_xz": [
+            3.3499999999999996,
+            4.449999999999999
+          ],
+          "mask": "assets/masks/floor_1_guest.png",
+          "highlight": "assets/highlights/floor_1_guest.png"
+        },
+        {
+          "id": "hall",
+          "name": "过厅",
+          "polygon_xz": [
+            [
+              -0.8,
+              -2.4
+            ],
+            [
+              0.7,
+              -2.4
+            ],
+            [
+              0.7,
+              1.5
+            ],
+            [
+              6,
+              1.5
+            ],
+            [
+              6,
+              2.9
+            ],
+            [
+              0.7,
+              2.9
+            ],
+            [
+              0.7,
+              6
+            ],
+            [
+              -0.8,
+              6
+            ]
+          ],
+          "label_xz": [
+            2.1,
+            2.2
+          ],
+          "mask": "assets/masks/floor_1_hall.png",
+          "highlight": "assets/highlights/floor_1_hall.png"
+        }
+      ],
+      "walls": [
+        {
+          "source_name": "North",
+          "axis": "h",
+          "value": -6.0,
+          "start": -6.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -4.6,
+              "b": -2.2,
+              "kind": "french"
+            },
+            {
+              "a": 1.2000000000000002,
+              "b": 3.8000000000000007,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "South",
+          "axis": "h",
+          "value": 6.0,
+          "start": -6.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -5.0,
+              "b": -1.9000000000000004,
+              "kind": "window"
+            },
+            {
+              "a": -0.5499999999999998,
+              "b": 0.4500000000000002,
+              "kind": "door"
+            },
+            {
+              "a": 2.0,
+              "b": 4.800000000000001,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "West",
+          "axis": "v",
+          "value": -6.0,
+          "start": -6.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -5.0,
+              "b": -3.0,
+              "kind": "window"
+            },
+            {
+              "a": -0.2999999999999998,
+              "b": 2.6999999999999993,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "East",
+          "axis": "v",
+          "value": 6.0,
+          "start": -6.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -4.7,
+              "b": -3.7,
+              "kind": "door"
+            },
+            {
+              "a": -3.35,
+              "b": -2.75,
+              "kind": "window"
+            },
+            {
+              "a": 3.6999999999999993,
+              "b": 5.300000000000001,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "Ground_WestPartition",
+          "axis": "v",
+          "value": -0.7999999999999998,
+          "start": -6.0,
+          "end": -2.4,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -4.8,
+              "b": -3.0,
+              "kind": "french"
+            }
+          ]
+        },
+        {
+          "source_name": "Ground_WestPartition",
+          "axis": "v",
+          "value": -0.7999999999999998,
+          "start": -2.4,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 0.0,
+              "b": 1.5,
+              "kind": "arch"
+            },
+            {
+              "a": 4.1,
+              "b": 5.5,
+              "kind": "arch"
+            }
+          ]
+        },
+        {
+          "source_name": "KitchenOrBed",
+          "axis": "h",
+          "value": -2.4,
+          "start": -0.7999999999999998,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -0.5499999999999998,
+              "b": 0.4500000000000002,
+              "kind": "door"
+            }
+          ]
+        },
+        {
+          "source_name": "WetWest",
+          "axis": "v",
+          "value": 0.7000000000000002,
+          "start": -2.4,
+          "end": 1.5,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -1.9500000000000002,
+              "b": -1.0499999999999998,
+              "kind": "door"
+            },
+            {
+              "a": 0.34999999999999964,
+              "b": 1.25,
+              "kind": "door"
+            }
+          ]
+        },
+        {
+          "source_name": "WetEast",
+          "axis": "v",
+          "value": 3.1999999999999993,
+          "start": -2.4,
+          "end": 1.5,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "UtilityDivide",
+          "axis": "h",
+          "value": 0.20000000000000018,
+          "start": 0.7000000000000002,
+          "end": 3.1999999999999993,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "StairEntrance",
+          "axis": "h",
+          "value": 1.5,
+          "start": 0.7000000000000002,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 3.4499999999999993,
+              "b": 4.550000000000001,
+              "kind": "arch"
+            }
+          ]
+        },
+        {
+          "source_name": "GuestWest",
+          "axis": "v",
+          "value": 0.7000000000000002,
+          "start": 2.9000000000000004,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "GuestNorth",
+          "axis": "h",
+          "value": 2.9000000000000004,
+          "start": 0.7000000000000002,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 1.0999999999999996,
+              "b": 2.0,
+              "kind": "door"
+            }
+          ]
+        }
+      ],
+      "base": "assets/runtime/floor_1_base.png",
+      "structure": "assets/runtime/floor_1_structure.png",
+      "labels": "assets/runtime/floor_1_labels.png",
+      "labeled": "assets/floor_1_labeled.png"
+    },
+    "floor_2": {
+      "id": "floor_2",
+      "name": "二层",
+      "world_rect_xz": [
+        -6.5,
+        -6.5,
+        13,
+        13
+      ],
+      "pixel_size": [
+        2048,
+        2048
+      ],
+      "regions": [
+        {
+          "id": "master",
+          "name": "主卧",
+          "polygon_xz": [
+            [
+              -6.0,
+              -6.0
+            ],
+            [
+              -0.8,
+              -6.0
+            ],
+            [
+              -0.8,
+              -0.6
+            ],
+            [
+              -6.0,
+              -0.6
+            ]
+          ],
+          "label_xz": [
+            -3.4,
+            -3.3
+          ],
+          "mask": "assets/masks/floor_2_master.png",
+          "highlight": "assets/highlights/floor_2_master.png"
+        },
+        {
+          "id": "bedroom_a",
+          "name": "次卧 A",
+          "polygon_xz": [
+            [
+              -0.8,
+              -6.0
+            ],
+            [
+              6.0,
+              -6.0
+            ],
+            [
+              6.0,
+              -2.4
+            ],
+            [
+              -0.8,
+              -2.4
+            ]
+          ],
+          "label_xz": [
+            2.5999999999999996,
+            -4.2
+          ],
+          "mask": "assets/masks/floor_2_bedroom_a.png",
+          "highlight": "assets/highlights/floor_2_bedroom_a.png"
+        },
+        {
+          "id": "study",
+          "name": "书房",
+          "polygon_xz": [
+            [
+              -6.0,
+              -0.6
+            ],
+            [
+              -0.8,
+              -0.6
+            ],
+            [
+              -0.8,
+              3.0
+            ],
+            [
+              -6.0,
+              3.0
+            ]
+          ],
+          "label_xz": [
+            -3.4,
+            1.2000000000000002
+          ],
+          "mask": "assets/masks/floor_2_study.png",
+          "highlight": "assets/highlights/floor_2_study.png"
+        },
+        {
+          "id": "terrace",
+          "name": "露台",
+          "polygon_xz": [
+            [
+              -6.0,
+              3.0
+            ],
+            [
+              -2.0,
+              3.0
+            ],
+            [
+              -2.0,
+              6.0
+            ],
+            [
+              -6.0,
+              6.0
+            ]
+          ],
+          "label_xz": [
+            -4.0,
+            4.5
+          ],
+          "mask": "assets/masks/floor_2_terrace.png",
+          "highlight": "assets/highlights/floor_2_terrace.png"
+        },
+        {
+          "id": "reading",
+          "name": "阅读角",
+          "polygon_xz": [
+            [
+              -2.0,
+              3.0
+            ],
+            [
+              0.7,
+              3.0
+            ],
+            [
+              0.7,
+              6.0
+            ],
+            [
+              -2.0,
+              6.0
+            ]
+          ],
+          "label_xz": [
+            -0.6500000000000004,
+            4.5
+          ],
+          "mask": "assets/masks/floor_2_reading.png",
+          "highlight": "assets/highlights/floor_2_reading.png"
+        },
+        {
+          "id": "bathroom",
+          "name": "卫生间",
+          "polygon_xz": [
+            [
+              0.7,
+              -2.4
+            ],
+            [
+              3.2,
+              -2.4
+            ],
+            [
+              3.2,
+              0.2
+            ],
+            [
+              0.7,
+              0.2
+            ]
+          ],
+          "label_xz": [
+            1.9499999999999993,
+            -1.0999999999999996
+          ],
+          "mask": "assets/masks/floor_2_bathroom.png",
+          "highlight": "assets/highlights/floor_2_bathroom.png"
+        },
+        {
+          "id": "dressing",
+          "name": "衣帽储物",
+          "polygon_xz": [
+            [
+              0.7,
+              0.2
+            ],
+            [
+              3.2,
+              0.2
+            ],
+            [
+              3.2,
+              1.5
+            ],
+            [
+              0.7,
+              1.5
+            ]
+          ],
+          "label_xz": [
+            1.9499999999999993,
+            0.8499999999999996
+          ],
+          "mask": "assets/masks/floor_2_dressing.png",
+          "highlight": "assets/highlights/floor_2_dressing.png"
+        },
+        {
+          "id": "bedroom_b",
+          "name": "次卧 B",
+          "polygon_xz": [
+            [
+              0.7,
+              2.9
+            ],
+            [
+              6.0,
+              2.9
+            ],
+            [
+              6.0,
+              6.0
+            ],
+            [
+              0.7,
+              6.0
+            ]
+          ],
+          "label_xz": [
+            3.3499999999999996,
+            4.449999999999999
+          ],
+          "mask": "assets/masks/floor_2_bedroom_b.png",
+          "highlight": "assets/highlights/floor_2_bedroom_b.png"
+        },
+        {
+          "id": "hall",
+          "name": "过厅",
+          "polygon_xz": [
+            [
+              -0.8,
+              -2.4
+            ],
+            [
+              0.7,
+              -2.4
+            ],
+            [
+              0.7,
+              1.5
+            ],
+            [
+              6,
+              1.5
+            ],
+            [
+              6,
+              2.9
+            ],
+            [
+              0.7,
+              2.9
+            ],
+            [
+              0.7,
+              3
+            ],
+            [
+              -0.8,
+              3
+            ]
+          ],
+          "label_xz": [
+            2.1,
+            2.2
+          ],
+          "mask": "assets/masks/floor_2_hall.png",
+          "highlight": "assets/highlights/floor_2_hall.png"
+        }
+      ],
+      "walls": [
+        {
+          "source_name": "North",
+          "axis": "h",
+          "value": -6.0,
+          "start": -6.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -5.1,
+              "b": -2.3,
+              "kind": "window"
+            },
+            {
+              "a": 0.7000000000000002,
+              "b": 4.4,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "South",
+          "axis": "h",
+          "value": 6.0,
+          "start": -2.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -1.7000000000000002,
+              "b": 0.0,
+              "kind": "window"
+            },
+            {
+              "a": 2.0,
+              "b": 4.800000000000001,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "West",
+          "axis": "v",
+          "value": -6.0,
+          "start": -6.0,
+          "end": 3.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -5.0,
+              "b": -2.2,
+              "kind": "window"
+            },
+            {
+              "a": 0.0,
+              "b": 2.3000000000000007,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "East",
+          "axis": "v",
+          "value": 6.0,
+          "start": -6.0,
+          "end": 6.0,
+          "width": 0.25,
+          "holes": [
+            {
+              "a": -4.9,
+              "b": -3.2,
+              "kind": "window"
+            },
+            {
+              "a": 3.6999999999999993,
+              "b": 5.300000000000001,
+              "kind": "window"
+            }
+          ]
+        },
+        {
+          "source_name": "WestPartition",
+          "axis": "v",
+          "value": -0.7999999999999998,
+          "start": -6.0,
+          "end": 3.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -2.0,
+              "b": -1.0499999999999998,
+              "kind": "door"
+            },
+            {
+              "a": 0.5,
+              "b": 1.4000000000000004,
+              "kind": "door"
+            }
+          ]
+        },
+        {
+          "source_name": "StudyDivide",
+          "axis": "h",
+          "value": -0.5999999999999996,
+          "start": -6.0,
+          "end": -0.7999999999999998,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "TerraceNorth",
+          "axis": "h",
+          "value": 3.0,
+          "start": -6.0,
+          "end": -2.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -4.4,
+              "b": -2.9,
+              "kind": "french"
+            }
+          ]
+        },
+        {
+          "source_name": "TerraceEast",
+          "axis": "v",
+          "value": -2.0,
+          "start": 3.0,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 4.15,
+              "b": 5.35,
+              "kind": "french"
+            }
+          ]
+        },
+        {
+          "source_name": "KitchenOrBed",
+          "axis": "h",
+          "value": -2.4,
+          "start": -0.7999999999999998,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -0.5499999999999998,
+              "b": 0.4500000000000002,
+              "kind": "door"
+            }
+          ]
+        },
+        {
+          "source_name": "WetWest",
+          "axis": "v",
+          "value": 0.7000000000000002,
+          "start": -2.4,
+          "end": 1.5,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": -1.9500000000000002,
+              "b": -1.0499999999999998,
+              "kind": "door"
+            },
+            {
+              "a": 0.34999999999999964,
+              "b": 1.25,
+              "kind": "door"
+            }
+          ]
+        },
+        {
+          "source_name": "WetEast",
+          "axis": "v",
+          "value": 3.1999999999999993,
+          "start": -2.4,
+          "end": 1.5,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "UtilityDivide",
+          "axis": "h",
+          "value": 0.20000000000000018,
+          "start": 0.7000000000000002,
+          "end": 3.1999999999999993,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "StairEntrance",
+          "axis": "h",
+          "value": 1.5,
+          "start": 0.7000000000000002,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 4.65,
+              "b": 5.75,
+              "kind": "arch"
+            }
+          ]
+        },
+        {
+          "source_name": "GuestWest",
+          "axis": "v",
+          "value": 0.7000000000000002,
+          "start": 2.9000000000000004,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "source_name": "GuestNorth",
+          "axis": "h",
+          "value": 2.9000000000000004,
+          "start": 0.7000000000000002,
+          "end": 6.0,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 1.0999999999999996,
+              "b": 2.0,
+              "kind": "door"
+            }
+          ]
+        }
+      ],
+      "base": "assets/runtime/floor_2_base.png",
+      "structure": "assets/runtime/floor_2_structure.png",
+      "labels": "assets/runtime/floor_2_labels.png",
+      "labeled": "assets/floor_2_labeled.png"
+    },
+    "stairs": {
+      "id": "stairs",
+      "name": "楼梯",
+      "world_rect_xz": [
+        2.4,
+        -2.9,
+        4.8,
+        4.8
+      ],
+      "pixel_size": [
+        2048,
+        2048
+      ],
+      "regions": [
+        {
+          "id": "lower_flight",
+          "name": "下段 · 01–09级",
+          "polygon_xz": [
+            [
+              3.45,
+              -1.05
+            ],
+            [
+              4.55,
+              -1.05
+            ],
+            [
+              4.55,
+              1.5
+            ],
+            [
+              3.45,
+              1.5
+            ]
+          ],
+          "label_xz": [
+            4,
+            0.3
+          ],
+          "mask": "assets/masks/stairs_lower_flight.png",
+          "highlight": "assets/highlights/stairs_lower_flight.png"
+        },
+        {
+          "id": "landing",
+          "name": "半层平台",
+          "polygon_xz": [
+            [
+              3.45,
+              -2.16
+            ],
+            [
+              5.75,
+              -2.16
+            ],
+            [
+              5.75,
+              -1.05
+            ],
+            [
+              3.45,
+              -1.05
+            ]
+          ],
+          "label_xz": [
+            4.6,
+            -1.6
+          ],
+          "mask": "assets/masks/stairs_landing.png",
+          "highlight": "assets/highlights/stairs_landing.png"
+        },
+        {
+          "id": "upper_flight",
+          "name": "上段 · 10–18级",
+          "polygon_xz": [
+            [
+              4.65,
+              -1.05
+            ],
+            [
+              5.75,
+              -1.05
+            ],
+            [
+              5.75,
+              1.5
+            ],
+            [
+              4.65,
+              1.5
+            ]
+          ],
+          "label_xz": [
+            5.2,
+            0.3
+          ],
+          "mask": "assets/masks/stairs_upper_flight.png",
+          "highlight": "assets/highlights/stairs_upper_flight.png"
+        }
+      ],
+      "walls": [
+        {
+          "axis": "h",
+          "value": -2.4,
+          "start": 3.2,
+          "end": 6,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "axis": "v",
+          "value": 3.2,
+          "start": -2.4,
+          "end": 1.5,
+          "width": 0.15,
+          "holes": []
+        },
+        {
+          "axis": "v",
+          "value": 6,
+          "start": -2.4,
+          "end": 1.5,
+          "width": 0.25,
+          "holes": []
+        },
+        {
+          "axis": "h",
+          "value": 1.5,
+          "start": 3.2,
+          "end": 6,
+          "width": 0.15,
+          "holes": [
+            {
+              "a": 3.45,
+              "b": 4.55,
+              "kind": "arch"
+            },
+            {
+              "a": 4.65,
+              "b": 5.75,
+              "kind": "arch"
+            }
+          ]
+        }
+      ],
+      "shaft_rect_xz": [
+        3.2,
+        -2.4,
+        2.8,
+        3.9
+      ],
+      "floor_heights_m": [
+        0,
+        1.5,
+        3
+      ],
+      "base": "assets/runtime/stairs_base.png",
+      "structure": "assets/runtime/stairs_structure.png",
+      "labels": "assets/runtime/stairs_labels.png",
+      "labeled": "assets/stairs_labeled.png"
+    },
+    "garden": {
+      "id": "garden",
+      "name": "室外花园",
+      "world_rect_xz": [
+        -15,
+        -17,
+        30,
+        30
+      ],
+      "pixel_size": [
+        2048,
+        2048
+      ],
+      "regions": [
+        {
+          "id": "north",
+          "name": "北侧花园",
+          "polygon_xz": [
+            [
+              -11,
+              -16
+            ],
+            [
+              11,
+              -16
+            ],
+            [
+              11,
+              -6
+            ],
+            [
+              -11,
+              -6
+            ]
+          ],
+          "label_xz": [
+            0,
+            -11
+          ],
+          "mask": "assets/masks/garden_north.png",
+          "highlight": "assets/highlights/garden_north.png"
+        },
+        {
+          "id": "south",
+          "name": "入户庭院",
+          "polygon_xz": [
+            [
+              -11,
+              6
+            ],
+            [
+              11,
+              6
+            ],
+            [
+              11,
+              12
+            ],
+            [
+              -11,
+              12
+            ]
+          ],
+          "label_xz": [
+            -3.7,
+            9.5
+          ],
+          "mask": "assets/masks/garden_south.png",
+          "highlight": "assets/highlights/garden_south.png"
+        },
+        {
+          "id": "west",
+          "name": "西侧花园",
+          "polygon_xz": [
+            [
+              -11,
+              -6
+            ],
+            [
+              -6,
+              -6
+            ],
+            [
+              -6,
+              6
+            ],
+            [
+              -11,
+              6
+            ]
+          ],
+          "label_xz": [
+            -8.5,
+            0
+          ],
+          "mask": "assets/masks/garden_west.png",
+          "highlight": "assets/highlights/garden_west.png"
+        },
+        {
+          "id": "east",
+          "name": "东侧花园",
+          "polygon_xz": [
+            [
+              6,
+              -6
+            ],
+            [
+              11,
+              -6
+            ],
+            [
+              11,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "label_xz": [
+            8.5,
+            0
+          ],
+          "mask": "assets/masks/garden_east.png",
+          "highlight": "assets/highlights/garden_east.png"
+        }
+      ],
+      "walls": [],
+      "base": "assets/runtime/garden_base.png",
+      "structure": "assets/runtime/garden_structure.png",
+      "labels": "assets/runtime/garden_labels.png",
+      "labeled": "assets/garden_labeled.png"
+    }
+  }
+}
