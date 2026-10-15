@@ -1,0 +1,12 @@
+{
+	"animation_clips": 6,
+	"bones": 47,
+	"failures": [],
+	"glb_valid": true,
+	"minimum_paw_y": 0.000358520832378417,
+	"pose_samples": 426432,
+	"triangles": 234236,
+	"vertices": 117274,
+	"weight_error": 0.0000458229333162308,
+	"weight_tolerance": 0.0000611360875867857
+}

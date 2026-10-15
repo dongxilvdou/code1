@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/villa_game.gd" id="1_game"]
+[ext_resource type="PackedScene" path="res://scenes/villa.tscn" id="2_house"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="3_player"]
+
+[node name="CatHouse_GardenVilla" type="Node3D"]
+script = ExtResource("1_game")
+
+[node name="Apartment" parent="." instance=ExtResource("2_house")]
+
+[node name="Miso" parent="." instance=ExtResource("3_player")]
+position = Vector3(-3.4, 0.02, 4.2)

@@ -1,0 +1,135 @@
+extends Node3D
+## Shared controls, sound and cat inspection for the current villa.
+var player: CharacterBody3D
+var ui: CanvasLayer
+var cat_camera: Camera3D
+var photo := false
+var started := false
+var room_name := ""
+var rooms := {}
+var rain_audio: AudioStreamPlayer
+var meow_audio: AudioStreamPlayer
+var paw_audio: AudioStreamPlayer
+var reaction_time := 0.0
+
+func _ready() -> void:
+	player = $Miso
+	ui = CanvasLayer.new()
+	ui.name = "Interface"
+	ui.set_script(load("res://scripts/interface.gd"))
+	add_child(ui)
+	ui.started.connect(start_game)
+	ui.resumed.connect(resume_game)
+	ui.reset_requested.connect(func(): player.reset_position())
+	ui.volume_changed.connect(set_volume)
+	player.meowed.connect(meow)
+	player.stepped.connect(footstep)
+	player.interacted.connect(interact)
+	player.pause_requested.connect(toggle_pause)
+	player.photo_requested.connect(toggle_photo)
+	setup_audio()
+	cat_camera = Camera3D.new()
+	cat_camera.name = "CatInspectionCamera"
+	cat_camera.near = .04
+	cat_camera.fov = 61
+	cat_camera.cull_mask = 1|2|4|16
+	add_child(cat_camera)
+	if "--autoplay" in OS.get_cmdline_user_args(): start_game()
+	if "--verify" in OS.get_cmdline_user_args(): call_deferred("verify_game")
+
+func setup_audio() -> void:
+	rain_audio = sound("rain",-13)
+	var rain: AudioStreamWAV = rain_audio.stream.duplicate()
+	rain.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	rain.loop_end = rain.data.size()/2
+	rain_audio.stream = rain
+	rain_audio.play()
+	meow_audio = sound("meow",-6)
+	paw_audio = sound("paw",-7)
+	set_volume(.65)
+
+func sound(key: String, volume: float) -> AudioStreamPlayer:
+	var p := AudioStreamPlayer.new()
+	p.stream = load("res://assets/"+key+".wav")
+	p.volume_db = volume
+	add_child(p)
+	return p
+
+func set_volume(value: float) -> void:
+	AudioServer.set_bus_volume_db(0,linear_to_db(maxf(.001,value)))
+
+func start_game() -> void:
+	started = true
+	player.set_control(true)
+	ui.welcome.hide()
+	ui.hud.show()
+
+func update_room() -> void:
+	pass
+
+func update_target() -> void:
+	pass
+
+func interact() -> void:
+	pass
+
+func verify_game() -> void:
+	get_tree().quit()
+
+func resume_game() -> void:
+	player.set_control(true)
+
+func toggle_pause() -> void:
+	if not started:return
+	if ui.pause_panel.visible:
+		ui.pause_panel.hide()
+		resume_game()
+	else:
+		player.set_control(false)
+		ui.pause_panel.show()
+
+func toggle_photo() -> void:
+	photo = not photo
+	if photo:
+		cat_camera.make_current()
+		ui.toast("查看三花猫  ·  再按 V 回到猫的眼睛",3)
+	else:player.camera.make_current()
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(player.camera):return
+	if photo:
+		var target := player.global_position+Vector3(0,.25,0)
+		var offset: Vector3 = player.transform.basis*Vector3(.90,1.05,1.4)
+		var ray := PhysicsRayQueryParameters3D.create(target,target+offset,1)
+		var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+		cat_camera.global_position = (hit.position+(target-hit.position).normalized()*.12) if not hit.is_empty() else target+offset
+		cat_camera.look_at(target)
+	if not started:return
+	update_room()
+	update_target()
+	var degrees := wrapf(rad_to_deg(player.yaw),0,360)
+	var directions := ["N / 北","W / 西","S / 南","E / 东"]
+	ui.compass_label.text = directions[int((degrees+45)/90)%4]
+	ui.height_label.text = "查看三花猫  /  V 返回" if photo else "米酥  /  眼高 %d cm" % int(player.head.position.y*100)
+	reaction_time -= delta
+	if reaction_time>0:
+		player.camera.rotation.z = sin(reaction_time*22)*.022
+
+func meow() -> void:
+	player.model.meow()
+	meow_audio.pitch_scale = randf_range(.95,1.08)
+	meow_audio.play()
+	ui.toast("喵。",1.4)
+	reaction_time = .28
+
+func footstep() -> void:
+	paw_audio.pitch_scale = randf_range(.83,1.20)
+	paw_audio.play()
+
+func stop_audio() -> void:
+	for sound_player in [rain_audio,meow_audio,paw_audio]:
+		if is_instance_valid(sound_player):sound_player.stop()
+
+func _exit_tree() -> void:
+	stop_audio()
+

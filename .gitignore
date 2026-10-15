@@ -1,0 +1,10 @@
+.godot/
+*.tmp
+debug_*.png
+logs/
+screenshots/
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

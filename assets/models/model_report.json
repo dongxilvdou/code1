@@ -1,0 +1,12 @@
+{
+  "body_vertices": 95760,
+  "body_triangles": 191516,
+  "body_components": 1,
+  "nonmanifold_edges": 0,
+  "vertices": 117274,
+  "triangles": 234236,
+  "bones": 47,
+  "surfaces": 11,
+  "reference": "arched back, integrated shoulders, folded hind legs, rounded paws, continuous curled tail",
+  "source_weight_error": 5.21540641784668e-08
+}
