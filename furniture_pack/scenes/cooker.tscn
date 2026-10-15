@@ -1,0 +1,223 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/ivory.tres" id="1_bxi2j"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_b2e304a4b976.res" id="2_88bbk"]
+[ext_resource type="Material" path="res://furniture_pack/materials/charcoal.tres" id="3_34in7"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_d330ec83adc3.res" id="4_vjhpw"]
+[ext_resource type="Material" path="res://furniture_pack/materials/glass_black.tres" id="5_416f1"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_00a4a601d40f.res" id="6_7ou0d"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="7_33ddp"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_085dbf6cb691.res" id="8_qldpg"]
+[ext_resource type="Material" path="res://furniture_pack/materials/steel.tres" id="9_sx1bp"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_6a2c3f94726e.res" id="10_m0jli"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1aksd"]
+size = Vector3(0.6, 0.86, 0.58)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1ampp"]
+size = Vector3(0.62, 0.044, 0.62)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_diq5c"]
+top_radius = 0.006
+bottom_radius = 0.006
+height = 0.4
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cttd6"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_rsicy"]
+top_radius = 0.005
+bottom_radius = 0.005
+height = 0.025000006
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_rp7b5"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.032999992
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fh3na"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.032999992
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_y3qpq"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.032999992
+radial_segments = 32
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cbk02"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.032999992
+radial_segments = 32
+
+[sub_resource type="TorusMesh" id="TorusMesh_ih284"]
+inner_radius = 0.063
+outer_radius = 0.081
+rings = 48
+ring_segments = 10
+
+[sub_resource type="TorusMesh" id="TorusMesh_cj43e"]
+inner_radius = 0.063
+outer_radius = 0.081
+rings = 48
+ring_segments = 10
+
+[sub_resource type="TorusMesh" id="TorusMesh_hwgmd"]
+inner_radius = 0.063
+outer_radius = 0.081
+rings = 48
+ring_segments = 10
+
+[sub_resource type="TorusMesh" id="TorusMesh_cc84a"]
+inner_radius = 0.063
+outer_radius = 0.081
+rings = 48
+ring_segments = 10
+
+[node name="Cooker" type="Node3D" unique_id=2135619599]
+metadata/furniture = {
+"bounds_min_m": [-0.31, 0.0, -0.31],
+"collision_shapes": 2,
+"dimensions_m": [0.62, 0.923, 0.676],
+"id": "cooker",
+"name": "复古灶台烤箱",
+"note": "灶台高约 0.92 m；静态外观资产，不含烹饪交互。",
+"room": "餐厨",
+"scene": "res://furniture_pack/scenes/cooker.tscn",
+"triangles": 18192
+}
+
+[node name="Range_body" type="MeshInstance3D" parent="." unique_id=2018759273]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+material_override = ExtResource("1_bxi2j")
+mesh = ExtResource("2_88bbk")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=1837728527]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=574678230]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+shape = SubResource("BoxShape3D_1aksd")
+
+[node name="Solid_001" type="CollisionShape3D" parent="Collision" unique_id=1109350937]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.878, 0)
+shape = SubResource("BoxShape3D_1ampp")
+
+[node name="Oven_frame" type="MeshInstance3D" parent="." unique_id=296282226]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.302)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("4_vjhpw")
+
+[node name="Oven_glass" type="MeshInstance3D" parent="." unique_id=1599926642]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39, 0.32)
+material_override = ExtResource("5_416f1")
+mesh = ExtResource("6_7ou0d")
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=1122797917]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 0.64, 0.36)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_diq5c")
+
+[node name="Handle_mount" type="MeshInstance3D" parent="." unique_id=606114546]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.2, 0.64, 0.34750003)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_cttd6")
+
+[node name="Handle_mount2" type="MeshInstance3D" parent="." unique_id=349303847]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.2, 0.64, 0.34750003)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_rsicy")
+
+[node name="Control_dial" type="MeshInstance3D" parent="." unique_id=1204468564]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.2, 0.78, 0.3085)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_rp7b5")
+
+[node name="Control_dial2" type="MeshInstance3D" parent="." unique_id=282189273]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.067, 0.78, 0.3085)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_fh3na")
+
+[node name="Control_dial3" type="MeshInstance3D" parent="." unique_id=424300517]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.067, 0.78, 0.3085)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_y3qpq")
+
+[node name="Control_dial4" type="MeshInstance3D" parent="." unique_id=1508170493]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.2, 0.78, 0.3085)
+material_override = ExtResource("7_33ddp")
+mesh = SubResource("CylinderMesh_cbk02")
+
+[node name="Hob" type="MeshInstance3D" parent="." unique_id=1333992886]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.878, 0)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("8_qldpg")
+
+[node name="Burner" type="MeshInstance3D" parent="." unique_id=2060819738]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.907, -0.16)
+material_override = ExtResource("9_sx1bp")
+mesh = SubResource("TorusMesh_ih284")
+
+[node name="Pan_support" type="MeshInstance3D" parent="." unique_id=1596607809]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23, 0.914, -0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Pan_support2" type="MeshInstance3D" parent="." unique_id=673016728]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0.914, -0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Burner2" type="MeshInstance3D" parent="." unique_id=1037667398]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.907, 0.16)
+material_override = ExtResource("9_sx1bp")
+mesh = SubResource("TorusMesh_cj43e")
+
+[node name="Pan_support3" type="MeshInstance3D" parent="." unique_id=1467185777]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23, 0.914, 0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Pan_support4" type="MeshInstance3D" parent="." unique_id=509276279]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0.914, 0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Burner3" type="MeshInstance3D" parent="." unique_id=1039096000]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.907, -0.16)
+material_override = ExtResource("9_sx1bp")
+mesh = SubResource("TorusMesh_hwgmd")
+
+[node name="Pan_support5" type="MeshInstance3D" parent="." unique_id=1411055069]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, 0.914, -0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Pan_support6" type="MeshInstance3D" parent="." unique_id=1824426104]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23, 0.914, -0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Burner4" type="MeshInstance3D" parent="." unique_id=1389889149]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.907, 0.16)
+material_override = ExtResource("9_sx1bp")
+mesh = SubResource("TorusMesh_cc84a")
+
+[node name="Pan_support7" type="MeshInstance3D" parent="." unique_id=770117999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, 0.914, 0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")
+
+[node name="Pan_support8" type="MeshInstance3D" parent="." unique_id=2036869647]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23, 0.914, 0.16)
+material_override = ExtResource("3_34in7")
+mesh = ExtResource("10_m0jli")

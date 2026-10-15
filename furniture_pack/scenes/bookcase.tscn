@@ -1,0 +1,290 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://furniture_pack/materials/walnut.tres" id="1_08ra2"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_e1aad47e4952.res" id="2_beqhu"]
+[ext_resource type="Material" path="res://furniture_pack/materials/oak.tres" id="3_0uxis"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_cb32ff4ae07c.res" id="4_mdgck"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_0e38bd26e4db.res" id="5_iahut"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_51829b5d3161.res" id="6_7468p"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_ddc9a11e024a.res" id="7_fjmxp"]
+[ext_resource type="Material" path="res://furniture_pack/materials/book_red.tres" id="8_oom74"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_2a779f0b7656.res" id="9_3o4sf"]
+[ext_resource type="Material" path="res://furniture_pack/materials/brass.tres" id="10_uu84r"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_9db3aab932dc.res" id="11_py7dl"]
+[ext_resource type="Material" path="res://furniture_pack/materials/book_green.tres" id="12_nll5s"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_e37de25a6905.res" id="13_i4jns"]
+[ext_resource type="ArrayMesh" path="res://furniture_pack/meshes/bevel_526992033a72.res" id="14_q4cy8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xhsfo"]
+size = Vector3(0.86, 0.11, 0.29)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5xl03"]
+size = Vector3(0.035, 1.71, 0.34)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3m5fy"]
+size = Vector3(0.035, 1.71, 0.34)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lpm2w"]
+size = Vector3(0.83, 1.71, 0.03)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c5kr6"]
+size = Vector3(0.9, 0.036, 0.34)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cokh3"]
+size = Vector3(0.9, 0.036, 0.34)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rw0sd"]
+size = Vector3(0.85, 0.03, 0.32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rsgwg"]
+size = Vector3(0.85, 0.03, 0.32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wfvlj"]
+size = Vector3(0.85, 0.03, 0.32)
+
+[node name="Bookcase" type="Node3D" unique_id=675898675]
+metadata/furniture = {
+"bounds_min_m": [-0.45000002, 0.0, -0.17],
+"collision_shapes": 9,
+"dimensions_m": [0.9, 1.82, 0.34],
+"id": "bookcase",
+"name": "开放四层书架",
+"note": "层板高 0.48 / 0.91 / 1.34 m，逐层可供猫攀跳；书本可单独隐藏。",
+"room": "书房",
+"scene": "res://furniture_pack/scenes/bookcase.tscn",
+"triangles": 37908
+}
+
+[node name="Plinth" type="MeshInstance3D" parent="." unique_id=1557528508]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.055, 0)
+material_override = ExtResource("1_08ra2")
+mesh = ExtResource("2_beqhu")
+
+[node name="Collision" type="StaticBody3D" parent="." unique_id=773839370]
+collision_mask = 2
+
+[node name="Solid_000" type="CollisionShape3D" parent="Collision" unique_id=676970339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.055, 0)
+shape = SubResource("BoxShape3D_xhsfo")
+
+[node name="Solid_001" type="CollisionShape3D" parent="Collision" unique_id=2079248206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4325, 0.965, 0)
+shape = SubResource("BoxShape3D_5xl03")
+
+[node name="Solid_002" type="CollisionShape3D" parent="Collision" unique_id=1907860720]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4325, 0.965, 0)
+shape = SubResource("BoxShape3D_3m5fy")
+
+[node name="Solid_003" type="CollisionShape3D" parent="Collision" unique_id=264921745]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.965, -0.155)
+shape = SubResource("BoxShape3D_lpm2w")
+
+[node name="Solid_004" type="CollisionShape3D" parent="Collision" unique_id=379179016]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.128, 0)
+shape = SubResource("BoxShape3D_c5kr6")
+
+[node name="Solid_005" type="CollisionShape3D" parent="Collision" unique_id=1791084751]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.802, 0)
+shape = SubResource("BoxShape3D_cokh3")
+
+[node name="Solid_006" type="CollisionShape3D" parent="Collision" unique_id=131903445]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
+shape = SubResource("BoxShape3D_rw0sd")
+
+[node name="Solid_007" type="CollisionShape3D" parent="Collision" unique_id=1857098139]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.91, 0)
+shape = SubResource("BoxShape3D_rsgwg")
+
+[node name="Solid_008" type="CollisionShape3D" parent="Collision" unique_id=1773492322]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.34, 0)
+shape = SubResource("BoxShape3D_wfvlj")
+
+[node name="Cabinet_side" type="MeshInstance3D" parent="." unique_id=1959629597]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4325, 0.965, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("4_mdgck")
+
+[node name="Cabinet_side2" type="MeshInstance3D" parent="." unique_id=831829220]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4325, 0.965, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("4_mdgck")
+
+[node name="Cabinet_back" type="MeshInstance3D" parent="." unique_id=1449230691]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.965, -0.155)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("5_iahut")
+
+[node name="Cabinet_shelf" type="MeshInstance3D" parent="." unique_id=705505466]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.128, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("6_7468p")
+
+[node name="Cabinet_shelf2" type="MeshInstance3D" parent="." unique_id=431409505]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.802, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("6_7468p")
+
+[node name="Shelf" type="MeshInstance3D" parent="." unique_id=738614528]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("7_fjmxp")
+
+[node name="Shelf2" type="MeshInstance3D" parent="." unique_id=980725593]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.91, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("7_fjmxp")
+
+[node name="Shelf3" type="MeshInstance3D" parent="." unique_id=1954687966]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.34, 0)
+material_override = ExtResource("3_0uxis")
+mesh = ExtResource("7_fjmxp")
+
+[node name="Book" type="MeshInstance3D" parent="." unique_id=82877385]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.62, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("9_3o4sf")
+
+[node name="Spine_band" type="MeshInstance3D" parent="." unique_id=944691077]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.55, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book2" type="MeshInstance3D" parent="." unique_id=2126626662]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 0.6325, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("13_i4jns")
+
+[node name="Spine_band2" type="MeshInstance3D" parent="." unique_id=1941939622]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 0.55, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book3" type="MeshInstance3D" parent="." unique_id=178232038]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 0.645, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("14_q4cy8")
+
+[node name="Spine_band3" type="MeshInstance3D" parent="." unique_id=1195613974]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 0.55, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book4" type="MeshInstance3D" parent="." unique_id=1971104027]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.135, 0.62, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("9_3o4sf")
+
+[node name="Spine_band4" type="MeshInstance3D" parent="." unique_id=505062619]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.135, 0.55, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book5" type="MeshInstance3D" parent="." unique_id=286588728]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.6325, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("13_i4jns")
+
+[node name="Spine_band5" type="MeshInstance3D" parent="." unique_id=305805602]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.55, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book6" type="MeshInstance3D" parent="." unique_id=1246523899]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 1.0625, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("13_i4jns")
+
+[node name="Spine_band6" type="MeshInstance3D" parent="." unique_id=1655550662]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.98, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book7" type="MeshInstance3D" parent="." unique_id=1502268016]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 1.075, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("14_q4cy8")
+
+[node name="Spine_band7" type="MeshInstance3D" parent="." unique_id=1555945438]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 0.98, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book8" type="MeshInstance3D" parent="." unique_id=1565308242]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 1.05, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("9_3o4sf")
+
+[node name="Spine_band8" type="MeshInstance3D" parent="." unique_id=1763773850]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 0.98, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book9" type="MeshInstance3D" parent="." unique_id=1270572003]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.135, 1.0625, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("13_i4jns")
+
+[node name="Spine_band9" type="MeshInstance3D" parent="." unique_id=1588779441]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.135, 0.98, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book10" type="MeshInstance3D" parent="." unique_id=1047586311]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 1.075, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("14_q4cy8")
+
+[node name="Spine_band10" type="MeshInstance3D" parent="." unique_id=1132399838]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.98, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book11" type="MeshInstance3D" parent="." unique_id=1607888206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 1.505, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("14_q4cy8")
+
+[node name="Spine_band11" type="MeshInstance3D" parent="." unique_id=158648468]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 1.41, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book12" type="MeshInstance3D" parent="." unique_id=770350279]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 1.48, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("9_3o4sf")
+
+[node name="Spine_band12" type="MeshInstance3D" parent="." unique_id=661462237]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.245, 1.41, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book13" type="MeshInstance3D" parent="." unique_id=354290601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 1.4925, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("13_i4jns")
+
+[node name="Spine_band13" type="MeshInstance3D" parent="." unique_id=783628632]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 1.41, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book14" type="MeshInstance3D" parent="." unique_id=1856043612]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.135, 1.505, -0.025)
+material_override = ExtResource("12_nll5s")
+mesh = ExtResource("14_q4cy8")
+
+[node name="Spine_band14" type="MeshInstance3D" parent="." unique_id=335858228]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.135, 1.41, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")
+
+[node name="Book15" type="MeshInstance3D" parent="." unique_id=1829770526]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 1.48, -0.025)
+material_override = ExtResource("8_oom74")
+mesh = ExtResource("9_3o4sf")
+
+[node name="Spine_band15" type="MeshInstance3D" parent="." unique_id=730014051]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 1.41, 0.074)
+material_override = ExtResource("10_uu84r")
+mesh = ExtResource("11_py7dl")

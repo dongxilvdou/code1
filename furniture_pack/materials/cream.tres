@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://furniture_pack/materials/surface.gdshader" id="1_pvn35"]
+
+[resource]
+resource_name = "cream"
+render_priority = 0
+shader = ExtResource("1_pvn35")
+shader_parameter/tint = Color(0.9254902, 0.8901961, 0.81960785, 1)
+shader_parameter/finish = 0.92
+shader_parameter/pattern = 2
