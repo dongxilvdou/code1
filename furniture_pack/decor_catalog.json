@@ -6,7 +6,7 @@
 				0.0,
 				-1.60000002384186
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				2.6,
 				0.015,
@@ -17,7 +17,7 @@
 			"note": "薄织物无阻挡碰撞，避免猫脚与地面接缝卡住。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_rug.tscn",
-			"triangles": 12636
+			"triangles": 12636.0
 		},
 		{
 			"bounds_min_m": [
@@ -25,7 +25,7 @@
 				0.0,
 				-1.20000004768372
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.7,
 				0.015,
@@ -36,7 +36,7 @@
 			"note": "薄织物无阻挡碰撞，避免猫脚与地面接缝卡住。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_runner.tscn",
-			"triangles": 12636
+			"triangles": 12636.0
 		},
 		{
 			"bounds_min_m": [
@@ -44,7 +44,7 @@
 				0.0,
 				-0.275000005960464
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				1.0,
 				0.015,
@@ -55,7 +55,7 @@
 			"note": "薄织物无阻挡碰撞，避免猫脚与地面接缝卡住。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_bath_mat.tscn",
-			"triangles": 12636
+			"triangles": 12636.0
 		},
 		{
 			"bounds_min_m": [
@@ -63,7 +63,7 @@
 				0.0,
 				-0.341561734676361
 			],
-			"collision_shapes": 1,
+			"collision_shapes": 1.0,
 			"dimensions_m": [
 				0.695,
 				1.011,
@@ -74,7 +74,7 @@
 			"note": "枝叶为双面立体折叶，陶盆保留落地碰撞。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_plant.tscn",
-			"triangles": 4952
+			"triangles": 4952.0
 		},
 		{
 			"bounds_min_m": [
@@ -82,7 +82,7 @@
 				0.0,
 				-0.109299749135971
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.222,
 				0.324,
@@ -93,7 +93,7 @@
 			"note": "枝叶为双面立体折叶，陶盆保留落地碰撞。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_herb_pot.tscn",
-			"triangles": 4952
+			"triangles": 4952.0
 		},
 		{
 			"bounds_min_m": [
@@ -101,7 +101,7 @@
 				0.0,
 				-0.0348506942391396
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				2.47,
 				2.405,
@@ -112,7 +112,7 @@
 			"note": "基准杆宽 2.44 m；按窗宽沿 X 轴调整，中央保持敞开。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_curtains.tscn",
-			"triangles": 7680
+			"triangles": 7680.0
 		},
 		{
 			"bounds_min_m": [
@@ -120,7 +120,7 @@
 				0.0,
 				-0.0225000008940697
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.8,
 				0.64,
@@ -131,7 +131,7 @@
 			"note": "画面为原创几何风景，无外部图片依赖。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_wall_art.tscn",
-			"triangles": 6296
+			"triangles": 6296.0
 		},
 		{
 			"bounds_min_m": [
@@ -139,7 +139,7 @@
 				0.0,
 				-0.0225000008940697
 			],
-			"collision_shapes": 1,
+			"collision_shapes": 1.0,
 			"dimensions_m": [
 				1.18,
 				0.78,
@@ -150,7 +150,7 @@
 			"note": "画面为原创几何风景，无外部图片依赖。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_television.tscn",
-			"triangles": 9008
+			"triangles": 9008.0
 		},
 		{
 			"bounds_min_m": [
@@ -158,7 +158,7 @@
 				0.0,
 				-0.150000005960464
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.3,
 				0.45,
@@ -169,7 +169,7 @@
 			"note": "发光材质用于灯罩细节，照明由房间光源统一控制。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_table_lamp.tscn",
-			"triangles": 2368
+			"triangles": 2368.0
 		},
 		{
 			"bounds_min_m": [
@@ -177,7 +177,7 @@
 				0.0,
 				-0.300000011920929
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.6,
 				0.65,
@@ -188,7 +188,7 @@
 			"note": "发光材质用于灯罩细节，照明由房间光源统一控制。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_pendant.tscn",
-			"triangles": 1792
+			"triangles": 1792.0
 		},
 		{
 			"bounds_min_m": [
@@ -196,7 +196,7 @@
 				0.0,
 				-0.140000000596046
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.376,
 				0.08,
@@ -207,7 +207,7 @@
 			"note": "以台面或地面为零点摆放的小型生活陈设。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_place_setting.tscn",
-			"triangles": 3928
+			"triangles": 3928.0
 		},
 		{
 			"bounds_min_m": [
@@ -215,7 +215,7 @@
 				0.0,
 				-0.170000001788139
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.34,
 				0.16,
@@ -226,7 +226,7 @@
 			"note": "以台面或地面为零点摆放的小型生活陈设。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_fruit_bowl.tscn",
-			"triangles": 6336
+			"triangles": 6336.0
 		},
 		{
 			"bounds_min_m": [
@@ -234,7 +234,7 @@
 				0.0,
 				-0.100258953869343
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.454,
 				0.433,
@@ -245,7 +245,7 @@
 			"note": "以台面或地面为零点摆放的小型生活陈设。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_books_vase.tscn",
-			"triangles": 8100
+			"triangles": 8100.0
 		},
 		{
 			"bounds_min_m": [
@@ -253,7 +253,7 @@
 				0.0,
 				-0.119999997317791
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.34,
 				0.14,
@@ -264,7 +264,7 @@
 			"note": "以台面或地面为零点摆放的小型生活陈设。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_towels.tscn",
-			"triangles": 2916
+			"triangles": 2916.0
 		},
 		{
 			"bounds_min_m": [
@@ -272,7 +272,7 @@
 				0.0,
 				-0.140000000596046
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.48,
 				0.073,
@@ -283,7 +283,7 @@
 			"note": "以台面或地面为零点摆放的小型生活陈设。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_pet_bowls.tscn",
-			"triangles": 3020
+			"triangles": 3020.0
 		},
 		{
 			"bounds_min_m": [
@@ -291,7 +291,7 @@
 				0.0,
 				-0.119999997317791
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.34,
 				0.183,
@@ -302,7 +302,7 @@
 			"note": "以台面或地面为零点摆放的小型生活陈设。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_prep_board.tscn",
-			"triangles": 2508
+			"triangles": 2508.0
 		},
 		{
 			"bounds_min_m": [
@@ -310,7 +310,7 @@
 				0.0,
 				-0.219999998807907
 			],
-			"collision_shapes": 1,
+			"collision_shapes": 1.0,
 			"dimensions_m": [
 				0.44,
 				0.42,
@@ -321,7 +321,7 @@
 			"note": "",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_basket.tscn",
-			"triangles": 11340
+			"triangles": 11340.0
 		},
 		{
 			"bounds_min_m": [
@@ -329,7 +329,7 @@
 				0.0,
 				-0.294999986886978
 			],
-			"collision_shapes": 1,
+			"collision_shapes": 1.0,
 			"dimensions_m": [
 				0.6,
 				0.85,
@@ -340,7 +340,7 @@
 			"note": "标准 0.60 m 宽、0.85 m 高。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_washing_machine.tscn",
-			"triangles": 6692
+			"triangles": 6692.0
 		},
 		{
 			"bounds_min_m": [
@@ -348,7 +348,7 @@
 				0.0,
 				-0.470000028610229
 			],
-			"collision_shapes": 1,
+			"collision_shapes": 1.0,
 			"dimensions_m": [
 				0.94,
 				2.02,
@@ -359,7 +359,7 @@
 			"note": "0.94 m 方形淋浴底盘；入口敞开，猫可进入。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_shower.tscn",
-			"triangles": 9492
+			"triangles": 9492.0
 		},
 		{
 			"bounds_min_m": [
@@ -367,7 +367,7 @@
 				0.0,
 				-0.150000005960464
 			],
-			"collision_shapes": 7,
+			"collision_shapes": 7.0,
 			"dimensions_m": [
 				1.05,
 				0.84,
@@ -378,7 +378,7 @@
 			"note": "深 0.30 m，适合过厅，保留通道宽度。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_entry_console.tscn",
-			"triangles": 4580
+			"triangles": 4580.0
 		},
 		{
 			"bounds_min_m": [
@@ -386,7 +386,7 @@
 				0.0,
 				-0.200000002980232
 			],
-			"collision_shapes": 7,
+			"collision_shapes": 7.0,
 			"dimensions_m": [
 				0.95,
 				2.15,
@@ -397,7 +397,7 @@
 			"note": "宽 0.95 m，专门适配窄衣帽间。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_closet_rack.tscn",
-			"triangles": 15888
+			"triangles": 15888.0
 		},
 		{
 			"bounds_min_m": [
@@ -405,7 +405,7 @@
 				0.0,
 				-0.119999997317791
 			],
-			"collision_shapes": 0,
+			"collision_shapes": 0.0,
 			"dimensions_m": [
 				0.8,
 				0.2,
@@ -416,7 +416,7 @@
 			"note": "零点位于层板底面，靠墙侧为 -Z。",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_wall_shelf.tscn",
-			"triangles": 2916
+			"triangles": 2916.0
 		},
 		{
 			"bounds_min_m": [
@@ -424,7 +424,7 @@
 				0.0,
 				-0.230000004172325
 			],
-			"collision_shapes": 3,
+			"collision_shapes": 3.0,
 			"dimensions_m": [
 				0.46,
 				0.53,
@@ -435,7 +435,26 @@
 			"note": "",
 			"room": "陈设与生活设备",
 			"scene": "res://furniture_pack/scenes/decor_side_table.tscn",
-			"triangles": 1152
+			"triangles": 1152.0
+		},
+		{
+			"bounds_min_m": [
+				-0.13,
+				0,
+				-0.009
+			],
+			"collision_shapes": 0,
+			"dimensions_m": [
+				0.26,
+				0.11,
+				0.02
+			],
+			"id": "decor_room_plaque",
+			"name": "可编辑房间门牌",
+			"note": "修改 room_title 即可复用；+Z 面朝走廊，固定墙面安装。",
+			"room": "陈设与生活设备",
+			"scene": "res://furniture_pack/scenes/decor_room_plaque.tscn",
+			"triangles": 24
 		}
 	],
 	"units": "metres"

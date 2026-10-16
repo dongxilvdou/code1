@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://furniture_pack/room_plaque.gd" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Back"]
+albedo_color = Color(0.18, 0.23, 0.22, 1)
+roughness = 0.68
+
+[sub_resource type="StandardMaterial3D" id="Brass"]
+albedo_color = Color(0.64, 0.51, 0.30, 1)
+metallic = 0.65
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="Plate"]
+material = SubResource("Back")
+size = Vector3(0.26, 0.11, 0.018)
+
+[sub_resource type="BoxMesh" id="Rule"]
+material = SubResource("Brass")
+size = Vector3(0.20, 0.003, 0.002)
+
+[sub_resource type="SystemFont" id="Font"]
+font_names = PackedStringArray("Microsoft YaHei UI", "Microsoft YaHei", "SimHei")
+
+[node name="RoomPlaque" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Plate" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.055, 0)
+mesh = SubResource("Plate")
+
+[node name="Accent" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.024, 0.010)
+mesh = SubResource("Rule")
+
+[node name="Title" type="Label3D" parent="."]
+position = Vector3(0, 0.065, 0.011)
+pixel_size = 0.0016
+modulate = Color(0.93, 0.92, 0.85, 1)
+text = "书房"
+font = SubResource("Font")
+font_size = 26
+outline_size = 0
+shaded = true
+double_sided = false

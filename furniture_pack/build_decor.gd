@@ -261,6 +261,8 @@ func build() -> void:
 	storage()
 	shelf()
 	side_table()
+	# Hand-authored configurable text scene, kept alongside the generated assets.
+	records.append({"id":"decor_room_plaque","name":"可编辑房间门牌","room":"陈设与生活设备","scene":BASE+"scenes/decor_room_plaque.tscn","dimensions_m":[.26,.11,.02],"bounds_min_m":[-.13,0,-.009],"collision_shapes":0,"triangles":24,"note":"修改 room_title 即可复用；+Z 面朝走廊，固定墙面安装。"})
 	FileAccess.open(BASE+"decor_catalog.json",FileAccess.WRITE).store_string(JSON.stringify({"units":"metres","items":records},"\t"))
 	print("DECOR_BUILD ",JSON.stringify({"assets":records.size(),"failures":failures}))
 	quit(0 if failures.is_empty() else 1)

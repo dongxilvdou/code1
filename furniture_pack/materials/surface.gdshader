@@ -1,24 +1,31 @@
 shader_type spatial;
-uniform vec4 tint : source_color = vec4(0.6, 0.4, 0.25, 1.0);
+render_mode diffuse_burley, specular_schlick_ggx;
+#include "res://furniture_pack/materials/detail_common.gdshaderinc"
+uniform vec4 tint : source_color = vec4(0.6,0.4,0.25,1.0);
 uniform float finish = 0.75;
 uniform int pattern = 0;
+uniform sampler2D wood_texture : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D fabric_texture : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D stone_texture : filter_linear_mipmap_anisotropic, repeat_enable;
 varying vec3 local_pos;
-void vertex() { local_pos = VERTEX; }
+varying vec3 local_normal;
+void vertex() { local_pos=VERTEX; local_normal=NORMAL; }
 void fragment() {
-	float detail = 1.0;
-	if (pattern == 1) {
-		float phase = local_pos.x * 170.0 + sin(local_pos.z * 5.0) * 3.0 + sin(local_pos.x * 28.0 + local_pos.z * 2.0);
-		float fine_phase = local_pos.x * 530.0 + local_pos.z * 10.0;
-		float grain = sin(phase) * clamp(1.0-fwidth(phase), 0.0, 1.0);
-		detail = 0.96 + 0.04 * grain + 0.018 * sin(fine_phase) * clamp(1.0-fwidth(fine_phase), 0.0, 1.0);
-	} else if (pattern == 2) {
-		// Filter fine woven threads to avoid crawling at a cat's low view angle.
-		vec2 p = vec2(local_pos.x + local_pos.z, local_pos.y + local_pos.z) * 650.0;
-		vec2 fade = clamp(vec2(1.0) - fwidth(p), vec2(0.0), vec2(1.0));
-		detail = 0.97 + 0.018 * sin(p.x) * fade.x + 0.018 * sin(p.y) * fade.y;
-	} else if (pattern == 3) {
-		detail = 0.97 + 0.025 * sin(local_pos.x * 11.0 + sin(local_pos.z * 8.0) + local_pos.y * 6.0);
-	}
-	ALBEDO = tint.rgb * detail;
-	ROUGHNESS = finish;
+    vec3 data=vec3(0.5,0.5,finish);
+    float bump=0.0;
+    if (pattern==1) {
+        data=material_data(wood_texture,local_pos*vec3(2.0,0.65,0.65),local_normal);
+        bump=0.0012;
+    } else if (pattern==2) {
+        data=material_data(fabric_texture,local_pos*7.8,local_normal);
+        // Threads are about 2 mm apart. Fade their relief below pixel resolution.
+        float footprint=max(length(dFdx(local_pos)),length(dFdy(local_pos)))*500.0;
+        bump=0.00045*(1.0-smoothstep(.35,1.2,footprint));
+    } else if (pattern==3) {
+        data=material_data(stone_texture,local_pos*1.8,local_normal);
+        bump=0.0005;
+    }
+    ALBEDO=tint.rgb*(0.65+data.r*0.70);
+    ROUGHNESS=clamp(finish+(data.b-0.75)*0.35,0.28,0.98);
+    NORMAL=relief_normal(VERTEX,NORMAL,data.g*bump);
 }

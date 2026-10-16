@@ -1,6 +1,9 @@
 [gd_resource type="ShaderMaterial" format=3]
 
 [ext_resource type="Shader" path="res://furniture_pack/materials/surface.gdshader" id="1_ug87y"]
+[ext_resource type="Texture2D" path="res://furniture_pack/textures/linen_weave.png" id="2_s6721"]
+[ext_resource type="Texture2D" path="res://furniture_pack/textures/mineral_detail.png" id="3_w5wxm"]
+[ext_resource type="Texture2D" path="res://furniture_pack/textures/oak_grain.png" id="4_yfvsc"]
 
 [resource]
 resource_name = "sage_fabric"
@@ -9,3 +12,6 @@ shader = ExtResource("1_ug87y")
 shader_parameter/tint = Color(0.47058824, 0.5372549, 0.46666667, 1)
 shader_parameter/finish = 0.92
 shader_parameter/pattern = 2
+shader_parameter/wood_texture = ExtResource("4_yfvsc")
+shader_parameter/fabric_texture = ExtResource("2_s6721")
+shader_parameter/stone_texture = ExtResource("3_w5wxm")
