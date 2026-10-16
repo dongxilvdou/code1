@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://xxqo6v1ww05o"]
+
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_nstwh"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="result"]
+
+[sub_resource type="Resource" id="living"]
+script = ExtResource("goal")
+id = &"living"
+text = "到达一层客厅"
+room_id = "floor_1/living"
+
+[sub_resource type="Resource" id="hello"]
+script = ExtResource("goal")
+id = &"hello"
+text = "按 Q 喵叫一声"
+kind = 1
+
+[sub_resource type="Resource" id="points"]
+script = ExtResource("result")
+kind = 1
+key = &"exploration_points"
+amount = 5
+
+[resource]
+script = ExtResource("quest")
+id = &"q01"
+title = "初来乍到"
+description = "先熟悉客厅，再用一声喵叫向新家问好。"
+priority = 99
+objectives = Array[ExtResource("goal")]([SubResource("living"), SubResource("hello")])
+result_text = "探索积分 +5，开启一楼巡游"
+success_results = Array[ExtResource("result")]([SubResource("points")])
