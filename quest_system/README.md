@@ -5,6 +5,7 @@
 ## 玩一下
 
 - 当前任务显示在左侧小地图下方，显示目标计数、完成勾选和探索积分。
+- 面板按目标、提示和页脚的实际换行高度自动伸展。屏幕空间不足时整条收起目标，显示“更多目标请按 J 查看”，避免出现半行文字。
 - 按 J 打开任务日志。可查看所有任务、前置条件和结果，接取可用的支线。
 - J / Esc 返回；从暂停状态打开日志时，关闭后返回暂停。
 - 日志中的“重新开始任务…”会先弹出确认。确认后重置任务进度、任务标记和任务积分，不重置角色位置或门的状态。
@@ -135,6 +136,9 @@ tasks.fail_quest(&"q06")
 GODOT_EXE --headless --path . --script res://quest_system/tests/test_quests.gd
 GODOT_EXE --headless --path . --script res://quest_system/tests/test_game.gd --fixed-fps 60 -- --quest-test
 GODOT_EXE --headless --path . --script res://quest_system/tests/test_persistence.gd --fixed-fps 60
+GODOT_EXE --headless --path . --script res://quest_system/tests/test_tracker_layout.gd --fixed-fps 60 -- --quest-test --check-overflow
 ```
 
 前两项分别验证逻辑和实际主场景接入；第三项只使用测试专用存档，检查跨场景重载、主动重置和坏文件保护。tests 文件夹不是运行游戏的必要依赖，可以不随最终项目提交；需要回归测试时保留。
+
+第四项专门检查两行页脚、完成提示、长文字、窄面板和可用空间变化，逐条验证显示的目标没有被裁切。
