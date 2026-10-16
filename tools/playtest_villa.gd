@@ -206,7 +206,7 @@ func run_tests() -> void:
 	game.toggle_overview()
 	expect(game.player.active and game.get_node("Apartment/Roof").visible,"Leaving overview did not restore the playable house")
 	await ticks(2)
-	expect(game.ui.room_label.text==game.room_name,"Overview left a stale room label")
+	expect(game.ui.navigation_label.text.contains("M  地图"),"Overview left stale navigation hints")
 	game.toggle_pause()
 	expect(not game.player.active,"Pause failed")
 	game.toggle_pause()

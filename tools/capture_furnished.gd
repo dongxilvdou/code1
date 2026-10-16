@@ -1,6 +1,7 @@
 extends SceneTree
 var game
-const OUT := "res://furniture_pack/previews/furnished_villa/"
+const OUT := "res://screenshots/furnished_villa/"
+const DOCUMENTATION := ["03_living","06_kitchen","07_master","08_study"]
 
 func _initialize() -> void:
 	call_deferred("capture")
@@ -11,7 +12,10 @@ func point(x: float,y: float,z: float) -> Vector3:
 func shot(label: String) -> void:
 	for i in range(16):await process_frame
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png(OUT+label+".png")
+	var capture_image := root.get_texture().get_image()
+	capture_image.save_png(OUT+label+".png")
+	if label in DOCUMENTATION:
+		capture_image.save_png("res://furniture_pack/previews/furnished_villa/"+label+".png")
 
 func room_shot(label: String, camera: Vector3, target: Vector3, fov: float = 64) -> void:
 	game.inspection_camera.fov = fov

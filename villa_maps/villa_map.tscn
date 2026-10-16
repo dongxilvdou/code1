@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://deekua2v7orhw"]
+
+[ext_resource type="Script" path="res://villa_maps/map_hud.gd" id="1"]
+
+[node name="VillaMap" type="CanvasLayer" unique_id=359703814]
+layer = 12
+
+[node name="MapHUD" type="Control" parent="." unique_id=1934871673]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
+minimap_size = Vector2(200, 200)

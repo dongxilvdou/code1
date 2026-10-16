@@ -1,13 +1,16 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://codi2wmx2mhhn"]
 
-[ext_resource type="Script" path="res://scripts/villa_game.gd" id="1_game"]
+[ext_resource type="Script" uid="uid://c23gor6ykcvmc" path="res://scripts/villa_game.gd" id="1_game"]
 [ext_resource type="PackedScene" path="res://scenes/villa.tscn" id="2_house"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://villa_maps/villa_map.tscn" id="4_jyhfs"]
 
-[node name="CatHouse_GardenVilla" type="Node3D"]
+[node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")
 
-[node name="Apartment" parent="." instance=ExtResource("2_house")]
+[node name="Apartment" parent="." unique_id=1434594376 instance=ExtResource("2_house")]
 
-[node name="Miso" parent="." instance=ExtResource("3_player")]
-position = Vector3(-3.4, 0.02, 4.2)
+[node name="Miso" parent="." unique_id=1685654802 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0.02, 4.2)
+
+[node name="VillaMap" parent="." unique_id=276493067 instance=ExtResource("4_jyhfs")]
