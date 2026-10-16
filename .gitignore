@@ -1,8 +1,23 @@
+# Godot 4 local import caches, shader caches and editor state.
 .godot/
+# Imported binary translations generated from CSV sources.
+*.translation
+
+# Keep *.uid and asset sidecars such as *.png.import in version control.
+# They contain stable resource IDs and import settings, not disposable caches.
+
+# Local diagnostics and temporary files.
 *.tmp
 debug_*.png
 logs/
 screenshots/
+furniture_pack/previews/items/
+villa_maps/previews/
+# Empty editor configuration folders can appear when editor data is redirected.
+/export_templates/
+/feature_profiles/
+/script_templates/
+/text_editor_themes/
 *.log
 __pycache__/
 *.pyc

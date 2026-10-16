@@ -25,6 +25,9 @@ func material(key: String, color: Color, pattern: int = 0, rough: float = .7, me
 		shader_mat.set_shader_parameter("tint", color)
 		shader_mat.set_shader_parameter("pattern", pattern)
 		shader_mat.set_shader_parameter("finish", rough)
+		shader_mat.set_shader_parameter("wood_texture",load(BASE+"textures/oak_grain.png"))
+		shader_mat.set_shader_parameter("fabric_texture",load(BASE+"textures/linen_weave.png"))
+		shader_mat.set_shader_parameter("stone_texture",load(BASE+"textures/mineral_detail.png"))
 		m = shader_mat
 	else:
 		var standard := StandardMaterial3D.new()

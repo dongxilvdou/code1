@@ -12,7 +12,6 @@ var light_group: Node3D
 var wall_volumes: Array = []
 var skirting_volumes: Array = []
 var cornice_volumes: Array = []
-var rail_volumes: Array = []
 var door_count := 0
 const Geometry = preload("res://scripts/villa_geometry.gd")
 const Foliage = preload("res://scripts/villa_foliage.gd")
@@ -41,6 +40,38 @@ func surface_material(key: String, color: Color, texture: String, scale_uv: floa
 
 func volume(pos: Vector3, size: Vector3) -> Array:
 	return [pos-size*.5,pos+size*.5]
+
+func finish_material(key: String, color: String, texture: String, uv_scale: Vector3, rough: float = .75, relief: float = .001, tile: bool = false) -> void:
+	var m := ShaderMaterial.new()
+	m.resource_name = key
+	m.shader = load("res://shaders/villa_finish.gdshader")
+	m.set_shader_parameter("surface_color",Color(color))
+	m.set_shader_parameter("detail_texture",load("res://furniture_pack/textures/"+texture+".png"))
+	m.set_shader_parameter("texture_scale",uv_scale)
+	m.set_shader_parameter("roughness",rough)
+	m.set_shader_parameter("relief",relief)
+	m.set_shader_parameter("tiled",tile)
+	mats[key] = m
+
+func room_finishes() -> void:
+	var interior := ShaderMaterial.new()
+	interior.resource_name = "RoomSpecificPlasterAndTile"
+	interior.shader = load("res://shaders/villa_interior.gdshader")
+	interior.set_shader_parameter("plaster_texture",load("res://furniture_pack/textures/plaster_detail.png"))
+	mats.villa_wall = interior
+	finish_material("villa_floor","a78d6d","oak_planks",Vector3(.8333,1,.4167),.73,.0014)
+	finish_material("villa_trim","615347","oak_grain",Vector3(1,.7,.7),.72,.0007)
+	finish_material("door_wood","8a7258","oak_grain",Vector3(1,.45,1),.66,.001)
+	finish_material("villa_ceiling","e6e8e3","plaster_detail",Vector3.ONE*1.2,.94,.00025)
+	finish_material("villa_tile","c4cfce","mineral_detail",Vector3.ONE*1.5,.58,.0006,true)
+	mats.villa_tile.set_shader_parameter("tile_size",Vector2(.30,.30))
+	finish_material("kitchen_floor","c1c3b5","mineral_detail",Vector3.ONE*1.4,.64,.0006,true)
+	finish_material("utility_floor","a6b5b6","mineral_detail",Vector3.ONE*2,.72,.0005,true)
+	finish_material("study_floor","80674f","oak_planks",Vector3(.8333,1,.4167),.76,.0014)
+	finish_material("master_floor","aa9c85","oak_planks",Vector3(.8333,1,.4167),.76,.0014)
+	finish_material("bed_a_floor","b3aa9d","oak_planks",Vector3(.8333,1,.4167),.78,.0014)
+	finish_material("bed_b_floor","b19878","oak_planks",Vector3(.8333,1,.4167),.75,.0014)
+	for key in ["master_floor","bed_a_floor"]:mats[key].set_shader_parameter("rotate_grain",true)
 
 func union_mesh(label: String, boxes: Array, keys: Array, parent: Node, floor_y: float, outside: bool = false, solid: bool = false) -> void:
 	var palette: Array = []
@@ -102,6 +133,7 @@ func build() -> Node3D:
 	material("window_glass",Color(.45,.63,.68,.12),"",1,.05,.09)
 	mats.window_glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mats.window_glass.cull_mode = BaseMaterial3D.CULL_DISABLED
+	room_finishes()
 	ground_floor = folder("GroundFloor")
 	upper_floor = folder("UpperFloor")
 	stair_group = folder("Staircase")
@@ -118,8 +150,28 @@ func build() -> Node3D:
 	build_lighting()
 	register_plan()
 	load("res://scripts/villa_furnishings.gd").new().apply(self)
+	build_room_signs()
 	root.set_meta("door_count",door_count)
 	return root
+
+func room_sign(title: String, x: float, z: float, y: float, yaw: float, parent: Node3D) -> void:
+	var sign: Node3D = load("res://furniture_pack/scenes/decor_room_plaque.tscn").instantiate()
+	sign.name = "RoomSign_"+title
+	sign.position = at(x,y,z)
+	sign.rotation.y = deg_to_rad(yaw)
+	sign.set("room_title",title)
+	attach(sign,parent)
+
+func build_room_signs() -> void:
+	# Discreet plaques on fixed jamb-side walls, readable from the corridor.
+	for floor_y in [0.0,3.0]:
+		var p := ground_floor if floor_y==0 else upper_floor
+		room_sign("卫生间",6.61,5.25,floor_y+1.02,-90,p)
+		room_sign("洗衣间" if floor_y==0 else "衣帽间",6.61,7.46,floor_y+1.02,-90,p)
+		room_sign("客卧" if floor_y==0 else "次卧 B",8.28,8.81,floor_y+1.02,180,p)
+		room_sign("厨房" if floor_y==0 else "次卧 A",6.78,3.69,floor_y+1.02,0,p)
+	room_sign("主卧",5.29,5.18,4.02,90,upper_floor)
+	room_sign("书房",5.29,7.68,4.02,90,upper_floor)
 
 func rect_floor(label: String, x1: float, z1: float, x2: float, z2: float, top: float, thick: float, key: String, parent: Node, solid: bool = true) -> void:
 	box(label,at((x1+x2)/2,top-thick/2,(z1+z2)/2),Vector3(x2-x1,thick,z2-z1),key,solid,parent)
@@ -138,9 +190,13 @@ func build_slabs() -> void:
 	for floor_y in [0.0,3.0]:
 		var parent := ground_floor if floor_y==0 else upper_floor
 		rect_floor("WetRoomFloor",6.775,3.675,9.125,6.125,floor_y+.006,.01,"villa_tile",parent,false)
-		rect_floor("UtilityFloor",6.775,6.275,9.125,7.425,floor_y+.006,.01,"villa_tile",parent,false)
+		rect_floor("UtilityFloor",6.775,6.275,9.125,7.425,floor_y+.006,.01,"utility_floor",parent,false)
 		if floor_y==0:
-			rect_floor("KitchenFinish",5.275,.125,11.875,3.525,.006,.01,"villa_tile",parent,false)
+			rect_floor("KitchenFinish",5.275,.125,11.875,3.525,.006,.01,"kitchen_floor",parent,false)
+	rect_floor("StudyTimber",.125,5.475,5.125,8.925,3.006,.01,"study_floor",upper_floor,false)
+	rect_floor("MasterTimber",.125,.125,5.125,5.325,3.006,.01,"master_floor",upper_floor,false)
+	rect_floor("BedroomATimber",5.275,.125,11.875,3.525,3.006,.01,"bed_a_floor",upper_floor,false)
+	rect_floor("BedroomBTimber",6.775,8.975,11.875,11.875,3.006,.01,"bed_b_floor",upper_floor,false)
 	# An uncovered terrace lies over the living room; the reading corner stays indoors.
 	rect_floor("TerraceFinish",.08,9.08,3.925,11.925,3.007,.012,"path_stone",upper_floor,false)
 	# Upper ceiling follows the L shape, leaving the SW terrace open to the sky.
@@ -164,9 +220,6 @@ func wall_piece(label: String, axis: String, value: float, start: float, finish:
 	if high==WALL_TOP:
 		var crown := Vector3(finish-start+.044,.075,thickness+.060) if axis=="h" else Vector3(thickness+.060,.075,finish-start+.044)
 		cornice_volumes.append(volume(Vector3(pos.x,base_y+2.7775,pos.z),crown))
-	if low<.85 and high>.82:
-		var dado := Vector3(finish-start+.026,.035,thickness+.040) if axis=="h" else Vector3(thickness+.040,.035,finish-start+.026)
-		rail_volumes.append(volume(Vector3(pos.x,base_y+.834,pos.z),dado))
 
 func opening(a: float, b: float, kind: String = "door") -> Dictionary:
 	return {"a":a,"b":b,"kind":kind}
@@ -261,6 +314,8 @@ func doorway(label: String, axis: String, value: float, a: float, b: float, y: f
 		door.set("door_title",title)
 		door.set("leaf_width",width/pieces)
 		door.set("open_angle",-angle if right_hinge else angle)
+		# Common circulation and work spaces are open on arrival; private rooms stay closed.
+		door.set("starts_open",title in ["厨房门","书房门","衣帽间门","洗衣间门","露台门"])
 		attach(door,parent)
 		door_count += 1
 		var leaf := AnimatableBody3D.new()
@@ -298,7 +353,6 @@ func build_storey(parent: Node3D, y: float, upper: bool) -> void:
 	wall_volumes = []
 	skirting_volumes = []
 	cornice_volumes = []
-	rail_volumes = []
 	var prefix := "Upper" if upper else "Ground"
 	if not upper:
 		wall(prefix+"North","h",0,0,12,y,[opening(1.4,3.8,"french"),opening(7.2,9.8,"window")],parent,true)
@@ -328,7 +382,7 @@ func build_storey(parent: Node3D, y: float, upper: bool) -> void:
 	union_mesh(prefix+"Walls",wall_volumes,["villa_wall","villa_outer"],parent,y,true,true)
 	union_mesh(prefix+"Skirting",skirting_volumes,["villa_trim"],parent,y)
 	union_mesh(prefix+"Cornice",cornice_volumes,["villa_ceiling"],parent,y)
-	union_mesh(prefix+"DadoRail",rail_volumes,["villa_ceiling"],parent,y)
+	# Omit the identical dado stripe that previously made every room look alike.
 
 func rail(label: String, a: Vector3, b: Vector3, height: float, parent: Node) -> void:
 	var length := a.distance_to(b)
@@ -511,30 +565,34 @@ func build_lighting() -> void:
 	var sky := Sky.new()
 	var sky_mat := ProceduralSkyMaterial.new()
 	sky_mat.sky_top_color = Color(.36,.59,.83)
-	sky_mat.sky_horizon_color = Color(.78,.86,.91)
-	sky_mat.ground_bottom_color = Color(.34,.37,.30)
-	sky_mat.ground_horizon_color = Color(.73,.77,.72)
+	sky_mat.sky_horizon_color = Color(.55,.70,.81)
+	sky_mat.ground_bottom_color = Color(.26,.30,.24)
+	sky_mat.ground_horizon_color = Color(.43,.50,.38)
+	sky_mat.sky_curve = .15
+	sky_mat.ground_curve = .15
 	sky.sky_material = sky_mat
 	e.sky = sky
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	e.ambient_light_color = Color(1,.99,.97)
-	e.ambient_light_energy = .50
+	e.ambient_light_color = Color(.96,.98,1)
+	e.ambient_light_energy = .23
 	e.ambient_light_sky_contribution = 0.0
 	e.tonemap_mode = Environment.TONE_MAPPER_ACES
-	e.tonemap_exposure = .90
+	e.tonemap_exposure = 1.0
 	e.ssao_enabled = true
 	e.ssao_radius = .3
-	e.ssao_intensity = .65
-	e.ssil_enabled = true
-	e.ssil_intensity = .45
+	e.ssao_intensity = .90
+	e.ssao_light_affect = .15
+	e.ssil_enabled = false
+	e.fog_enabled = false
+	e.volumetric_fog_enabled = false
 	e.glow_enabled = false
 	world.environment = e
 	attach(world,light_group)
 	var sun := DirectionalLight3D.new()
 	sun.name = "DaylightSun"
 	sun.rotation_degrees = Vector3(-48,-38,0)
-	sun.light_color = Color(1,.98,.93)
-	sun.light_energy = 1.0
+	sun.light_color = Color(1,.98,.95)
+	sun.light_energy = 1.15
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 65
 	attach(sun,light_group)
@@ -545,8 +603,8 @@ func build_lighting() -> void:
 			var lamp := OmniLight3D.new()
 			lamp.name = "SoftWhiteCeilingLight"
 			lamp.position = pos-Vector3.UP*.09
-			lamp.light_color = Color(1,.96,.87)
-			lamp.light_energy = .70
+			lamp.light_color = Color(1,.98,.94)
+			lamp.light_energy = .48
 			lamp.omni_range = room[2]
 			lamp.shadow_enabled = true
 			lamp.omni_attenuation = 1.0
@@ -556,6 +614,15 @@ func build_lighting() -> void:
 			# The fixture surrounds its own point light: do not project a large disc onto the ceiling.
 			rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			diffuser.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var probe := ReflectionProbe.new()
+		probe.name = "InteriorReflection_"+str(int(floor_y/3))
+		probe.position = at(6,floor_y+1.40,6)
+		probe.size = Vector3(11.8,2.75,11.8)
+		probe.interior = true
+		probe.box_projection = true
+		probe.intensity = .65
+		probe.max_distance = 16
+		attach(probe,light_group)
 	# Light the staircase separately so the landing remains legible from cat height.
 	var landing_light := OmniLight3D.new()
 	landing_light.position = at(10.6,4.8,4.5)

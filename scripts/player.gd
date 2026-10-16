@@ -12,6 +12,7 @@ var stride := 0.0
 var step_clock := 0.0
 var meow_cooldown := 0.0
 var jumping_timer := 0.0
+var step_view_offset := 0.0
 var head: Node3D
 var camera: Camera3D
 var model: Node3D
@@ -38,9 +39,14 @@ func _ready() -> void:
 	camera.cull_mask = 1|4|8|16
 	camera.current = true
 	model.scale = Vector3.ONE*cat_scale
-	(collider.shape as CapsuleShape3D).radius = .12*cat_scale
-	(collider.shape as CapsuleShape3D).height = .36*cat_scale
-	collider.position = Vector3(0,.18,-.13)*cat_scale
+	# The feet/root convention and stair sweeps require an upright, unscaled shape.
+	# Set the full transform, not just position: imported editor rotations/scales
+	# otherwise survive and turn the small capsule into a horizontal obstacle.
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = .12*cat_scale
+	capsule.height = .36*cat_scale
+	collider.shape = capsule
+	collider.transform = Transform3D(Basis.IDENTITY,Vector3(0,.18,-.13)*cat_scale)
 	head.position = Vector3(0,.28,-.22)*cat_scale
 	for side in [-1,1]:
 		var paw := MeshInstance3D.new()
@@ -90,6 +96,8 @@ func _physics_process(delta: float) -> void:
 	velocity.x = move_toward(velocity.x,direction.x*move_speed,delta*acceleration)
 	velocity.z = move_toward(velocity.z,direction.z*move_speed,delta*acceleration)
 	var step_motion := Vector3(velocity.x,0,velocity.z)*delta
+	var previous_y := global_position.y
+	var was_grounded := is_on_floor()
 	var stepped_up := _try_step_up(step_motion)
 	var horizontal := Vector2(velocity.x,velocity.z)
 	if stepped_up:
@@ -100,6 +108,15 @@ func _physics_process(delta: float) -> void:
 	if stepped_up:
 		velocity.x = horizontal.x
 		velocity.z = horizontal.y
+	# Smooth only the camera over real steps; physics and the cat stay on the tread.
+	var height_change := global_position.y-previous_y
+	if stepped_up or (was_grounded and is_on_floor() and velocity.y<=0 and absf(height_change)<=MAX_STEP+.05):
+		step_view_offset = clampf(step_view_offset-height_change,-MAX_STEP,MAX_STEP)
+	step_view_offset = move_toward(step_view_offset,0.0,delta*1.6)
+	# A crouching eye is lower than a stair riser: never smooth it below the tread.
+	var eye_clearance: float = (.19 if low else .28)*cat_scale-.06
+	step_view_offset = clampf(step_view_offset,-maxf(0,eye_clearance),MAX_STEP)
+	camera.position.y = step_view_offset
 	if position.y < -2: reset_position()
 	var flat_speed := Vector2(velocity.x,velocity.z).length()
 	model.speed = flat_speed/cat_scale
@@ -145,6 +162,8 @@ func _try_step_up(motion: Vector3) -> bool:
 func reset_position() -> void:
 	position = spawn
 	velocity = Vector3.ZERO
+	step_view_offset = 0.0
+	camera.position.y = 0.0
 	yaw = 0
 	pitch = -.02
 	rotation.y = 0

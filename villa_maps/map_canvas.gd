@@ -30,7 +30,7 @@ func _draw() -> void:
 		var origin := (size - Vector2.ONE * 2048.0 * scale_factor) * 0.5
 		draw_set_transform(origin, 0.0, Vector2.ONE * scale_factor)
 		draw_texture_rect(base_texture, image_rect, false)
-		draw_texture_rect(labels_texture, image_rect, false)
+		if labels_texture!=null:draw_texture_rect(labels_texture, image_rect, false)
 		draw_set_transform(Vector2.ZERO)
 		var marker := origin + point * scale_factor
 		draw_circle(marker, 8.0, Color("101e23"))
@@ -45,7 +45,7 @@ func _draw() -> void:
 			for vertex in region.polygon_xz:
 				points.append(world_to_pixel(Vector2(vertex[0], vertex[1])) - point)
 			draw_colored_polygon(points, Color("9cb8a2"))
-			draw_texture_rect(structure_texture, image_rect, false)
+			if structure_texture!=null:draw_texture_rect(structure_texture, image_rect, false)
 		draw_set_transform(Vector2.ZERO)
 		var center := size * 0.5
 		draw_circle(center, 12, Color("101e23"))

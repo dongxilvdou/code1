@@ -1,6 +1,9 @@
 [gd_resource type="ShaderMaterial" format=3]
 
 [ext_resource type="Shader" path="res://furniture_pack/materials/surface.gdshader" id="1_tpvjr"]
+[ext_resource type="Texture2D" path="res://furniture_pack/textures/linen_weave.png" id="2_ntluh"]
+[ext_resource type="Texture2D" path="res://furniture_pack/textures/mineral_detail.png" id="3_dcvul"]
+[ext_resource type="Texture2D" path="res://furniture_pack/textures/oak_grain.png" id="4_puhsq"]
 
 [resource]
 resource_name = "linen"
@@ -9,3 +12,6 @@ shader = ExtResource("1_tpvjr")
 shader_parameter/tint = Color(0.8392157, 0.7764706, 0.6666667, 1)
 shader_parameter/finish = 0.93
 shader_parameter/pattern = 2
+shader_parameter/wood_texture = ExtResource("4_puhsq")
+shader_parameter/fabric_texture = ExtResource("2_ntluh")
+shader_parameter/stone_texture = ExtResource("3_dcvul")

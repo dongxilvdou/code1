@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://deekua2v7orhw"]
 
-[ext_resource type="Script" uid="uid://byhgsk23gvb8b" path="res://villa_maps/map_hud.gd" id="1"]
+[ext_resource type="Script" path="res://villa_maps/map_hud.gd" id="1"]
 
 [node name="VillaMap" type="CanvasLayer" unique_id=359703814]
 layer = 12

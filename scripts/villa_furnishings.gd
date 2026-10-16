@@ -34,6 +34,8 @@ func put(id: String, x: float, z: float, yaw: float = 0, height: float = 0, scal
 	n.scale = scaling
 	n.set_meta("placement_room",room)
 	n.set_meta("asset_id",id)
+	n.set_script(load("res://furniture_pack/room_finish.gd"))
+	n.set("room_style",room)
 	n.add_to_group("placed_furniture",true)
 	builder.attach(n,parent)
 	placed.append({"asset":id,"room":room,"floor_y":floor_y,"plan_xz":[x,z],"height_m":height,"yaw_degrees":yaw,"scale":[scaling.x,scaling.y,scaling.z],"node":str(parent.get_parent().get_parent().name)+"/Furnishings/"+room+"/"+str(n.name)})

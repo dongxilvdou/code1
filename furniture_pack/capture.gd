@@ -25,7 +25,6 @@ func capture() -> void:
 	await shot("04_cat_eye_table")
 	viewer.overview()
 	viewer.ui.hide()
-	viewer.distance = 24
 	viewer.update_camera()
 	await shot("05_collection")
 	DirAccess.make_dir_recursive_absolute("res://furniture_pack/previews/items")
@@ -39,6 +38,6 @@ func capture() -> void:
 		viewer.pitch = .30
 		viewer.update_camera()
 		await shot("items/"+viewer.items[i].id)
-	print("FURNITURE_CAPTURE 5 views and 20 asset thumbnails saved")
+	print("FURNITURE_CAPTURE 5 views and ",viewer.items.size()," asset thumbnails saved")
 	viewer.free()
 	quit()

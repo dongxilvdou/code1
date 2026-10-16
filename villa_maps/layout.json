@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_project": "../code1",
+  "source_project": "..",
   "source_scene": "scenes/villa.tscn",
   "source_builder": "scripts/villa_builder.gd",
   "coordinate_system": "Godot world metres; map right=+X, map down=+Z, north=-Z. Player position is feet/root, not camera. Apartment currently has identity transform.",
@@ -43,9 +43,7 @@
           "label_xz": [
             -3.4,
             2.1999999999999993
-          ],
-          "mask": "assets/masks/floor_1_living.png",
-          "highlight": "assets/highlights/floor_1_living.png"
+          ]
         },
         {
           "id": "dining",
@@ -71,9 +69,7 @@
           "label_xz": [
             -3.4,
             -3.8
-          ],
-          "mask": "assets/masks/floor_1_dining.png",
-          "highlight": "assets/highlights/floor_1_dining.png"
+          ]
         },
         {
           "id": "kitchen",
@@ -99,9 +95,7 @@
           "label_xz": [
             2.5999999999999996,
             -4.2
-          ],
-          "mask": "assets/masks/floor_1_kitchen.png",
-          "highlight": "assets/highlights/floor_1_kitchen.png"
+          ]
         },
         {
           "id": "bathroom",
@@ -127,9 +121,7 @@
           "label_xz": [
             1.9499999999999993,
             -1.0999999999999996
-          ],
-          "mask": "assets/masks/floor_1_bathroom.png",
-          "highlight": "assets/highlights/floor_1_bathroom.png"
+          ]
         },
         {
           "id": "laundry",
@@ -155,9 +147,7 @@
           "label_xz": [
             1.9499999999999993,
             0.8499999999999996
-          ],
-          "mask": "assets/masks/floor_1_laundry.png",
-          "highlight": "assets/highlights/floor_1_laundry.png"
+          ]
         },
         {
           "id": "guest",
@@ -183,9 +173,7 @@
           "label_xz": [
             3.3499999999999996,
             4.449999999999999
-          ],
-          "mask": "assets/masks/floor_1_guest.png",
-          "highlight": "assets/highlights/floor_1_guest.png"
+          ]
         },
         {
           "id": "hall",
@@ -227,9 +215,7 @@
           "label_xz": [
             2.1,
             2.2
-          ],
-          "mask": "assets/masks/floor_1_hall.png",
-          "highlight": "assets/highlights/floor_1_hall.png"
+          ]
         }
       ],
       "walls": [
@@ -494,9 +480,7 @@
           "label_xz": [
             -3.4,
             -3.3
-          ],
-          "mask": "assets/masks/floor_2_master.png",
-          "highlight": "assets/highlights/floor_2_master.png"
+          ]
         },
         {
           "id": "bedroom_a",
@@ -522,9 +506,7 @@
           "label_xz": [
             2.5999999999999996,
             -4.2
-          ],
-          "mask": "assets/masks/floor_2_bedroom_a.png",
-          "highlight": "assets/highlights/floor_2_bedroom_a.png"
+          ]
         },
         {
           "id": "study",
@@ -550,9 +532,7 @@
           "label_xz": [
             -3.4,
             1.2000000000000002
-          ],
-          "mask": "assets/masks/floor_2_study.png",
-          "highlight": "assets/highlights/floor_2_study.png"
+          ]
         },
         {
           "id": "terrace",
@@ -578,9 +558,7 @@
           "label_xz": [
             -4.0,
             4.5
-          ],
-          "mask": "assets/masks/floor_2_terrace.png",
-          "highlight": "assets/highlights/floor_2_terrace.png"
+          ]
         },
         {
           "id": "reading",
@@ -606,9 +584,7 @@
           "label_xz": [
             -0.6500000000000004,
             4.5
-          ],
-          "mask": "assets/masks/floor_2_reading.png",
-          "highlight": "assets/highlights/floor_2_reading.png"
+          ]
         },
         {
           "id": "bathroom",
@@ -634,9 +610,7 @@
           "label_xz": [
             1.9499999999999993,
             -1.0999999999999996
-          ],
-          "mask": "assets/masks/floor_2_bathroom.png",
-          "highlight": "assets/highlights/floor_2_bathroom.png"
+          ]
         },
         {
           "id": "dressing",
@@ -662,9 +636,7 @@
           "label_xz": [
             1.9499999999999993,
             0.8499999999999996
-          ],
-          "mask": "assets/masks/floor_2_dressing.png",
-          "highlight": "assets/highlights/floor_2_dressing.png"
+          ]
         },
         {
           "id": "bedroom_b",
@@ -690,9 +662,7 @@
           "label_xz": [
             3.3499999999999996,
             4.449999999999999
-          ],
-          "mask": "assets/masks/floor_2_bedroom_b.png",
-          "highlight": "assets/highlights/floor_2_bedroom_b.png"
+          ]
         },
         {
           "id": "hall",
@@ -734,9 +704,7 @@
           "label_xz": [
             2.1,
             2.2
-          ],
-          "mask": "assets/masks/floor_2_hall.png",
-          "highlight": "assets/highlights/floor_2_hall.png"
+          ]
         }
       ],
       "walls": [
@@ -1015,9 +983,7 @@
           "label_xz": [
             4,
             0.3
-          ],
-          "mask": "assets/masks/stairs_lower_flight.png",
-          "highlight": "assets/highlights/stairs_lower_flight.png"
+          ]
         },
         {
           "id": "landing",
@@ -1043,9 +1009,7 @@
           "label_xz": [
             4.6,
             -1.6
-          ],
-          "mask": "assets/masks/stairs_landing.png",
-          "highlight": "assets/highlights/stairs_landing.png"
+          ]
         },
         {
           "id": "upper_flight",
@@ -1071,9 +1035,7 @@
           "label_xz": [
             5.2,
             0.3
-          ],
-          "mask": "assets/masks/stairs_upper_flight.png",
-          "highlight": "assets/highlights/stairs_upper_flight.png"
+          ]
         }
       ],
       "walls": [
@@ -1175,9 +1137,7 @@
           "label_xz": [
             0,
             -11
-          ],
-          "mask": "assets/masks/garden_north.png",
-          "highlight": "assets/highlights/garden_north.png"
+          ]
         },
         {
           "id": "south",
@@ -1203,9 +1163,7 @@
           "label_xz": [
             -3.7,
             9.5
-          ],
-          "mask": "assets/masks/garden_south.png",
-          "highlight": "assets/highlights/garden_south.png"
+          ]
         },
         {
           "id": "west",
@@ -1231,9 +1189,7 @@
           "label_xz": [
             -8.5,
             0
-          ],
-          "mask": "assets/masks/garden_west.png",
-          "highlight": "assets/highlights/garden_west.png"
+          ]
         },
         {
           "id": "east",
@@ -1259,9 +1215,7 @@
           "label_xz": [
             8.5,
             0
-          ],
-          "mask": "assets/masks/garden_east.png",
-          "highlight": "assets/highlights/garden_east.png"
+          ]
         }
       ],
       "walls": [],

@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c23gor6ykcvmc" path="res://scripts/villa_game.gd" id="1_game"]
 [ext_resource type="PackedScene" path="res://scenes/villa.tscn" id="2_house"]
-[ext_resource type="PackedScene" uid="uid://d2e56oo0eplao" path="res://scenes/player.tscn" id="3_player"]
-[ext_resource type="PackedScene" uid="uid://deekua2v7orhw" path="res://villa_maps/villa_map.tscn" id="4_jyhfs"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://villa_maps/villa_map.tscn" id="4_jyhfs"]
 
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")

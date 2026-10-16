@@ -61,6 +61,7 @@ func set_volume(value: float) -> void:
 func start_game() -> void:
 	started = true
 	player.set_control(true)
+	player.camera.make_current()
 	ui.welcome.hide()
 	ui.hud.show()
 
@@ -78,14 +79,16 @@ func verify_game() -> void:
 
 func resume_game() -> void:
 	player.set_control(true)
+	ui.hud.show()
 
 func toggle_pause() -> void:
-	if not started:return
+	if not started or ui.settings_panel.visible:return
 	if ui.pause_panel.visible:
 		ui.pause_panel.hide()
 		resume_game()
 	else:
 		player.set_control(false)
+		ui.hud.hide()
 		ui.pause_panel.show()
 
 func toggle_photo() -> void:
@@ -107,10 +110,6 @@ func _process(delta: float) -> void:
 	if not started:return
 	update_room()
 	update_target()
-	var degrees := wrapf(rad_to_deg(player.yaw),0,360)
-	var directions := ["N / 北","W / 西","S / 南","E / 东"]
-	ui.compass_label.text = directions[int((degrees+45)/90)%4]
-	ui.height_label.text = "查看三花猫  /  V 返回" if photo else "米酥  /  眼高 %d cm" % int(player.head.position.y*100)
 	reaction_time -= delta
 	if reaction_time>0:
 		player.camera.rotation.z = sin(reaction_time*22)*.022

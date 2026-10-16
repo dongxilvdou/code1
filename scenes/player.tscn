@@ -4,8 +4,9 @@
 [ext_resource type="PackedScene" path="res://scenes/calico.tscn" id="2_cat"]
 
 [sub_resource type="CapsuleShape3D" id="Capsule_cat"]
-radius = 0.11328125
-height = 0.3730039
+radius = 0.096
+height = 0.288
+resource_local_to_scene = true
 
 [node name="Miso" type="CharacterBody3D" unique_id=512551119]
 collision_layer = 2
@@ -14,7 +15,7 @@ floor_snap_length = 0.24
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1855844043]
-transform = Transform3D(1, 0, 0, 0, -0.009550842, 1.0021461, 0, -1.2945644, -0.0073934826, 0, 0.16962877, -0.06355615)
+position = Vector3(0, 0.144, -0.104)
 shape = SubResource("Capsule_cat")
 
 [node name="Calico" parent="." unique_id=424919180 instance=ExtResource("2_cat")]

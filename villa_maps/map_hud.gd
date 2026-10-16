@@ -2,9 +2,10 @@ extends Control
 ## Optional, external integration sample for the supplied code1 main scene.
 ## Instance villa_map.tscn under the main root. Original scripts need no edits.
 const MapCanvas = preload("res://villa_maps/map_canvas.gd")
+const MapTextures = preload("res://villa_maps/map_textures.gd")
 const ASSET_ROOT := "res://villa_maps/"
 @export var player_path := NodePath("../../Miso")
-@export var minimap_position := Vector2(32, 140)
+@export var minimap_position := Vector2(24, 24)
 @export var minimap_size := Vector2(264, 264)
 var player: CharacterBody3D
 var camera: Camera3D
@@ -21,8 +22,10 @@ var big: Control
 var mini_title: Label
 var big_title: Label
 var shade: ColorRect
+var mini_back: Panel
 
 func _ready() -> void:
+	hide()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	player = get_node_or_null(player_path) as CharacterBody3D
@@ -31,20 +34,35 @@ func _ready() -> void:
 		push_error("VillaMap: instance this scene below the main root containing Miso.")
 		set_process(false)
 		set_process_input(false)
+		set_physics_process(false)
 		return
 	camera = player.get_node_or_null("CatEyes/FirstPersonCamera") as Camera3D
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(ASSET_ROOT + "layout.json"))
 	if not parsed is Dictionary:
 		push_error("VillaMap: missing or invalid layout.json.")
 		set_process(false)
+		set_process_input(false)
+		set_physics_process(false)
 		return
 	maps = parsed.maps
+	mini_back = Panel.new()
+	mini_back.name = "MinimapCard"
+	mini_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var panel := StyleBoxFlat.new()
+	panel.bg_color = Color(.025,.042,.035,.84)
+	panel.border_color = Color(.56,.62,.54,.25)
+	panel.set_border_width_all(1)
+	panel.set_corner_radius_all(8)
+	mini_back.add_theme_stylebox_override("panel",panel)
+	mini_back.position = minimap_position
+	mini_back.size = minimap_size+Vector2(20,54)
+	add_child(mini_back)
 	mini = MapCanvas.new()
 	add_child(mini)
-	mini.position = minimap_position
+	mini.position = minimap_position+Vector2(10,10)
 	mini.size = minimap_size
 	mini_title = make_label(15)
-	mini_title.position = minimap_position + Vector2(0, minimap_size.y + 6)
+	mini_title.position = minimap_position + Vector2(12, minimap_size.y + 19)
 	shade = ColorRect.new()
 	shade.color = Color(0.025,0.05,0.06,0.94)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -77,7 +95,7 @@ func available() -> bool:
 	if bool(game.get("photo")) or bool(game.get("inspecting")):
 		return false
 	var ui: Variant = game.get("ui")
-	return ui != null and not ui.pause_panel.visible
+	return is_instance_valid(ui) and is_instance_valid(ui.pause_panel) and not ui.pause_panel.visible and not ui.settings_panel.visible
 
 func _input(event: InputEvent) -> void:
 	if not is_instance_valid(player) or not available():
@@ -94,13 +112,15 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func set_big(open: bool) -> void:
+	if open and not available():return
 	big_open = open
-	player.call("set_control", not open)
+	player.call("set_control", not open and available())
 	shade.visible = open
 	big.visible = open
 	big_title.visible = open
 	mini.visible = not open
 	mini_title.visible = not open
+	mini_back.visible = not open
 
 func support_floor() -> String:
 	# A short ray from the CAT ROOT, not the head. Keeps a jump on the same floor.
@@ -150,7 +170,9 @@ func room_at(spec: Dictionary, p: Vector2) -> Dictionary:
 
 func fetch_texture(path: String) -> Texture2D:
 	if not cache.has(path):
-		cache[path] = load(ASSET_ROOT + path)
+		var texture := MapTextures.load_texture(ASSET_ROOT+path)
+		if texture==null:return null
+		cache[path] = texture
 	return cache[path] as Texture2D
 
 func _physics_process(_delta: float) -> void:
@@ -188,6 +210,7 @@ func _process(_delta: float) -> void:
 	show()
 	mini.visible = not big_open
 	mini_title.visible = not big_open
+	mini_back.visible = not big_open
 	if current_map.is_empty():
 		return
 	if is_instance_valid(camera):
@@ -197,7 +220,7 @@ func _process(_delta: float) -> void:
 			map_angle = -flat.angle() - PI/2.0
 	mini.set("map_angle", map_angle)
 	mini.set("pixels_per_metre", 60.0 if current_map == "stairs" else 11.0 if current_map == "garden" else 22.0)
-	mini_title.text = "%s · %s   [ M ] 地图" % [maps[current_map].name, current_room]
+	mini_title.text = "%s · %s" % [maps[current_map].name, current_room]
 	var viewport_size := get_viewport_rect().size
 	var side := maxf(160.0, minf(viewport_size.x-96, viewport_size.y-180))
 	big.size = Vector2(side, side)
@@ -208,5 +231,5 @@ func _process(_delta: float) -> void:
 	big.queue_redraw()
 
 func _exit_tree() -> void:
-	if big_open and is_instance_valid(player) and available():
+	if big_open and is_instance_valid(player) and is_instance_valid(game) and not game.is_queued_for_deletion() and available():
 		player.call("set_control", true)

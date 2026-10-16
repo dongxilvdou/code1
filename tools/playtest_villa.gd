@@ -52,6 +52,16 @@ func run_tests() -> void:
 	expect(not game.has_node("Apartment/StandingMirror") and not game.has_node("MirrorReflection"),"Mirror rendering still present")
 	var doors := get_nodes_in_group("villa_doors")
 	expect(doors.size()>=16,"Room doors missing")
+	var default_open_doors := 0
+	# Validate the intended initial states, then exercise each leaf from closed.
+	for door in doors:
+		expect(door.is_open==door.starts_open,"Initial door state incorrect: "+str(door.name))
+		if door.is_open:default_open_doors += 1
+		door.set_open(false,true)
+	expect(default_open_doors==9,"Common-room doors should start open")
+	var environment: Environment = game.get_node("Apartment/Lighting/VillaEnvironment").environment
+	expect(not environment.fog_enabled and not environment.volumetric_fog_enabled and not environment.glow_enabled,"Unwanted haze post-processing enabled")
+	await ticks(3)
 	# Every closed leaf must block the portal, and every opened leaf must clear it.
 	for door in doors:
 		var a: Vector3 = door.to_global(Vector3(door.leaf_width*.5,.25,-.30))
@@ -196,12 +206,12 @@ func run_tests() -> void:
 	game.toggle_overview()
 	expect(game.player.active and game.get_node("Apartment/Roof").visible,"Leaving overview did not restore the playable house")
 	await ticks(2)
-	expect(game.ui.room_label.text==game.room_name,"Overview left a stale room label")
+	expect(game.ui.navigation_label.text.contains("M  地图"),"Overview left stale navigation hints")
 	game.toggle_pause()
 	expect(not game.player.active,"Pause failed")
 	game.toggle_pause()
 	expect(game.player.active,"Resume failed")
-	print("VILLA_PLAYTEST ",JSON.stringify({"doors_tested":doors.size(),"doorways_walked":passages,"stair_top_m":stair_top,"jump_peak_m":jump_peak,"cat_scale":game.player.cat_scale,"failures":failures}))
+	print("VILLA_PLAYTEST ",JSON.stringify({"doors_tested":doors.size(),"default_open_doors":default_open_doors,"doorways_walked":passages,"stair_top_m":stair_top,"jump_peak_m":jump_peak,"cat_scale":game.player.cat_scale,"failures":failures}))
 	game.stop_audio()
 	game.queue_free()
 	await process_frame

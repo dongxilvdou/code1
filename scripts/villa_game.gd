@@ -7,6 +7,7 @@ var orbit_yaw := -.72
 var orbit_pitch := .60
 var orbit_distance := 23.0
 var nearest_door: Node3D
+var menu_camera: Camera3D
 
 func _ready() -> void:
 	zone_records = $Apartment.get_meta("room_zones",[])
@@ -19,16 +20,17 @@ func _ready() -> void:
 	inspection_camera.cull_mask = 1|2|4|16
 	add_child(inspection_camera)
 	update_overview_camera()
+	menu_camera = Camera3D.new()
+	menu_camera.name = "MenuCamera"
+	menu_camera.fov = 62
+	menu_camera.cull_mask = 1|2|4|16
+	add_child(menu_camera)
+	menu_camera.position = Vector3(-1.7,1.55,-1.6)
+	menu_camera.look_at(Vector3(-4.0,.75,2.4))
+	if not started:menu_camera.make_current()
 	if "--overview" in OS.get_cmdline_user_args():
 		start_game()
 		toggle_overview()
-
-func start_game() -> void:
-	started = true
-	player.set_control(true)
-	ui.welcome.hide()
-	ui.hud.show()
-	ui.toast("靠近房门按 E 开关；B 查看房屋全貌。",6)
 
 func room_at(p: Vector3) -> String:
 	var q := Vector2(p.x+6,p.z+6)
@@ -45,9 +47,7 @@ func update_room() -> void:
 	var current := room_at(player.global_position)
 	if current!=room_name:
 		room_name = current
-		ui.room_label.text = current
 		rooms[current] = true
-	ui.progress_label.text = "两层别墅 + 花园\n自由探索 / B 查看房屋"
 
 func update_target() -> void:
 	nearest_door = null
@@ -74,7 +74,7 @@ func interact() -> void:
 	if nearest_door:nearest_door.toggle()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not started or ui.pause_panel.visible:return
+	if not started or ui.pause_panel.visible or ui.settings_panel.visible:return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_B:toggle_overview()
 		elif inspecting and event.keycode in [KEY_1,KEY_2,KEY_3]:set_section(event.keycode-KEY_0)
@@ -93,7 +93,6 @@ func toggle_overview() -> void:
 		player.set_control(false)
 		inspection_camera.make_current()
 		set_section(3)
-		ui.toast("左键拖动旋转，滚轮缩放；1 看一层，2 看二层，3 看全貌，B 返回。",7)
 	else:
 		set_section(3)
 		player.camera.make_current()
@@ -119,10 +118,9 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	if inspecting:
 		update_overview_camera()
-		var names := ["","一层展开","二层展开","房屋全貌"]
-		ui.room_label.text = names[inspection_section]
-		ui.progress_label.text = "1 一层  /  2 二层  /  3 全貌\n左键旋转 / 滚轮缩放"
-		ui.height_label.text = "B 返回猫视角"
+		ui.navigation_label.text = "1 / 2 / 3  楼层     拖动旋转 · 滚轮缩放     B  返回"
+	elif photo:ui.navigation_label.text = "V  返回猫视角     Esc  暂停"
+	else:ui.navigation_label.text = "M  地图     B  总览     Esc  暂停"
 
 func toggle_pause() -> void:
 	if inspecting:toggle_overview()
