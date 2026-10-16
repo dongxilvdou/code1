@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CalicoQuestCatalog" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_catalog.gd" id="catalog"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Resource" path="res://quest_system/definitions/q01_arrival.tres" id="q01"]
+[ext_resource type="Resource" path="res://quest_system/definitions/q02_downstairs.tres" id="q02"]
+[ext_resource type="Resource" path="res://quest_system/definitions/q03_upstairs.tres" id="q03"]
+[ext_resource type="Resource" path="res://quest_system/definitions/q04_garden.tres" id="q04"]
+[ext_resource type="Resource" path="res://quest_system/definitions/q05_voice.tres" id="q05"]
+
+[resource]
+script = ExtResource("catalog")
+quests = Array[ExtResource("quest")]([ExtResource("q01"), ExtResource("q02"), ExtResource("q03"), ExtResource("q04"), ExtResource("q05")])
