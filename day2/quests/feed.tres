@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" path="res://day1/quests/papers.tres" id="pre"]
+
+[sub_resource type="Resource" id="d2_unlocked"]
+script = ExtResource("goal")
+id = &"d2_unlocked"
+text = "解开给予器密码"
+kind = 3
+target_id = &"d2_unlocked"
+
+[sub_resource type="Resource" id="d2_cat_fed"]
+script = ExtResource("goal")
+id = &"d2_cat_fed"
+text = "自己吃饱"
+kind = 3
+target_id = &"d2_cat_fed"
+
+[sub_resource type="Resource" id="d2_dog_fed"]
+script = ExtResource("goal")
+id = &"d2_dog_fed"
+text = "给大狗嚼喂饭"
+kind = 3
+target_id = &"d2_dog_fed"
+
+[resource]
+script = ExtResource("quest")
+id = &"day2_feed"
+title = "03 · 两份晚饭"
+description = "数给予器上三列爪印解锁，叼猫碗盛猫粮回原位吃；叼狗盘盛狗粮送到大狗嚼身边。"
+priority = 97
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+objectives = Array[ExtResource("goal")]([SubResource("d2_unlocked"), SubResource("d2_cat_fed"), SubResource("d2_dog_fed")])
+result_text = "给予器永久解锁，之后随时补粮"

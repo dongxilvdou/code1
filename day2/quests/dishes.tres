@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" path="res://day1/quests/yarn.tres" id="pre"]
+
+[sub_resource type="Resource" id="d2_dishes_done"]
+script = ExtResource("goal")
+id = &"d2_dishes_done"
+text = "洗好狗盘并放到水槽旁"
+kind = 3
+target_id = &"d2_dishes_done"
+
+[resource]
+script = ExtResource("quest")
+id = &"day2_dishes"
+title = "03 · 空荡荡的厨房"
+description = "湿润狗盘，关水，按洗洁精并涂抹，再开水冲洗，关水后叼到水槽旁沥水垫。"
+priority = 87
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+objectives = Array[ExtResource("goal")]([SubResource("d2_dishes_done")])
+result_text = "第二天三项任务完成，可以回窝休息"

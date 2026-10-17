@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" path="res://day2/quests/feed.tres" id="pre"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+
+[sub_resource type="Resource" id="day_started"]
+script = ExtResource("condition")
+key = &"d2_started"
+expected_flag = true
+
+[sub_resource type="Resource" id="d2_note"]
+script = ExtResource("goal")
+id = &"d2_note"
+text = "阅读第二天的纸条"
+kind = 3
+target_id = &"d2_note"
+
+[resource]
+script = ExtResource("quest")
+id = &"day2_note"
+title = "第二天的小纸条"
+description = "先读纸条，再开始今天的三件事。"
+priority = 90
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+extra_conditions = Array[ExtResource("condition")]([SubResource("day_started")])
+objectives = Array[ExtResource("goal")]([SubResource("d2_note")])
+result_text = "洗衣任务已开启"

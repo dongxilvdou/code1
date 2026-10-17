@@ -263,5 +263,7 @@ func _save_error(message: String) -> bool:
 
 func load_game() -> bool:
 	if not FileAccess.file_exists(save_path): return false
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
+	var parser := JSON.new()
+	if parser.parse(FileAccess.get_file_as_string(save_path)) != OK:return false
+	var parsed: Variant = parser.data
 	return parsed is Dictionary and restore_save_data(parsed)

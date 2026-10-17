@@ -6,6 +6,7 @@ extends Node3D
 var is_open := false
 var moving := false
 var blocked := false
+var locked := false
 var target_angle := 0.0
 var leaf: AnimatableBody3D
 var collider: CollisionShape3D
@@ -32,6 +33,7 @@ func set_open(value: bool, immediate: bool = false) -> void:
 	else:moving = true
 
 func toggle() -> void:
+	if locked:return
 	set_open(not is_open)
 
 func _physics_process(delta: float) -> void:

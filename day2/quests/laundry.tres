@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" path="res://day2/quests/note.tres" id="pre"]
+
+[sub_resource type="Resource" id="d2_cloth_sofa"]
+script = ExtResource("goal")
+id = &"d2_cloth_sofa"
+text = "装入沙发上的衣服"
+kind = 3
+target_id = &"d2_cloth_sofa"
+
+[sub_resource type="Resource" id="d2_cloth_chair"]
+script = ExtResource("goal")
+id = &"d2_cloth_chair"
+text = "装入凳子上的衣服"
+kind = 3
+target_id = &"d2_cloth_chair"
+
+[sub_resource type="Resource" id="d2_cloth_entry"]
+script = ExtResource("goal")
+id = &"d2_cloth_entry"
+text = "装入玄关的衣服"
+kind = 3
+target_id = &"d2_cloth_entry"
+
+[sub_resource type="Resource" id="d2_washed"]
+script = ExtResource("goal")
+id = &"d2_washed"
+text = "解开旋律，完成洗衣"
+kind = 3
+target_id = &"d2_washed"
+
+[resource]
+script = ExtResource("quest")
+id = &"day2_laundry"
+title = "01 · 没有气味的衣服"
+description = "收集三件衣服装入洗衣机，关门，跳到机顶，按记忆旋律转动旋钮。"
+priority = 89
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+objectives = Array[ExtResource("goal")]([SubResource("d2_cloth_sofa"), SubResource("d2_cloth_chair"), SubResource("d2_cloth_entry"), SubResource("d2_washed")])
+result_text = "去工作书房找尺子，取回沙发底下的毛线球"

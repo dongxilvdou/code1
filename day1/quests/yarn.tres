@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" path="res://day2/quests/laundry.tres" id="pre"]
+
+[sub_resource type="Resource" id="ruler_found"]
+script = ExtResource("goal")
+id = &"ruler_found"
+text = "找到并叼起尺子"
+kind = 3
+target_id = &"ruler_found"
+target_count = 1
+
+[sub_resource type="Resource" id="yarn_freed"]
+script = ExtResource("goal")
+id = &"yarn_freed"
+text = "用竖叼尺子够出毛线球"
+kind = 3
+target_id = &"yarn_freed"
+target_count = 1
+
+[sub_resource type="Resource" id="yarn_home"]
+script = ExtResource("goal")
+id = &"yarn_home"
+text = "把毛线球送到猫窝"
+kind = 3
+target_id = &"yarn_home"
+target_count = 1
+
+[resource]
+script = ExtResource("quest")
+id = &"day1_yarn"
+title = "02 · 沙发底下的秘密"
+description = "去一楼东南角工作书房找尺子；R 切换竖叼，从沙发前侧够出毛线球，再叼回猫窝。"
+priority = 88
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+objectives = Array[ExtResource("goal")]([SubResource("ruler_found"), SubResource("yarn_freed"), SubResource("yarn_home")])
+result_text = "毛线球上发现了不属于自己的猫毛。接下来洗净大狗嚼的盘子。"
