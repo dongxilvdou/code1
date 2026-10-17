@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CalicoQuestCatalog" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_catalog.gd" id="catalog"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Resource" path="res://day1/quests/arrival.tres" id="day1_arrival"]
+[ext_resource type="Resource" path="res://day1/quests/lights.tres" id="day1_lights"]
+[ext_resource type="Resource" path="res://day1/quests/papers.tres" id="day1_papers"]
+[ext_resource type="Resource" path="res://day1/quests/yarn.tres" id="day1_yarn"]
+[ext_resource type="Resource" path="res://day2/quests/note.tres" id="day2_note"]
+[ext_resource type="Resource" path="res://day2/quests/laundry.tres" id="day2_laundry"]
+[ext_resource type="Resource" path="res://day2/quests/feed.tres" id="day2_feed"]
+[ext_resource type="Resource" path="res://day2/quests/dishes.tres" id="day2_dishes"]
+
+[resource]
+script = ExtResource("catalog")
+quests = Array[ExtResource("quest")]([ExtResource("day1_arrival"), ExtResource("day1_lights"), ExtResource("day1_papers"), ExtResource("day1_yarn"), ExtResource("day2_note"), ExtResource("day2_laundry"), ExtResource("day2_feed"), ExtResource("day2_dishes")])

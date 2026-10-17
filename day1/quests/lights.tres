@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" path="res://day1/quests/arrival.tres" id="pre"]
+
+[sub_resource type="Resource" id="light_off"]
+script = ExtResource("goal")
+id = &"light_off"
+text = "碰到开关，关闭客厅灯"
+kind = 3
+target_id = &"light_off"
+target_count = 1
+
+[resource]
+script = ExtResource("quest")
+id = &"day1_lights"
+title = "01 · 关掉客厅的灯"
+description = "从柜子跳上电视，绿色区按 E 三次保持平衡，再起跳碰到电视旁的开关。"
+priority = 99
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+objectives = Array[ExtResource("goal")]([SubResource("light_off")])
+result_text = "其他房间的门已解锁"

@@ -1,5 +1,7 @@
 extends CanvasLayer
 signal started
+signal continued
+signal save_requested
 signal resumed
 signal reset_requested
 signal volume_changed(value: float)
@@ -12,6 +14,12 @@ var toast_label: Label
 var navigation_label: Label
 var interaction_panel: PanelContainer
 var start_button: Button
+var continue_button: Button
+var save_button: Button
+var save_summary: Label
+var save_feedback: Label
+var new_game_confirmation: ConfirmationDialog
+var existing_save := false
 var toast_time := 0.0
 var font: SystemFont
 var volume_value := .65
@@ -99,8 +107,8 @@ func make_welcome() -> void:
 	column.name = "MenuActions"
 	column.anchor_left = .065
 	column.anchor_right = .065
-	column.anchor_top = .27
-	column.anchor_bottom = .27
+	column.anchor_top = .18
+	column.anchor_bottom = .18
 	column.offset_right = 348
 	column.add_theme_constant_override("separation",12)
 	welcome.add_child(column)
@@ -108,10 +116,35 @@ func make_welcome() -> void:
 	var spacer := Control.new()
 	spacer.custom_minimum_size.y = 24
 	column.add_child(spacer)
-	start_button = button("开始游戏",column,func(): started.emit(),true)
+	start_button = button("新游戏",column,request_new_game,true)
 	start_button.name = "StartGame"
+	continue_button = button("继续游戏",column,func(): continued.emit())
+	continue_button.name = "ContinueGame"
+	continue_button.disabled = true
+	save_summary = text("正在检查存档……",15,MUTED,column)
+	save_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button("设置",column,open_settings).name = "Settings"
 	button("退出游戏",column,func(): get_tree().quit()).name = "QuitGame"
+	new_game_confirmation = ConfirmationDialog.new()
+	new_game_confirmation.title = "开始新游戏"
+	new_game_confirmation.dialog_text = "新游戏会从第一天重新开始，并覆盖当前进度。\n原存档会保留一份备份。是否继续？"
+	new_game_confirmation.ok_button_text = "开始新游戏"
+	new_game_confirmation.cancel_button_text = "取消"
+	new_game_confirmation.add_theme_font_override("font",font)
+	new_game_confirmation.confirmed.connect(func():started.emit())
+	new_game_confirmation.canceled.connect(func():start_button.grab_focus())
+	add_child(new_game_confirmation)
+
+func request_new_game() -> void:
+	if existing_save:
+		new_game_confirmation.popup_centered(Vector2i(480,190))
+		new_game_confirmation.get_cancel_button().grab_focus()
+	else:started.emit()
+
+func update_save_menu(exists: bool, valid: bool, summary: String) -> void:
+	existing_save = exists
+	continue_button.disabled = not valid
+	save_summary.text = summary
 
 func make_hud() -> void:
 	hud = control()
@@ -181,6 +214,12 @@ func make_pause() -> void:
 	var column := center_box(pause_panel)
 	text("暂停",34,PAPER,column)
 	button("继续游戏",column,func(): pause_panel.hide(); resumed.emit(),true)
+	save_button = button("保存游戏",column,func():save_requested.emit())
+	save_button.name = "SaveGame"
+	save_button.tooltip_text = "保存当前任务、道具和状态；继续游戏时从一楼入口恢复。"
+	save_feedback = text("进度会自动保存，也可在这里手动保存。",14,MUTED,column)
+	save_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	save_feedback.custom_minimum_size.x = 400
 	button("设置",column,open_settings)
 	button("返回客厅",column,func(): reset_requested.emit(); pause_panel.hide(); resumed.emit())
 	button("退出游戏",column,func(): get_tree().quit())

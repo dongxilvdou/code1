@@ -68,9 +68,16 @@ func update_target() -> void:
 		nearest_door = door
 	if nearest_door:
 		ui.hint_label.text = "[ E ]  "+("关闭" if nearest_door.is_open else "打开")+nearest_door.door_title
+		if nearest_door.locked:ui.hint_label.text = "门暂时打不开 · 先完成客厅里的事情"
 		if nearest_door.blocked:ui.hint_label.text = "让开一点，门会继续移动  ·  E 改变方向"
+	var day := get_node_or_null("DayOne")
+	if day and day.has_method("target_hint"):
+		var hint: String = day.target_hint()
+		if not hint.is_empty():ui.hint_label.text = hint
 
 func interact() -> void:
+	var day := get_node_or_null("DayOne")
+	if day and day.has_method("try_interact") and day.try_interact():return
 	update_target()
 	if nearest_door:nearest_door.toggle()
 

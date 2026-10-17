@@ -11858,7 +11858,7 @@ metadata/placement_room = "Kitchen"
 metadata/asset_id = "decor_herb_pot"
 
 [node name="KitchenCabinet_040" type="Node3D" parent="GroundFloor/Furnishings/Kitchen" unique_id=1872812440 groups=["placed_furniture"] instance=ExtResource("33_o6m75")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.39, 0.007, -3.37)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.39, 0.007, -2.84)
 script = ExtResource("15_locux")
 room_style = "Kitchen"
 metadata/furniture = {
@@ -11876,7 +11876,7 @@ metadata/placement_room = "Kitchen"
 metadata/asset_id = "kitchen_cabinet"
 
 [node name="KitchenCabinet_041" type="Node3D" parent="GroundFloor/Furnishings/Kitchen" unique_id=1500996286 groups=["placed_furniture"] instance=ExtResource("33_o6m75")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.03, 0.007, -3.37)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3.03, 0.007, -2.84)
 script = ExtResource("15_locux")
 room_style = "Kitchen"
 metadata/furniture = {
@@ -11894,7 +11894,7 @@ metadata/placement_room = "Kitchen"
 metadata/asset_id = "kitchen_cabinet"
 
 [node name="DecorFruitBowl_042" type="Node3D" parent="GroundFloor/Furnishings/Kitchen" unique_id=2139634113 groups=["placed_furniture"] instance=ExtResource("31_ansvo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.39, 0.907, -3.38)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.39, 0.907, -2.85)
 script = ExtResource("15_locux")
 room_style = "Kitchen"
 metadata/furniture = {
@@ -11912,7 +11912,7 @@ metadata/placement_room = "Kitchen"
 metadata/asset_id = "decor_fruit_bowl"
 
 [node name="DecorPrepBoard_043" type="Node3D" parent="GroundFloor/Furnishings/Kitchen" unique_id=841047909 groups=["placed_furniture"] instance=ExtResource("37_04ch4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.02, 0.907, -3.38)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.02, 0.907, -2.85)
 script = ExtResource("15_locux")
 room_style = "Kitchen"
 metadata/furniture = {

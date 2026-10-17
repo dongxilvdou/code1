@@ -21,7 +21,9 @@ func _ready() -> void:
 	ui.name = "Interface"
 	ui.set_script(load("res://scripts/interface.gd"))
 	add_child(ui)
-	ui.started.connect(request_start_game)
+	ui.started.connect(request_new_game)
+	ui.continued.connect(request_continue_game)
+	ui.save_requested.connect(save_current_game)
 	ui.resumed.connect(resume_game)
 	ui.reset_requested.connect(func(): player.reset_position())
 	ui.volume_changed.connect(set_volume)
@@ -74,6 +76,46 @@ func start_game() -> void:
 	player.camera.make_current()
 	ui.welcome.hide()
 	ui.hud.show()
+
+func refresh_save_menu() -> void:
+	var quest := get_node_or_null("QuestSystem")
+	if quest == null:
+		ui.update_save_menu(false,false,"当前场景不支持存档")
+		ui.save_button.disabled = true
+		return
+	if not quest.initialized:return
+	var info: Dictionary = quest.inspect_save()
+	var summary := "暂无存档 · 选择新游戏开始"
+	if info.exists:summary = "存档：第 %d 天" % info.day if info.valid else "存档无法读取 · 可选择新游戏重新开始"
+	ui.update_save_menu(info.exists,info.valid,summary)
+	ui.save_button.disabled = not quest.save_enabled
+
+func request_new_game() -> void:
+	if cinematic_active or started:return
+	var quest := get_node_or_null("QuestSystem")
+	if quest != null and not quest.prepare_session(true):
+		ui.save_summary.text = quest.menu_error
+		return
+	request_start_game(true)
+
+func request_continue_game() -> void:
+	if cinematic_active or started:return
+	var quest := get_node_or_null("QuestSystem")
+	if quest == null:return
+	if not quest.prepare_session(false):
+		refresh_save_menu()
+		ui.save_summary.text = quest.menu_error
+		return
+	# Continue resumes saved progress directly, without replaying the opening.
+	start_game()
+
+func save_current_game() -> void:
+	if not started or cinematic_active or not ui.pause_panel.visible:return
+	var quest := get_node_or_null("QuestSystem")
+	if quest == null:return
+	if quest.save_current_progress():
+		ui.save_feedback.text = "已保存 · 第 %d 天 · %s" % [int(quest.manager.values.get("current_day",1)),Time.get_time_string_from_system()]
+	else:ui.save_feedback.text = "保存失败："+quest.menu_error
 
 func request_start_game(force_intro: bool = false) -> void:
 	if cinematic_active or started:return

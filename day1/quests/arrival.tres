@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+
+[sub_resource type="Resource" id="walk"]
+script = ExtResource("goal")
+id = &"walk"
+text = "试着走一走"
+kind = 3
+target_id = &"walk"
+target_count = 1
+
+[sub_resource type="Resource" id="run"]
+script = ExtResource("goal")
+id = &"run"
+text = "按住 Shift 跑一小段"
+kind = 3
+target_id = &"run"
+target_count = 1
+
+[sub_resource type="Resource" id="open_living"]
+script = ExtResource("goal")
+id = &"open_living"
+text = "打开客厅门"
+kind = 3
+target_id = &"open_living"
+target_count = 1
+
+[sub_resource type="Resource" id="stool"]
+script = ExtResource("goal")
+id = &"stool"
+text = "跳上小凳子"
+kind = 3
+target_id = &"stool"
+target_count = 1
+
+[sub_resource type="Resource" id="table"]
+script = ExtResource("goal")
+id = &"table"
+text = "从凳子跳上桌子"
+kind = 3
+target_id = &"table"
+target_count = 1
+
+[sub_resource type="Resource" id="cup_moved"]
+script = ExtResource("goal")
+id = &"cup_moved"
+text = "将水杯叼到杯垫上"
+kind = 3
+target_id = &"cup_moved"
+target_count = 1
+
+[sub_resource type="Resource" id="note_read"]
+script = ExtResource("goal")
+id = &"note_read"
+text = "阅读纸条"
+kind = 3
+target_id = &"note_read"
+target_count = 1
+
+[resource]
+script = ExtResource("quest")
+id = &"day1_arrival"
+title = "初来乍到"
+description = "走跑、开门、跳跃、叼取和阅读。小凳子与纸条桌在客厅南窗边。"
+priority = 100
+objectives = Array[ExtResource("goal")]([SubResource("walk"), SubResource("run"), SubResource("open_living"), SubResource("stool"), SubResource("table"), SubResource("cup_moved"), SubResource("note_read")])
+result_text = "开始今天的三件事"

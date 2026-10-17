@@ -14,6 +14,8 @@ var player: Node
 var map_hud: Control
 var initialized := false
 var session_started := false
+var session_prepared := false
+var menu_error := ""
 var _last_room := ""
 var _pending_doors: Dictionary = {}
 var _messages: Array[String] = []
@@ -56,6 +58,59 @@ func _connect_game() -> void:
 	# 父场景已先连接 interact()，这里收到信号时门的目标开合状态已更新。
 	player.interacted.connect(_on_interacted)
 	initialized = true
+	game.refresh_save_menu()
+
+func inspect_save() -> Dictionary:
+	var info := {"exists":false,"valid":false,"day":1}
+	if not initialized or not save_enabled:return info
+	info.exists = FileAccess.file_exists(manager.save_path)
+	if not info.exists:return info
+	# Validate with an isolated manager. Opening the menu never changes player progress.
+	var probe := CalicoQuestManager.new()
+	if probe.configure(catalog):
+		probe.save_path = manager.save_path
+		info.valid = probe.load_game()
+		if info.valid:info.day = int(probe.values.get("current_day",1))
+	probe.free()
+	return info
+
+func prepare_session(new_game: bool) -> bool:
+	menu_error = ""
+	if not initialized or session_started:
+		menu_error = "游戏尚未准备好，请稍后重试。"
+		return false
+	if not new_game:
+		if not save_enabled or not manager.load_game():
+			menu_error = "无法读取存档，原文件已保留。"
+			return false
+	else:
+		# Back up before any reset or autosave can replace the user's existing file.
+		if save_enabled and FileAccess.file_exists(manager.save_path):
+			var path := ProjectSettings.globalize_path(manager.save_path)
+			var error := DirAccess.copy_absolute(path,path+".bak")
+			if error != OK:
+				menu_error = "无法备份原存档，新游戏未开始："+error_string(error)
+				return false
+		manager.autosave = false
+		manager.start_new_game()
+		if save_enabled and not manager.save_game():
+			menu_error = manager.last_save_error
+			return false
+	manager.autosave = save_enabled and not "--quest-test" in OS.get_cmdline_user_args()
+	session_prepared = true
+	return true
+
+func save_current_progress() -> bool:
+	menu_error = ""
+	if not initialized or not session_started or not save_enabled:
+		menu_error = "当前游戏无法保存。"
+		return false
+	var day := game.get_node_or_null("DayOne")
+	if day:day.reconcile_progress()
+	if not manager.save_game():
+		menu_error = manager.last_save_error
+		return false
+	return true
 
 func exploration_active() -> bool:
 	return initialized and bool(game.started) and map_hud.available() and not map_hud.big_open and not tracker.journal_visible()
@@ -65,7 +120,7 @@ func _physics_process(delta: float) -> void:
 	if game.started and not session_started:
 		session_started = true
 		var exists := FileAccess.file_exists(manager.save_path)
-		if not manager.autosave or not manager.load_game():
+		if not session_prepared and (not manager.autosave or not manager.load_game()):
 			if manager.autosave and exists:
 				# 保留坏文件供排查，停用自动覆盖；用户可以从日志主动重置。
 				manager.autosave = false
@@ -109,6 +164,7 @@ func _on_completed(id: StringName) -> void:
 
 func open_journal() -> void:
 	if not initialized or not game.started or tracker.journal_visible(): return
+	if game.cinematic_active:return
 	if game.photo or game.inspecting or map_hud.big_open or game.ui.settings_panel.visible: return
 	_journal_from_pause = game.ui.pause_panel.visible
 	if not _journal_from_pause: game.toggle_pause()
@@ -128,6 +184,8 @@ func restart_quests() -> void:
 	_pending_doors.clear()
 	_messages.clear()
 	tracker.show_notice("任务进度已重新开始")
+	var day := game.get_node_or_null("DayOne")
+	if day:day.restart_day()
 
 func _input(event: InputEvent) -> void:
 	if not initialized or not event is InputEventKey or not event.pressed or event.echo: return

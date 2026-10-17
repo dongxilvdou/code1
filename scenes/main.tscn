@@ -6,6 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://deekua2v7orhw" path="res://villa_maps/villa_map.tscn" id="4_jyhfs"]
 [ext_resource type="PackedScene" path="res://quest_system/quest_system.tscn" id="5_tbgi4"]
 [ext_resource type="PackedScene" path="res://scenes/cinematics/OpeningCutscene.tscn" id="6_intro"]
+[ext_resource type="Script" path="res://day1/day_one.gd" id="7_day"]
+[ext_resource type="Resource" path="res://day2/quests/catalog.tres" id="8_tasks"]
+[ext_resource type="Script" path="res://day2/day_two.gd" id="9_day2"]
 
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")
@@ -19,6 +22,14 @@ void_reset_height = -7.0
 [node name="VillaMap" parent="." unique_id=276493067 instance=ExtResource("4_jyhfs")]
 
 [node name="QuestSystem" parent="." unique_id=950809945 instance=ExtResource("5_tbgi4")]
+catalog = ExtResource("8_tasks")
+save_file = "user://day_one_v1.json"
+
+[node name="DayOne" type="Node3D" parent="."]
+script = ExtResource("7_day")
+
+[node name="DayTwo" type="Node3D" parent="."]
+script = ExtResource("9_day2")
 
 [node name="OpeningCutscene" parent="." node_paths=PackedStringArray("environment_source", "sun_source") instance=ExtResource("6_intro")]
 environment_source = NodePath("../Apartment/Lighting/VillaEnvironment")
