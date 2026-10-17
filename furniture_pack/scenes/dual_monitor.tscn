@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://furniture_pack/models/dual_monitor.glb" id="1_rm4im"]
+
+[node name="DualMonitor" type="Node3D" unique_id=352862032]
+metadata/furniture = {
+"dimensions_m": [1.245, 0.554, 0.2],
+"features": ["双屏", "金属支架", "屏幕界面", "状态灯"],
+"id": "dual_monitor",
+"model": "res://furniture_pack/models/dual_monitor.glb",
+"name": "双 27 英寸显示器"
+}
+
+[node name="BlenderModel" type="Node3D" parent="." unique_id=1801202774 instance=ExtResource("1_rm4im")]

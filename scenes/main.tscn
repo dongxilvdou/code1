@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://d2e56oo0eplao" path="res://scenes/player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://deekua2v7orhw" path="res://villa_maps/villa_map.tscn" id="4_jyhfs"]
 [ext_resource type="PackedScene" path="res://quest_system/quest_system.tscn" id="5_tbgi4"]
+[ext_resource type="PackedScene" path="res://scenes/cinematics/OpeningCutscene.tscn" id="6_intro"]
 
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")
@@ -13,7 +14,12 @@ script = ExtResource("1_game")
 
 [node name="Miso" parent="." unique_id=1685654802 instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0.02, 4.2)
+void_reset_height = -7.0
 
 [node name="VillaMap" parent="." unique_id=276493067 instance=ExtResource("4_jyhfs")]
 
 [node name="QuestSystem" parent="." unique_id=950809945 instance=ExtResource("5_tbgi4")]
+
+[node name="OpeningCutscene" parent="." node_paths=PackedStringArray("environment_source", "sun_source") instance=ExtResource("6_intro")]
+environment_source = NodePath("../Apartment/Lighting/VillaEnvironment")
+sun_source = NodePath("../Apartment/Lighting/DaylightSun")

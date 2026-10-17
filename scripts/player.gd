@@ -19,6 +19,7 @@ var model: Node3D
 var collider: CollisionShape3D
 var paws: Array[Node3D] = []
 @export_range(.5,1.2,.05) var cat_scale := .8
+@export var void_reset_height := -2.0
 var spawn := Vector3(-3.4,.02,4.2)
 const MAX_STEP := .19
 
@@ -117,11 +118,12 @@ func _physics_process(delta: float) -> void:
 	var eye_clearance: float = (.19 if low else .28)*cat_scale-.06
 	step_view_offset = clampf(step_view_offset,-maxf(0,eye_clearance),MAX_STEP)
 	camera.position.y = step_view_offset
-	if position.y < -2: reset_position()
+	if position.y < void_reset_height: reset_position()
 	var flat_speed := Vector2(velocity.x,velocity.z).length()
 	model.speed = flat_speed/cat_scale
 	model.crouching = low
 	model.airborne = not is_on_floor()
+	model.vertical_speed = velocity.y
 	stride += flat_speed*delta*9
 	var bob := sin(stride*2)*.008*cat_scale if is_on_floor() else 0.0
 	head.position.y = lerpf(head.position.y,(.19 if low else .28)*cat_scale+bob,delta*12)

@@ -11,8 +11,8 @@ var elevation := .24
 var distance := 1.25
 var pose := "idle"
 var text_label: Label
-const POSES := ["idle","walk","run","crouch","jump","stretch"]
-const LABELS := ["站立","行走","奔跑","低伏","跳跃","参考图伸展"]
+const POSES := ["idle","walk","run","crouch","jump","stretch","sit","tailwag"]
+const LABELS := ["站立","行走","奔跑","低伏","跳跃","伸展","坐下","摆尾"]
 
 func _ready() -> void:
 	cat = $Calico
@@ -25,7 +25,7 @@ func _ready() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(.70,.76,.79)
 	environment.ambient_light_energy = .62
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.tonemap_mode = Environment.TONE_MAPPER_AGX
 	environment.ssao_enabled = true
 	environment.ssao_intensity = 1.15
 	environment.ssao_radius = .12
@@ -115,7 +115,7 @@ func make_ui() -> void:
 	for i in range(POSES.size()):
 		var b := Button.new()
 		b.text = "%d  %s" % [i+1,LABELS[i]]
-		b.custom_minimum_size = Vector2(114,43)
+		b.custom_minimum_size = Vector2(98,43)
 		var s := StyleBoxFlat.new()
 		s.bg_color = Color(.12,.18,.20)
 		s.border_color = Color(.38,.47,.45)
@@ -138,7 +138,7 @@ func make_ui() -> void:
 		if label.begins_with("B"):b.toggled.connect(func(value: bool):show_bones = value)
 		else:b.toggled.connect(set_clay)
 	var help := Label.new()
-	help.text = "鼠标拖动旋转  ·  滚轮缩放  ·  空格冻结姿态  ·  1—6 切换动作"
+	help.text = "鼠标拖动旋转  ·  滚轮缩放  ·  空格冻结姿态  ·  1—8 切换动作"
 	help.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	help.offset_left = 38
 	help.offset_top = -35
@@ -172,7 +172,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.button_index==MOUSE_BUTTON_WHEEL_DOWN:distance = minf(2.1,distance+.08)
 		update_camera()
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode>=KEY_1 and event.keycode<=KEY_6:set_pose(POSES[event.keycode-KEY_1])
+		if event.keycode>=KEY_1 and event.keycode<=KEY_8:set_pose(POSES[event.keycode-KEY_1])
 		if event.keycode==KEY_B:show_bones = not show_bones
 		if event.keycode==KEY_C:set_clay(not clay)
 		if event.keycode==KEY_SPACE:cat.animate = not cat.animate
@@ -183,7 +183,7 @@ func update_camera() -> void:
 	camera.look_at(center)
 
 func _process(_delta: float) -> void:
-	text_label.text = "234,236 三角面  /  117,274 顶点  /  47 骨骼\n连续主体 · 四肢蒙皮 · 足爪逆运动学 · 13 节尾骨"
+	text_label.text = "%s 三角面  /  47 骨骼  /  8 组动作\n独立 UV 毛色 · 短毛细节 · 足爪逆运动学 · 13 节尾骨" % cat.rig_data.stats.triangles
 	if not show_bones:
 		overlay.hide()
 		for dot in joints:dot.hide()

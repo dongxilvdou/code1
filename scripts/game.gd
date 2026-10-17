@@ -11,6 +11,9 @@ var rain_audio: AudioStreamPlayer
 var meow_audio: AudioStreamPlayer
 var paw_audio: AudioStreamPlayer
 var reaction_time := 0.0
+var cinematic_active := false
+var opening: Node3D
+@export var opening_preview_on_ready := false
 
 func _ready() -> void:
 	player = $Miso
@@ -18,7 +21,7 @@ func _ready() -> void:
 	ui.name = "Interface"
 	ui.set_script(load("res://scripts/interface.gd"))
 	add_child(ui)
-	ui.started.connect(start_game)
+	ui.started.connect(request_start_game)
 	ui.resumed.connect(resume_game)
 	ui.reset_requested.connect(func(): player.reset_position())
 	ui.volume_changed.connect(set_volume)
@@ -34,6 +37,12 @@ func _ready() -> void:
 	cat_camera.fov = 61
 	cat_camera.cull_mask = 1|2|4|16
 	add_child(cat_camera)
+	opening = get_node_or_null("OpeningCutscene")
+	if opening:
+		opening.bind_game(self,player,ui)
+		opening.finished.connect(_on_opening_finished)
+	if opening_preview_on_ready or "--intro-preview" in OS.get_cmdline_user_args():
+		call_deferred("request_start_game",true)
 	if "--autoplay" in OS.get_cmdline_user_args(): start_game()
 	if "--verify" in OS.get_cmdline_user_args(): call_deferred("verify_game")
 
@@ -59,11 +68,27 @@ func set_volume(value: float) -> void:
 	AudioServer.set_bus_volume_db(0,linear_to_db(maxf(.001,value)))
 
 func start_game() -> void:
+	if cinematic_active:return
 	started = true
 	player.set_control(true)
 	player.camera.make_current()
 	ui.welcome.hide()
 	ui.hud.show()
+
+func request_start_game(force_intro: bool = false) -> void:
+	if cinematic_active or started:return
+	var quest := get_node_or_null("QuestSystem")
+	var has_save: bool = quest!=null and quest.save_enabled and FileAccess.file_exists(quest.save_file)
+	var no_intro := "--skip-intro" in OS.get_cmdline_user_args()
+	if opening and not no_intro and opening.should_play(has_save,force_intro):
+		cinematic_active = true
+		if opening.play():return
+		cinematic_active = false
+	start_game()
+
+func _on_opening_finished(_skipped: bool) -> void:
+	cinematic_active = false
+	start_game()
 
 func update_room() -> void:
 	pass
@@ -82,7 +107,7 @@ func resume_game() -> void:
 	ui.hud.show()
 
 func toggle_pause() -> void:
-	if not started or ui.settings_panel.visible:return
+	if cinematic_active or not started or ui.settings_panel.visible:return
 	if ui.pause_panel.visible:
 		ui.pause_panel.hide()
 		resume_game()
@@ -92,6 +117,7 @@ func toggle_pause() -> void:
 		ui.pause_panel.show()
 
 func toggle_photo() -> void:
+	if cinematic_active:return
 	photo = not photo
 	if photo:
 		cat_camera.make_current()

@@ -35,7 +35,7 @@ void fragment() {
         ceramic=!upper && height<1.25;
     } else if(q.x>=6.7 && q.z>=8.9) {
         color=paint(.88,.86,.81);
-        if(q.z<9.1) color=upper ? paint(.68,.43,.32) : paint(.46,.55,.41);
+        if(q.z<9.1) color=upper ? paint(.35,.44,.49) : paint(.46,.55,.41);
     } else if(upper && q.x<5.2 && q.z<5.4) {
         color=paint(.83,.86,.85);
         if(q.z>5.2) color=paint(.40,.54,.59);

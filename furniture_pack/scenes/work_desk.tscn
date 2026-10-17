@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://furniture_pack/models/work_desk.glb" id="1_x4yef"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lmhuy"]
+size = Vector3(1.8, 0.052, 0.76)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xvf7i"]
+size = Vector3(0.085, 0.74, 0.14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fmuj7"]
+size = Vector3(0.085, 0.74, 0.14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q4q4s"]
+size = Vector3(1.48, 0.065, 0.05)
+
+[node name="WorkDesk" type="Node3D" unique_id=157121386]
+metadata/furniture = {
+"dimensions_m": [1.8, 0.7785, 0.76],
+"features": ["圆角桌面", "金属桌腿", "理线槽"],
+"id": "work_desk",
+"model": "res://furniture_pack/models/work_desk.glb",
+"name": "1.8 米木面工作桌"
+}
+
+[node name="BlenderModel" type="Node3D" parent="." unique_id=400279701 instance=ExtResource("1_x4yef")]
+
+[node name="DesktopCollision" type="StaticBody3D" parent="." unique_id=563640019]
+collision_mask = 2
+
+[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="DesktopCollision" unique_id=1550180682]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.752, 0)
+shape = SubResource("BoxShape3D_lmhuy")
+
+[node name="Leg" type="StaticBody3D" parent="." unique_id=1231125416]
+collision_mask = 2
+
+[node name="@CollisionShape3D@3" type="CollisionShape3D" parent="Leg" unique_id=1011442761]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, 0.37, 0)
+shape = SubResource("BoxShape3D_xvf7i")
+
+[node name="@StaticBody3D@4" type="StaticBody3D" parent="." unique_id=1287057748]
+collision_mask = 2
+
+[node name="@CollisionShape3D@5" type="CollisionShape3D" parent="@StaticBody3D@4" unique_id=347500269]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, 0.37, 0)
+shape = SubResource("BoxShape3D_fmuj7")
+
+[node name="Brace" type="StaticBody3D" parent="." unique_id=165765999]
+collision_mask = 2
+
+[node name="@CollisionShape3D@6" type="CollisionShape3D" parent="Brace" unique_id=660004404]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58, 0.08)
+shape = SubResource("BoxShape3D_q4q4s")

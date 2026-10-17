@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://furniture_pack/models/office_chair.glb" id="1_pqeqq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_34rq2"]
+size = Vector3(0.5, 0.1, 0.47)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ilyaj"]
+size = Vector3(0.49, 0.53, 0.09)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4n7yw"]
+size = Vector3(0.08, 0.35, 0.08)
+
+[node name="OfficeChair" type="Node3D" unique_id=58888410]
+metadata/furniture = {
+"dimensions_m": [0.6775, 1.245, 0.6686],
+"features": ["五爪脚轮", "气压支撑", "软垫", "腰背支撑", "头枕", "扶手"],
+"id": "office_chair",
+"model": "res://furniture_pack/models/office_chair.glb",
+"name": "可调式人体工学办公椅"
+}
+
+[node name="BlenderModel" type="Node3D" parent="." unique_id=976993176 instance=ExtResource("1_pqeqq")]
+
+[node name="Seat" type="StaticBody3D" parent="." unique_id=286054671]
+collision_mask = 2
+
+[node name="@CollisionShape3D@8" type="CollisionShape3D" parent="Seat" unique_id=125774599]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.465, 0)
+shape = SubResource("BoxShape3D_34rq2")
+
+[node name="Back" type="StaticBody3D" parent="." unique_id=1706986615]
+collision_mask = 2
+
+[node name="@CollisionShape3D@9" type="CollisionShape3D" parent="Back" unique_id=376070315]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, -0.225)
+shape = SubResource("BoxShape3D_ilyaj")
+
+[node name="Lift" type="StaticBody3D" parent="." unique_id=1974522376]
+collision_mask = 2
+
+[node name="@CollisionShape3D@10" type="CollisionShape3D" parent="Lift" unique_id=2106511955]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.24, 0)
+shape = SubResource("BoxShape3D_4n7yw")

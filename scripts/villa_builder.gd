@@ -15,6 +15,7 @@ var cornice_volumes: Array = []
 var door_count := 0
 const Geometry = preload("res://scripts/villa_geometry.gd")
 const Foliage = preload("res://scripts/villa_foliage.gd")
+const Basement = preload("res://scripts/villa_basement.gd")
 
 func at(x: float, y: float, z: float) -> Vector3:
 	return Vector3(x-6,y,z-6)
@@ -145,6 +146,7 @@ func build() -> Node3D:
 	build_storey(ground_floor,0,false)
 	build_storey(upper_floor,3,true)
 	build_staircase()
+	Basement.build(self)
 	build_roof()
 	build_exterior_details()
 	build_lighting()
@@ -168,7 +170,7 @@ func build_room_signs() -> void:
 		var p := ground_floor if floor_y==0 else upper_floor
 		room_sign("卫生间",6.61,5.25,floor_y+1.02,-90,p)
 		room_sign("洗衣间" if floor_y==0 else "衣帽间",6.61,7.46,floor_y+1.02,-90,p)
-		room_sign("客卧" if floor_y==0 else "次卧 B",8.28,8.81,floor_y+1.02,180,p)
+		room_sign("工作书房" if floor_y==0 else "电脑房",8.28,8.81,floor_y+1.02,180,p)
 		room_sign("厨房" if floor_y==0 else "次卧 A",6.78,3.69,floor_y+1.02,0,p)
 	room_sign("主卧",5.29,5.18,4.02,90,upper_floor)
 	room_sign("书房",5.29,7.68,4.02,90,upper_floor)
@@ -177,7 +179,7 @@ func rect_floor(label: String, x1: float, z1: float, x2: float, z2: float, top: 
 	box(label,at((x1+x2)/2,top-thick/2,(z1+z2)/2),Vector3(x2-x1,thick,z2-z1),key,solid,parent)
 
 func build_slabs() -> void:
-	rect_floor("Foundation",-.125,-.125,12.125,12.125,0,.25,"villa_floor",ground_floor)
+	Basement.split_slab(self,"Foundation",Rect2(-.125,-.125,12.25,12.25),0,.25,"villa_floor",ground_floor)
 	# Upper floor slab is split around the full staircase opening, not a solid lid.
 	rect_floor("UpperSlabNorth",-.125,-.125,12.125,3.6,3,.18,"villa_floor",upper_floor)
 	rect_floor("UpperSlabWest",-.125,3.6,9.2,7.5,3,.18,"villa_floor",upper_floor)
@@ -285,7 +287,7 @@ func doorway(label: String, axis: String, value: float, a: float, b: float, y: f
 	if label.contains("WetWest"):
 		title = "卫生间门" if a<5 else "衣帽间门" if y>1 else "洗衣间门"
 	elif label.contains("GuestNorth"):
-		title = "卧室门"
+		title = "电脑房门" if y>1 else "工作书房门"
 		angle = -100
 	elif label.contains("KitchenOrBed"):title = "次卧门" if y>1 else "厨房门"
 	elif label.contains("WestPartition"):
@@ -376,7 +378,7 @@ func build_storey(parent: Node3D, y: float, upper: bool) -> void:
 	wall(prefix+"WetWest","v",6.7,3.6,7.5,y,[opening(4.05,4.95),opening(6.35,7.25)],parent)
 	wall(prefix+"WetEast","v",9.2,3.6,7.5,y,[],parent)
 	wall(prefix+"UtilityDivide","h",6.2,6.7,9.2,y,[],parent)
-	wall(prefix+"StairEntrance","h",7.5,6.7,12,y,[opening(10.65,11.75,"arch")] if upper else [opening(9.45,10.55,"arch")],parent)
+	wall(prefix+"StairEntrance","h",7.5,6.7,12,y,[opening(10.65,11.75,"arch")] if upper else [opening(9.45,10.55,"arch"),opening(10.65,11.75,"arch")],parent)
 	wall(prefix+"GuestWest","v",6.7,8.9,12,y,[],parent)
 	wall(prefix+"GuestNorth","h",8.9,6.7,12,y,[opening(7.1,8.0)],parent)
 	union_mesh(prefix+"Walls",wall_volumes,["villa_wall","villa_outer"],parent,y,true,true)
@@ -403,23 +405,43 @@ func rail(label: String, a: Vector3, b: Vector3, height: float, parent: Node) ->
 	shape.shape = bounds
 	attach(shape,body)
 
+func stair_collision(label: String, pos: Vector3, size: Vector3, parent: Node) -> void:
+	# Collision remains as individual boxes; only the render mesh is welded.
+	var body := StaticBody3D.new()
+	body.name = label
+	body.position = pos
+	attach(body,parent)
+	var shape := CollisionShape3D.new()
+	var bounds := BoxShape3D.new()
+	bounds.size = size
+	shape.shape = bounds
+	attach(shape,body)
+
 func build_staircase() -> void:
 	# Eighteen true risers, nine per flight. Actual step collisions are retained.
 	var riser := STOREY/18.0
 	var depth := 2.55/9
+	var surfaces: Array = []
 	for i in range(9):
 		var h := (i+1)*riser
 		var z := 7.5-depth*(i+.5)
-		box("WestFlightStep%02d" % (i+1),at(10.0,h/2,z),Vector3(1.1,h,depth+.008),"villa_floor",true,stair_group)
-		box("WestNosing",at(10.0,h-.018,z+depth/2-.015),Vector3(1.12,.036,.045),"villa_trim",false,stair_group)
+		stair_collision("WestFlightStep%02d" % (i+1),at(10.0,h/2,z),Vector3(1.1,h,depth+.008),stair_group)
+		# Abutting visual volumes have no overlapping side strips.
+		surfaces.append(volume(at(10.0,h/2,z),Vector3(1.1,h,depth)))
+		# A recessed top and projecting front expose only the vertical nosing.
+		box("WestNosing",at(10.0,h-.022,z+depth/2+.001),Vector3(1.12,.036,.016),"villa_trim",false,stair_group)
 	# The half landing bridges both flights at 1.5 m, with its underside unobstructed.
-	rect_floor("HalfLanding",9.45,3.84,11.75,4.95,1.5,.16,"villa_floor",stair_group)
+	stair_collision("HalfLanding",at(10.60,1.42,4.395),Vector3(2.30,.16,1.11),stair_group)
+	surfaces.append(volume(at(10.60,1.42,4.395),Vector3(2.30,.16,1.11)))
 	for i in range(9):
 		var h := 1.5+(i+1)*riser
 		var z := 4.95+depth*(i+.5)
-		box("EastFlightStep%02d" % (i+10),at(11.2,h-.08,z),Vector3(1.1,.16,depth+.008),"villa_floor",true,stair_group)
-		box("EastRiser",at(11.2,h-riser/2,z-depth/2),Vector3(1.1,riser,.025),"villa_trim",false,stair_group)
-		box("EastNosing",at(11.2,h-.018,z-depth/2+.015),Vector3(1.12,.036,.045),"villa_trim",false,stair_group)
+		stair_collision("EastFlightStep%02d" % (i+10),at(11.2,h-.08,z),Vector3(1.1,.16,depth+.008),stair_group)
+		surfaces.append(volume(at(11.2,h-.08,z),Vector3(1.1,.16,depth)))
+		box("EastRiser",at(11.2,h-riser/2-.004,z-depth/2-.002),Vector3(1.096,riser-.008,.018),"villa_trim",false,stair_group)
+		box("EastNosing",at(11.2,h-.022,z-depth/2-.004),Vector3(1.12,.036,.018),"villa_trim",false,stair_group)
+	# Union removes hidden/coplanar landing faces; the final tread ends at the slab edge.
+	union_mesh("StairTreadsAndLanding",surfaces,["villa_floor"],stair_group,0)
 	# Slim inner handrails preserve the walkable 1.10 m flights.
 	rod(at(10.56,.96,7.38),at(10.56,2.43,4.99),.028,"roof_edge",stair_group)
 	rod(at(10.64,2.43,4.99),at(10.64,3.90,7.38),.028,"roof_edge",stair_group)
@@ -531,8 +553,8 @@ func garden_loop(points: Array[Vector2], width: float) -> void:
 	custom_mesh("ContinuousGardenPath",triangles,"path_stone",garden,true)
 
 func build_garden() -> void:
-	box("PlotGround",Vector3(0,-.13,-2),Vector3(22,.18,28),"grass",true,garden)
-	box("DistantGround",Vector3(0,-.24,-2),Vector3(100,.12,100),"grass",false,garden)
+	Basement.split_slab(self,"PlotGround",Rect2(-5,-10,22,28),-.04,.18,"grass",garden)
+	Basement.split_slab(self,"DistantGround",Rect2(-44,-46,100,100),-.18,.12,"grass",garden,false)
 	var walk: Array[Vector2] = [Vector2(3,25),Vector2(3,5.8),Vector2(5.6,3.2),Vector2(14.8,3.2),Vector2(19.2,5.8),Vector2(19.2,24.5),Vector2(12,25.2)]
 	garden_loop(walk,1.15)
 	garden_strip(Vector2(11,22),Vector2(11,28),1.6)
@@ -651,8 +673,9 @@ func register_plan() -> void:
 	root.set_meta("building_size",Vector2(12,12))
 	root.set_meta("room_zones",[
 		zone("客厅",0,0,4.4,5.2,12),zone("餐厅",0,0,0,5.2,4.4),zone("厨房",0,5.2,0,12,3.6),
-		zone("卫生间",0,6.7,3.6,9.2,6.2),zone("洗衣间",0,6.7,6.2,9.2,7.5),zone("客卧",0,6.7,8.9,12,12),
+		zone("卫生间",0,6.7,3.6,9.2,6.2),zone("洗衣间",0,6.7,6.2,9.2,7.5),zone("工作书房",0,6.7,8.9,12,12),
 		zone("主卧",1,0,0,5.2,5.4),zone("次卧 A",1,5.2,0,12,3.6),zone("书房",1,0,5.4,5.2,9),
 		zone("露台",1,0,9,4,12),zone("阅读角",1,4,9,6.7,12),
-		zone("卫生间",1,6.7,3.6,9.2,6.2),zone("衣帽储物",1,6.7,6.2,9.2,7.5),zone("次卧 B",1,6.7,8.9,12,12)
+		zone("卫生间",1,6.7,3.6,9.2,6.2),zone("衣帽储物",1,6.7,6.2,9.2,7.5),zone("电脑房",1,6.7,8.9,12,12),
+		zone("地下室平台",-1,9.4,2.4,11.82,4.0)
 	])

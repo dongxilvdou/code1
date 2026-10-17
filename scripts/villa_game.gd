@@ -27,13 +27,14 @@ func _ready() -> void:
 	add_child(menu_camera)
 	menu_camera.position = Vector3(-1.7,1.55,-1.6)
 	menu_camera.look_at(Vector3(-4.0,.75,2.4))
-	if not started:menu_camera.make_current()
+	if not started and not cinematic_active:menu_camera.make_current()
 	if "--overview" in OS.get_cmdline_user_args():
 		start_game()
 		toggle_overview()
 
 func room_at(p: Vector3) -> String:
 	var q := Vector2(p.x+6,p.z+6)
+	if p.y<-.20:return "地下层 · 楼梯与平台"
 	if q.x<0 or q.x>12 or q.y<0 or q.y>12:
 		return "北侧花园" if q.y<0 else "入户庭院" if q.y>12 else "侧花园"
 	if Rect2(9.2,3.6,2.8,3.9).has_point(q):return "楼梯"
@@ -74,7 +75,7 @@ func interact() -> void:
 	if nearest_door:nearest_door.toggle()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not started or ui.pause_panel.visible or ui.settings_panel.visible:return
+	if cinematic_active or not started or ui.pause_panel.visible or ui.settings_panel.visible:return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_B:toggle_overview()
 		elif inspecting and event.keycode in [KEY_1,KEY_2,KEY_3]:set_section(event.keycode-KEY_0)
@@ -87,6 +88,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.button_index==MOUSE_BUTTON_WHEEL_DOWN:orbit_distance = minf(40,orbit_distance+1.5)
 
 func toggle_overview() -> void:
+	if cinematic_active:return
 	inspecting = not inspecting
 	if inspecting:
 		photo = false
@@ -102,6 +104,7 @@ func toggle_overview() -> void:
 
 func set_section(value: int) -> void:
 	inspection_section = value
+	if $Apartment.has_node("Basement"):$Apartment/Basement.visible = value!=2
 	$Apartment/GroundFloor.visible = value!=2
 	$Apartment/UpperFloor.visible = value!=1
 	$Apartment/Roof.visible = value==3

@@ -1,25 +1,22 @@
-[gd_resource type="Resource" script_class="CalicoQuest" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://b67wkncys5bm6"]
 
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Script" path="res://quest_system/types/quest_result.gd" id="result"]
-[ext_resource type="Resource" path="res://quest_system/definitions/q01_arrival.tres" id="pre0"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_xtevc"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" uid="uid://xxqo6v1ww05o" path="res://quest_system/definitions/q01_arrival.tres" id="pre0"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="result"]
 
 [sub_resource type="Resource" id="dining"]
 script = ExtResource("goal")
 id = &"dining"
 text = "到达一层餐厅"
-kind = 0
 room_id = "floor_1/dining"
-target_count = 1
 
 [sub_resource type="Resource" id="kitchen"]
 script = ExtResource("goal")
 id = &"kitchen"
 text = "到达一层厨房"
-kind = 0
 room_id = "floor_1/kitchen"
-target_count = 1
 
 [sub_resource type="Resource" id="points"]
 script = ExtResource("result")
@@ -29,18 +26,14 @@ amount = 10
 
 [sub_resource type="Resource" id="flag"]
 script = ExtResource("result")
-kind = 0
 key = &"downstairs_done"
-flag_value = true
 
 [resource]
 script = ExtResource("quest")
 id = &"q02"
 title = "一楼巡游"
 description = "去餐厅和厨房看看，熟悉一楼的生活空间。"
-main_quest = true
 priority = 98
-auto_accept = true
 prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre0")])
 objectives = Array[ExtResource("goal")]([SubResource("dining"), SubResource("kitchen")])
 result_text = "探索积分 +10，开启楼上探索"

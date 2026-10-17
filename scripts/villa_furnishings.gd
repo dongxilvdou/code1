@@ -61,6 +61,40 @@ func bedroom() -> void:
 	curtains(9.4,11.78,180,3.15)
 	curtains(11.78,10.5,-90,1.92)
 
+func workshop() -> void:
+	put("work_desk",10.15,9.55)
+	put("drafting_kit",10.04,9.58,0,.778)
+	put("decor_table_lamp",10.88,9.44,0,.778)
+	put("dining_chair",10.15,10.42,180)
+	put("bookcase",8.70,9.18)
+	put("bookcase",7.02,10.88,90)
+	put("armchair",11.13,11.13,-135)
+	put("decor_side_table",10.18,11.21)
+	put("decor_books_vase",10.18,11.21,0,.53)
+	put("decor_plant",11.48,9.48)
+	put("decor_wall_art",9.80,9.02,0,1.55)
+	put("decor_rug",9.45,10.65,90,.002,Vector3(.70,1,.75))
+	curtains(9.4,11.78,180,3.15)
+	curtains(11.78,10.5,-90,1.92)
+
+func computer_room() -> void:
+	put("work_desk",10.12,9.55)
+	put("dual_monitor",10.12,9.31,0,.778)
+	put("keyboard_mouse",10.08,9.73,0,.778)
+	put("audio_accessories",10.12,9.34,0,.778)
+	put("computer_tower",11.39,9.60)
+	put("office_chair",10.10,10.47,180)
+	put("tv_console",7.12,10.85,90)
+	put("router_power",7.12,10.85,90,.52)
+	put("bookcase",8.70,9.18)
+	put("armchair",11.17,11.16,-135)
+	put("decor_side_table",10.15,11.28)
+	put("decor_plant",8.20,11.35)
+	put("decor_rug",9.65,10.65,90,.002,Vector3(.70,1,.75))
+	put("decor_wall_art",9.8,9.02,0,1.80)
+	curtains(9.4,11.78,180,3.15)
+	curtains(11.78,10.5,-90,1.92)
+
 func bathroom(floor_index: int) -> void:
 	select_room("Bathroom",floor_index)
 	put("bath_vanity",8.58,3.99,0,.007)
@@ -96,8 +130,6 @@ func apply(target) -> void:
 	for x in [2.10,3.10]:
 		put("dining_chair",x,1.95)
 		put("dining_chair",x,3.65,180)
-		put("decor_place_setting",x,2.51,0,.762)
-		put("decor_place_setting",x,3.09,180,.762)
 	put("dining_chair",1.28,2.80,90)
 	put("dining_chair",3.92,2.80,-90)
 	put("decor_fruit_bowl",2.6,2.8,0,.762)
@@ -133,8 +165,8 @@ func apply(target) -> void:
 	put("decor_basket",7.91,7.04,0,.007)
 	put("decor_wall_shelf",8.99,6.85,-90,1.26)
 	put("decor_towels",8.94,6.85,-90,1.297)
-	select_room("GuestBedroom",0)
-	bedroom()
+	select_room("Workshop",0)
+	workshop()
 
 	select_room("MasterBedroom",1)
 	put("bed",2.35,4.00,180)
@@ -165,8 +197,8 @@ func apply(target) -> void:
 	put("decor_wall_art",9.0,3.47,180,1.48)
 	curtains(8.55,.22,0,4.02)
 	curtains(11.78,1.95,-90,2.03)
-	select_room("BedroomB",1)
-	bedroom()
+	select_room("ComputerRoom",1)
+	computer_room()
 	bathroom(1)
 	select_room("Dressing",1)
 	put("decor_closet_rack",8.87,6.85,-90,.007)
@@ -210,4 +242,12 @@ func apply(target) -> void:
 	put("decor_plant",2.1,14.45,0,-.04)
 	builder.root.set_meta("furniture_count",placed.size())
 	builder.root.set_meta("furnished_rooms",groups.size())
-	FileAccess.open("res://furniture_pack/villa_layout.json",FileAccess.WRITE).store_string(JSON.stringify({"units":"metres","origin":"NW building corner","placements":placed},"\t"))
+	var layout_file: FileAccess
+	for attempt in range(5):
+		layout_file = FileAccess.open("res://furniture_pack/villa_layout.json",FileAccess.WRITE)
+		if layout_file:break
+		OS.delay_msec(150)
+	if layout_file:
+		layout_file.store_string(JSON.stringify({"units":"metres","origin":"NW building corner","placements":placed},"\t"))
+		layout_file.close()
+	else:push_error("Could not write furniture layout: "+error_string(FileAccess.get_open_error()))

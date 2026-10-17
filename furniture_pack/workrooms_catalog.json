@@ -1,0 +1,140 @@
+{
+  "units": "metres",
+  "front": "+Z",
+  "assets": [
+    {
+      "id": "work_desk",
+      "name": "1.8 米木面工作桌",
+      "dimensions_m": [
+        1.8,
+        0.7785,
+        0.76
+      ],
+      "features": [
+        "圆角桌面",
+        "金属桌腿",
+        "理线槽"
+      ],
+      "model": "res://furniture_pack/models/work_desk.glb"
+    },
+    {
+      "id": "drafting_kit",
+      "name": "纸笔尺子与桌面工具套装",
+      "dimensions_m": [
+        0.63,
+        0.044,
+        0.4
+      ],
+      "features": [
+        "A4 图纸",
+        "30cm 刻度尺",
+        "铅笔",
+        "签字笔",
+        "橡皮",
+        "笔记本",
+        "螺丝刀",
+        "小锤"
+      ],
+      "model": "res://furniture_pack/models/drafting_kit.glb"
+    },
+    {
+      "id": "dual_monitor",
+      "name": "双 27 英寸显示器",
+      "dimensions_m": [
+        1.245,
+        0.554,
+        0.2
+      ],
+      "features": [
+        "双屏",
+        "金属支架",
+        "屏幕界面",
+        "状态灯"
+      ],
+      "model": "res://furniture_pack/models/dual_monitor.glb"
+    },
+    {
+      "id": "keyboard_mouse",
+      "name": "键盘鼠标与桌垫",
+      "dimensions_m": [
+        0.75,
+        0.054,
+        0.3
+      ],
+      "features": [
+        "独立键帽",
+        "图例",
+        "掌托",
+        "鼠标滚轮",
+        "桌垫"
+      ],
+      "model": "res://furniture_pack/models/keyboard_mouse.glb"
+    },
+    {
+      "id": "computer_tower",
+      "name": "三风扇台式机主机",
+      "dimensions_m": [
+        0.2495,
+        0.5755,
+        0.484
+      ],
+      "features": [
+        "三风扇进风口",
+        "USB 接口",
+        "电源键",
+        "散热侧板",
+        "脚垫"
+      ],
+      "model": "res://furniture_pack/models/computer_tower.glb"
+    },
+    {
+      "id": "audio_accessories",
+      "name": "音箱与头戴耳机",
+      "dimensions_m": [
+        1.515,
+        0.3135,
+        0.1575
+      ],
+      "features": [
+        "双音箱",
+        "耳机",
+        "耳机支架"
+      ],
+      "model": "res://furniture_pack/models/audio_accessories.glb"
+    },
+    {
+      "id": "router_power",
+      "name": "路由器与安全插排",
+      "dimensions_m": [
+        0.465,
+        0.1901,
+        0.49
+      ],
+      "features": [
+        "双天线",
+        "状态灯",
+        "三位插座",
+        "电源线"
+      ],
+      "model": "res://furniture_pack/models/router_power.glb"
+    },
+    {
+      "id": "office_chair",
+      "name": "可调式人体工学办公椅",
+      "dimensions_m": [
+        0.6775,
+        1.245,
+        0.6686
+      ],
+      "features": [
+        "五爪脚轮",
+        "气压支撑",
+        "软垫",
+        "腰背支撑",
+        "头枕",
+        "扶手"
+      ],
+      "model": "res://furniture_pack/models/office_chair.glb"
+    }
+  ]
+}
