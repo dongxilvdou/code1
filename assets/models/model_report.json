@@ -1,12 +1,9 @@
 {
-  "body_vertices": 95760,
-  "body_triangles": 191516,
-  "body_components": 1,
-  "nonmanifold_edges": 0,
-  "vertices": 117274,
-  "triangles": 234236,
+  "vertices": 45513,
+  "triangles": 73408,
   "bones": 47,
-  "surfaces": 11,
-  "reference": "arched back, integrated shoulders, folded hind legs, rounded paws, continuous curled tail",
-  "source_weight_error": 5.21540641784668e-08
+  "surfaces": 3,
+  "authoring": "Blender 5.2.2: continuous original mesh, sculpt adjustment, decimation, UV unwrap; surface-space atlas bake",
+  "textures": "4096 coat + 1024 features + 1024 eyes; Base Color / Normal / Roughness",
+  "source_weight_error": 1.1920928955078125e-07
 }

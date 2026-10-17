@@ -1,7 +1,7 @@
 {
 	"door_sweep_samples": 399,
 	"failures": [],
-	"instances": 163,
+	"instances": 165,
 	"rooms": [
 		{
 			"floor": 0,
@@ -30,8 +30,8 @@
 		},
 		{
 			"floor": 0,
-			"reachable_points": 263,
-			"room": "客卧"
+			"reachable_points": 280,
+			"room": "工作书房"
 		},
 		{
 			"floor": 1,
@@ -70,8 +70,8 @@
 		},
 		{
 			"floor": 1,
-			"reachable_points": 263,
-			"room": "次卧 B"
+			"reachable_points": 256,
+			"room": "电脑房"
 		}
 	],
 	"solid_overlaps": []

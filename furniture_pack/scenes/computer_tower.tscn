@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://furniture_pack/models/computer_tower.glb" id="1_hgecp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ggra0"]
+size = Vector3(0.245, 0.55, 0.45)
+
+[node name="ComputerTower" type="Node3D" unique_id=902334131]
+metadata/furniture = {
+"dimensions_m": [0.2495, 0.5755, 0.484],
+"features": ["三风扇进风口", "USB 接口", "电源键", "散热侧板", "脚垫"],
+"id": "computer_tower",
+"model": "res://furniture_pack/models/computer_tower.glb",
+"name": "三风扇台式机主机"
+}
+
+[node name="BlenderModel" type="Node3D" parent="." unique_id=1108696597 instance=ExtResource("1_hgecp")]
+
+[node name="CaseCollision" type="StaticBody3D" parent="." unique_id=2105050973]
+collision_mask = 2
+
+[node name="@CollisionShape3D@7" type="CollisionShape3D" parent="CaseCollision" unique_id=659115682]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0)
+shape = SubResource("BoxShape3D_ggra0")

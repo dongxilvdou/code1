@@ -130,7 +130,7 @@ func run() -> void:
 	# Use the existing actual E-interaction position from the project's door tests.
 	var door: Node
 	for candidate in get_nodes_in_group("villa_doors"):
-		if candidate.door_title == "卧室门" and candidate.global_position.y < 1: door = candidate
+		if candidate.door_title == "工作书房门" and candidate.global_position.y < 1: door = candidate
 	door.set_open(false, true)
 	game.player.yaw = PI
 	game.player.rotation.y = PI

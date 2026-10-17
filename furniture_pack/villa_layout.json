@@ -308,44 +308,10 @@
 			"yaw_degrees": 180.0
 		},
 		{
-			"asset": "decor_place_setting",
-			"floor_y": 0.0,
-			"height_m": 0.762,
-			"node": "GroundFloor/Furnishings/Dining/DecorPlaceSetting_018",
-			"plan_xz": [
-				2.1,
-				2.51
-			],
-			"room": "Dining",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 0.0
-		},
-		{
-			"asset": "decor_place_setting",
-			"floor_y": 0.0,
-			"height_m": 0.762,
-			"node": "GroundFloor/Furnishings/Dining/DecorPlaceSetting_019",
-			"plan_xz": [
-				2.1,
-				3.09
-			],
-			"room": "Dining",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 180.0
-		},
-		{
 			"asset": "dining_chair",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Dining/DiningChair_020",
+			"node": "GroundFloor/Furnishings/Dining/DiningChair_018",
 			"plan_xz": [
 				3.1,
 				1.95
@@ -362,7 +328,7 @@
 			"asset": "dining_chair",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Dining/DiningChair_021",
+			"node": "GroundFloor/Furnishings/Dining/DiningChair_019",
 			"plan_xz": [
 				3.1,
 				3.65
@@ -376,44 +342,10 @@
 			"yaw_degrees": 180.0
 		},
 		{
-			"asset": "decor_place_setting",
-			"floor_y": 0.0,
-			"height_m": 0.762,
-			"node": "GroundFloor/Furnishings/Dining/DecorPlaceSetting_022",
-			"plan_xz": [
-				3.1,
-				2.51
-			],
-			"room": "Dining",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 0.0
-		},
-		{
-			"asset": "decor_place_setting",
-			"floor_y": 0.0,
-			"height_m": 0.762,
-			"node": "GroundFloor/Furnishings/Dining/DecorPlaceSetting_023",
-			"plan_xz": [
-				3.1,
-				3.09
-			],
-			"room": "Dining",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 180.0
-		},
-		{
 			"asset": "dining_chair",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Dining/DiningChair_024",
+			"node": "GroundFloor/Furnishings/Dining/DiningChair_020",
 			"plan_xz": [
 				1.28,
 				2.8
@@ -430,7 +362,7 @@
 			"asset": "dining_chair",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Dining/DiningChair_025",
+			"node": "GroundFloor/Furnishings/Dining/DiningChair_021",
 			"plan_xz": [
 				3.92,
 				2.8
@@ -447,7 +379,7 @@
 			"asset": "decor_fruit_bowl",
 			"floor_y": 0.0,
 			"height_m": 0.762,
-			"node": "GroundFloor/Furnishings/Dining/DecorFruitBowl_026",
+			"node": "GroundFloor/Furnishings/Dining/DecorFruitBowl_022",
 			"plan_xz": [
 				2.6,
 				2.8
@@ -464,7 +396,7 @@
 			"asset": "tv_console",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Dining/TvConsole_027",
+			"node": "GroundFloor/Furnishings/Dining/TvConsole_023",
 			"plan_xz": [
 				0.5,
 				4.12
@@ -481,7 +413,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 0.0,
 			"height_m": 0.52,
-			"node": "GroundFloor/Furnishings/Dining/DecorBooksVase_028",
+			"node": "GroundFloor/Furnishings/Dining/DecorBooksVase_024",
 			"plan_xz": [
 				0.5,
 				4.12
@@ -498,7 +430,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 0.0,
 			"height_m": 1.3,
-			"node": "GroundFloor/Furnishings/Dining/DecorWallArt_029",
+			"node": "GroundFloor/Furnishings/Dining/DecorWallArt_025",
 			"plan_xz": [
 				0.2,
 				4.14
@@ -515,7 +447,7 @@
 			"asset": "decor_plant",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Dining/DecorPlant_030",
+			"node": "GroundFloor/Furnishings/Dining/DecorPlant_026",
 			"plan_xz": [
 				0.66,
 				0.66
@@ -532,7 +464,7 @@
 			"asset": "decor_pendant",
 			"floor_y": 0.0,
 			"height_m": 2.12,
-			"node": "GroundFloor/Furnishings/Dining/DecorPendant_031",
+			"node": "GroundFloor/Furnishings/Dining/DecorPendant_027",
 			"plan_xz": [
 				2.6,
 				2.8
@@ -549,7 +481,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 0.0,
 			"height_m": 0.18,
-			"node": "GroundFloor/Furnishings/Dining/DecorCurtains_032",
+			"node": "GroundFloor/Furnishings/Dining/DecorCurtains_028",
 			"plan_xz": [
 				0.22,
 				2.0
@@ -566,7 +498,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_033",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_029",
 			"plan_xz": [
 				6.0,
 				0.49
@@ -583,7 +515,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_034",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_030",
 			"plan_xz": [
 				7.26,
 				0.49
@@ -600,7 +532,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_035",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_031",
 			"plan_xz": [
 				8.7,
 				0.49
@@ -617,7 +549,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_036",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_032",
 			"plan_xz": [
 				9.34,
 				0.49
@@ -634,7 +566,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_037",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_033",
 			"plan_xz": [
 				9.98,
 				0.49
@@ -651,7 +583,7 @@
 			"asset": "cooker",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/Cooker_038",
+			"node": "GroundFloor/Furnishings/Kitchen/Cooker_034",
 			"plan_xz": [
 				6.63,
 				0.49
@@ -668,7 +600,7 @@
 			"asset": "sink_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/SinkCabinet_039",
+			"node": "GroundFloor/Furnishings/Kitchen/SinkCabinet_035",
 			"plan_xz": [
 				7.98,
 				0.49
@@ -685,7 +617,7 @@
 			"asset": "fridge",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/Fridge_040",
+			"node": "GroundFloor/Furnishings/Kitchen/Fridge_036",
 			"plan_xz": [
 				11.13,
 				0.57
@@ -702,7 +634,7 @@
 			"asset": "decor_prep_board",
 			"floor_y": 0.0,
 			"height_m": 0.907,
-			"node": "GroundFloor/Furnishings/Kitchen/DecorPrepBoard_041",
+			"node": "GroundFloor/Furnishings/Kitchen/DecorPrepBoard_037",
 			"plan_xz": [
 				9.35,
 				0.49
@@ -719,7 +651,7 @@
 			"asset": "decor_herb_pot",
 			"floor_y": 0.0,
 			"height_m": 0.907,
-			"node": "GroundFloor/Furnishings/Kitchen/DecorHerbPot_042",
+			"node": "GroundFloor/Furnishings/Kitchen/DecorHerbPot_038",
 			"plan_xz": [
 				8.74,
 				0.43
@@ -736,7 +668,7 @@
 			"asset": "decor_herb_pot",
 			"floor_y": 0.0,
 			"height_m": 0.907,
-			"node": "GroundFloor/Furnishings/Kitchen/DecorHerbPot_043",
+			"node": "GroundFloor/Furnishings/Kitchen/DecorHerbPot_039",
 			"plan_xz": [
 				7.28,
 				0.43
@@ -753,7 +685,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_044",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_040",
 			"plan_xz": [
 				8.39,
 				2.63
@@ -770,7 +702,7 @@
 			"asset": "kitchen_cabinet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_045",
+			"node": "GroundFloor/Furnishings/Kitchen/KitchenCabinet_041",
 			"plan_xz": [
 				9.03,
 				2.63
@@ -787,7 +719,7 @@
 			"asset": "decor_fruit_bowl",
 			"floor_y": 0.0,
 			"height_m": 0.907,
-			"node": "GroundFloor/Furnishings/Kitchen/DecorFruitBowl_046",
+			"node": "GroundFloor/Furnishings/Kitchen/DecorFruitBowl_042",
 			"plan_xz": [
 				8.39,
 				2.62
@@ -804,7 +736,7 @@
 			"asset": "decor_prep_board",
 			"floor_y": 0.0,
 			"height_m": 0.907,
-			"node": "GroundFloor/Furnishings/Kitchen/DecorPrepBoard_047",
+			"node": "GroundFloor/Furnishings/Kitchen/DecorPrepBoard_043",
 			"plan_xz": [
 				9.02,
 				2.62
@@ -821,7 +753,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 0.0,
 			"height_m": 1.35,
-			"node": "GroundFloor/Furnishings/Kitchen/DecorWallArt_048",
+			"node": "GroundFloor/Furnishings/Kitchen/DecorWallArt_044",
 			"plan_xz": [
 				10.6,
 				0.19
@@ -838,7 +770,7 @@
 			"asset": "decor_entry_console",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Entry/DecorEntryConsole_049",
+			"node": "GroundFloor/Furnishings/Entry/DecorEntryConsole_045",
 			"plan_xz": [
 				6.38,
 				10.68
@@ -855,7 +787,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 0.0,
 			"height_m": 0.84,
-			"node": "GroundFloor/Furnishings/Entry/DecorBooksVase_050",
+			"node": "GroundFloor/Furnishings/Entry/DecorBooksVase_046",
 			"plan_xz": [
 				6.37,
 				10.7
@@ -872,7 +804,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 0.0,
 			"height_m": 1.32,
-			"node": "GroundFloor/Furnishings/Entry/DecorWallArt_051",
+			"node": "GroundFloor/Furnishings/Entry/DecorWallArt_047",
 			"plan_xz": [
 				6.58,
 				10.7
@@ -889,7 +821,7 @@
 			"asset": "decor_runner",
 			"floor_y": 0.0,
 			"height_m": 0.002,
-			"node": "GroundFloor/Furnishings/Entry/DecorRunner_052",
+			"node": "GroundFloor/Furnishings/Entry/DecorRunner_048",
 			"plan_xz": [
 				5.94,
 				10.48
@@ -906,7 +838,7 @@
 			"asset": "decor_plant",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/Entry/DecorPlant_053",
+			"node": "GroundFloor/Furnishings/Entry/DecorPlant_049",
 			"plan_xz": [
 				6.3,
 				8.06
@@ -923,7 +855,7 @@
 			"asset": "bath_vanity",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Bathroom/BathVanity_054",
+			"node": "GroundFloor/Furnishings/Bathroom/BathVanity_050",
 			"plan_xz": [
 				8.58,
 				3.99
@@ -940,7 +872,7 @@
 			"asset": "toilet",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Bathroom/Toilet_055",
+			"node": "GroundFloor/Furnishings/Bathroom/Toilet_051",
 			"plan_xz": [
 				7.35,
 				5.72
@@ -957,7 +889,7 @@
 			"asset": "decor_shower",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Bathroom/DecorShower_056",
+			"node": "GroundFloor/Furnishings/Bathroom/DecorShower_052",
 			"plan_xz": [
 				8.55,
 				5.56
@@ -974,7 +906,7 @@
 			"asset": "decor_bath_mat",
 			"floor_y": 0.0,
 			"height_m": 0.008,
-			"node": "GroundFloor/Furnishings/Bathroom/DecorBathMat_057",
+			"node": "GroundFloor/Furnishings/Bathroom/DecorBathMat_053",
 			"plan_xz": [
 				7.91,
 				4.96
@@ -991,7 +923,7 @@
 			"asset": "decor_wall_shelf",
 			"floor_y": 0.0,
 			"height_m": 1.32,
-			"node": "GroundFloor/Furnishings/Bathroom/DecorWallShelf_058",
+			"node": "GroundFloor/Furnishings/Bathroom/DecorWallShelf_054",
 			"plan_xz": [
 				7.38,
 				6.03
@@ -1008,7 +940,7 @@
 			"asset": "decor_towels",
 			"floor_y": 0.0,
 			"height_m": 1.357,
-			"node": "GroundFloor/Furnishings/Bathroom/DecorTowels_059",
+			"node": "GroundFloor/Furnishings/Bathroom/DecorTowels_055",
 			"plan_xz": [
 				7.38,
 				6.0
@@ -1025,7 +957,7 @@
 			"asset": "decor_herb_pot",
 			"floor_y": 0.0,
 			"height_m": 0.817,
-			"node": "GroundFloor/Furnishings/Bathroom/DecorHerbPot_060",
+			"node": "GroundFloor/Furnishings/Bathroom/DecorHerbPot_056",
 			"plan_xz": [
 				8.91,
 				3.97
@@ -1042,7 +974,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 0.0,
 			"height_m": 1.41,
-			"node": "GroundFloor/Furnishings/Bathroom/DecorWallArt_061",
+			"node": "GroundFloor/Furnishings/Bathroom/DecorWallArt_057",
 			"plan_xz": [
 				8.56,
 				3.7
@@ -1059,7 +991,7 @@
 			"asset": "decor_washing_machine",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Laundry/DecorWashingMachine_062",
+			"node": "GroundFloor/Furnishings/Laundry/DecorWashingMachine_058",
 			"plan_xz": [
 				8.7,
 				6.86
@@ -1076,7 +1008,7 @@
 			"asset": "decor_basket",
 			"floor_y": 0.0,
 			"height_m": 0.007,
-			"node": "GroundFloor/Furnishings/Laundry/DecorBasket_063",
+			"node": "GroundFloor/Furnishings/Laundry/DecorBasket_059",
 			"plan_xz": [
 				7.91,
 				7.04
@@ -1093,7 +1025,7 @@
 			"asset": "decor_wall_shelf",
 			"floor_y": 0.0,
 			"height_m": 1.26,
-			"node": "GroundFloor/Furnishings/Laundry/DecorWallShelf_064",
+			"node": "GroundFloor/Furnishings/Laundry/DecorWallShelf_060",
 			"plan_xz": [
 				8.99,
 				6.85
@@ -1110,7 +1042,7 @@
 			"asset": "decor_towels",
 			"floor_y": 0.0,
 			"height_m": 1.297,
-			"node": "GroundFloor/Furnishings/Laundry/DecorTowels_065",
+			"node": "GroundFloor/Furnishings/Laundry/DecorTowels_061",
 			"plan_xz": [
 				8.94,
 				6.85
@@ -1124,15 +1056,15 @@
 			"yaw_degrees": -90.0
 		},
 		{
-			"asset": "bed",
+			"asset": "work_desk",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/GuestBedroom/Bed_066",
+			"node": "GroundFloor/Furnishings/Workshop/WorkDesk_062",
 			"plan_xz": [
-				9.7,
-				10.1
+				10.15,
+				9.55
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
@@ -1141,15 +1073,15 @@
 			"yaw_degrees": 0.0
 		},
 		{
-			"asset": "nightstand",
+			"asset": "drafting_kit",
 			"floor_y": 0.0,
-			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/GuestBedroom/Nightstand_067",
+			"height_m": 0.778,
+			"node": "GroundFloor/Furnishings/Workshop/DraftingKit_063",
 			"plan_xz": [
-				8.45,
-				9.3
+				10.04,
+				9.58
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
@@ -1160,13 +1092,13 @@
 		{
 			"asset": "decor_table_lamp",
 			"floor_y": 0.0,
-			"height_m": 0.55,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorTableLamp_068",
+			"height_m": 0.778,
+			"node": "GroundFloor/Furnishings/Workshop/DecorTableLamp_064",
 			"plan_xz": [
-				8.45,
-				9.3
+				10.88,
+				9.44
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
@@ -1175,49 +1107,49 @@
 			"yaw_degrees": 0.0
 		},
 		{
-			"asset": "nightstand",
+			"asset": "dining_chair",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/GuestBedroom/Nightstand_069",
+			"node": "GroundFloor/Furnishings/Workshop/DiningChair_065",
 			"plan_xz": [
-				10.95,
-				9.3
+				10.15,
+				10.42
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
 				1.0
 			],
-			"yaw_degrees": 0.0
+			"yaw_degrees": 180.0
 		},
 		{
-			"asset": "decor_table_lamp",
-			"floor_y": 0.0,
-			"height_m": 0.55,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorTableLamp_070",
-			"plan_xz": [
-				10.95,
-				9.3
-			],
-			"room": "GuestBedroom",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 0.0
-		},
-		{
-			"asset": "wardrobe",
+			"asset": "bookcase",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/GuestBedroom/Wardrobe_071",
+			"node": "GroundFloor/Furnishings/Workshop/Bookcase_066",
 			"plan_xz": [
-				7.22,
-				11.14
+				8.7,
+				9.18
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
+		},
+		{
+			"asset": "bookcase",
+			"floor_y": 0.0,
+			"height_m": 0.0,
+			"node": "GroundFloor/Furnishings/Workshop/Bookcase_067",
+			"plan_xz": [
+				7.02,
+				10.88
+			],
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
@@ -1229,29 +1161,63 @@
 			"asset": "armchair",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/GuestBedroom/Armchair_072",
+			"node": "GroundFloor/Furnishings/Workshop/Armchair_068",
 			"plan_xz": [
-				11.2,
-				11.2
+				11.13,
+				11.13
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
 				1.0
 			],
-			"yaw_degrees": -125.0
+			"yaw_degrees": -135.0
+		},
+		{
+			"asset": "decor_side_table",
+			"floor_y": 0.0,
+			"height_m": 0.0,
+			"node": "GroundFloor/Furnishings/Workshop/DecorSideTable_069",
+			"plan_xz": [
+				10.18,
+				11.21
+			],
+			"room": "Workshop",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
+		},
+		{
+			"asset": "decor_books_vase",
+			"floor_y": 0.0,
+			"height_m": 0.53,
+			"node": "GroundFloor/Furnishings/Workshop/DecorBooksVase_070",
+			"plan_xz": [
+				10.18,
+				11.21
+			],
+			"room": "Workshop",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
 		},
 		{
 			"asset": "decor_plant",
 			"floor_y": 0.0,
 			"height_m": 0.0,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorPlant_073",
+			"node": "GroundFloor/Furnishings/Workshop/DecorPlant_071",
 			"plan_xz": [
-				11.5,
+				11.48,
 				9.48
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
@@ -1262,13 +1228,13 @@
 		{
 			"asset": "decor_wall_art",
 			"floor_y": 0.0,
-			"height_m": 1.48,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorWallArt_074",
+			"height_m": 1.55,
+			"node": "GroundFloor/Furnishings/Workshop/DecorWallArt_072",
 			"plan_xz": [
-				9.7,
+				9.8,
 				9.02
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.0,
 				1.0,
@@ -1280,16 +1246,16 @@
 			"asset": "decor_rug",
 			"floor_y": 0.0,
 			"height_m": 0.002,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorRug_075",
+			"node": "GroundFloor/Furnishings/Workshop/DecorRug_073",
 			"plan_xz": [
-				9.65,
-				10.64
+				9.45,
+				10.65
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				0.699999988079071,
 				1.0,
-				0.870000004768372
+				0.75
 			],
 			"yaw_degrees": 90.0
 		},
@@ -1297,12 +1263,12 @@
 			"asset": "decor_curtains",
 			"floor_y": 0.0,
 			"height_m": 0.18,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorCurtains_076",
+			"node": "GroundFloor/Furnishings/Workshop/DecorCurtains_074",
 			"plan_xz": [
 				9.4,
 				11.78
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				1.29098355770111,
 				1.0,
@@ -1314,12 +1280,12 @@
 			"asset": "decor_curtains",
 			"floor_y": 0.0,
 			"height_m": 0.18,
-			"node": "GroundFloor/Furnishings/GuestBedroom/DecorCurtains_077",
+			"node": "GroundFloor/Furnishings/Workshop/DecorCurtains_075",
 			"plan_xz": [
 				11.78,
 				10.5
 			],
-			"room": "GuestBedroom",
+			"room": "Workshop",
 			"scale": [
 				0.786885261535645,
 				1.0,
@@ -1331,7 +1297,7 @@
 			"asset": "bed",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/Bed_078",
+			"node": "UpperFloor/Furnishings/MasterBedroom/Bed_076",
 			"plan_xz": [
 				2.35,
 				4.0
@@ -1348,9 +1314,43 @@
 			"asset": "nightstand",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/Nightstand_079",
+			"node": "UpperFloor/Furnishings/MasterBedroom/Nightstand_077",
 			"plan_xz": [
 				1.1,
+				4.87
+			],
+			"room": "MasterBedroom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 180.0
+		},
+		{
+			"asset": "decor_table_lamp",
+			"floor_y": 3.0,
+			"height_m": 0.55,
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorTableLamp_078",
+			"plan_xz": [
+				1.1,
+				4.87
+			],
+			"room": "MasterBedroom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 180.0
+		},
+		{
+			"asset": "nightstand",
+			"floor_y": 3.0,
+			"height_m": 0.0,
+			"node": "UpperFloor/Furnishings/MasterBedroom/Nightstand_079",
+			"plan_xz": [
+				3.6,
 				4.87
 			],
 			"room": "MasterBedroom",
@@ -1367,40 +1367,6 @@
 			"height_m": 0.55,
 			"node": "UpperFloor/Furnishings/MasterBedroom/DecorTableLamp_080",
 			"plan_xz": [
-				1.1,
-				4.87
-			],
-			"room": "MasterBedroom",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 180.0
-		},
-		{
-			"asset": "nightstand",
-			"floor_y": 3.0,
-			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/Nightstand_081",
-			"plan_xz": [
-				3.6,
-				4.87
-			],
-			"room": "MasterBedroom",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 180.0
-		},
-		{
-			"asset": "decor_table_lamp",
-			"floor_y": 3.0,
-			"height_m": 0.55,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorTableLamp_082",
-			"plan_xz": [
 				3.6,
 				4.87
 			],
@@ -1416,7 +1382,7 @@
 			"asset": "wardrobe",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/Wardrobe_083",
+			"node": "UpperFloor/Furnishings/MasterBedroom/Wardrobe_081",
 			"plan_xz": [
 				4.72,
 				1.88
@@ -1433,7 +1399,7 @@
 			"asset": "tv_console",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/TvConsole_084",
+			"node": "UpperFloor/Furnishings/MasterBedroom/TvConsole_082",
 			"plan_xz": [
 				2.15,
 				0.48
@@ -1450,7 +1416,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 3.0,
 			"height_m": 0.52,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorBooksVase_085",
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorBooksVase_083",
 			"plan_xz": [
 				2.25,
 				0.5
@@ -1467,7 +1433,7 @@
 			"asset": "armchair",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/Armchair_086",
+			"node": "UpperFloor/Furnishings/MasterBedroom/Armchair_084",
 			"plan_xz": [
 				0.76,
 				1.42
@@ -1484,7 +1450,7 @@
 			"asset": "floor_lamp",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/FloorLamp_087",
+			"node": "UpperFloor/Furnishings/MasterBedroom/FloorLamp_085",
 			"plan_xz": [
 				0.5,
 				2.57
@@ -1501,7 +1467,7 @@
 			"asset": "decor_plant",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorPlant_088",
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorPlant_086",
 			"plan_xz": [
 				3.68,
 				0.62
@@ -1518,7 +1484,7 @@
 			"asset": "decor_rug",
 			"floor_y": 3.0,
 			"height_m": 0.002,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorRug_089",
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorRug_087",
 			"plan_xz": [
 				2.35,
 				3.35
@@ -1535,7 +1501,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 3.0,
 			"height_m": 1.48,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorWallArt_090",
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorWallArt_088",
 			"plan_xz": [
 				2.35,
 				5.25
@@ -1552,7 +1518,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorCurtains_091",
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorCurtains_089",
 			"plan_xz": [
 				2.3,
 				0.22
@@ -1569,7 +1535,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/MasterBedroom/DecorCurtains_092",
+			"node": "UpperFloor/Furnishings/MasterBedroom/DecorCurtains_090",
 			"plan_xz": [
 				0.22,
 				2.4
@@ -1586,7 +1552,7 @@
 			"asset": "bed",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/Bed_093",
+			"node": "UpperFloor/Furnishings/BedroomA/Bed_091",
 			"plan_xz": [
 				9.0,
 				2.29
@@ -1603,7 +1569,7 @@
 			"asset": "nightstand",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/Nightstand_094",
+			"node": "UpperFloor/Furnishings/BedroomA/Nightstand_092",
 			"plan_xz": [
 				7.77,
 				3.11
@@ -1620,7 +1586,7 @@
 			"asset": "decor_table_lamp",
 			"floor_y": 3.0,
 			"height_m": 0.55,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorTableLamp_095",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorTableLamp_093",
 			"plan_xz": [
 				7.77,
 				3.11
@@ -1637,7 +1603,7 @@
 			"asset": "wardrobe",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/Wardrobe_096",
+			"node": "UpperFloor/Furnishings/BedroomA/Wardrobe_094",
 			"plan_xz": [
 				10.99,
 				3.1
@@ -1654,7 +1620,7 @@
 			"asset": "desk",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/Desk_097",
+			"node": "UpperFloor/Furnishings/BedroomA/Desk_095",
 			"plan_xz": [
 				6.16,
 				0.61
@@ -1671,7 +1637,7 @@
 			"asset": "dining_chair",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/DiningChair_098",
+			"node": "UpperFloor/Furnishings/BedroomA/DiningChair_096",
 			"plan_xz": [
 				6.16,
 				1.42
@@ -1688,7 +1654,7 @@
 			"asset": "decor_table_lamp",
 			"floor_y": 3.0,
 			"height_m": 0.78,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorTableLamp_099",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorTableLamp_097",
 			"plan_xz": [
 				6.58,
 				0.59
@@ -1705,7 +1671,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 3.0,
 			"height_m": 0.78,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorBooksVase_100",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorBooksVase_098",
 			"plan_xz": [
 				5.92,
 				0.6
@@ -1722,7 +1688,7 @@
 			"asset": "bookcase",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/Bookcase_101",
+			"node": "UpperFloor/Furnishings/BedroomA/Bookcase_099",
 			"plan_xz": [
 				11.3,
 				0.4
@@ -1739,7 +1705,7 @@
 			"asset": "decor_plant",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorPlant_102",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorPlant_100",
 			"plan_xz": [
 				7.35,
 				0.56
@@ -1756,7 +1722,7 @@
 			"asset": "decor_rug",
 			"floor_y": 3.0,
 			"height_m": 0.002,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorRug_103",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorRug_101",
 			"plan_xz": [
 				9.0,
 				1.95
@@ -1773,7 +1739,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 3.0,
 			"height_m": 1.48,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorWallArt_104",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorWallArt_102",
 			"plan_xz": [
 				9.0,
 				3.47
@@ -1790,7 +1756,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorCurtains_105",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorCurtains_103",
 			"plan_xz": [
 				8.55,
 				0.22
@@ -1807,7 +1773,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/BedroomA/DecorCurtains_106",
+			"node": "UpperFloor/Furnishings/BedroomA/DecorCurtains_104",
 			"plan_xz": [
 				11.78,
 				1.95
@@ -1821,15 +1787,15 @@
 			"yaw_degrees": -90.0
 		},
 		{
-			"asset": "bed",
+			"asset": "work_desk",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomB/Bed_107",
+			"node": "UpperFloor/Furnishings/ComputerRoom/WorkDesk_105",
 			"plan_xz": [
-				9.7,
-				10.1
+				10.12,
+				9.55
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
@@ -1838,15 +1804,66 @@
 			"yaw_degrees": 0.0
 		},
 		{
-			"asset": "nightstand",
+			"asset": "dual_monitor",
+			"floor_y": 3.0,
+			"height_m": 0.778,
+			"node": "UpperFloor/Furnishings/ComputerRoom/DualMonitor_106",
+			"plan_xz": [
+				10.12,
+				9.31
+			],
+			"room": "ComputerRoom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
+		},
+		{
+			"asset": "keyboard_mouse",
+			"floor_y": 3.0,
+			"height_m": 0.778,
+			"node": "UpperFloor/Furnishings/ComputerRoom/KeyboardMouse_107",
+			"plan_xz": [
+				10.08,
+				9.73
+			],
+			"room": "ComputerRoom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
+		},
+		{
+			"asset": "audio_accessories",
+			"floor_y": 3.0,
+			"height_m": 0.778,
+			"node": "UpperFloor/Furnishings/ComputerRoom/AudioAccessories_108",
+			"plan_xz": [
+				10.12,
+				9.34
+			],
+			"room": "ComputerRoom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
+		},
+		{
+			"asset": "computer_tower",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomB/Nightstand_108",
+			"node": "UpperFloor/Furnishings/ComputerRoom/ComputerTower_109",
 			"plan_xz": [
-				8.45,
-				9.3
+				11.39,
+				9.6
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
@@ -1855,66 +1872,32 @@
 			"yaw_degrees": 0.0
 		},
 		{
-			"asset": "decor_table_lamp",
-			"floor_y": 3.0,
-			"height_m": 0.55,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorTableLamp_109",
-			"plan_xz": [
-				8.45,
-				9.3
-			],
-			"room": "BedroomB",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 0.0
-		},
-		{
-			"asset": "nightstand",
+			"asset": "office_chair",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomB/Nightstand_110",
+			"node": "UpperFloor/Furnishings/ComputerRoom/OfficeChair_110",
 			"plan_xz": [
-				10.95,
-				9.3
+				10.1,
+				10.47
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
 				1.0
 			],
-			"yaw_degrees": 0.0
+			"yaw_degrees": 180.0
 		},
 		{
-			"asset": "decor_table_lamp",
-			"floor_y": 3.0,
-			"height_m": 0.55,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorTableLamp_111",
-			"plan_xz": [
-				10.95,
-				9.3
-			],
-			"room": "BedroomB",
-			"scale": [
-				1.0,
-				1.0,
-				1.0
-			],
-			"yaw_degrees": 0.0
-		},
-		{
-			"asset": "wardrobe",
+			"asset": "tv_console",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomB/Wardrobe_112",
+			"node": "UpperFloor/Furnishings/ComputerRoom/TvConsole_111",
 			"plan_xz": [
-				7.22,
-				11.14
+				7.12,
+				10.85
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
@@ -1923,32 +1906,32 @@
 			"yaw_degrees": 90.0
 		},
 		{
-			"asset": "armchair",
+			"asset": "router_power",
 			"floor_y": 3.0,
-			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomB/Armchair_113",
+			"height_m": 0.52,
+			"node": "UpperFloor/Furnishings/ComputerRoom/RouterPower_112",
 			"plan_xz": [
-				11.2,
-				11.2
+				7.12,
+				10.85
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
 				1.0
 			],
-			"yaw_degrees": -125.0
+			"yaw_degrees": 90.0
 		},
 		{
-			"asset": "decor_plant",
+			"asset": "bookcase",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorPlant_114",
+			"node": "UpperFloor/Furnishings/ComputerRoom/Bookcase_113",
 			"plan_xz": [
-				11.5,
-				9.48
+				8.7,
+				9.18
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
@@ -1957,15 +1940,49 @@
 			"yaw_degrees": 0.0
 		},
 		{
-			"asset": "decor_wall_art",
+			"asset": "armchair",
 			"floor_y": 3.0,
-			"height_m": 1.48,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorWallArt_115",
+			"height_m": 0.0,
+			"node": "UpperFloor/Furnishings/ComputerRoom/Armchair_114",
 			"plan_xz": [
-				9.7,
-				9.02
+				11.17,
+				11.16
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": -135.0
+		},
+		{
+			"asset": "decor_side_table",
+			"floor_y": 3.0,
+			"height_m": 0.0,
+			"node": "UpperFloor/Furnishings/ComputerRoom/DecorSideTable_115",
+			"plan_xz": [
+				10.15,
+				11.28
+			],
+			"room": "ComputerRoom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
+		},
+		{
+			"asset": "decor_plant",
+			"floor_y": 3.0,
+			"height_m": 0.0,
+			"node": "UpperFloor/Furnishings/ComputerRoom/DecorPlant_116",
+			"plan_xz": [
+				8.2,
+				11.35
+			],
+			"room": "ComputerRoom",
 			"scale": [
 				1.0,
 				1.0,
@@ -1977,29 +1994,46 @@
 			"asset": "decor_rug",
 			"floor_y": 3.0,
 			"height_m": 0.002,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorRug_116",
+			"node": "UpperFloor/Furnishings/ComputerRoom/DecorRug_117",
 			"plan_xz": [
 				9.65,
-				10.64
+				10.65
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				0.699999988079071,
 				1.0,
-				0.870000004768372
+				0.75
 			],
 			"yaw_degrees": 90.0
+		},
+		{
+			"asset": "decor_wall_art",
+			"floor_y": 3.0,
+			"height_m": 1.8,
+			"node": "UpperFloor/Furnishings/ComputerRoom/DecorWallArt_118",
+			"plan_xz": [
+				9.8,
+				9.02
+			],
+			"room": "ComputerRoom",
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"yaw_degrees": 0.0
 		},
 		{
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorCurtains_117",
+			"node": "UpperFloor/Furnishings/ComputerRoom/DecorCurtains_119",
 			"plan_xz": [
 				9.4,
 				11.78
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				1.29098355770111,
 				1.0,
@@ -2011,12 +2045,12 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/BedroomB/DecorCurtains_118",
+			"node": "UpperFloor/Furnishings/ComputerRoom/DecorCurtains_120",
 			"plan_xz": [
 				11.78,
 				10.5
 			],
-			"room": "BedroomB",
+			"room": "ComputerRoom",
 			"scale": [
 				0.786885261535645,
 				1.0,
@@ -2028,7 +2062,7 @@
 			"asset": "bath_vanity",
 			"floor_y": 3.0,
 			"height_m": 0.007,
-			"node": "UpperFloor/Furnishings/Bathroom/BathVanity_119",
+			"node": "UpperFloor/Furnishings/Bathroom/BathVanity_121",
 			"plan_xz": [
 				8.58,
 				3.99
@@ -2045,7 +2079,7 @@
 			"asset": "toilet",
 			"floor_y": 3.0,
 			"height_m": 0.007,
-			"node": "UpperFloor/Furnishings/Bathroom/Toilet_120",
+			"node": "UpperFloor/Furnishings/Bathroom/Toilet_122",
 			"plan_xz": [
 				7.35,
 				5.72
@@ -2062,7 +2096,7 @@
 			"asset": "decor_shower",
 			"floor_y": 3.0,
 			"height_m": 0.007,
-			"node": "UpperFloor/Furnishings/Bathroom/DecorShower_121",
+			"node": "UpperFloor/Furnishings/Bathroom/DecorShower_123",
 			"plan_xz": [
 				8.55,
 				5.56
@@ -2079,7 +2113,7 @@
 			"asset": "decor_bath_mat",
 			"floor_y": 3.0,
 			"height_m": 0.008,
-			"node": "UpperFloor/Furnishings/Bathroom/DecorBathMat_122",
+			"node": "UpperFloor/Furnishings/Bathroom/DecorBathMat_124",
 			"plan_xz": [
 				7.91,
 				4.96
@@ -2096,7 +2130,7 @@
 			"asset": "decor_wall_shelf",
 			"floor_y": 3.0,
 			"height_m": 1.32,
-			"node": "UpperFloor/Furnishings/Bathroom/DecorWallShelf_123",
+			"node": "UpperFloor/Furnishings/Bathroom/DecorWallShelf_125",
 			"plan_xz": [
 				7.38,
 				6.03
@@ -2113,7 +2147,7 @@
 			"asset": "decor_towels",
 			"floor_y": 3.0,
 			"height_m": 1.357,
-			"node": "UpperFloor/Furnishings/Bathroom/DecorTowels_124",
+			"node": "UpperFloor/Furnishings/Bathroom/DecorTowels_126",
 			"plan_xz": [
 				7.38,
 				6.0
@@ -2130,7 +2164,7 @@
 			"asset": "decor_herb_pot",
 			"floor_y": 3.0,
 			"height_m": 0.817,
-			"node": "UpperFloor/Furnishings/Bathroom/DecorHerbPot_125",
+			"node": "UpperFloor/Furnishings/Bathroom/DecorHerbPot_127",
 			"plan_xz": [
 				8.91,
 				3.97
@@ -2147,7 +2181,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 3.0,
 			"height_m": 1.41,
-			"node": "UpperFloor/Furnishings/Bathroom/DecorWallArt_126",
+			"node": "UpperFloor/Furnishings/Bathroom/DecorWallArt_128",
 			"plan_xz": [
 				8.56,
 				3.7
@@ -2164,7 +2198,7 @@
 			"asset": "decor_closet_rack",
 			"floor_y": 3.0,
 			"height_m": 0.007,
-			"node": "UpperFloor/Furnishings/Dressing/DecorClosetRack_127",
+			"node": "UpperFloor/Furnishings/Dressing/DecorClosetRack_129",
 			"plan_xz": [
 				8.87,
 				6.85
@@ -2181,7 +2215,7 @@
 			"asset": "decor_basket",
 			"floor_y": 3.0,
 			"height_m": 0.007,
-			"node": "UpperFloor/Furnishings/Dressing/DecorBasket_128",
+			"node": "UpperFloor/Furnishings/Dressing/DecorBasket_130",
 			"plan_xz": [
 				7.83,
 				7.04
@@ -2198,7 +2232,7 @@
 			"asset": "decor_towels",
 			"floor_y": 3.0,
 			"height_m": 0.322,
-			"node": "UpperFloor/Furnishings/Dressing/DecorTowels_129",
+			"node": "UpperFloor/Furnishings/Dressing/DecorTowels_131",
 			"plan_xz": [
 				8.85,
 				6.84
@@ -2215,7 +2249,7 @@
 			"asset": "desk",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/Desk_130",
+			"node": "UpperFloor/Furnishings/Study/Desk_132",
 			"plan_xz": [
 				0.66,
 				7.2
@@ -2232,7 +2266,7 @@
 			"asset": "dining_chair",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/DiningChair_131",
+			"node": "UpperFloor/Furnishings/Study/DiningChair_133",
 			"plan_xz": [
 				1.48,
 				7.2
@@ -2249,7 +2283,7 @@
 			"asset": "decor_table_lamp",
 			"floor_y": 3.0,
 			"height_m": 0.78,
-			"node": "UpperFloor/Furnishings/Study/DecorTableLamp_132",
+			"node": "UpperFloor/Furnishings/Study/DecorTableLamp_134",
 			"plan_xz": [
 				0.64,
 				6.8
@@ -2266,7 +2300,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 3.0,
 			"height_m": 0.78,
-			"node": "UpperFloor/Furnishings/Study/DecorBooksVase_133",
+			"node": "UpperFloor/Furnishings/Study/DecorBooksVase_135",
 			"plan_xz": [
 				0.64,
 				7.51
@@ -2283,7 +2317,7 @@
 			"asset": "bookcase",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/Bookcase_134",
+			"node": "UpperFloor/Furnishings/Study/Bookcase_136",
 			"plan_xz": [
 				2.2,
 				5.68
@@ -2300,7 +2334,7 @@
 			"asset": "bookcase",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/Bookcase_135",
+			"node": "UpperFloor/Furnishings/Study/Bookcase_137",
 			"plan_xz": [
 				3.18,
 				5.68
@@ -2317,7 +2351,7 @@
 			"asset": "bookcase",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/Bookcase_136",
+			"node": "UpperFloor/Furnishings/Study/Bookcase_138",
 			"plan_xz": [
 				4.16,
 				5.68
@@ -2334,7 +2368,7 @@
 			"asset": "armchair",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/Armchair_137",
+			"node": "UpperFloor/Furnishings/Study/Armchair_139",
 			"plan_xz": [
 				3.35,
 				7.84
@@ -2351,7 +2385,7 @@
 			"asset": "decor_side_table",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/DecorSideTable_138",
+			"node": "UpperFloor/Furnishings/Study/DecorSideTable_140",
 			"plan_xz": [
 				2.48,
 				7.8
@@ -2368,7 +2402,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 3.0,
 			"height_m": 0.53,
-			"node": "UpperFloor/Furnishings/Study/DecorBooksVase_139",
+			"node": "UpperFloor/Furnishings/Study/DecorBooksVase_141",
 			"plan_xz": [
 				2.48,
 				7.8
@@ -2385,7 +2419,7 @@
 			"asset": "floor_lamp",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Study/FloorLamp_140",
+			"node": "UpperFloor/Furnishings/Study/FloorLamp_142",
 			"plan_xz": [
 				4.35,
 				8.35
@@ -2402,7 +2436,7 @@
 			"asset": "decor_rug",
 			"floor_y": 3.0,
 			"height_m": 0.002,
-			"node": "UpperFloor/Furnishings/Study/DecorRug_141",
+			"node": "UpperFloor/Furnishings/Study/DecorRug_143",
 			"plan_xz": [
 				2.1,
 				7.3
@@ -2419,7 +2453,7 @@
 			"asset": "decor_wall_art",
 			"floor_y": 3.0,
 			"height_m": 1.32,
-			"node": "UpperFloor/Furnishings/Study/DecorWallArt_142",
+			"node": "UpperFloor/Furnishings/Study/DecorWallArt_144",
 			"plan_xz": [
 				5.08,
 				8.15
@@ -2436,7 +2470,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/Study/DecorCurtains_143",
+			"node": "UpperFloor/Furnishings/Study/DecorCurtains_145",
 			"plan_xz": [
 				0.22,
 				7.15
@@ -2453,7 +2487,7 @@
 			"asset": "bookcase",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Reading/Bookcase_144",
+			"node": "UpperFloor/Furnishings/Reading/Bookcase_146",
 			"plan_xz": [
 				6.43,
 				9.68
@@ -2470,7 +2504,7 @@
 			"asset": "armchair",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Reading/Armchair_145",
+			"node": "UpperFloor/Furnishings/Reading/Armchair_147",
 			"plan_xz": [
 				5.78,
 				11.1
@@ -2487,7 +2521,7 @@
 			"asset": "decor_side_table",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Reading/DecorSideTable_146",
+			"node": "UpperFloor/Furnishings/Reading/DecorSideTable_148",
 			"plan_xz": [
 				4.78,
 				11.45
@@ -2504,7 +2538,7 @@
 			"asset": "decor_books_vase",
 			"floor_y": 3.0,
 			"height_m": 0.53,
-			"node": "UpperFloor/Furnishings/Reading/DecorBooksVase_147",
+			"node": "UpperFloor/Furnishings/Reading/DecorBooksVase_149",
 			"plan_xz": [
 				4.78,
 				11.45
@@ -2521,7 +2555,7 @@
 			"asset": "floor_lamp",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Reading/FloorLamp_148",
+			"node": "UpperFloor/Furnishings/Reading/FloorLamp_150",
 			"plan_xz": [
 				4.34,
 				11.46
@@ -2538,7 +2572,7 @@
 			"asset": "decor_plant",
 			"floor_y": 3.0,
 			"height_m": 0.0,
-			"node": "UpperFloor/Furnishings/Reading/DecorPlant_149",
+			"node": "UpperFloor/Furnishings/Reading/DecorPlant_151",
 			"plan_xz": [
 				4.58,
 				9.47
@@ -2555,7 +2589,7 @@
 			"asset": "decor_curtains",
 			"floor_y": 3.0,
 			"height_m": 0.18,
-			"node": "UpperFloor/Furnishings/Reading/DecorCurtains_150",
+			"node": "UpperFloor/Furnishings/Reading/DecorCurtains_152",
 			"plan_xz": [
 				5.15,
 				11.78
@@ -2572,7 +2606,7 @@
 			"asset": "garden_bench",
 			"floor_y": 3.0,
 			"height_m": 0.01,
-			"node": "UpperFloor/Furnishings/Terrace/GardenBench_151",
+			"node": "UpperFloor/Furnishings/Terrace/GardenBench_153",
 			"plan_xz": [
 				0.45,
 				10.33
@@ -2589,7 +2623,7 @@
 			"asset": "garden_bench",
 			"floor_y": 3.0,
 			"height_m": 0.01,
-			"node": "UpperFloor/Furnishings/Terrace/GardenBench_152",
+			"node": "UpperFloor/Furnishings/Terrace/GardenBench_154",
 			"plan_xz": [
 				1.9,
 				11.53
@@ -2606,7 +2640,7 @@
 			"asset": "coffee_table",
 			"floor_y": 3.0,
 			"height_m": 0.01,
-			"node": "UpperFloor/Furnishings/Terrace/CoffeeTable_153",
+			"node": "UpperFloor/Furnishings/Terrace/CoffeeTable_155",
 			"plan_xz": [
 				1.6,
 				10.75
@@ -2623,7 +2657,7 @@
 			"asset": "decor_fruit_bowl",
 			"floor_y": 3.0,
 			"height_m": 0.46,
-			"node": "UpperFloor/Furnishings/Terrace/DecorFruitBowl_154",
+			"node": "UpperFloor/Furnishings/Terrace/DecorFruitBowl_156",
 			"plan_xz": [
 				1.6,
 				10.75
@@ -2640,7 +2674,7 @@
 			"asset": "decor_plant",
 			"floor_y": 3.0,
 			"height_m": 0.01,
-			"node": "UpperFloor/Furnishings/Terrace/DecorPlant_155",
+			"node": "UpperFloor/Furnishings/Terrace/DecorPlant_157",
 			"plan_xz": [
 				3.43,
 				11.5
@@ -2657,7 +2691,7 @@
 			"asset": "garden_bench",
 			"floor_y": 0.0,
 			"height_m": -0.003,
-			"node": "Garden/Furnishings/Garden/GardenBench_156",
+			"node": "Garden/Furnishings/Garden/GardenBench_158",
 			"plan_xz": [
 				6.1,
 				-0.62
@@ -2674,7 +2708,7 @@
 			"asset": "garden_bench",
 			"floor_y": 0.0,
 			"height_m": -0.003,
-			"node": "Garden/Furnishings/Garden/GardenBench_157",
+			"node": "Garden/Furnishings/Garden/GardenBench_159",
 			"plan_xz": [
 				8.3,
 				-0.62
@@ -2691,7 +2725,7 @@
 			"asset": "coffee_table",
 			"floor_y": 0.0,
 			"height_m": -0.003,
-			"node": "Garden/Furnishings/Garden/CoffeeTable_158",
+			"node": "Garden/Furnishings/Garden/CoffeeTable_160",
 			"plan_xz": [
 				7.15,
 				-1.43
@@ -2708,7 +2742,7 @@
 			"asset": "decor_plant",
 			"floor_y": 0.0,
 			"height_m": -0.003,
-			"node": "Garden/Furnishings/Garden/DecorPlant_159",
+			"node": "Garden/Furnishings/Garden/DecorPlant_161",
 			"plan_xz": [
 				4.5,
 				-0.7
@@ -2725,7 +2759,7 @@
 			"asset": "decor_plant",
 			"floor_y": 0.0,
 			"height_m": -0.003,
-			"node": "Garden/Furnishings/Garden/DecorPlant_160",
+			"node": "Garden/Furnishings/Garden/DecorPlant_162",
 			"plan_xz": [
 				10.2,
 				-0.7
@@ -2742,7 +2776,7 @@
 			"asset": "garden_bench",
 			"floor_y": 0.0,
 			"height_m": -0.04,
-			"node": "Garden/Furnishings/Garden/GardenBench_161",
+			"node": "Garden/Furnishings/Garden/GardenBench_163",
 			"plan_xz": [
 				1.0,
 				14.4
@@ -2759,7 +2793,7 @@
 			"asset": "decor_plant",
 			"floor_y": 0.0,
 			"height_m": -0.04,
-			"node": "Garden/Furnishings/Garden/DecorPlant_162",
+			"node": "Garden/Furnishings/Garden/DecorPlant_164",
 			"plan_xz": [
 				2.1,
 				14.45

@@ -151,7 +151,7 @@
         },
         {
           "id": "guest",
-          "name": "客卧",
+          "name": "工作书房",
           "polygon_xz": [
             [
               0.7,
@@ -409,6 +409,11 @@
               "a": 3.4499999999999993,
               "b": 4.550000000000001,
               "kind": "arch"
+            },
+            {
+              "a": 4.65,
+              "b": 5.75,
+              "kind": "arch"
             }
           ]
         },
@@ -640,7 +645,7 @@
         },
         {
           "id": "bedroom_b",
-          "name": "次卧 B",
+          "name": "电脑房",
           "polygon_xz": [
             [
               0.7,
@@ -1223,6 +1228,77 @@
       "structure": "assets/runtime/garden_structure.png",
       "labels": "assets/runtime/garden_labels.png",
       "labeled": "assets/garden_labeled.png"
+    },
+    "basement": {
+      "id": "basement",
+      "name": "地下层",
+      "world_rect_xz": [
+        3.1,
+        -4.0,
+        3.2,
+        6.1
+      ],
+      "pixel_size": [
+        1024,
+        1024
+      ],
+      "base": "assets/runtime/basement_base.png",
+      "structure": "assets/runtime/basement_structure.png",
+      "labels": "assets/runtime/basement_labels.png",
+      "regions": [
+        {
+          "id": "landing",
+          "name": "下层平台",
+          "polygon_xz": [
+            [
+              3.4,
+              -3.6
+            ],
+            [
+              5.82,
+              -3.6
+            ],
+            [
+              5.82,
+              -2.0
+            ],
+            [
+              3.4,
+              -2.0
+            ]
+          ],
+          "label_xz": [
+            4.45,
+            -2.8
+          ]
+        },
+        {
+          "id": "basement_stairs",
+          "name": "地下室楼梯",
+          "polygon_xz": [
+            [
+              4.65,
+              -2.1
+            ],
+            [
+              5.75,
+              -2.1
+            ],
+            [
+              5.75,
+              1.5
+            ],
+            [
+              4.65,
+              1.5
+            ]
+          ],
+          "label_xz": [
+            5.2,
+            -0.1
+          ]
+        }
+      ]
     }
   }
 }

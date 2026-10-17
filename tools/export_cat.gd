@@ -8,11 +8,7 @@ func export_model() -> void:
 	cat.skeleton.reset_bone_poses()
 	var body: MeshInstance3D = cat.get_node("AnatomicalMesh")
 	var mesh: ArrayMesh = body.mesh.duplicate()
-	var coat := StandardMaterial3D.new()
-	coat.vertex_color_use_as_albedo = true
-	coat.albedo_color = Color.WHITE
-	coat.roughness = .88
-	mesh.surface_set_material(0,coat)
+	# Atlas materials are native PBR materials and export intact to glTF 2.0.
 	body.mesh = mesh
 	var document := GLTFDocument.new()
 	var state := GLTFState.new()

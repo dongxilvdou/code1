@@ -1,11 +1,12 @@
 extends Node3D
 ## Continuous anatomical mesh, weighted skeleton, planted paw inverse kinematics.
 @export var animate := true
-@export_enum("game", "idle", "walk", "run", "crouch", "jump", "stretch") var preview_pose := "game"
+@export_enum("game", "idle", "walk", "run", "crouch", "jump", "stretch", "sit", "tailwag") var preview_pose := "game"
 var gait := 0.0
 var speed := 0.0
 var crouching := false
 var airborne := false
+var vertical_speed := 0.0
 var curious := 0.0
 var legs: Array = []
 var skeleton: Skeleton3D
@@ -16,6 +17,10 @@ var clock := 0.0
 var motion_amount := 0.0
 var low_amount := 0.0
 var meow_time := 0.0
+var previous_rotations: Array[Quaternion] = []
+var previous_positions: Array[Vector3] = []
+var last_state := ""
+var transition_remaining := 0.0
 
 func _ready() -> void:
 	if not has_node("Skeleton3D"):build_model()
@@ -53,7 +58,7 @@ func build_model() -> void:
 	var f := FileAccess.open("res://assets/models/calico_anatomy.bin",FileAccess.READ)
 	var bytes := f.get_buffer(f.get_length())
 	var mesh := ArrayMesh.new()
-	mesh.resource_name = "Calico_Continuous_High_Density"
+	mesh.resource_name = "Calico_Continuous_Realtime"
 	for data in rig_data.surfaces:
 		var arrays: Array = []
 		arrays.resize(Mesh.ARRAY_MAX)
@@ -72,6 +77,7 @@ func build_model() -> void:
 		uvs.resize(data.vertices)
 		for i in range(data.vertices):uvs[i] = Vector2(raw[i*2],raw[i*2+1])
 		arrays[Mesh.ARRAY_TEX_UV] = uvs
+		if data.has("tangents"):arrays[Mesh.ARRAY_TANGENT] = floats(bytes,data.tangents)
 		raw = floats(bytes,data.colors)
 		var colors := PackedColorArray()
 		colors.resize(data.vertices)
@@ -133,6 +139,23 @@ func floats(bytes: PackedByteArray, span: Array) -> PackedFloat32Array:
 	return bytes.slice(span[0],span[0]+span[1]).to_float32_array()
 
 func make_material(key: String) -> Material:
+	if rig_data.get("version",2)>=3:
+		var material := StandardMaterial3D.new()
+		material.resource_name = "Calico_Atlas_"+key
+		material.albedo_texture = load("res://assets/models/textures/calico_%s_basecolor.png" % key)
+		material.normal_enabled = true
+		material.normal_texture = load("res://assets/models/textures/calico_%s_normal.png" % key)
+		material.normal_scale = .65
+		material.roughness_texture = load("res://assets/models/textures/calico_%s_roughness.png" % key)
+		material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		material.metallic_specular = .28 if key=="coat" else .5
+		if key=="eyes":
+			material.clearcoat_enabled = true
+			material.clearcoat = .7
+			material.clearcoat_roughness = .12
+		if key=="features":material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		return material
 	if key=="coat":
 		var fur := ShaderMaterial.new()
 		fur.resource_name = "Calico_Fur_Detail"
@@ -160,12 +183,32 @@ func _process(delta: float) -> void:
 	meow_time = maxf(0,meow_time-delta)
 	motion_amount = move_toward(motion_amount,clampf(speed/1.38,0,1),delta*4)
 	low_amount = move_toward(low_amount,1.0 if crouching else 0.0,delta*4)
-	gait += delta*TAU*(1.4+speed*.55)*motion_amount
 	var state := preview_pose
 	if state=="game":state = "jump" if airborne else "crouch" if crouching else "run" if speed>2.0 else "walk" if speed>.12 else "idle"
 	var amount := motion_amount if preview_pose=="game" else 1.0 if state in ["walk","run"] else 0.0
-	if preview_pose!="game":gait = clock*TAU*(3.1 if state=="run" else 1.8)
-	pose_model(state,gait,clock,amount,low_amount if preview_pose=="game" else 1.0 if state=="crouch" else 0.0)
+	var duty := .42 if state=="run" else .64
+	var stride_length := .28 if state=="run" else .22
+	# Match planted-phase travel to actual movement speed rather than skating in place.
+	gait += delta*TAU*speed*duty/stride_length
+	if preview_pose!="game":gait = clock*TAU/(.42 if state=="run" else .72)
+	if state!=last_state:
+		transition_remaining = .18
+		last_state = state
+	previous_rotations.clear()
+	previous_positions.clear()
+	for i in range(skeleton.get_bone_count()):
+		previous_rotations.append(skeleton.get_bone_pose_rotation(i))
+		previous_positions.append(skeleton.get_bone_pose_position(i))
+	var pose_phase := gait
+	if state=="jump":
+		pose_phase = clampf(.5-vertical_speed*.045,.14,.88)*TAU if preview_pose=="game" else fposmod(clock,1.0)*TAU
+	pose_model(state,pose_phase,clock,amount,low_amount if preview_pose=="game" else 1.0 if state=="crouch" else 0.0)
+	if transition_remaining>0:
+		var blend := minf(1.0,delta/maxf(delta,transition_remaining))
+		for i in range(skeleton.get_bone_count()):
+			skeleton.set_bone_pose_rotation(i,previous_rotations[i].slerp(skeleton.get_bone_pose_rotation(i),blend))
+			skeleton.set_bone_pose_position(i,previous_positions[i].lerp(skeleton.get_bone_pose_position(i),blend))
+		transition_remaining = maxf(0,transition_remaining-delta)
 
 func rotate_bone(label: String, angles: Vector3) -> void:
 	skeleton.set_bone_pose_rotation(bone_ids[label],Quaternion.from_euler(angles))
@@ -173,37 +216,42 @@ func rotate_bone(label: String, angles: Vector3) -> void:
 func pose_model(state: String, phase: float, time: float, amount: float = 1.0, crouch_mix: float = 0.0) -> void:
 	skeleton.reset_bone_poses()
 	var stretch := 1.0 if state=="stretch" else 0.0
-	var jump := 1.0 if state=="jump" else 0.0
-	var root_y := -.060*crouch_mix-.010*stretch + sin(time*2.5)*.0015 + sin(phase*2)*.004*amount
+	var jump := maxf(0.0,sin(clampf(phase/TAU,0,1)*PI)) if state=="jump" else 0.0
+	var sit := 1.0 if state=="sit" else 0.0
+	var root_y := -.060*crouch_mix-.010*stretch-.105*sit + sin(time*2.5)*.0015 + sin(phase*2)*.004*amount
 	skeleton.set_bone_pose_position(bone_ids.root,Vector3(0,root_y,0))
 	var pelvis := skeleton.get_bone_rest(bone_ids.pelvis).origin
 	skeleton.set_bone_pose_position(bone_ids.pelvis,pelvis+Vector3(0,.015*stretch,0))
-	rotate_bone("pelvis",Vector3(.045*jump,0,sin(phase)*.017*amount))
+	rotate_bone("pelvis",Vector3(.045*jump+.48*sit,0,sin(phase)*.017*amount))
 	rotate_bone("lumbar",Vector3(-.19*stretch-.035*crouch_mix,0,-sin(phase)*.013*amount))
 	rotate_bone("thorax",Vector3(-.17*stretch, sin(phase)*.012*amount,0))
-	rotate_bone("neck",Vector3(.26*stretch-.10*jump,sin(time*.7)*.025,0))
+	rotate_bone("neck",Vector3(.26*stretch-.10*jump-.48*sit,sin(time*.7)*.025,0))
 	rotate_bone("head",Vector3(.08*stretch,curious*.11+sin(time*.65)*.018,0))
 	rotate_bone("jaw",Vector3(.12*sin(meow_time/.65*PI),0,0))
 	for side in [-1,1]:
 		rotate_bone("ear_L" if side<0 else "ear_R",Vector3(sin(time*1.1+side)*.025,0,side*(.055*crouch_mix+.025*sin(time*.9))))
 	for i in range(rig_data.tail_bones.size()):
 		var index: int = rig_data.tail_bones[i]
-		skeleton.set_bone_pose_rotation(index,Quaternion.from_euler(Vector3(sin(time*1.4-i*.34)*.018-crouch_mix*.012,0,sin(time*1.6-i*.31)*.034)))
+		var wag := 2.8 if state=="tailwag" else 1.0
+		skeleton.set_bone_pose_rotation(index,Quaternion.from_euler(Vector3(sin(time*1.4-i*.34)*.018-crouch_mix*.012-.025*sit,0,sin(time*1.6-i*.31)*.034*wag)))
 	skeleton.force_update_all_bone_transforms()
 	for i in range(legs.size()):
 		var leg: Dictionary = legs[i]
 		var ids: Array = leg.bones
 		var target := vector(leg.points[4])
-		var cycle := fposmod(phase/TAU+([0.0,.5,.72,.22][i] if state!="run" else [0.0,.5,.5,0.0][i]),1)
+		var cycle := fposmod(phase/TAU+([0.0,.5,.75,.25][i] if state!="run" else [.0,.08,.48,.56][i]),1)
 		var lift := 0.0
-		if cycle<.62:
-			target.z += lerpf(-.055,.055,cycle/.62)*amount
+		var duty := .42 if state=="run" else .64
+		var reach := .14 if state=="run" else .11
+		if cycle<duty:
+			target.z += lerpf(-reach,reach,cycle/duty)*amount
 		else:
-			var t := (cycle-.62)/.38
-			target.z += lerpf(.055,-.055,t)*amount
+			var t := (cycle-duty)/(1-duty)
+			target.z += lerpf(reach,-reach,t)*amount
 			lift = sin(t*PI)*(.043 if state!="run" else .064)*amount
 			target.y += lift
 		if stretch>0:target.z += -.084 if leg.front else .024
+		if sit>0:target.z += -.018 if leg.front else .012
 		if jump>0:
 			target.y += .068 if leg.front else .080
 			target.z += -.018 if leg.front else .045
@@ -246,11 +294,11 @@ func bake_animation_library() -> void:
 	animation_player.root_node = NodePath("..")
 	add_child(animation_player)
 	var library := AnimationLibrary.new()
-	for state in ["idle","walk","run","crouch","jump","stretch"]:
+	for state in ["idle","walk","run","crouch","jump","stretch","sit","tailwag"]:
 		var animation := Animation.new()
 		animation.resource_name = "Calico_"+state
-		animation.length = 2.0 if state=="idle" else 1.0
-		animation.loop_mode = Animation.LOOP_LINEAR
+		animation.length = .72 if state=="walk" else .42 if state=="run" else 3.927 if state in ["idle","sit","tailwag"] else 1.0
+		animation.loop_mode = Animation.LOOP_NONE if state=="jump" else Animation.LOOP_LINEAR
 		var pos_tracks: Array[int] = []
 		var rot_tracks: Array[int] = []
 		for i in range(skeleton.get_bone_count()):
@@ -263,7 +311,7 @@ func bake_animation_library() -> void:
 			rot_tracks.append(r)
 		for frame in range(25):
 			var time := animation.length*frame/24.0
-			pose_model(state,(frame%24)/24.0*TAU,time if frame<24 else 0.0,1.0 if state in ["walk","run"] else 0.0,1.0 if state=="crouch" else 0.0)
+			pose_model(state,(frame if state=="jump" else frame%24)/24.0*TAU,time if frame<24 else 0.0,1.0 if state in ["walk","run"] else 0.0,1.0 if state=="crouch" else 0.0)
 			for i in range(skeleton.get_bone_count()):
 				animation.position_track_insert_key(pos_tracks[i],time,skeleton.get_bone_pose_position(i))
 				animation.rotation_track_insert_key(rot_tracks[i],time,skeleton.get_bone_pose_rotation(i))

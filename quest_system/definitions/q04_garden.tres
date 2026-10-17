@@ -1,25 +1,22 @@
-[gd_resource type="Resource" script_class="CalicoQuest" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://bvlyi2s1fm3t0"]
 
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Script" path="res://quest_system/types/quest_result.gd" id="result"]
-[ext_resource type="Resource" path="res://quest_system/definitions/q03_upstairs.tres" id="pre0"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_r378s"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" uid="uid://dpald3wwaeahi" path="res://quest_system/definitions/q03_upstairs.tres" id="pre0"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="result"]
 
 [sub_resource type="Resource" id="door"]
 script = ExtResource("goal")
 id = &"door"
 text = "用 E 打开任意房门"
 kind = 2
-room_id = "any"
-target_count = 1
 
 [sub_resource type="Resource" id="garden"]
 script = ExtResource("goal")
 id = &"garden"
 text = "到达北侧花园"
-kind = 0
 room_id = "garden/north"
-target_count = 1
 
 [sub_resource type="Resource" id="points"]
 script = ExtResource("result")
@@ -29,18 +26,14 @@ amount = 20
 
 [sub_resource type="Resource" id="flag"]
 script = ExtResource("result")
-kind = 0
 key = &"villa_explored"
-flag_value = true
 
 [resource]
 script = ExtResource("quest")
 id = &"q04"
 title = "去花园走走"
 description = "用 E 打开一扇门，去房屋北侧花园散步。"
-main_quest = true
 priority = 96
-auto_accept = true
 prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre0")])
 objectives = Array[ExtResource("goal")]([SubResource("door"), SubResource("garden")])
 result_text = "探索积分 +20，完成别墅探索"

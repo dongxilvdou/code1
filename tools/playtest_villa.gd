@@ -78,7 +78,7 @@ func run_tests() -> void:
 	# E interaction from both sides, actual closed-door walking, and anti-crush pause.
 	var test_door: Node3D
 	for door in doors:
-		if door.door_title=="卧室门" and door.global_position.y<1:test_door = door
+		if door.door_title=="工作书房门" and door.global_position.y<1:test_door = door
 	test_door.set_open(false,true)
 	place(7.55,8.35,.02,PI)
 	await ticks(8)
@@ -117,7 +117,7 @@ func run_tests() -> void:
 		[5.95,3.95,.02,0.0,"一层 · 厨房"],
 		[6.30,4.50,.02,-PI/2,"一层 · 卫生间"],
 		[6.30,6.80,.02,-PI/2,"一层 · 洗衣间"],
-		[7.55,8.40,.02,PI,"一层 · 客卧"],
+		[7.55,8.40,.02,PI,"一层 · 工作书房"],
 		[5.95,10.7,.02,PI/2,"一层 · 客厅"],
 		[2.60,.50,.02,0.0,"北侧花园"],
 		[11.50,1.80,.02,-PI/2,"侧花园"],
@@ -125,7 +125,7 @@ func run_tests() -> void:
 		[5.95,3.95,3.02,0.0,"二层 · 次卧 A"],
 		[5.55,4.45,3.02,PI/2,"二层 · 主卧"],
 		[5.55,6.95,3.02,PI/2,"二层 · 书房"],
-		[7.55,8.40,3.02,PI,"二层 · 次卧 B"],
+		[7.55,8.40,3.02,PI,"二层 · 电脑房"],
 		[6.30,4.50,3.02,-PI/2,"二层 · 卫生间"],
 		[6.30,6.80,3.02,-PI/2,"二层 · 衣帽储物"],
 		[2.40,8.60,3.02,PI,"二层 · 露台"],
@@ -193,7 +193,7 @@ func run_tests() -> void:
 	for r in game.zone_records:
 		var b: Rect2 = r.bounds
 		var q := b.get_center()
-		var floor_y := 3.0 if r.floor==1 else 0.0
+		var floor_y := -2.7 if r.floor<0 else 3.0 if r.floor==1 else 0.0
 		var origin := Vector3(q.x-6,floor_y+.5,q.y-6)
 		var hit: Dictionary = game.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(origin,origin-Vector3.UP,1))
 		expect(not hit.is_empty(),"Missing room floor: "+str(r.name))

@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://furniture_pack/models/keyboard_mouse.glb" id="1_douvn"]
+
+[node name="KeyboardMouse" type="Node3D" unique_id=54340989]
+metadata/furniture = {
+"dimensions_m": [0.75, 0.054, 0.3],
+"features": ["独立键帽", "图例", "掌托", "鼠标滚轮", "桌垫"],
+"id": "keyboard_mouse",
+"model": "res://furniture_pack/models/keyboard_mouse.glb",
+"name": "键盘鼠标与桌垫"
+}
+
+[node name="BlenderModel" type="Node3D" parent="." unique_id=1175756460 instance=ExtResource("1_douvn")]

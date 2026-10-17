@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://furniture_pack/models/drafting_kit.glb" id="1_0brt5"]
+
+[node name="DraftingKit" type="Node3D" unique_id=710811890]
+metadata/furniture = {
+"dimensions_m": [0.63, 0.044, 0.4],
+"features": ["A4 图纸", "30cm 刻度尺", "铅笔", "签字笔", "橡皮", "笔记本", "螺丝刀", "小锤"],
+"id": "drafting_kit",
+"model": "res://furniture_pack/models/drafting_kit.glb",
+"name": "纸笔尺子与桌面工具套装"
+}
+
+[node name="BlenderModel" type="Node3D" parent="." unique_id=2077250377 instance=ExtResource("1_0brt5")]

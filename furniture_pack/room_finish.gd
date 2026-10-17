@@ -13,6 +13,8 @@ const STYLES := {
 	"BedroomB":{"linen":"c7b29b","cream":"e3dbce","sage_fabric":"ae765a","rust":"73574f"},
 	"GuestBedroom":{"linen":"bcc2a9","cream":"daddd0","sage_fabric":"738466","rust":"a18353"},
 	"Study":{"linen":"b9b8a6","cream":"d6d4c7","sage_fabric":"47615b","rust":"9d6944","oak":"876c50"},
+	"Workshop":{"linen":"b8c4b6","cream":"d6d8ca","sage_fabric":"617365","oak":"92734f"},
+	"ComputerRoom":{"linen":"a4b8c0","cream":"cdd5d6","sage_fabric":"526d80","oak":"7a6a55"},
 	"Reading":{"sage_fabric":"b39b69","linen":"ccc4ae"},
 	"Bathroom":{"linen":"b2c7cd","sage":"6f888a"},
 	"Laundry":{"linen":"b8cacc"},

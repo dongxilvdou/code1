@@ -92,6 +92,7 @@ func make_label(font_size: int) -> Label:
 func available() -> bool:
 	if not is_instance_valid(game) or not bool(game.get("started")):
 		return false
+	if bool(game.get("cinematic_active")):return false
 	if bool(game.get("photo")) or bool(game.get("inspecting")):
 		return false
 	var ui: Variant = game.get("ui")
@@ -133,6 +134,7 @@ func support_floor() -> String:
 	var node: Node = hit.collider
 	while is_instance_valid(node):
 		match String(node.name):
+			"Basement": return "basement"
 			"UpperFloor": return "floor_2"
 			"GroundFloor": return "floor_1"
 			"Staircase": return "stairs"
@@ -142,6 +144,9 @@ func support_floor() -> String:
 
 func choose_map(p: Vector3, support: String) -> String:
 	var q := Vector2(p.x,p.z)
+	if maps.has("basement") and (support=="basement" or p.y<-.25):
+		return "basement"
+	if current_map=="basement" and p.y>=-.1:current_floor = "floor_1"
 	# Match the existing game's shaft region, with 6 cm exit hysteresis.
 	var shaft := Rect2(3.2,-2.4,2.8,3.9)
 	if current_map == "stairs":
@@ -219,7 +224,7 @@ func _process(_delta: float) -> void:
 		if flat.length_squared() > 0.00001:
 			map_angle = -flat.angle() - PI/2.0
 	mini.set("map_angle", map_angle)
-	mini.set("pixels_per_metre", 60.0 if current_map == "stairs" else 11.0 if current_map == "garden" else 22.0)
+	mini.set("pixels_per_metre", 60.0 if current_map in ["stairs","basement"] else 11.0 if current_map == "garden" else 22.0)
 	mini_title.text = "%s · %s" % [maps[current_map].name, current_room]
 	var viewport_size := get_viewport_rect().size
 	var side := maxf(160.0, minf(viewport_size.x-96, viewport_size.y-180))

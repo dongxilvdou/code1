@@ -1,0 +1,16 @@
+{
+  "blender": "5.2.2 LTS",
+  "bones": 47,
+  "actions": [
+    "poses_crouch",
+    "poses_idle",
+    "poses_jump",
+    "poses_run",
+    "poses_sit",
+    "poses_stretch",
+    "poses_tailwag",
+    "poses_walk"
+  ],
+  "packed_source": "authoring/calico.blend",
+  "meshes": 2
+}

@@ -32,7 +32,8 @@ func validate() -> void:
 	# storage quantization, while the source generator checks float normalization.
 	var weight_tolerance := 4.0/65535.0+0.0000001
 	expect(weight_error<=weight_tolerance,"Weights exceed GPU quantization tolerance")
-	expect(triangles>104532,"Face count did not double")
+	expect(triangles<80000 and triangles>30000,"Realtime triangle budget outside range")
+	expect(body.mesh.get_surface_count()==3,"Atlas material count changed")
 	for i in range(bone_count):
 		var bind := skeleton.get_bone_global_rest(i)*body.skin.get_bind_pose(i)
 		expect(bind.origin.length()<.00001,"Incorrect inverse bind for "+str(i))
@@ -43,7 +44,7 @@ func validate() -> void:
 	var weights: PackedFloat32Array = arrays[Mesh.ARRAY_WEIGHTS]
 	var minimum_paw_y := 1.0
 	var samples := 0
-	for pose in ["idle","walk","run","crouch","jump","stretch"]:
+	for pose in ["idle","walk","run","crouch","jump","stretch","sit","tailwag"]:
 		for frame in range(16):
 			cat.pose_model(pose,frame/16.0*TAU,frame/16.0,1.0 if pose in ["walk","run"] else 0.0,1.0 if pose=="crouch" else 0.0)
 			var transforms: Array[Transform3D] = []
@@ -57,16 +58,32 @@ func validate() -> void:
 				samples += 1
 	expect(minimum_paw_y>-.010,"Paws sink through the floor: "+str(minimum_paw_y))
 	var player: AnimationPlayer = cat.get_node("AnimationPlayer")
-	expect(player.get_animation_list().size()==6,"Animation clips missing")
+	expect(player.get_animation_list().size()==8,"Animation clips missing")
+	for clip in ["idle","walk","run","jump","sit","tailwag"]:
+		expect(player.has_animation("poses/"+clip),"Missing clip "+clip)
 	var document := GLTFDocument.new()
 	var state := GLTFState.new()
+	state.handle_binary_image_mode = GLTFState.HANDLE_BINARY_IMAGE_MODE_EMBED_AS_UNCOMPRESSED
 	var glb_result := document.append_from_file("res://assets/models/calico_rigged.glb",state)
 	expect(glb_result==OK,"GLB round trip failed")
 	if glb_result==OK:
+		expect(state.get_animations().size()==8,"GLB animation clips were lost")
+		expect(state.get_materials().size()==3,"GLB atlas materials were lost")
 		var imported := document.generate_scene(state)
 		expect(imported.find_children("*","Skeleton3D",true,false).size()==1,"GLB does not contain the skeleton")
+		root.add_child(imported)
+		var imported_rig: Skeleton3D = imported.find_children("*","Skeleton3D",true,false)[0]
+		expect(imported_rig.get_bone_count()==47,"Blender changed the joint count")
+		var imported_player: AnimationPlayer = imported.find_children("*","AnimationPlayer",true,false)[0]
+		for clip in imported_player.get_animation_list():
+			imported_player.play(clip)
+			imported_player.advance(.25)
+			imported_rig.force_update_all_bone_transforms()
+			for joint in range(imported_rig.get_bone_count()):
+				var point := imported_rig.get_bone_global_pose(joint).origin
+				expect(point.is_finite() and point.length()<1.2,"GLB animated joint escaped bounds: "+clip)
 		imported.free()
-	var report := {"triangles":triangles,"vertices":vertex_count,"bones":bone_count,"animation_clips":6,"weight_error":weight_error,"weight_tolerance":weight_tolerance,"pose_samples":samples,"minimum_paw_y":minimum_paw_y,"glb_valid":glb_result==OK,"failures":failures}
+	var report := {"triangles":triangles,"vertices":vertex_count,"bones":bone_count,"animation_clips":8,"weight_error":weight_error,"weight_tolerance":weight_tolerance,"pose_samples":samples,"minimum_paw_y":minimum_paw_y,"glb_valid":glb_result==OK,"failures":failures}
 	print("CALICO_RIG_VALIDATE ",JSON.stringify(report))
 	var file := FileAccess.open("res://assets/models/rig_validation.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
