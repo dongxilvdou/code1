@@ -1,8 +1,9 @@
 extends Control
-const PAPER := Color("eeeade")
-const MUTED := Color("b6bfb2")
-const ACCENT := Color("d7b77c")
-const GREEN := Color("a9c7a7")
+const QuestTheme = preload("res://quest_system/quest_theme.gd")
+const PAPER := QuestTheme.PAPER
+const MUTED := QuestTheme.MUTED
+const ACCENT := QuestTheme.BRASS
+const GREEN := QuestTheme.SAGE
 const STATUS := ["未解锁", "可接取", "进行中", "已完成", "已失败"]
 var system: Node
 var manager: CalicoQuestManager
@@ -19,6 +20,7 @@ var journal_list: VBoxContainer
 var journal_summary: Label
 var confirmation: ConfirmationDialog
 var _notice_time := 0.0
+var journal_panel: PanelContainer
 
 func setup(owner_system: Node) -> void:
 	system = owner_system
@@ -30,14 +32,14 @@ func setup(owner_system: Node) -> void:
 	panel = PanelContainer.new()
 	panel.name = "TaskPanelBelowMinimap"
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", _style(Color(.025, .042, .035, .90)))
+	panel.add_theme_stylebox_override("panel", QuestTheme.panel(14))
 	add_child(panel)
 	var column := VBoxContainer.new()
 	sidebar_column = column
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 10)
 	panel.add_child(column)
-	_label("当前任务", 15, ACCENT, column)
+	_label("探 索 手 记", 12, ACCENT, column)
 	var scroll := ScrollContainer.new()
 	task_scroll = scroll
 	scroll.name = "TaskListViewport"
@@ -90,6 +92,7 @@ func _button(value: String, parent: Node, callback: Callable) -> Button:
 	button.add_theme_font_override("font", font)
 	button.add_theme_font_size_override("font_size", 16)
 	button.custom_minimum_size.y = 40
+	QuestTheme.button(button)
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button
@@ -107,22 +110,21 @@ func _card(quest: CalicoQuest, parent: Node, detailed: bool) -> void:
 	parent.add_child(card)
 	var status := manager.get_status(quest.id)
 	var category := "主线" if quest.main_quest else "支线"
-	_label(category + " · " + quest.title, 17, PAPER, card)
+	_label((category + " · " if detailed else "") + quest.title, 17 if detailed else 15, PAPER, card)
 	if detailed:
-		_label(STATUS[status] + "   " + quest.description, 14, MUTED, card)
+		_label(STATUS[status],12,GREEN if status == CalicoQuestManager.State.COMPLETED else ACCENT,card)
+		_label(quest.description,15,MUTED,card)
 	for goal in quest.objectives:
 		var count := manager.get_progress(quest.id, goal.id)
 		var complete := count >= goal.target_count
 		_label(("✓ " if complete else "○ ") + goal.text + "  %d/%d" % [count, goal.target_count], 14, GREEN if complete else PAPER, card)
+		card.add_child(QuestTheme.progress(count,goal.target_count))
 	if detailed:
 		var requirements := PackedStringArray()
 		for prerequisite in quest.prerequisite_quests: requirements.append(prerequisite.title)
 		if not requirements.is_empty():
 			_label("前置（" + ("全部" if quest.prerequisite_mode == CalicoQuest.MatchMode.ALL else "任意") + "）：" + "、".join(requirements), 13, MUTED, card)
-		for condition in quest.extra_conditions:
-			var requirement := "%s = %s" % [condition.key, condition.expected_flag] if condition.kind == CalicoQuestCondition.Kind.FLAG_EQUALS else "%s ≥ %d" % [condition.key, condition.required_value]
-			_label("额外条件：" + requirement, 13, MUTED, card)
-		if not quest.result_text.is_empty(): _label("结果：" + quest.result_text, 13, ACCENT, card)
+		if not quest.result_text.is_empty(): _label("接下来 · " + quest.result_text, 13, ACCENT, card)
 		if status == CalicoQuestManager.State.AVAILABLE:
 			_button("接取任务", card, func(): manager.accept_quest(quest.id))
 		var divider := HSeparator.new()
@@ -152,18 +154,17 @@ func _build_journal() -> void:
 	journal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(journal)
 	var shade := ColorRect.new()
-	shade.color = Color(.035, .05, .04, 1.0)
+	shade.color = Color(.025,.020,.015,.76)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	journal.add_child(shade)
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right"]: margin.add_theme_constant_override("margin_" + side, 40)
-	for side in ["top", "bottom"]: margin.add_theme_constant_override("margin_" + side, 28)
-	journal.add_child(margin)
+	journal_panel = PanelContainer.new()
+	journal_panel.add_theme_stylebox_override("panel",QuestTheme.panel(28))
+	journal.add_child(journal_panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
-	margin.add_child(column)
-	_label("探索手记", 30, PAPER, column)
+	journal_panel.add_child(column)
+	_label("哈 基 米 模 拟 器   /   探 索",12,ACCENT,column)
+	_label("探索手记", 28, PAPER, column)
 	journal_summary = _label("", 15, ACCENT, column)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -193,7 +194,9 @@ func _refresh_journal() -> void:
 	journal_summary.text = "探索积分：%d    ·    任务进度自动保存" % int(manager.values.get("exploration_points", 0))
 	if not manager.autosave: journal_summary.text = "探索积分：%d    ·    当前未启用自动保存" % int(manager.values.get("exploration_points", 0))
 	if not manager.last_save_error.is_empty(): journal_summary.text += "\n" + manager.last_save_error
-	for quest in manager.sorted_quests(): _card(quest, journal_list, true)
+	for state in [CalicoQuestManager.State.ACTIVE,CalicoQuestManager.State.AVAILABLE,CalicoQuestManager.State.LOCKED,CalicoQuestManager.State.COMPLETED,CalicoQuestManager.State.FAILED]:
+		for quest in manager.sorted_quests():
+			if manager.get_status(quest.id) == state:_card(quest, journal_list, true)
 
 func journal_visible() -> bool:
 	return is_instance_valid(journal) and journal.visible
@@ -225,7 +228,7 @@ func _box_height(box: VBoxContainer) -> float:
 
 func _sidebar_height() -> float:
 	var padding := panel.get_theme_stylebox("panel").get_minimum_size().y
-	return ceilf(padding + _box_height(sidebar_column) + _box_height(task_list)) + 2.0
+	return ceilf(padding + _box_height(sidebar_column) + (_box_height(task_list) if task_scroll.visible else 0.0)) + 2.0
 
 func _fold_last_row() -> bool:
 	var cards := task_list.get_children()
@@ -244,10 +247,27 @@ func _fold_last_row() -> bool:
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(system): return
+	var viewport := get_viewport_rect().size
+	var journal_size := Vector2(minf(1000,viewport.x-64),viewport.y-64)
+	journal_panel.position = (viewport-journal_size)*.5
+	journal_panel.size = journal_size
 	panel.visible = system.exploration_active()
 	if not panel.visible: return
 	_notice_time -= delta
 	notice.visible = _notice_time > 0
+	# The story card already explains the active main objective. Keep the map
+	# area quiet; this sidebar remains available for side quests and notices.
+	var story = system.game.get_node_or_null("DayOne")
+	var has_side_quest := false
+	for quest in manager.sorted_quests():
+		if not quest.main_quest and manager.get_status(quest.id)==CalicoQuestManager.State.ACTIVE:has_side_quest = true
+	var story_card: bool = story != null and story.initialized and story.hud.card.visible and not has_side_quest
+	task_scroll.visible = not story_card
+	footer.visible = not story_card
+	(sidebar_column.get_child(0) as Label).text = "手记已更新" if story_card else "探 索 手 记"
+	if story_card and not notice.visible:
+		panel.hide()
+		return
 	var map_card: Control = system.map_hud.mini_back
 	var rect := map_card.get_global_rect()
 	panel.position = Vector2(rect.position.x, rect.end.y + system.gap_below_map)
@@ -277,4 +297,4 @@ func _process(delta: float) -> void:
 			desired = _sidebar_height()
 	# 不用硬裁切留下半行文字；极小空间下仍可使用 J 打开日志。
 	panel.visible = desired <= available_height
-	panel.size = Vector2(width, minf(maxf(150, desired), available_height))
+	panel.size = Vector2(width, minf(maxf(80 if story_card else 150, desired), available_height))

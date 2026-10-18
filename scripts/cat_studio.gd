@@ -97,7 +97,7 @@ func make_ui() -> void:
 	ui.theme = theme
 	canvas.add_child(ui)
 	var title := Label.new()
-	title.text = "三花  /  模型与骨骼"
+	title.text = "米酥  /  新猫模型与骨骼"
 	title.add_theme_font_size_override("font_size",30)
 	title.position = Vector2(36,30)
 	ui.add_child(title)
@@ -155,12 +155,7 @@ func set_pose(value: String) -> void:
 
 func set_clay(value: bool) -> void:
 	clay = value
-	var material: StandardMaterial3D
-	if clay:
-		material = StandardMaterial3D.new()
-		material.albedo_color = Color(.46,.52,.53)
-		material.roughness = .72
-	cat.get_node("AnatomicalMesh").material_override = material
+	cat.set_clay(value)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -183,7 +178,7 @@ func update_camera() -> void:
 	camera.look_at(center)
 
 func _process(_delta: float) -> void:
-	text_label.text = "%s 三角面  /  47 骨骼  /  8 组动作\n独立 UV 毛色 · 短毛细节 · 足爪逆运动学 · 13 节尾骨" % cat.rig_data.stats.triangles
+	text_label.text = "%s 三角面  /  %s 骨骼  /  9 组动作\n导入的新猫模型 · 原始 UV 贴图 · Blender 骨骼动画" % [cat.rig_data.stats.triangles,cat.skeleton.get_bone_count()]
 	if not show_bones:
 		overlay.hide()
 		for dot in joints:dot.hide()

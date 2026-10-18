@@ -2,12 +2,67 @@ extends SceneTree
 var failures: Array[String] = []
 func expect(condition: bool, description: String) -> void:
 	if not condition:failures.append(description)
+
+func validate_imported(cat: Node3D) -> void:
+	var skeleton: Skeleton3D = cat.get("skeleton")
+	var triangles := 0
+	var vertices := 0
+	var maximum_weight_error := 0.0
+	var textured_materials := 0
+	expect(skeleton.get_bone_count()==39,"Imported skeleton count")
+	for mesh in cat.get("visuals").find_children("*","MeshInstance3D",true,false):
+		var skin: Skin = mesh.skin
+		expect(skin!=null,"Imported skin missing")
+		if skin==null:continue
+		for bind in range(skin.get_bind_count()):
+			var name: StringName = skin.get_bind_name(bind)
+			var index := skeleton.find_bone(name) if not name.is_empty() else skin.get_bind_bone(bind)
+			expect(index>=0,"Unknown skin bind")
+			if index>=0:expect((skeleton.get_bone_global_rest(index)*skin.get_bind_pose(bind)).is_equal_approx(Transform3D.IDENTITY),"Incorrect imported inverse bind")
+		for surface in range(mesh.mesh.get_surface_count()):
+			var arrays: Array = mesh.mesh.surface_get_arrays(surface)
+			var points: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var weights: PackedFloat32Array = arrays[Mesh.ARRAY_WEIGHTS]
+			var bones: PackedInt32Array = arrays[Mesh.ARRAY_BONES]
+			vertices += points.size()
+			triangles += arrays[Mesh.ARRAY_INDEX].size()/3
+			expect(arrays[Mesh.ARRAY_TEX_UV].size()==points.size(),"Imported UVs missing")
+			var stride := weights.size()/points.size()
+			for i in range(points.size()):
+				var total := 0.0
+				for j in range(stride):
+					total += weights[i*stride+j]
+					expect(bones[i*stride+j]>=0 and bones[i*stride+j]<skin.get_bind_count(),"Imported vertex joint out of range")
+				maximum_weight_error = maxf(maximum_weight_error,absf(total-1))
+			var material: Material = mesh.get_active_material(surface)
+			if material is StandardMaterial3D and material.albedo_texture!=null:textured_materials += 1
+	expect(maximum_weight_error<.0001,"Imported vertex weights not normalized")
+	expect(triangles==8646,"Supplied cat topology unexpectedly changed")
+	expect(textured_materials>0,"Supplied fur texture absent")
+	for state in ["idle","walk","run","crouch","jump","stretch","sit","tailwag","meow"]:
+		expect(cat.get("clips").has(state),"Missing imported action "+state)
+		var player: AnimationPlayer = cat.get("animation_player")
+		player.play(cat.get("clips")[state],0)
+		player.advance(0)
+		for phase in [.0,.25,.5,.75]:
+			player.seek(player.current_animation_length*phase,true)
+			skeleton.force_update_all_bone_transforms()
+			for bone in range(skeleton.get_bone_count()):
+				var transform := skeleton.get_bone_global_pose(bone)
+				expect(transform.origin.is_finite() and transform.basis.is_finite(),"Nonfinite pose in "+state)
+	print("IMPORTED_CAT_VALIDATE ",JSON.stringify({"triangles":triangles,"vertices":vertices,"bones":skeleton.get_bone_count(),"clips":9,"maximum_weight_error":maximum_weight_error,"failures":failures}))
+	cat.free()
+	quit(0 if failures.is_empty() else 1)
+
 func _initialize() -> void:
 	call_deferred("validate")
 func validate() -> void:
 	var cat = load("res://scenes/calico.tscn").instantiate()
 	root.add_child(cat)
 	cat.animate = false
+	if cat.get_script().resource_path.ends_with("imported_cat.gd"):
+		validate_imported(cat)
+		return
 	var skeleton: Skeleton3D = cat.skeleton
 	var body: MeshInstance3D = cat.get_node("AnatomicalMesh")
 	var bone_count := skeleton.get_bone_count()

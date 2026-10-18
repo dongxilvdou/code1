@@ -4,24 +4,14 @@ var root: Node3D
 var items := {}
 var gates: Array[Node3D] = []
 var door: Node3D
+const TV_STEP_POSITION := Vector3(-1.89,.50,3.20)
+const TV_STEP_SIZE := Vector3(.60,.04,.50)
+const TV_RETRY_POSITION := TV_STEP_POSITION+Vector3(0,.04,0)
 const PAPER_SPOTS := [
 	["living", "客厅", Vector3(-3.9,.025,.3)],
 	["dining", "餐厅", Vector3(-2.6,.025,-2.6)],
 	["kitchen", "厨房", Vector3(4.2,.032,-4.0)],
-	["bath1", "一楼卫生间", Vector3(1.3,.035,-1.2)],
-	["laundry", "洗衣间", Vector3(1.35,.035,.8)],
-	["study1", "一楼工作书房", Vector3(2.6,.025,4.7)],
-	["hall1", "一楼过厅", Vector3(-.05,.025,2.3)],
-	["master", "主卧", Vector3(-2.2,3.025,-3.7)],
-	["bedroom", "次卧", Vector3(1.1,3.025,-3.6)],
-	["computer", "电脑房", Vector3(2.5,3.025,4.4)],
-	["study2", "二楼书房", Vector3(-3.9,3.025,.1)],
-	["bath2", "二楼卫生间", Vector3(1.3,3.035,-1.2)],
-	["dressing", "衣帽间", Vector3(1.35,3.035,.8)],
-	["reading", "阅读角", Vector3(-.6,3.025,4.35)],
-	["terrace", "露台", Vector3(-3.5,3.035,3.6)],
-	["hall2", "二楼过厅", Vector3(-.1,3.025,-.2)],
-	["basement", "地下室", Vector3(4.1,-2.675,-2.8)]
+	["study1", "一楼书房", Vector3(2.6,.025,4.7)]
 ]
 
 func mat(color: Color, glow: bool = false) -> StandardMaterial3D:
@@ -125,8 +115,22 @@ func build(parent: Node3D, game: Node) -> void:
 		var gate := Node3D.new()
 		root.add_child(gate)
 		gate.position = data[0]
-		box(gate,"ClosedPartition",Vector3.ZERO,data[1],Color("889789"),true)
-		sign_at(gate,"先完成客厅的事情",Vector3(0,0,.09),26)
+		collision(gate,Vector3.ZERO,data[1])
+		var curtain := MeshInstance3D.new()
+		curtain.name = "StripedPartition"
+		var plane := QuadMesh.new()
+		plane.size = Vector2(maxf(data[1].x,data[1].z),data[1].y)
+		curtain.mesh = plane
+		curtain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var stripes := ShaderMaterial.new()
+		stripes.shader = preload("res://day1/restriction_stripes.gdshader")
+		stripes.set_shader_parameter("width_m",plane.size.x)
+		stripes.set_shader_parameter("height_m",plane.size.y)
+		curtain.material_override = stripes
+		if data[1].x < data[1].z:curtain.rotation.y = PI/2
+		gate.add_child(curtain)
+		# Original 26 px label enlarged exactly fivefold, at cat-readable height.
+		sign_at(gate,"先完成客厅\n的事情",Vector3(0,-.80,0),130)
 		gates.append(gate)
 	var table := item("table", Vector3(-3,0,4.65))
 	box(table,"Tabletop",Vector3(0,.76,0),Vector3(1.45,.08,.8),Color("a17851"),true)
@@ -180,9 +184,14 @@ func build(parent: Node3D, game: Node) -> void:
 	sign_at(switch,"灯的开关",Vector3(-.08,.20,0),24)
 	# A wider top rail makes the thin television a fair landing surface for the cat capsule.
 	box(root,"TVTopRail",Vector3(-1.28,1.315,2.57),Vector3(.32,.07,1.18),Color("343c3b"),true)
-	# Cabinet side extension leaves enough take-off distance to clear the top rail.
-	box(root,"TVSideShelf",Vector3(-1.66,.50,3.30),Vector3(.95,.04,.50),Color("94734f"),true)
-	for x in [-2.04,-1.28]:box(root,"ShelfLeg",Vector3(x,.24,3.43),Vector3(.055,.48,.055),Color("75543d"),true)
+	# A freestanding step stool clears even the cabinet handles by 10 cm.
+	# The former extension shared its .52 m top surface with the cabinet.
+	box(root,"TVSideShelf",TV_STEP_POSITION,TV_STEP_SIZE,Color("94734f"),true)
+	var leg_index := 0
+	for x in [-.23,.23]:
+		for z in [-.18,.18]:
+			box(root,"ShelfLeg%d" % leg_index,Vector3(TV_STEP_POSITION.x+x,.24,TV_STEP_POSITION.z+z),Vector3(.055,.48,.055),Color("75543d"),true)
+			leg_index += 1
 	for data in PAPER_SPOTS:
 		var paper := item("paper_"+data[0],data[2])
 		box(paper,"Scrap",Vector3.ZERO,Vector3(.17,.012,.12),Color("fff0ce"))

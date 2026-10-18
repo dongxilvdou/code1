@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="d2_dishes_done"]
 script = ExtResource("goal")
 id = &"d2_dishes_done"
-text = "洗好狗盘并放到水槽旁"
+text = "冲洗狗盘并送回大狗旁"
 kind = 3
 target_id = &"d2_dishes_done"
 
@@ -15,7 +15,7 @@ target_id = &"d2_dishes_done"
 script = ExtResource("quest")
 id = &"day2_dishes"
 title = "03 · 空荡荡的厨房"
-description = "湿润狗盘，关水，按洗洁精并涂抹，再开水冲洗，关水后叼到水槽旁沥水垫。"
+description = "叼起大狗旁的脏盘，对厨房水龙头按 E 冲洗。水会自动关闭，再把干净盘子送回大狗旁的固定餐位。"
 priority = 87
 prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
 objectives = Array[ExtResource("goal")]([SubResource("d2_dishes_done")])

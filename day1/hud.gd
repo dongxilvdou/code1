@@ -1,4 +1,5 @@
 extends CanvasLayer
+const QuestTheme = preload("res://quest_system/quest_theme.gd")
 signal continued
 var card: PanelContainer
 var status: Label
@@ -13,6 +14,8 @@ var balance_text: Label
 var cursor: ColorRect
 var font: SystemFont
 var day_title: Label
+var dialog_panel: PanelContainer
+var task_progress: ProgressBar
 
 func _ready() -> void:
 	layer = 25
@@ -33,22 +36,25 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation",10)
 	card.add_child(column)
-	day_title = label("第一天  /  陌生的家",19,column,Color("e5bc7c"))
-	status = label("",15,column)
-	column.add_child(HSeparator.new())
+	day_title = label("第一天  /  陌生的家",18,column,QuestTheme.BRASS)
 	guidance = label("",16,column)
-	carry = label("",14,column,Color("b6cfba"))
+	task_progress = QuestTheme.progress(0,4)
+	column.add_child(task_progress)
+	task_progress.hide()
+	status = label("",12,column,QuestTheme.MUTED)
+	carry = label("",12,column,QuestTheme.SAGE)
 	overlay = Control.new()
 	canvas.add_child(overlay)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
-	shade.color = Color(0.025,.04,.035,.73)
+	shade.color = Color(.035,.028,.020,.73)
 	overlay.add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center := CenterContainer.new()
 	overlay.add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var panel := PanelContainer.new()
+	dialog_panel = panel
 	panel.custom_minimum_size = Vector2(620,0)
 	panel.add_theme_stylebox_override("panel",style())
 	center.add_child(panel)
@@ -56,13 +62,14 @@ func _ready() -> void:
 	content.add_theme_constant_override("separation",24)
 	panel.add_child(content)
 	heading = label("",25,content,Color("e5bc7c"))
-	body = label("",21,content)
-	body.custom_minimum_size = Vector2(568,150)
+	body = label("",19,content)
+	body.custom_minimum_size = Vector2(0,150)
 	next_button = Button.new()
 	next_button.text = "继续  ·  E / 空格"
 	next_button.custom_minimum_size.y = 48
 	next_button.add_theme_font_override("font",font)
 	next_button.add_theme_font_size_override("font_size",18)
+	QuestTheme.button(next_button)
 	next_button.pressed.connect(func():continued.emit())
 	content.add_child(next_button)
 	overlay.hide()
@@ -99,16 +106,17 @@ func _ready() -> void:
 	card.hide()
 
 func style() -> StyleBoxFlat:
-	var result := StyleBoxFlat.new()
-	result.bg_color = Color(.035,.055,.043,.95)
-	result.border_color = Color("62755f")
-	result.set_border_width_all(1)
-	result.set_corner_radius_all(8)
-	result.content_margin_left = 24
-	result.content_margin_right = 24
-	result.content_margin_top = 20
-	result.content_margin_bottom = 20
-	return result
+	return QuestTheme.panel(20)
+
+func _process(_delta: float) -> void:
+	var viewport := get_viewport().get_visible_rect().size
+	card.offset_left = -minf(320,viewport.x*.34)-24
+	dialog_panel.custom_minimum_size.x = minf(640,viewport.x-64)
+
+func set_paper_progress(current: int, total: int, enabled: bool) -> void:
+	task_progress.max_value = total
+	task_progress.value = current
+	task_progress.visible = enabled
 
 func label(text: String, size: int, parent: Node, color := Color("eee7d9")) -> Label:
 	var result := Label.new()

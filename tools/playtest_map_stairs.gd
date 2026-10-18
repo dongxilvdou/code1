@@ -26,7 +26,8 @@ func stair_route(label: String, x1: float, x2: float, rate: int, mode: String = 
 	if diagonal!=0:
 		ok = await walk_until("z",6.9-6,rate*4) and ok
 		face(0)
-	ok = await walk_until("z",4.40-6,rate*9) and ok
+	var crossing: float = game.get_node("Apartment/Staircase").get_meta("landing_crossing_z",4.40)
+	ok = await walk_until("z",crossing-6,rate*9) and ok
 	expect(absf(game.player.position.y-1.5)<.08,label+": failed half landing")
 	face(-PI/2)
 	ok = await walk_until("x",x2-6,rate*5) and ok
@@ -36,7 +37,7 @@ func stair_route(label: String, x1: float, x2: float, rate: int, mode: String = 
 	await ticks(4)
 	expect(map_hud.current_map=="floor_2",label+": map did not follow upstairs exit")
 	face(0)
-	ok = await walk_until("z",4.40-6,rate*9) and ok
+	ok = await walk_until("z",crossing-6,rate*9) and ok
 	face(PI/2)
 	ok = await walk_until("x",10.0-6,rate*5) and ok
 	face(PI)

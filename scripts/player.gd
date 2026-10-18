@@ -20,6 +20,7 @@ var collider: CollisionShape3D
 var paws: Array[Node3D] = []
 @export_range(.5,1.2,.05) var cat_scale := .8
 @export var void_reset_height := -2.0
+@export_range(3.0,6.0,.05) var jump_speed := 4.75
 var spawn := Vector3(-3.4,.02,4.2)
 const MAX_STEP := .19
 
@@ -48,17 +49,14 @@ func _ready() -> void:
 	capsule.height = .36*cat_scale
 	collider.shape = capsule
 	collider.transform = Transform3D(Basis.IDENTITY,Vector3(0,.18,-.13)*cat_scale)
-	head.position = Vector3(0,.28,-.22)*cat_scale
-	for side in [-1,1]:
-		var paw := MeshInstance3D.new()
-		paw.mesh = load("res://assets/models/paw_%s.res" % ("left" if side<0 else "right"))
-		paw.position = Vector3(0,-.25,-.10)*cat_scale
-		paw.scale = Vector3.ONE*cat_scale
-		paw.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		paw.layers = 8
-		paw.visible = false
-		camera.add_child(paw)
-		paws.append(paw)
+	head.position = Vector3(0,.40,-.33)*cat_scale
+	var paw := load("res://scenes/cat_forepaws.tscn").instantiate() as Node3D
+	paw.position = Vector3(0,-.31,-.28)*cat_scale
+	paw.rotation.x = deg_to_rad(70)
+	paw.scale = Vector3.ONE*cat_scale*.60
+	paw.visible = false
+	camera.add_child(paw)
+	paws.append(paw)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -88,8 +86,8 @@ func _physics_process(delta: float) -> void:
 	collider.position.y = desired_height*.5
 	if not is_on_floor(): velocity.y -= 12.0*delta
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = 5.25
-		jumping_timer = .6
+		velocity.y = jump_speed
+		jumping_timer = .8
 	var axis := Input.get_vector("move_left","move_right","move_forward","move_back")
 	var direction := (transform.basis*Vector3(axis.x,0,axis.y)).normalized()
 	var move_speed := .65 if low else 2.7 if Input.is_action_pressed("sprint") else 1.38
@@ -115,7 +113,7 @@ func _physics_process(delta: float) -> void:
 		step_view_offset = clampf(step_view_offset-height_change,-MAX_STEP,MAX_STEP)
 	step_view_offset = move_toward(step_view_offset,0.0,delta*1.6)
 	# A crouching eye is lower than a stair riser: never smooth it below the tread.
-	var eye_clearance: float = (.19 if low else .28)*cat_scale-.06
+	var eye_clearance: float = (.28 if low else .40)*cat_scale-.06
 	step_view_offset = clampf(step_view_offset,-maxf(0,eye_clearance),MAX_STEP)
 	camera.position.y = step_view_offset
 	if position.y < void_reset_height: reset_position()
@@ -124,15 +122,20 @@ func _physics_process(delta: float) -> void:
 	model.crouching = low
 	model.airborne = not is_on_floor()
 	model.vertical_speed = velocity.y
+	model.jump_takeoff_speed = jump_speed
 	stride += flat_speed*delta*9
 	var bob := sin(stride*2)*.008*cat_scale if is_on_floor() else 0.0
-	head.position.y = lerpf(head.position.y,(.19 if low else .28)*cat_scale+bob,delta*12)
+	head.position.y = lerpf(head.position.y,(.28 if low else .40)*cat_scale+bob,delta*12)
 	camera.rotation.z = lerpf(camera.rotation.z,-axis.x*.012,delta*8)
 	camera.fov = lerpf(camera.fov,77.0 if move_speed>2 and flat_speed>1.5 else 73.0,delta*3)
 	jumping_timer -= delta
-	for i in range(paws.size()):
-		paws[i].visible = jumping_timer>0.08 or pitch<-.95
-		paws[i].position.y = (-.25+sin(stride+i*PI)*.012)*cat_scale
+	for paw in paws:
+		paw.visible = (not is_on_floor() and jumping_timer>0) or pitch<-.95
+		paw.set("airborne",not is_on_floor())
+		paw.set("vertical_speed",velocity.y)
+		paw.set("jump_takeoff_speed",jump_speed)
+		paw.set("speed",0.0)
+		paw.position.y = lerpf(paw.position.y,(-.31 if not is_on_floor() else -.37)*cat_scale,delta*12)
 	if is_on_floor() and flat_speed>.25:
 		step_clock += delta*flat_speed
 		if step_clock>.40:

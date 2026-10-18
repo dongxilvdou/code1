@@ -163,7 +163,7 @@ func toggle_photo() -> void:
 	photo = not photo
 	if photo:
 		cat_camera.make_current()
-		ui.toast("查看三花猫  ·  再按 V 回到猫的眼睛",3)
+		ui.toast("查看米酥  ·  再按 V 回到猫的眼睛",3)
 	else:player.camera.make_current()
 
 func _process(delta: float) -> void:

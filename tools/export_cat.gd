@@ -2,6 +2,10 @@ extends SceneTree
 func _initialize() -> void:
 	call_deferred("export_model")
 func export_model() -> void:
+	if FileAccess.file_exists("res://assets/models/pets/house_cat.glb"):
+		print("CAT_GLB_EXPORT current Blender export: res://assets/models/pets/house_cat.glb")
+		quit()
+		return
 	var cat = load("res://scenes/calico.tscn").instantiate()
 	root.add_child(cat)
 	cat.animate = false
