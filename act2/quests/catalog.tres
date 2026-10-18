@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CalicoQuestCatalog" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_catalog.gd" id="catalog"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Resource" path="res://day1/quests/arrival.tres" id="day1_arrival"]
+[ext_resource type="Resource" path="res://day1/quests/lights.tres" id="day1_lights"]
+[ext_resource type="Resource" path="res://day1/quests/papers.tres" id="day1_papers"]
+[ext_resource type="Resource" path="res://day1/quests/yarn.tres" id="day1_yarn"]
+[ext_resource type="Resource" path="res://day2/quests/note.tres" id="day2_note"]
+[ext_resource type="Resource" path="res://day2/quests/laundry.tres" id="day2_laundry"]
+[ext_resource type="Resource" path="res://day2/quests/feed.tres" id="day2_feed"]
+[ext_resource type="Resource" path="res://day2/quests/dishes.tres" id="day2_dishes"]
+
+[ext_resource type="Resource" path="res://act2/quests/a3_books.tres" id="a3_books"]
+[ext_resource type="Resource" path="res://act2/quests/a3_photo.tres" id="a3_photo"]
+[ext_resource type="Resource" path="res://act2/quests/a3_pipes.tres" id="a3_pipes"]
+[ext_resource type="Resource" path="res://act2/quests/a3_water.tres" id="a3_water"]
+[ext_resource type="Resource" path="res://act2/quests/a3_feed.tres" id="a3_feed"]
+[ext_resource type="Resource" path="res://act2/quests/a4_letter.tres" id="a4_letter"]
+[ext_resource type="Resource" path="res://act2/quests/a4_fridge.tres" id="a4_fridge"]
+[ext_resource type="Resource" path="res://act2/quests/a4_cook.tres" id="a4_cook"]
+[ext_resource type="Resource" path="res://act2/quests/a4_share.tres" id="a4_share"]
+[ext_resource type="Resource" path="res://act2/quests/a4_toy.tres" id="a4_toy"]
+[ext_resource type="Resource" path="res://act2/quests/a5_medicine.tres" id="a5_medicine"]
+[ext_resource type="Resource" path="res://act2/quests/a5_name.tres" id="a5_name"]
+
+[resource]
+script = ExtResource("catalog")
+quests = Array[ExtResource("quest")]([ExtResource("day1_arrival"), ExtResource("day1_lights"), ExtResource("day1_papers"), ExtResource("day1_yarn"), ExtResource("day2_note"), ExtResource("day2_laundry"), ExtResource("day2_feed"), ExtResource("day2_dishes"), ExtResource("a3_books"), ExtResource("a3_photo"), ExtResource("a3_pipes"), ExtResource("a3_water"), ExtResource("a3_feed"), ExtResource("a4_letter"), ExtResource("a4_fridge"), ExtResource("a4_cook"), ExtResource("a4_share"), ExtResource("a4_toy"), ExtResource("a5_medicine"), ExtResource("a5_name")])

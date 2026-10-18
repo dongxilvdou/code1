@@ -72,7 +72,7 @@ func _physics_process(delta: float) -> void:
 				ready_state = true
 				reconcile()
 				restore_world()
-		elif flag("day_complete"):begin_day()
+		elif val("current_day",1)==1 and flag("day_complete"):begin_day()
 	if not runtime_available() or not day.active_play():return
 	if active_day():advance_time(delta)
 	clock += delta
@@ -322,7 +322,7 @@ func interact_item(id: String) -> void:
 			return
 		if not flag("d2_unlocked"):open_puzzle("code")
 		elif holding==4:set_flag("cat_portion",true)
-		elif holding==5 and (not flag("d2_dog_fed") or val("dish_stage") in [8,9]):set_flag("dog_portion",true)
+		elif holding==5 and (flag("d2_dishes_done") or not flag("d2_dog_fed") or val("dish_stage") in [8,9]):set_flag("dog_portion",true)
 		else:game.ui.toast("先叼起空碗；脏的狗盘需要洗净才能再盛粮。",3)
 	elif id=="cat_bowl":
 		if not feeding_available() or holding!=0 or val("holding")!=0:return
@@ -341,10 +341,10 @@ func interact_item(id: String) -> void:
 			set_flag("dog_portion",false)
 			set_value("d2_holding",0)
 			set_value("dog_hunger",100)
-			set_value("dish_stage",0)
+			set_value("dish_stage",9 if flag("d2_dishes_done") else 0)
 			mark("d2_dog_fed")
 			if world.items.dog.has_meta("actor"):world.items.dog.get_meta("actor").react_to_food()
-			game.ui.toast("大狗嚼吃光了狗粮，盘子留在它的餐位上。",3)
+			game.ui.toast("大狗嚼：不用再洗啦，我不喜欢那股消毒水味。" if flag("d2_dishes_done") else "大狗嚼吃光了狗粮，盘子留在它的餐位上。",4)
 		else:place_dog_bowl()
 	elif id=="dog_bowl":
 		if not feeding_available() or holding!=0 or val("holding")!=0:return
@@ -357,7 +357,8 @@ func interact_item(id: String) -> void:
 		set_flag("d2_no_dishes",true)
 	elif id=="nest" and flag("d2_dishes_done"):
 		mark("d2_complete")
-		show_story("第二天结束\n\n衣服洗好了，毛线球找回来了，狗盘也洗干净了。\n明天，也要继续学着照顾主人。\n\n第三天尚未开放，关闭后仍可探索、补粮和清洗。")
+		get_parent().get_node("ActTwo").begin_day(3)
+		return
 	reconcile()
 	restore_world()
 	if not active_day():day.refresh_hud()
@@ -395,7 +396,7 @@ func refresh_hud() -> void:
 	elif not flag("yarn_home"):text = "02  取回毛线球\n叼起滚出来的毛线球，送到客厅南窗边的猫窝。"
 	elif not flag("d2_dishes_done"):
 		text = "03  洗狗盘\n从大狗旁叼起脏盘，对厨房水龙头按 E 冲洗，再叼回大狗旁的餐位。\n"+dish_hint()
-	else:text = "今天的事情完成了。\n回窝可以休息。饱腹仍会下降，给予器已永久解锁，可以随时补粮；狗盘脏了要洗净再用。"
+	else:text = "今天的事情完成了。\n回窝可以休息。饱腹仍会下降，给予器已永久解锁，可以随时补粮；洗碗任务只需完成一次。"
 	day.hud.guidance.text = text
 	day.hud.carry.text = carry_text()
 	if val("holding") in [2,3]:day.hud.carry.text = "叼着：%s\n%sG 松口并放回原处" % ["尺子" if val("holding")==2 else "毛线球", ("竖叼" if val("ruler_vertical")==1 else "横叼")+" · R 切换\n" if val("holding")==2 else ""]

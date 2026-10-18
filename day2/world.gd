@@ -80,7 +80,7 @@ func build(parent: Node3D, game: Node) -> void:
 			ball(dispenser,p,Vector3(.035,.026,.006),Color("d0bd8d"))
 			for toe in range(3):ball(dispenser,p+Vector3((toe-1)*.017,.025,0),Vector3(.013,.015,.006),Color("d0bd8d"))
 	sign_at(dispenser,"食物给予器",Vector3(0,1.18,0),28)
-	bowl("cat_bowl",Vector3(4.05,.01,-3.85),Color("9ab9ad"))
+	bowl("cat_bowl",Vector3(4.00,.01,-2.88),Color("9ab9ad"))
 	var actor: Node3D = game.get_node("Apartment/Staircase/DogNest")
 	# West side of the landing, clear of the south crossing between flights.
 	dog_home = actor.global_position+Vector3(-.91,.012,0)

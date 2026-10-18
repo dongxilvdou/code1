@@ -12,6 +12,8 @@ var stride := 0.0
 var step_clock := 0.0
 var meow_cooldown := 0.0
 var jumping_timer := 0.0
+var jump_locked := false
+var variable_jump := false
 var step_view_offset := 0.0
 var head: Node3D
 var camera: Camera3D
@@ -85,9 +87,10 @@ func _physics_process(delta: float) -> void:
 	(collider.shape as CapsuleShape3D).height = desired_height
 	collider.position.y = desired_height*.5
 	if not is_on_floor(): velocity.y -= 12.0*delta
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not jump_locked:
 		velocity.y = jump_speed
 		jumping_timer = .8
+	if variable_jump and Input.is_action_just_released("jump") and velocity.y>2.7:velocity.y = 2.7
 	var axis := Input.get_vector("move_left","move_right","move_forward","move_back")
 	var direction := (transform.basis*Vector3(axis.x,0,axis.y)).normalized()
 	var move_speed := .65 if low else 2.7 if Input.is_action_pressed("sprint") else 1.38
