@@ -420,7 +420,8 @@ func stair_collision(label: String, pos: Vector3, size: Vector3, parent: Node) -
 func build_staircase() -> void:
 	# Eighteen true risers, nine per flight. Actual step collisions are retained.
 	var riser := STOREY/18.0
-	var depth := 2.55/9
+	var landing_end := 5.50
+	var depth := (7.5-landing_end)/9
 	var surfaces: Array = []
 	for i in range(9):
 		var h := (i+1)*riser
@@ -431,11 +432,15 @@ func build_staircase() -> void:
 		# A recessed top and projecting front expose only the vertical nosing.
 		box("WestNosing",at(10.0,h-.022,z+depth/2+.001),Vector3(1.12,.036,.016),"villa_trim",false,stair_group)
 	# The half landing bridges both flights at 1.5 m, with its underside unobstructed.
-	stair_collision("HalfLanding",at(10.60,1.42,4.395),Vector3(2.30,.16,1.11),stair_group)
-	surfaces.append(volume(at(10.60,1.42,4.395),Vector3(2.30,.16,1.11)))
+	# Central round bed with clear side lanes and a south crosswalk for the cat.
+	var landing_center := (3.68+landing_end)*.5
+	stair_group.set_meta("landing_crossing_z",5.29)
+	stair_collision("HalfLanding",at(10.60,1.42,landing_center),Vector3(2.30,.16,landing_end-3.68),stair_group)
+	surfaces.append(volume(at(10.60,1.42,landing_center),Vector3(2.30,.16,landing_end-3.68)))
+	depth = (7.5-landing_end)/9
 	for i in range(9):
 		var h := 1.5+(i+1)*riser
-		var z := 4.95+depth*(i+.5)
+		var z := landing_end+depth*(i+.5)
 		stair_collision("EastFlightStep%02d" % (i+10),at(11.2,h-.08,z),Vector3(1.1,.16,depth+.008),stair_group)
 		surfaces.append(volume(at(11.2,h-.08,z),Vector3(1.1,.16,depth)))
 		box("EastRiser",at(11.2,h-riser/2-.004,z-depth/2-.002),Vector3(1.096,riser-.008,.018),"villa_trim",false,stair_group)
@@ -443,14 +448,17 @@ func build_staircase() -> void:
 	# Union removes hidden/coplanar landing faces; the final tread ends at the slab edge.
 	union_mesh("StairTreadsAndLanding",surfaces,["villa_floor"],stair_group,0)
 	# Slim inner handrails preserve the walkable 1.10 m flights.
-	rod(at(10.56,.96,7.38),at(10.56,2.43,4.99),.028,"roof_edge",stair_group)
-	rod(at(10.64,2.43,4.99),at(10.64,3.90,7.38),.028,"roof_edge",stair_group)
+	rod(at(10.56,.96,7.38),at(10.56,2.43,5.54),.028,"roof_edge",stair_group)
+	rod(at(10.64,2.43,5.54),at(10.64,3.90,7.38),.028,"roof_edge",stair_group)
 	for i in range(5):
 		var t := float(i)/4
-		var z: float = lerpf(7.38,4.99,t)
+		var z: float = lerpf(7.38,5.54,t)
 		var y: float = lerpf(.16,1.5,t)
 		rod(at(10.56,y,z),at(10.56,y+.86,z),.015,"roof_edge",stair_group)
 		rod(at(10.64,3-y,z),at(10.64,3-y+.86,z),.015,"roof_edge",stair_group)
+	var dog_nest := load("res://furniture_pack/scenes/dog_nest.tscn").instantiate() as Node3D
+	dog_nest.position = at(10.60,1.50,landing_center)
+	attach(dog_nest,stair_group)
 
 func custom_mesh(label: String, triangles: Array[Vector3], key: String, parent: Node, solid: bool = true) -> MeshInstance3D:
 	var st := SurfaceTool.new()

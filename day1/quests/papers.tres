@@ -7,16 +7,16 @@
 [sub_resource type="Resource" id="collect_paper"]
 script = ExtResource("goal")
 id = &"collect_paper"
-text = "收集各房间的纸片"
+text = "收集一楼的四张纸片"
 kind = 3
 target_id = &"collect_paper"
-target_count = 17
+target_count = 4
 
 [resource]
 script = ExtResource("quest")
 id = &"day1_papers"
 title = "02 · 散落的纸片"
-description = "每个房间一张纸片，共 17 张，包括地下室、阅读角、露台与过厅。"
+description = "客厅、餐厅、厨房和一楼书房，各有一张纸片。靠近后按 E 拾取。"
 priority = 98
 prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
 objectives = Array[ExtResource("goal")]([SubResource("collect_paper")])

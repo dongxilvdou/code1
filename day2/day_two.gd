@@ -14,6 +14,8 @@ var anchors := {}
 var hunger_clock := 0.0
 var wash_clock := 0.0
 var clock := 0.0
+@export_range(1,8,.25) var dish_rinse_seconds := 4.0
+var dish_clock := 0.0
 
 func _ready() -> void:
 	game = get_parent()
@@ -28,7 +30,6 @@ func _ready() -> void:
 	puzzle.solved.connect(solve_puzzle)
 	visible = false
 	world.stream.hide()
-	world.foam.hide()
 	_set_collisions(false)
 
 func flag(key: String) -> bool:return day.flag(key)
@@ -106,6 +107,15 @@ func advance_time(delta: float) -> void:
 			reconcile()
 			restore_world()
 			show_story("洗好了。旋钮最后的声音，和记忆里一模一样。\n\n接下来去一楼工作书房找尺子，取回沙发底下的毛线球。")
+	if val("dish_stage")==1:
+		dish_clock += delta
+		var remaining := 1.0-clampf(dish_clock/dish_rinse_seconds,0,1)
+		for i in range(world.stains.get_child_count()):world.stains.get_child(i).visible = float(i)/7.0 < remaining
+		if dish_clock>=dish_rinse_seconds:
+			set_value("dish_stage",8)
+			dish_clock = 0
+			restore_world()
+			game.ui.toast("盘子洗干净了。叼起来，送回大狗旁的餐位吧。",4)
 
 func loaded_count() -> int:
 	var count := 0
@@ -114,6 +124,12 @@ func loaded_count() -> int:
 	return count
 
 func reconcile() -> void:
+	# Preserve finished tasks and any carried plate from the former nine-step flow.
+	if val("dish_flow_version")<2:
+		var old_stage := val("dish_stage")
+		if old_stage in [1,2,3,4,5,6]:set_value("dish_stage",1)
+		elif old_stage==7:set_value("dish_stage",8)
+		set_value("dish_flow_version",2)
 	if val("dish_stage")==9:set_flag("d2_dishes_done",true)
 	day.reconcile_progress()
 
@@ -124,7 +140,7 @@ func restore_world() -> void:
 	visible = runtime_available()
 	_set_collisions(runtime_available())
 	if not runtime_available():return
-	for id in world.items:world.items[id].visible = active_day() or id in ["feeder","cat_bowl","dog_bowl","dog"]
+	for id in world.items:world.items[id].visible = active_day() or id in ["feeder","cat_bowl","dog_bowl","dog","dog_spot"]
 	for name in ["WashStep","SinkStep"]:
 		get_node(name).visible = active_day()
 	# Step colliders are siblings of their meshes; only the dog/feeder collide on day one.
@@ -137,13 +153,14 @@ func restore_world() -> void:
 	var stage := val("dish_stage")
 	world.items.cat_bowl.visible = val("d2_holding")!=4
 	world.items.dog_bowl.visible = val("d2_holding")!=5
-	world.items.dog_bowl.position = Vector3(1.98,.94,-5.38) if stage in [1,2,3,4,5,6,7] else Vector3(2.85,.945,-5.34) if stage==9 else anchors.dog_bowl
+	world.items.dog_spot.visible = val("d2_holding")==5
+	world.items.dog_bowl.position = world.basin_position if stage in [1,8] else world.dog_home
 	world.food.cat_bowl.visible = flag("cat_portion")
 	world.food.dog_bowl.visible = flag("dog_portion")
-	world.stains.visible = flag("d2_dog_fed") and stage<6 and not flag("dog_portion")
-	world.stream.visible = active_day() and stage in [2,6]
-	world.foam.visible = active_day() and stage in [5,6]
-	world.items.sink.visible = active_day() and stage not in [1,2,3,4,5,6,7]
+	world.stains.visible = flag("d2_dog_fed") and stage not in [8,9] and not flag("dog_portion")
+	if stage!=1:
+		for stain in world.stains.get_children():stain.show()
+	world.stream.set_running(active_day() and stage==1)
 	for n in get_tree().get_nodes_in_group("placed_furniture"):
 		if n.get_meta("asset_id","")=="decor_pet_bowls":n.hide()
 	update_held()
@@ -203,6 +220,9 @@ func nearest_item() -> String:
 		var yarn_target: String = day.nearest_item()
 		if yarn_target in ["ruler","yarn","sofa_gap"]:return yarn_target
 	if val("d2_holding")==4:choices["cat_spot"] = world.items.cat_bowl
+	# The dining position is fixed even while the real bowl is being carried.
+	choices.erase("dog_spot")
+	if val("d2_holding")==5:choices["dog_spot"] = world.items.dog_spot
 	var best := 2.0
 	var found := ""
 	for id in choices:
@@ -224,7 +244,9 @@ func target_position(id: String) -> Vector3:
 	var n: Node3D = day.world.items[id] if id in ["note","nest","mess_cup","mess_pot","ruler","yarn"] else world.items["cat_bowl" if id=="cat_spot" else id]
 	var pos := n.global_position+Vector3(0,.05,0)
 	if id=="feeder":return n.to_global(Vector3(0,.50,.28))
-	if id=="dog":pos += Vector3(0,.40,.35)
+	if id=="dog":
+		if n.has_meta("actor"):return (n.get_meta("actor") as Node3D).to_global(Vector3(-.48,.28,.28))
+		pos += Vector3(0,.40,.35)
 	return pos
 
 func target_hint() -> String:
@@ -241,25 +263,19 @@ func target_hint() -> String:
 		"feeder":return "E 研究脚印密码" if not flag("d2_unlocked") else "E 给叼着的碗盛粮（猫粮 / 狗粮自动区分）"
 		"cat_bowl":return "E 叼起自己的碗"
 		"cat_spot":return "E 放下猫碗吃饭" if flag("cat_portion") else "先叼碗去给予器盛猫粮"
-		"dog_bowl":return dish_hint() if val("dish_stage") in [1,2,3,4,5,6,7] else "E 叼起大狗嚼的盘子"
-		"dog":return "E 把盛好的狗粮送给大狗嚼" if holding==5 and flag("dog_portion") else "大狗嚼 · 饱腹 %d / 100" % val("dog_hunger",45)
-		"sink":return "E 把脏盘子放进水槽"
-		"tap":return "E 关水" if val("dish_stage") in [2,6] else "E 开水"
-		"soap":return "E 按压洗洁精，沾到爪子上"
-		"drying":return "E 把干净盘子放到水槽旁"
+		"dog_bowl":return dish_hint() if val("dish_stage") in [1,8] else "E 叼起大狗嚼的盘子"
+		"dog","dog_spot":
+			if holding==5:return "E 喂大狗嚼" if flag("dog_portion") else "E 把盘子放回大狗旁"
+			return "大狗嚼 · 饱腹 %d / 100" % val("dog_hunger",45)
+		"tap":return dish_hint() if val("dish_stage")==1 else "E 放入狗盘并冲洗" if holding==5 else "叼着脏狗盘，对水龙头按 E 冲洗"
 		"nest":return "E 放下毛线球" if val("holding")==3 else "E 休息，结束第二天" if flag("d2_dishes_done") else "先做完今天的三件事吧"
-		"mess_cup","mess_pot":return "已经倒了" if flag(id) else "E 推倒 · 会降低整洁度"
+		"mess_cup","mess_pot":return "已经倒了" if flag(id) else "E 推倒"
 	return ""
 
 func dish_hint() -> String:
 	match val("dish_stage"):
-		1:return "先开水龙头，把盘子润湿"
-		2:return "盘子湿了 · 再按水龙头关水"
-		3:return "先按压旁边的洗洁精"
-		4:return "E 用爪子把洗洁精涂抹在盘子上"
-		5:return "泡沫覆盖了盘子 · 再开水冲洗"
-		6:return "冲干净了 · 关水后叼起"
-		7:return "E 叼起干净盘子，放到沥水垫"
+		1:return "正在冲洗  %d%% · 完成后自动关水" % roundi(clampf(dish_clock/dish_rinse_seconds,0,1)*100)
+		8:return "把干净盘子送回大狗旁" if val("d2_holding")==5 else "E 叼起干净盘子"
 	return ""
 
 func try_interact() -> bool:
@@ -270,7 +286,7 @@ func try_interact() -> bool:
 
 func interact_item(id: String) -> void:
 	if not runtime_available():return
-	if not active_day() and id not in ["feeder","cat_bowl","cat_spot","dog_bowl","dog"]:return
+	if not active_day() and id not in ["feeder","cat_bowl","cat_spot","dog_bowl","dog","dog_spot"]:return
 	if active_day() and (id in ["ruler","yarn","sofa_gap"] or (id=="nest" and val("holding")==3)):
 		day.perform_interaction(id)
 		return
@@ -278,7 +294,7 @@ func interact_item(id: String) -> void:
 	if id in ["mess_cup","mess_pot"]:day.perform_interaction(id)
 	elif id=="note":
 		mark("d2_note")
-		show_story("今天的小纸条\n\n① 收集三件衣服，放进洗衣机。按记忆里的旋律找到洗衣程序。\n② 用工作书房的尺子，取回沙发底下的毛线球，送回猫窝。\n③ 洗净大狗嚼的盘子，放到水槽旁。")
+		show_story("今天的小纸条\n\n① 收集三件衣服，放进洗衣机。按记忆里的旋律找到洗衣程序。\n② 用工作书房的尺子，取回沙发底下的毛线球，送回猫窝。\n③ 叼狗盘到厨房，对水龙头按 E 冲洗，再送回大狗旁。")
 	elif id in CLOTHES:
 		if not flag("d2_note") or not day.feeding_done() or val("holding")!=0 or holding!=0 or flag("d2_"+id):return
 		set_value("d2_holding",CLOTHES.find(id)+1)
@@ -318,41 +334,27 @@ func interact_item(id: String) -> void:
 		set_value("cat_hunger",100)
 		mark("d2_cat_fed")
 		game.ui.toast("吃饱了。也别忘了大狗嚼。",3)
-	elif id=="dog":
-		if holding!=5 or not flag("dog_portion"):return
-		set_flag("dog_portion",false)
-		set_value("d2_holding",0)
-		set_value("dog_hunger",100)
-		set_value("dish_stage",0)
-		mark("d2_dog_fed")
-		game.ui.toast("大狗嚼吃光了狗粮，尾巴摇了起来。",3)
+	elif id in ["dog","dog_spot"]:
+		if holding!=5:return
+		if flag("dog_portion"):
+			if val("dish_stage")==8:place_dog_bowl()
+			set_flag("dog_portion",false)
+			set_value("d2_holding",0)
+			set_value("dog_hunger",100)
+			set_value("dish_stage",0)
+			mark("d2_dog_fed")
+			if world.items.dog.has_meta("actor"):world.items.dog.get_meta("actor").react_to_food()
+			game.ui.toast("大狗嚼吃光了狗粮，盘子留在它的餐位上。",3)
+		else:place_dog_bowl()
 	elif id=="dog_bowl":
 		if not feeding_available() or holding!=0 or val("holding")!=0:return
-		if val("dish_stage")==4:set_value("dish_stage",5)
-		elif val("dish_stage")==7:
-			set_value("dish_stage",8)
-			set_value("d2_holding",5)
-		elif val("dish_stage") in [0,8,9]:set_value("d2_holding",5)
-	elif id=="sink":
-		if not dishes_available() or holding!=5 or not flag("d2_dog_fed") or not flag("d2_cat_fed") or flag("dog_portion"):return
-		set_value("dish_stage",1)
-		set_value("d2_holding",0)
-		if not flag("d2_no_dishes"):
-			set_flag("d2_no_dishes",true)
-			show_story("大狗嚼的盘子确实需要好好洗洗。\n\n可这里怎么找不到人用的盘子和碗筷？\n这个厨房，好像没有谁真正用它吃过饭。")
+		if val("dish_stage") in [0,8,9]:set_value("d2_holding",5)
 	elif id=="tap":
-		if not dishes_available():return
-		var stages := {1:2,2:3,5:6,6:7}
-		if stages.has(val("dish_stage")):set_value("dish_stage",stages[val("dish_stage")])
-	elif id=="soap":
-		if not dishes_available():return
-		if val("dish_stage")==3:set_value("dish_stage",4)
-	elif id=="drying":
-		if not dishes_available() or holding!=5 or val("dish_stage")!=8:return
+		if not dishes_available() or holding!=5 or not day.feeding_done() or flag("dog_portion") or val("dish_stage")!=0:return
 		set_value("d2_holding",0)
-		set_value("dish_stage",9)
-		mark("d2_dishes_done")
-		show_story("洗干净的盘子，已经放到水槽旁。\n\n今天的三件事都完成了。\n没有气味的衣服、毛线球上的陌生猫毛，还有这个没有人用餐的厨房……\n这里到底是什么地方？")
+		set_value("dish_stage",1)
+		dish_clock = 0
+		set_flag("d2_no_dishes",true)
 	elif id=="nest" and flag("d2_dishes_done"):
 		mark("d2_complete")
 		show_story("第二天结束\n\n衣服洗好了，毛线球找回来了，狗盘也洗干净了。\n明天，也要继续学着照顾主人。\n\n第三天尚未开放，关闭后仍可探索、补粮和清洗。")
@@ -360,11 +362,19 @@ func interact_item(id: String) -> void:
 	restore_world()
 	if not active_day():day.refresh_hud()
 
+func place_dog_bowl() -> void:
+	var clean := val("dish_stage")==8
+	var first_completion := clean and not flag("d2_dishes_done")
+	set_value("d2_holding",0)
+	if clean:
+		set_value("dish_stage",9)
+		mark("d2_dishes_done")
+		if first_completion:show_story("盘子洗干净了，也送回了大狗旁。\n\n今天的三件事都完成了。\n没有气味的衣服、毛线球上的陌生猫毛，还有这个没有人用餐的厨房……\n这里到底是什么地方？")
+
 func _input(event: InputEvent) -> void:
 	if not runtime_available() or not day.active_play() or not event is InputEventKey or not event.pressed or event.echo:return
 	if event.keycode==KEY_G and val("d2_holding")!=0:
 		set_value("d2_holding",0)
-		if val("dish_stage")==8:set_value("dish_stage",7)
 		restore_world()
 		day.refresh_hud()
 		game.ui.toast("道具已放回安全位置。",2)
@@ -373,7 +383,7 @@ func _input(event: InputEvent) -> void:
 func refresh_hud() -> void:
 	if not active_day():return
 	day.hud.day_title.text = "第二天  /  学着照顾"
-	day.hud.status.text = "我  %d / 100    大狗嚼  %d / 100\n整洁 %d / 100" % [val("cat_hunger",65),val("dog_hunger",45),val("cleanliness",100)]
+	day.hud.status.text = "我  %d / 100    大狗嚼  %d / 100" % [val("cat_hunger",65),val("dog_hunger",45)]
 	var text := ""
 	if not day.feeding_done():text = "旧进度已保留。先补完已移到第一天的喂食：到厨房解锁给予器，叼猫碗和狗盘盛粮，分别吃饭、送给大狗嚼。"
 	elif not flag("d2_note"):text = "先去客厅南窗边的桌子，阅读今天的小纸条。"
@@ -384,7 +394,7 @@ func refresh_hud() -> void:
 	elif not flag("yarn_freed"):text = "02  取回毛线球\n叼尺子回客厅沙发前，R 改为竖叼，低头按 E 够出毛线球。"
 	elif not flag("yarn_home"):text = "02  取回毛线球\n叼起滚出来的毛线球，送到客厅南窗边的猫窝。"
 	elif not flag("d2_dishes_done"):
-		text = "03  洗狗盘\n叼脏盘到厨房水槽。\n润湿 → 关水 → 洗洁精 → 涂抹 → 冲洗 → 关水 → 叼到沥水垫。\n"+dish_hint()
+		text = "03  洗狗盘\n从大狗旁叼起脏盘，对厨房水龙头按 E 冲洗，再叼回大狗旁的餐位。\n"+dish_hint()
 	else:text = "今天的事情完成了。\n回窝可以休息。饱腹仍会下降，给予器已永久解锁，可以随时补粮；狗盘脏了要洗净再用。"
 	day.hud.guidance.text = text
 	day.hud.carry.text = carry_text()
@@ -398,6 +408,7 @@ func reset_runtime() -> void:
 	ready_state = false
 	hunger_clock = 0
 	wash_clock = 0
+	dish_clock = 0
 	visible = false
 	_set_collisions(false)
 	puzzle.mode = ""
@@ -409,6 +420,5 @@ func reset_runtime() -> void:
 		held_visual = null
 	if world.washer_hinge:world.washer_hinge.rotation = Vector3.ZERO
 	world.stream.hide()
-	world.foam.hide()
 	for n in get_tree().get_nodes_in_group("placed_furniture"):
 		if n.get_meta("asset_id","")=="decor_pet_bowls":n.show()

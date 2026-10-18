@@ -188,7 +188,7 @@ mouse_filter = 2
 
 [node name="Name" type="Label" parent="CinemaUI/Overlay/Title"]
 layout_mode = 2
-text = "猫咪模拟器"
+text = "哈基米模拟器"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 64
 theme_override_fonts/font = SubResource("Font")
@@ -200,7 +200,7 @@ mouse_filter = 2
 
 [node name="Subtitle" type="Label" parent="CinemaUI/Overlay/Title"]
 layout_mode = 2
-text = "猫 屋 日 记   /   清 晨 篇"
+text = "清 晨   /   一 段 新 的 日 常"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 16
 theme_override_fonts/font = SubResource("Font")

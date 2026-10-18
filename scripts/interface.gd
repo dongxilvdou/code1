@@ -112,7 +112,7 @@ func make_welcome() -> void:
 	column.offset_right = 348
 	column.add_theme_constant_override("separation",12)
 	welcome.add_child(column)
-	text("猫屋日记",64,PAPER,column)
+	text("哈基米模拟器",52,PAPER,column)
 	var spacer := Control.new()
 	spacer.custom_minimum_size.y = 24
 	column.add_child(spacer)

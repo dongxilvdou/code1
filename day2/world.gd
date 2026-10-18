@@ -1,8 +1,10 @@
 extends "res://day1/world.gd"
 var washer_hinge: Node3D
 var washer_selector: Node3D
-var stream: Node3D
-var foam: Node3D
+var stream
+var basin_position := Vector3.ZERO
+var dog_home := Vector3.ZERO
+var sink_cabinet: Node3D
 var dog_tail: Node3D
 var stains: Node3D
 var food := {}
@@ -48,6 +50,8 @@ func build(parent: Node3D, game: Node) -> void:
 		sign_at(n,"待洗衣服",Vector3(0,.16,0),23)
 	# Use the existing washing machine; its door is now a real rotating hinge.
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
+		if n.get_meta("asset_id","")=="sink_cabinet" and n.global_position.y<1:
+			sink_cabinet = n
 		if n.get_meta("asset_id","")=="decor_washing_machine":
 			washer_hinge = Node3D.new()
 			n.add_child(washer_hinge)
@@ -77,44 +81,34 @@ func build(parent: Node3D, game: Node) -> void:
 			for toe in range(3):ball(dispenser,p+Vector3((toe-1)*.017,.025,0),Vector3(.013,.015,.006),Color("d0bd8d"))
 	sign_at(dispenser,"食物给予器",Vector3(0,1.18,0),28)
 	bowl("cat_bowl",Vector3(4.05,.01,-3.85),Color("9ab9ad"))
-	bowl("dog_bowl",Vector3(-3.90,.01,-.30),Color("cbb17e"))
+	var actor: Node3D = game.get_node("Apartment/Staircase/DogNest")
+	# West side of the landing, clear of the south crossing between flights.
+	dog_home = actor.global_position+Vector3(-.91,.012,0)
+	bowl("dog_bowl",dog_home,Color("cbb17e"))
+	var home := item("dog_spot",dog_home)
+	sign_at(home,"大狗嚼的餐位",Vector3(0,.22,0),22)
 	stains = Node3D.new()
 	items.dog_bowl.add_child(stains)
 	for i in range(7):ball(stains,Vector3(sin(i*2.1)*.08,.069,cos(i*2.1)*.08),Vector3(.025,.004,.017),Color("78543b"))
-	var dog := item("dog",Vector3(-4.3,0,-.80))
-	ball(dog,Vector3(0,.37,0),Vector3(.62,.57,.95),Color("b48961"))
-	ball(dog,Vector3(0,.64,.44),Vector3(.47,.46,.45),Color("c29a70"))
-	ball(dog,Vector3(0,.56,.65),Vector3(.30,.23,.26),Color("e1cba5"))
-	ball(dog,Vector3(0,.60,.77),Vector3(.12,.08,.07),Color("343331"))
-	for side in [-1,1]:
-		ball(dog,Vector3(side*.22,.59,.40),Vector3(.16,.40,.19),Color("775338"))
-		ball(dog,Vector3(side*.11,.69,.62),Vector3(.035,.04,.025),Color("242b27"))
-		for z in [-.28,.28]:ball(dog,Vector3(side*.22,.14,z),Vector3(.17,.28,.23),Color("b48961"))
-	dog_tail = Node3D.new()
-	dog.add_child(dog_tail)
-	dog_tail.position = Vector3(0,.42,-.40)
-	ball(dog_tail,Vector3(0,.1,-.15),Vector3(.13,.17,.45),Color("a77a53"))
-	collision(dog,Vector3(0,.33,0),Vector3(.55,.66,.88))
-	sign_at(dog,"大狗嚼",Vector3(0,.99,0),30)
-	# Dedicated counter-side interaction points do not sit behind the sink collision.
-	var basin := item("sink",Vector3(1.98,.94,-5.38))
-	sign_at(basin,"洗狗盘的位置",Vector3(0,.16,0),22)
-	var tap := item("tap",Vector3(1.63,1.03,-5.23))
-	box(tap,"TapHandle",Vector3.ZERO,Vector3(.14,.035,.07),Color("d0cbb9"))
-	sign_at(tap,"水龙头",Vector3(0,.16,0),22)
-	var soap := item("soap",Vector3(2.43,.92,-5.31))
-	box(soap,"Bottle",Vector3(0,.10,0),Vector3(.12,.20,.10),Color("84b6a3"))
-	box(soap,"Pump",Vector3(0,.22,.015),Vector3(.13,.03,.04),Color("ede7ce"))
-	sign_at(soap,"洗洁精",Vector3(0,.31,0),22)
-	var rack := item("drying",Vector3(2.85,.925,-5.34))
-	box(rack,"DryingMat",Vector3.ZERO,Vector3(.35,.015,.30),Color("95a99b"))
-	sign_at(rack,"沥水垫",Vector3(0,.20,0),22)
-	stream = Node3D.new()
+	# Keep the existing feeding quest ID, referring to the real landing companion.
+	# The proxy has no duplicate visual/collider; the dog remains present on day 1.
+	var dog := item("dog",actor.global_position)
+	dog.set_meta("actor",actor)
+	sign_at(dog,"大狗嚼",Vector3(0,.72,0),30)
+	# Interact with the actual faucet, without a separate floating button/bottle.
+	var spout := sink_cabinet.get_node("Tap_spout") as MeshInstance3D
+	spout.rotation.x = deg_to_rad(135)
+	# Also repair merged older villas whose cabinet shelf crosses the basin.
+	sink_cabinet.get_node("Cabinet_shelf2").position.y = .61
+	sink_cabinet.get_node("Collision/Solid_005").position.y = .61
+	var nozzle := spout.to_global(Vector3(0,(spout.mesh as CylinderMesh).height*.5,0))
+	basin_position = sink_cabinet.to_global(Vector3(0,.72,-.035))
+	var tap := item("tap",nozzle)
+	sign_at(tap,"水龙头 · E 冲洗狗盘",Vector3(0,.15,0),22)
+	stream = preload("res://day2/water_stream.gd").new()
+	stream.name = "RinseWater"
 	root.add_child(stream)
-	cylinder(stream,Vector3(1.98,1.015,-5.42),.018,.22,Color("a5d1dc"))
-	foam = Node3D.new()
-	root.add_child(foam)
-	for i in range(10):ball(foam,Vector3(1.98+sin(i*2)*.10,1.02,-5.38+cos(i*2)*.10),Vector3.ONE*.045,Color("edf4ee"))
+	stream.configure(nozzle,basin_position.y+.072)
 	# A small step beside the washer and sink supports ordinary cat jumps.
 	box(root,"WashStep",Vector3(1.65,.16,1.14),Vector3(.43,.32,.42),Color("ae9472"),true)
 	box(root,"SinkStep",Vector3(1.23,.19,-4.71),Vector3(.48,.38,.45),Color("ae9472"),true)

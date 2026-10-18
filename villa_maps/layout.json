@@ -970,11 +970,11 @@
           "polygon_xz": [
             [
               3.45,
-              -1.05
+              -0.5
             ],
             [
               4.55,
-              -1.05
+              -0.5
             ],
             [
               4.55,
@@ -996,24 +996,24 @@
           "polygon_xz": [
             [
               3.45,
-              -2.16
+              -2.32
             ],
             [
               5.75,
-              -2.16
+              -2.32
             ],
             [
               5.75,
-              -1.05
+              -0.5
             ],
             [
               3.45,
-              -1.05
+              -0.5
             ]
           ],
           "label_xz": [
             4.6,
-            -1.6
+            -2.1
           ]
         },
         {
@@ -1022,11 +1022,11 @@
           "polygon_xz": [
             [
               4.65,
-              -1.05
+              -0.5
             ],
             [
               5.75,
-              -1.05
+              -0.5
             ],
             [
               5.75,
@@ -1102,7 +1102,15 @@
       "base": "assets/runtime/stairs_base.png",
       "structure": "assets/runtime/stairs_structure.png",
       "labels": "assets/runtime/stairs_labels.png",
-      "labeled": "assets/stairs_labeled.png"
+      "labeled": "assets/stairs_labeled.png",
+      "dog_bed": {
+        "center_xz": [
+          4.6,
+          -1.41
+        ],
+        "radius_m": 0.55,
+        "crossing_z": -0.71
+      }
     },
     "garden": {
       "id": "garden",

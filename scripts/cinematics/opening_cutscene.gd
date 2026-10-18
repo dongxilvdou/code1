@@ -239,7 +239,7 @@ func _update_camera() -> void:
 	var path := camera_paths[shot]
 	var position_target := path.to_global(path.curve.sample_baked(curved*path.curve.get_baked_length(),true))
 	if shot==2:position_target += player.global_position-actor_path.to_global(actor_path.curve.sample_baked(0))
-	var focus := player.global_position+Vector3.UP*(.22 if shot in [1,2] else .35)
+	var focus := player.global_position+Vector3.UP*(.31 if shot in [1,2] else .35)
 	if shot==3:focus += Vector3(0,1.45,-3.5)*curved
 	if shot==0:focus += Vector3(0,.25,-1.1)*(1-curved)
 	# Keep the camera on the cat's side of any real wall/planter.

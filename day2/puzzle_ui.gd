@@ -1,4 +1,5 @@
 extends CanvasLayer
+const QuestTheme = preload("res://quest_system/quest_theme.gd")
 signal dismissed
 signal solved(kind: String)
 var mode := ""
@@ -29,7 +30,7 @@ func _ready() -> void:
 	add_child(shell)
 	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
-	shade.color = Color(.02,.035,.03,.80)
+	shade.color = Color(.035,.028,.020,.76)
 	shell.add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center := CenterContainer.new()
@@ -37,22 +38,14 @@ func _ready() -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 650
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("14221b")
-	style.border_color = Color("8fa88d")
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
-	style.content_margin_left = 26
-	style.content_margin_right = 26
-	style.content_margin_top = 22
-	style.content_margin_bottom = 22
+	var style := QuestTheme.panel(24)
 	panel.add_theme_stylebox_override("panel",style)
 	center.add_child(panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation",16)
 	panel.add_child(column)
 	title = label("",25,column)
-	title.add_theme_color_override("font_color",Color("e8c184"))
+	title.add_theme_color_override("font_color",QuestTheme.BRASS)
 	description = label("",19,column)
 	description.custom_minimum_size.x = 598
 	detail = VBoxContainer.new()
@@ -68,6 +61,7 @@ func label(text: String, size: int, parent: Node) -> Label:
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	result.add_theme_font_override("font",font)
 	result.add_theme_font_size_override("font_size",size)
+	result.add_theme_color_override("font_color",QuestTheme.PAPER)
 	parent.add_child(result)
 	return result
 
@@ -77,6 +71,7 @@ func button(text: String, parent: Node, callback: Callable) -> Button:
 	result.add_theme_font_override("font",font)
 	result.add_theme_font_size_override("font_size",17)
 	result.custom_minimum_size.y = 42
+	QuestTheme.button(result)
 	result.pressed.connect(callback)
 	parent.add_child(result)
 	return result
@@ -141,6 +136,11 @@ func open(kind: String, text := "") -> void:
 		code.placeholder_text = "三位数字"
 		code.add_theme_font_size_override("font_size",24)
 		code.add_theme_font_override("font",font)
+		code.add_theme_stylebox_override("normal",QuestTheme.panel(10))
+		var focused := QuestTheme.panel(10)
+		focused.border_color = QuestTheme.BRASS
+		code.add_theme_stylebox_override("focus",focused)
+		code.add_theme_color_override("font_color",QuestTheme.PAPER)
 		detail.add_child(code)
 		code.text_submitted.connect(func(_t):submit_code())
 		button("解锁  ·  Enter",detail,submit_code)

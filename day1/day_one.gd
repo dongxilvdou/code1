@@ -180,6 +180,8 @@ func restore_world() -> void:
 	refresh_hud()
 
 func reconcile_progress() -> void:
+	if flag("papers_done"):
+		for spot in World.PAPER_SPOTS:manager.flags["paper_"+spot[0]] = true
 	if paper_count()==World.PAPER_SPOTS.size():manager.flags["papers_done"] = true
 	# A carried old first-day ruler/yarn is returned safely; its progress is preserved.
 	if not is_second_day() and value("holding") in [2,3]:manager.values["holding"] = 0
@@ -231,7 +233,7 @@ func show_dialog(kind: String) -> void:
 func render_page() -> void:
 	match dialog:
 		"intro":hud.show_page("醒来  ·  %d / %d" % [page+1,INTRO.size()],INTRO[page],page==INTRO.size()-1)
-		"note":hud.show_page("第一天的小纸条","① 关掉客厅的灯。\n② 收集各房间散落的 %d 张纸片。\n③ 解开厨房食物给予器，给自己和大狗嚼喂食。\n\n今天不用担心肚子饿。慢慢来。" % World.PAPER_SPOTS.size(),true)
+		"note":hud.show_page("第一天的小纸条","① 关掉客厅的灯。\n② 收集一楼的 %d 张纸片：客厅、餐厅、厨房和书房各一张。\n③ 解开厨房食物给予器，给自己和大狗嚼喂食。\n\n今天不用担心肚子饿。慢慢来。" % World.PAPER_SPOTS.size(),true)
 		"ending":hud.show_page("不是我的毛……","毛线球上缠着几根灰白色的猫毛。\n可我的毛不是这样的。\n\n在我来之前，还有别的猫住过这里吗？\n毛线球已经送回窝了。接下来，把大狗嚼的盘子洗干净吧。",true)
 		"rest":hud.show_page("第一天结束","今天，我学会了关灯、整理房间，也喂饱了自己和大狗嚼。给予器上的猫爪印……是谁留下的？\n\n蜷进窝里，好好睡一觉吧。\n醒来就是第二天，桌上会有新的小纸条。",true)
 
@@ -323,7 +325,7 @@ func target_hint() -> String:
 		"sofa_gap":return "E 用竖叼的尺子够出毛线球" if value("holding")==2 and value("ruler_vertical")==1 else "毛线球卡在里面 · 需要尺子，按 R 竖着叼"
 		"yarn":return "E 叼起毛线球（尺子会放回书桌）"
 		"nest":return "E 放下毛线球" if value("holding")==3 else "E 回窝休息" if feeding_done() else "这是我的窝"
-		"mess_cup","mess_pot":return "已经倒了 · 整洁度已扣除" if flag(target) else "E 推倒%s · 整洁度 -%d" % ["杯子" if target=="mess_cup" else "盆栽",5 if target=="mess_cup" else 10]
+		"mess_cup","mess_pot":return "已经倒了" if flag(target) else "E 推倒"+("杯子" if target=="mess_cup" else "盆栽")
 	if target.begins_with("paper_"):return "E 收集纸片" if flag("light_off") else "先关掉客厅的灯，再整理纸片"
 	return ""
 
@@ -371,11 +373,10 @@ func perform_interaction(id: String) -> void:
 			elif not is_second_day() and feeding_done():show_dialog("rest")
 		"mess_cup","mess_pot":
 			if flag(id):return
-			manager.set_value(&"cleanliness",maxi(0,value("cleanliness",100)-(5 if id=="mess_cup" else 10)))
 			mark(id)
 			game.ui.toast("哗啦……房间变乱了一点。",2)
 		_:
-			if not id.begins_with("paper_") or not flag("light_off") or flag(id):return
+			if not id.begins_with("paper_") or not world.items.has(id) or not flag("light_off") or flag(id):return
 			mark(id)
 			manager.report_event(CalicoQuestObjective.Kind.CUSTOM,&"collect_paper",1,id)
 			if paper_count()==World.PAPER_SPOTS.size():mark("papers_done")
@@ -424,22 +425,23 @@ func finish_balance(success: bool) -> void:
 	if success:
 		game.ui.toast("稳住了！朝电视右侧的开关跳过去，用身体碰到它。",4)
 	else:
-		# The south end of the cabinet clears both the TV panel and its top rail.
-		player.global_position = Vector3(-1.85,.54,3.20)
+		# Return to the detached stool, safely clear of the cabinet and panel.
+		player.global_position = World.TV_RETRY_POSITION
 		player.yaw = 0
 		player.rotation.y = 0
 		player.pitch = 0
 		player.head.rotation.x = 0
 		player.velocity = Vector3.ZERO
-		game.ui.toast("滑回柜子了。再跳上电视就能重试。",3)
+		game.ui.toast("滑回小凳子了。再跳上电视就能重试。",3)
 
 func refresh_hud() -> void:
 	if is_second_day():
+		hud.set_paper_progress(0,4,false)
 		if second_day():second_day().refresh_hud()
 		return
 	hud.day_title.text = "第一天  /  陌生的家"
-	hud.status.text = "饱腹 100 / 100  ·  今日不消耗\n整洁 %d / 100" % value("cleanliness",100)
-	if flag("papers_done"):hud.status.text = "我 %d / 100  ·  大狗嚼 %d / 100\n今日不消耗  ·  整洁 %d / 100" % [value("cat_hunger",100),value("dog_hunger",100),value("cleanliness",100)]
+	hud.status.text = "饱腹 100 / 100  ·  今日不消耗"
+	if flag("papers_done"):hud.status.text = "我 %d / 100  ·  大狗嚼 %d / 100\n今日不消耗" % [value("cat_hunger",100),value("dog_hunger",100)]
 	var text := ""
 	if not flag("walk"):text = "WASD 走一走，鼠标环顾四周。"
 	elif not flag("run"):text = "按住 Shift + WASD，试着跑一小段。"
@@ -453,10 +455,11 @@ func refresh_hud() -> void:
 		var missing := PackedStringArray()
 		for data in World.PAPER_SPOTS:
 			if not flag("paper_"+data[0]):missing.append(data[1])
-		text = "02  整理纸片  %d / %d\n每个房间一张，靠近按 E。\n还没找过：%s" % [paper_count(),World.PAPER_SPOTS.size(),"、".join(missing)]
-	elif not feeding_done():text = "03  两份晚饭\n去厨房东侧，数三列猫爪印解锁给予器。叼猫碗盛粮回原位吃，再叼狗盘盛粮送到客厅北侧大狗嚼身边。"
+		text = "整理纸片   %d / %d\n一楼 · 靠近纸片按 E\n待寻找：%s" % [paper_count(),World.PAPER_SPOTS.size(),"、".join(missing)]
+	elif not feeding_done():text = "两份晚饭\n去厨房东侧，数三列猫爪印解锁给予器。叼猫碗盛粮回原位吃，再叼狗盘盛粮送到楼梯平台的大狗嚼身边。"
 	else:text = "今日三件事都做完了。\n可以自由探索，也可以回猫窝按 E 休息。\n给予器上的猫爪印……是谁留下的？"
 	hud.guidance.text = text
+	hud.set_paper_progress(paper_count(),World.PAPER_SPOTS.size(),flag("light_off") and not flag("papers_done"))
 	var holding := value("holding")
 	hud.carry.text = "J 任务日志  ·  M 地图" if holding==0 else "叼着：%s\n%sG 松口并放回原处" % [["","水杯","尺子","毛线球"][holding],("竖叼" if value("ruler_vertical")==1 else "横叼")+" · R 切换\n" if holding==2 else ""]
 

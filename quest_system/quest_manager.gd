@@ -203,7 +203,7 @@ func _commit() -> void:
 	changed.emit()
 
 func make_save_data() -> Dictionary:
-	return {"version": SAVE_VERSION, "quests": states.duplicate(true), "flags": flags.duplicate(), "values": values.duplicate(), "seen_events": _seen_events.duplicate()}
+	return {"version": SAVE_VERSION, "paper_layout": 2, "quests": states.duplicate(true), "flags": flags.duplicate(), "values": values.duplicate(), "seen_events": _seen_events.duplicate()}
 
 func restore_save_data(data: Dictionary) -> bool:
 	# 先验证完整数据，再修改当前游戏；坏存档不会污染正在运行的状态。
@@ -217,6 +217,22 @@ func restore_save_data(data: Dictionary) -> bool:
 		if not _whole_number(data.values[key]): return false
 	for event in data.get("seen_events", []):
 		if not event is String: return false
+	# Only migrate the former 17-paper layout. Never change the caller's save.
+	data = data.duplicate(true)
+	if data.get("paper_layout",1) == 1 and definitions.has(&"day1_papers") and data.quests.has("day1_papers"):
+		var papers: Variant = data.quests.get("day1_papers",{})
+		if not papers is Dictionary or not papers.get("progress") is Dictionary:return false
+		var old_count: Variant = papers.progress.get("collect_paper",0)
+		if not _whole_number(old_count) or old_count < 0 or old_count > 17:return false
+		var finished: bool = papers.get("status") == State.COMPLETED or data.flags.get("papers_done",false)
+		var new_count := 0
+		for spot in ["living","dining","kitchen","study1"]:
+			if finished:data.flags["paper_"+spot] = true
+			if data.flags.get("paper_"+spot,false):new_count += 1
+		papers.progress["collect_paper"] = new_count
+		if new_count == 4:
+			data.flags["papers_done"] = true
+			papers.status = State.COMPLETED
 	for id in definitions:
 		if not data.quests.has(str(id)): continue
 		var entry: Variant = data.quests[str(id)]
@@ -227,7 +243,8 @@ func restore_save_data(data: Dictionary) -> bool:
 			if not _whole_number(count) or count < 0 or count > goal.target_count: return false
 	_reset_state()
 	flags = data.flags.duplicate()
-	for key in data.values: values[key] = int(data.values[key])
+	for key in data.values:
+		if key != "cleanliness":values[key] = int(data.values[key])
 	_seen_events = data.get("seen_events", []).slice(-MAX_EVENT_HISTORY)
 	for id in definitions:
 		if not data.quests.has(str(id)): continue

@@ -243,10 +243,10 @@ func door_panel(p: Vector3, width: float, height: float, key: String = "sage") -
 		block("Door_stile",p+Vector3(side*(width-.035)*.5,0,.012),Vector3(.035,height,.035),key,.004,false)
 		block("Door_rail",p+Vector3(0,side*(height-.035)*.5,.012),Vector3(width-.07,.035,.035),key,.004,false)
 
-func case_shell(width: float, height: float, depth: float, bottom: float, key: String = "oak") -> void:
+func case_shell(width: float, height: float, depth: float, bottom: float, key: String = "oak", upper_shelf: float = -1) -> void:
 	for side in [-1,1]:block("Cabinet_side",Vector3(side*(width-.035)*.5,(height+bottom)*.5,0),Vector3(.035,height-bottom,depth),key)
 	block("Cabinet_back",Vector3(0,(height+bottom)*.5,-depth*.5+.015),Vector3(width-.07,height-bottom,.03),key)
-	for y in [bottom+.018,height-.018]:block("Cabinet_shelf",Vector3(0,y,0),Vector3(width,.036,depth),key)
+	for y in [bottom+.018,height-.018 if upper_shelf<0 else upper_shelf]:block("Cabinet_shelf",Vector3(0,y,0),Vector3(width,.036,depth),key)
 
 func begin(id: String) -> void:
 	item = Node3D.new()
@@ -305,7 +305,8 @@ func sofa(armchair: bool = false) -> void:
 	legs(width-.2,.68,.18,"walnut",.032)
 	block("Timber_lower_frame",Vector3(0,.22,0),Vector3(width-.08,.14,.84),"walnut",.035)
 	block("Upholstered_base",Vector3(0,.315,0),Vector3(width-.04,.15,.9),fabric,.05)
-	block("Back_shell",Vector3(0,.66,-.36),Vector3(width,.60,.18),fabric,.065)
+	# Recess the chair back into its arms; shared side/bottom planes z-fight.
+	block("Back_shell",Vector3(0,.664 if armchair else .66,-.36),Vector3(width-.06 if armchair else width,.592 if armchair else .60,.18),fabric,.065)
 	for side in [-1,1]:block("Soft_arm",Vector3(side*(width-.16)*.5,.57,0),Vector3(.16,.42,.94),fabric,.07)
 	var count := 1 if armchair else 3
 	var seat_w := (width-.35)/count
@@ -368,7 +369,7 @@ func kitchen(sink: bool = false) -> void:
 	begin(id)
 	var width := .8 if sink else .6
 	block("Recessed_plinth",Vector3(0,.06,-.03),Vector3(width-.08,.12,.48),"walnut")
-	case_shell(width,.86,.57,.12,"ivory")
+	case_shell(width,.86,.57,.12,"ivory",.61 if sink else -1)
 	if sink:
 		for side in [-1,1]:block("Sink_worktop_side",Vector3(side*.325,.88,0),Vector3(.15,.04,.62),"stone")
 		for z in [-.26,.26]:block("Sink_worktop_rail",Vector3(0,.88,z),Vector3(.50,.04,.10),"stone")
@@ -378,6 +379,7 @@ func kitchen(sink: bool = false) -> void:
 		block("Sink_bottom",Vector3(0,.698,0),Vector3(.47,.025,.40),"steel",.012)
 		rod("Drain",Vector3(0,.711,0),Vector3(0,.713,0),.027,"charcoal")
 		faucet(Vector3(0,.9,-.265))
+		item.get_node("Tap_spout").rotation.x = deg_to_rad(135)
 		for x in [-.198,.198]:door_panel(Vector3(x,.49,.294),.39,.70)
 		handle(-.05,.66,.34,true)
 		handle(.05,.66,.34,true)

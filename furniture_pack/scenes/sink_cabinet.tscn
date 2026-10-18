@@ -164,7 +164,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.138, 0)
 shape = SubResource("BoxShape3D_640ir")
 
 [node name="Solid_005" type="CollisionShape3D" parent="Collision" unique_id=132318421]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.842, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.61, 0)
 shape = SubResource("BoxShape3D_d4dru")
 
 [node name="Solid_006" type="CollisionShape3D" parent="Collision" unique_id=2070997939]
@@ -212,7 +212,7 @@ material_override = ExtResource("3_xxwdg")
 mesh = ExtResource("6_ynann")
 
 [node name="Cabinet_shelf2" type="MeshInstance3D" parent="." unique_id=1410460742]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.842, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.61, 0)
 material_override = ExtResource("3_xxwdg")
 mesh = ExtResource("6_ynann")
 
@@ -277,7 +277,7 @@ material_override = ExtResource("10_r5g4t")
 mesh = SubResource("CylinderMesh_dpifu")
 
 [node name="Tap_spout" type="MeshInstance3D" parent="." unique_id=1052129315]
-transform = Transform3D(1, 0, 0, 0, -0.62469566, -0.78086823, 0, 0.78086823, -0.62469566, 0, 1.0899999, -0.14999998)
+transform = Transform3D(1, 0, 0, 0, -0.7071068, 0.7071068, 0, -0.7071068, -0.7071068, 0, 1.0899999, -0.14999998)
 material_override = ExtResource("10_r5g4t")
 mesh = SubResource("CylinderMesh_h14ct")
 

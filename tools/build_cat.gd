@@ -1,5 +1,17 @@
 extends SceneTree
 func _initialize() -> void:
+	call_deferred("build_current_cat")
+
+func build_current_cat() -> void:
+	# The supplied cat is now authored/exported in Blender. Do not silently
+	# regenerate the retired procedural model over its live scene wrapper.
+	if FileAccess.file_exists("res://assets/models/pets/house_cat.glb"):
+		var current = load("res://scenes/calico.tscn").instantiate()
+		root.add_child(current)
+		print("CAT_BUILD supplied model ready; Blender source: assets/models/pets/authoring/cat.blend; clips: ",current.clips.keys())
+		current.free()
+		quit()
+		return
 	var cat: Node3D = load("res://scripts/cat_model.gd").new()
 	cat.name = "Calico"
 	cat.build_model()
