@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="360" viewBox="0 0 720 360">
+<rect width="720" height="360" fill="#e6dec9"/><rect x="16" y="16" width="688" height="286" fill="#7c9695"/>
+<path d="M30 32H690V240H30Z" fill="#aac0bd"/><path d="M80 40V240M220 40V240M500 40V240M640 40V240" stroke="#738f91" stroke-width="8"/>
+<path d="M70 180H260V250H70M510 180H670V250H510" fill="#617a79"/><path d="M90 150V180H110V140M550 135V180H580V150" fill="none" stroke="#d5ded3" stroke-width="10"/>
+<ellipse cx="372" cy="98" rx="37" ry="46" fill="#d8b99d"/><path d="M335 95Q316 30 375 42Q424 45 410 110L397 72Q363 90 335 76" fill="#394b4c"/>
+<path d="M330 139L294 259H450L409 139L373 161Z" fill="#f3f0e3"/><path d="M350 141L373 179L393 141M373 179V257" fill="none" stroke="#b7c7bf" stroke-width="4"/>
+<path d="M328 160L291 219L246 226M414 160L456 222L484 225" fill="none" stroke="#f3f0e3" stroke-width="22"/>
+<ellipse cx="254" cy="252" rx="40" ry="35" fill="#e6d6b8"/><path d="M224 227L217 190L244 206L266 203L291 188L286 232Z" fill="#eadfc6"/>
+<path d="M219 194L241 210L235 232L220 222M275 207L290 192L284 230L266 226" fill="#b67743"/><ellipse cx="241" cy="224" rx="4" ry="5" fill="#314d49"/><ellipse cx="268" cy="224" rx="4" ry="5" fill="#314d49"/>
+<path d="M253 234L259 234L256 239Z" fill="#ab7b6b"/><path d="M224 267Q174 270 192 234" fill="none" stroke="#ac754b" stroke-width="14"/>
+<text x="32" y="332" font-family="sans-serif" font-size="18" fill="#3a5655">SUBJECT C-031 / CARE TRAINING / PHASE II</text><text x="538" y="46" font-family="sans-serif" font-size="12" fill="#3a5655">OBSERVATION RECORD</text>
+</svg>

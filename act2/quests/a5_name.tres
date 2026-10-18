@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 5
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a5_name"
+text = "试出两种声调，结合长短与顺序唤醒阿嚼的记忆。"
+kind = 3
+target_id = &"a5_name"
+[sub_resource type="Resource" id="discovered"]
+script = ExtResource("condition")
+key = &"a5_medicine"
+
+[resource]
+script = ExtResource("quest")
+id = &"a5_name"
+title = "再叫一次我的名字"
+description = "第5天 · 试出两种声调，结合长短与顺序唤醒阿嚼的记忆。"
+main_quest = false
+priority = 75
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("discovered")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "线索已记录，进度已保存。"

@@ -313,6 +313,7 @@ func nearest_item() -> String:
 	return found
 
 func target_hint() -> String:
+	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").target_hint()
 	if not initialized:return ""
 	if is_second_day() and second_day():return second_day().target_hint()
 	target = nearest_item()
@@ -330,6 +331,7 @@ func target_hint() -> String:
 	return ""
 
 func try_interact() -> bool:
+	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").try_interact()
 	if not active_play():return false
 	if is_second_day() and second_day():return second_day().try_interact()
 	target = nearest_item()
@@ -435,6 +437,9 @@ func finish_balance(success: bool) -> void:
 		game.ui.toast("滑回小凳子了。再跳上电视就能重试。",3)
 
 func refresh_hud() -> void:
+	if value("current_day",1)>=3:
+		get_parent().get_node("ActTwo").refresh_hud()
+		return
 	if is_second_day():
 		hud.set_paper_progress(0,4,false)
 		if second_day():second_day().refresh_hud()
@@ -477,6 +482,7 @@ func restart_day() -> void:
 	hud.balance_panel.hide()
 	game.cinematic_active = false
 	if second_day():second_day().reset_runtime()
+	if get_parent().has_node("ActTwo"):get_parent().get_node("ActTwo").reset_runtime()
 	restore_world()
 	reset_spawn()
 	# The caller is still inside the journal; do not steal pause/input ownership.

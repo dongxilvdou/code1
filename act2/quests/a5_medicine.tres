@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 5
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a5_medicine"
+text = "选择余量最少的三瓶，直接喂被拒后，混进狗粮喂食。"
+kind = 3
+target_id = &"a5_medicine"
+[resource]
+script = ExtResource("quest")
+id = &"a5_medicine"
+title = "01 · 不肯吃的药"
+description = "第5天 · 选择余量最少的三瓶，直接喂被拒后，混进狗粮喂食。"
+priority = 75
+extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "线索已记录，进度已保存。"

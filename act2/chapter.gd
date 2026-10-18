@@ -1,0 +1,508 @@
+extends Node3D
+const World = preload("res://act2/world.gd")
+const Puzzles = preload("res://act2/puzzles.gd")
+const CARRIED := ["","book0","book1","book2","can","fish","half_fish","bone","medicine"]
+const GOALS := {"a3_books":3,"a3_photo":3,"a3_pipes":3,"a3_water":3,"a3_feed":3,"a4_letter":4,"a4_fridge":4,"a4_cook":4,"a4_share":4,"a4_toy":4,"a5_medicine":5,"a5_name":5}
+var game
+var day
+var second
+var player
+var world
+var puzzle
+var held_visual: Node3D
+var active_number := 0
+var aim_progress := 0.0
+var cook_clock := 0.0
+var reminder_clock := 0.0
+var tick_clock := 0.0
+var hunger_clock := 0.0
+var pending_story := ""
+
+func _ready() -> void:
+	game = get_parent()
+	day = game.get_node("DayOne")
+	second = game.get_node("DayTwo")
+	player = game.get_node("Miso")
+	world = World.new()
+	world.build(self,game)
+	puzzle = Puzzles.new()
+	puzzle.chapter = self
+	add_child(puzzle)
+	puzzle.dismissed.connect(close_panel)
+	puzzle.solved.connect(solved)
+	set_world_enabled(false)
+	call_deferred("add_chapter_entry")
+
+func add_chapter_entry() -> void:
+	var column = game.ui.welcome.get_node("MenuActions")
+	var entry: Button = game.ui.button("第二幕 · 从第三天开始",column,start_chapter,true)
+	column.move_child(entry,3)
+	entry.tooltip_text = "保留前两天的完整流程，也可直接体验本次任务书内容。现有副本存档会先备份。"
+
+func start_chapter() -> void:
+	if game.started:return
+	if not day.quests.prepare_session(true):return
+	game.start_game()
+	day.manager = day.quests.manager
+	day.initialized = true
+	day.quests.session_started = true
+	seed_previous_days()
+	begin_day(3)
+
+func seed_previous_days() -> void:
+	for key in ["intro_seen","walk","run","open_living","stool","table","cup_moved","note_read","light_off","papers_done","d2_unlocked","d2_cat_fed","d2_dog_fed","day_complete","d2_started","d2_note","d2_washed","ruler_found","yarn_freed","yarn_home","d2_dishes_done","d2_complete"]:set_flag(key)
+	for id in second.CLOTHES:set_flag("d2_"+id)
+	set_value("dish_stage",9)
+	set_value("dish_flow_version",2)
+	day.reconcile_progress()
+
+func today() -> int:return day.value("current_day",1)
+func active() -> bool:return day.initialized and today()>=3
+func flag(key: String) -> bool:return day.flag(key)
+func val(key: String, fallback := 0) -> int:return day.value(key,fallback)
+func set_value(key: String, value: int) -> void:day.manager.set_value(StringName(key),value)
+func set_flag(key: String, value := true) -> void:day.manager.set_flag(StringName(key),value)
+func mark(key: String) -> void:
+	if flag(key):return
+	set_flag(key)
+	day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName(key),1,"act2:"+key)
+
+func begin_day(number: int) -> void:
+	if number<3 or number>5:return
+	set_value("current_day",number)
+	set_value("holding",0)
+	set_value("d2_holding",0)
+	set_value("a_holding",0)
+	set_value("dog_hunger",45)
+	set_value("cat_hunger",65)
+	day.update_held_visual()
+	second.update_held()
+	day.restore_world()
+	active_number = number
+	player.spawn = Vector3(-4.45,.03,4.80)
+	player.reset_position()
+	restore()
+	story({3:"第三天 / 被观察的日常\n\n书都掉在客厅北侧地上了。按颜色放回高低不同的书格，再检查厨房水槽、给花浇水。\n别忘了给大狗嚼喂饭。\n\n轻点空格短跳，按住空格长跳。",4:"第四天 / 只剩一条鱼\n\n今天桌上的任务纸条不见了。先跳上南窗边的桌子看看。",5:"第五天 / 记得你的名字\n\n桌上多了七只药瓶。纸条只说大狗嚼需要吃药，没有写病因。\n取余量最少的三瓶，再想办法让它吃下去。"}[number])
+
+func set_world_enabled(enabled: bool) -> void:
+	visible = enabled
+	for body in find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if enabled else 0
+	if is_instance_valid(world.original_bookcase):
+		world.original_bookcase.visible = not enabled
+		for body in world.original_bookcase.find_children("*","StaticBody3D",true,false):body.collision_layer = 0 if enabled else 1
+
+func _physics_process(delta: float) -> void:
+	if not day.initialized:return
+	if not active():
+		if active_number!=0:reset_runtime()
+		return
+	if active_number!=today():
+		active_number = today()
+		day.restore_world()
+		restore()
+	if not day.active_play():return
+	if today()==4 and not flag("a4_bell") and day.on_surface("table",Vector2(.76,.43),.80):
+		mark("a4_bell")
+		puzzle.play_note(3)
+		story("叮咚——\n\n桌子上什么也没有，门铃却响了。\n打开入户门，到门外看看信箱吧。")
+	if val("cook_state")==2:
+		cook_clock += delta
+		set_value("cook_millis",int(cook_clock*1000))
+		if cook_clock>=6:
+			set_value("cook_state",3)
+			mark("a4_cook")
+			set_value("cat_hunger",100)
+			restore()
+			story("烤箱发出轻轻的一声响。\n\n我吃掉了半条热乎乎的鱼。另一半还留在厨房。\n今天的冰箱里，真的只有这一条鱼。")
+	if flag("a4_cook") and not flag("a4_share") and not flag("fish_reminded"):
+		reminder_clock += delta
+		if reminder_clock>=12:
+			set_flag("fish_reminded")
+			game.ui.toast("或许，大狗嚼也会想吃鱼。",6)
+	hunger_clock += delta
+	if hunger_clock>=30:
+		hunger_clock = 0
+		set_value("cat_hunger",maxi(0,val("cat_hunger",65)-1))
+		set_value("dog_hunger",maxi(0,val("dog_hunger",45)-1))
+	tick_clock += delta
+	if tick_clock>.15:
+		tick_clock = 0
+		refresh_hud()
+	world.camera_led.visible = flag("cabinet_open") and fmod(Time.get_ticks_msec()/1000.0,1.3)<.65
+	for n in world.items.values():
+		for child in n.get_children():
+			if child is Label3D:child.visible = n.global_position.distance_to(player.global_position)<3.0
+
+func restore() -> void:
+	set_world_enabled(active())
+	if not active():return
+	var holding := val("a_holding")
+	for id in world.items:world.items[id].visible = true
+	for i in range(3):
+		world.items["book%d"%i].visible = holding!=i+1
+		world.items["book%d"%i].position = world.shelves[i]+Vector3(0,.04,0) if flag("book%d"%i) else Vector3(-2.5+i*.47,.04,.15)
+	world.items.photo.visible = flag("photo_dropped") and not flag("a3_photo")
+	world.items.pipes.visible = flag("cabinet_open")
+	world.items.camera.visible = flag("cabinet_open")
+	for i in range(2):world.cabinet_hinges[i].rotation.y = (1.35 if i==0 else -1.35) if flag("cabinet_open") else 0
+	world.items.can.visible = holding!=4
+	world.water_surface.position.y = .12 if flag("water_halved") else .232
+	world.items.mailbox.visible = today()>=4
+	for body in world.items.mailbox.find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if today()>=4 else 0
+	world.items.mailbox.get_node("EnvelopeTip").visible = not flag("letter_dropped")
+	world.items.letter.visible = flag("letter_dropped") and not flag("a4_letter")
+	world.fridge_hinge.rotation.y = -1.4 if flag("a4_fridge") or (today()==3 and flag("empty_fridge_open")) else 0.0
+	world.items.fish.visible = today()>=4 and flag("a4_fridge") and holding!=5 and val("cook_state") in [0,1,2]
+	world.items.fish.position = Vector3(3.45,1.01,-5.18) if val("cook_state") in [1,2] else Vector3(5.13,.69,-5.16)
+	world.oven_hinge.rotation.x = 1.45 if val("cook_state") in [0,1,3] else 0
+	world.items.half_fish.visible = flag("a4_cook") and not flag("a4_share") and holding!=6
+	world.items.yarn.visible = today()>=4 and not flag("yarn_solved")
+	world.items.bone.visible = flag("yarn_solved") and not flag("a4_toy") and holding!=7
+	world.items.medicine.visible = today()==5 and not flag("medicine_taken")
+	world.items.clues.visible = flag("a3_photo")
+	day.world.items.note.visible = today()==3
+	day.world.items.yarn.visible = false
+	day.world.items.ruler.visible = false
+	player.jump_locked = holding==4 and not flag("water_halved")
+	player.variable_jump = true
+	cook_clock = val("cook_millis")/1000.0
+	update_held()
+	refresh_hud()
+
+func update_held() -> void:
+	if is_instance_valid(held_visual):
+		held_visual.get_parent().remove_child(held_visual)
+		held_visual.queue_free()
+		held_visual = null
+	var holding := val("a_holding")
+	if holding==0:return
+	held_visual = world.items[CARRIED[holding]].duplicate()
+	for child in held_visual.get_children():
+		if child is Label3D:child.hide()
+	player.camera.add_child(held_visual)
+	held_visual.show()
+	held_visual.position = Vector3(.12,-.18,-.40)
+	held_visual.scale = Vector3.ONE*.65
+
+func can_pickup() -> bool:
+	if val("a_holding")!=0 or val("d2_holding")!=0:
+		game.ui.toast("嘴里已经叼着东西了，按 G 放回安全位置。",3)
+		return false
+	return true
+
+func target_position(id: String) -> Vector3:
+	if id=="nest":return day.world.items.nest.global_position
+	if id=="note":return day.world.items.note.global_position
+	if id in ["feeder","dog","dog_bowl","dog_spot","cat_bowl","cat_spot"]:return second.target_position(id)
+	if id=="mailbox":return world.items.mailbox.global_position+Vector3(0,.40,.20)
+	if id.begins_with("shelf"):return world.items[id].global_position+Vector3(0,.20,-.22)
+	if id=="can":return world.items.can.global_position+Vector3(0,.17,0)
+	if id=="plant":return world.items.plant.global_position+Vector3(0,.18,0)
+	if id=="cabinet" and flag("cabinet_open"):return world.items.cabinet.global_position+Vector3(-.50,0,.12)
+	if id=="oven":return world.items.oven.global_position+Vector3(0,.20,.24)
+	return world.items[id].global_position+Vector3(0,.05,0)
+
+func nearest_item() -> String:
+	if not active() or not day.active_play():return ""
+	var choices: Array = world.items.keys()
+	choices.append_array(["nest","dog","feeder","dog_bowl","cat_bowl"])
+	if today()==3:choices.append("note")
+	if val("d2_holding")==5:choices.append("dog_spot")
+	if val("d2_holding")==4:choices.append("cat_spot")
+	var found := ""
+	var best := 3.0
+	var eye: Vector3 = player.camera.global_position
+	var forward: Vector3 = -player.camera.global_basis.z
+	for id in choices:
+		if world.items.has(id) and not world.items[id].visible:continue
+		if id=="fish" and val("cook_state")!=0:continue
+		if id=="cat_bowl" and val("d2_holding")==4:continue
+		if id=="dog_bowl" and val("d2_holding")==5:continue
+		var pos := target_position(id)
+		var delta := pos-eye
+		var alignment := forward.dot(delta.normalized())
+		if delta.length()>1.20 or alignment<.65:continue
+		var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(eye,pos,1))
+		if not hit.is_empty() and hit.position.distance_to(pos)>.36:continue
+		var score := 1.0-alignment+delta.length()*.08
+		if score<best:
+			best = score
+			found = id
+	return found
+
+func target_hint() -> String:
+	var id := nearest_item()
+	if id=="":return ""
+	if id=="nest":return "E 休息，进入下一天" if day_complete() else "E 查看今天还要完成的事情"
+	if id=="dog":return "E 与大狗嚼互动 / 交出叼着的物品"
+	if id=="dog_bowl" and val("a_holding")==8:return "E 把药混进狗粮"
+	if id in ["feeder","dog_bowl","dog_spot","cat_bowl","cat_spot"]:return second.target_hint()
+	if id=="note":return "E 阅读第三天的任务清单"
+	return "E "+str(world.titles.get(id,id))
+
+func try_interact() -> bool:
+	var id := nearest_item()
+	if id.is_empty():return false
+	interact_item(id)
+	return true
+
+func interact_item(id: String) -> void:
+	if not active():return
+	var holding := val("a_holding")
+	if id.begins_with("book"):
+		var i := int(id.right(1))
+		if flag(id) or not can_pickup():return
+		set_value("a_holding",i+1)
+		if i==1:set_flag("photo_dropped")
+	elif id.begins_with("shelf"):
+		var i := int(id.right(1))
+		if holding!=i+1:game.ui.toast("把相同颜色的书叼到这个书格。",3)
+		elif absf(player.global_position.y-world.shelves[i].y)>.20 or not player.is_on_floor():game.ui.toast("先跳到对应高度的书格上，再把书放好。",3)
+		else:
+			set_flag("book%d"%i)
+			set_value("a_holding",0)
+			if flag("book0") and flag("book1") and flag("book2"):mark("a3_books")
+	elif id=="photo":
+		if not flag("photo_dropped"):return
+		mark("a3_photo")
+		open_panel("photo")
+	elif id=="cabinet":set_flag("cabinet_open",not flag("cabinet_open"))
+	elif id=="pipes":
+		if not flag("cabinet_open"):return
+		if flag("a3_pipes"):story("水管已经接好了。红点却还在闪。\n它对准的不是水槽，是刚才修水管的我。")
+		else:open_panel("pipes")
+	elif id=="camera":story("那不是电源灯，是一枚很小的镜头。\n\n它一直在记录我如何修理水管。\n这个家里……也许还有别的镜头。")
+	elif id=="can":
+		if flag("a3_water"):game.ui.toast("花已经浇好了。",3)
+		elif player.global_position.y<.75:game.ui.toast("先借旁边的小凳子跳上窗台，再叼起水壶。",4)
+		elif can_pickup():
+			set_value("a_holding",4)
+			game.ui.toast("太重了，跳不起来。可以从窗台走下去，到淋浴间倒掉一半水。",6)
+	elif id=="drain":
+		if holding==4 and not flag("water_halved"):
+			set_flag("water_halved")
+			game.ui.toast("倒掉一半，水壶轻多了。现在可以跳上客厅沙发。",5)
+		else:game.ui.toast("只有装满水的水壶需要在这里减重。",3)
+	elif id=="plant":
+		if flag("a3_water"):return
+		if holding!=4:game.ui.toast("先去客厅西窗台叼水壶。",3)
+		elif not flag("water_halved"):game.ui.toast("壶里水太满，先去淋浴间倒掉一半。",4)
+		elif player.global_position.y<.43 or player.global_position.y>.82 or not player.is_on_floor() or Vector2(player.global_position.x+5.23,player.global_position.z-2).length()>1.25:game.ui.toast("先跳上花盆旁的沙发，再瞄准花盆。",4)
+		else:open_panel("aim")
+	elif id=="mailbox":
+		if today()<4 or not flag("a4_bell"):return
+		if flag("letter_dropped"):game.ui.toast("信已经落在信箱前面的地上。",3)
+		else:
+			set_value("mail_shakes",val("mail_shakes")+1)
+			var tween := create_tween()
+			tween.tween_property(world.items.mailbox,"rotation:z",.10,.10)
+			tween.tween_property(world.items.mailbox,"rotation:z",-.10,.10)
+			tween.tween_property(world.items.mailbox,"rotation:z",0,.12)
+			if val("mail_shakes")>=3:set_flag("letter_dropped")
+			game.ui.toast("信掉下来了！" if flag("letter_dropped") else "信松动了一点，再摇一摇。",3)
+	elif id=="letter":
+		if not flag("letter_dropped"):return
+		mark("a4_letter")
+		story("信上写着：\n\n今天请自己准备午餐。冰箱侧面的机关是特意为你设计的。\n\n没有署名。也没有提起主人去了哪里。")
+	elif id=="fridge_lock":
+		if today()<4:
+			set_flag("empty_fridge_open",not flag("empty_fridge_open"))
+			story("冰箱里空空的。今天还没有食材。")
+		elif not flag("a4_letter"):game.ui.toast("先到门外取信，看看今天的安排。",3)
+		elif player.global_position.y<.80 or not player.is_on_floor():game.ui.toast("先跳上冰箱西侧的柜子，才能碰到机关。",4)
+		elif flag("a4_fridge"):story("里面只有一条鱼，没有其他食材。")
+		else:open_panel("slide")
+	elif id=="fish":
+		if not flag("a4_fridge") or today()<4 or val("cook_state")!=0:return
+		if can_pickup():set_value("a_holding",5)
+	elif id=="oven":
+		if holding==5 and val("cook_state")==0:
+			set_value("a_holding",0)
+			set_value("cook_state",1)
+			game.ui.toast("鱼放好了。再按 E 关上烤箱门。",4)
+		elif val("cook_state")==1:
+			set_value("cook_state",2)
+			set_value("cook_millis",0)
+			cook_clock = 0
+			game.ui.toast("关门后烤箱自动开始加热。",4)
+		elif val("cook_state")==2:game.ui.toast("正在烤鱼……",3)
+		else:game.ui.toast("叼着冰箱里的鱼，放进烤箱。",3)
+	elif id=="half_fish":
+		if flag("a4_cook") and not flag("a4_share") and can_pickup():set_value("a_holding",6)
+	elif id=="yarn":
+		if flag("toy_requested"):open_panel("yarn")
+		else:game.ui.toast("熟悉的毛线球，里面好像有个硬东西。去问问大狗嚼。",4)
+	elif id=="bone":
+		if flag("yarn_solved") and not flag("a4_toy") and can_pickup():
+			set_value("a_holding",7)
+			story("骨头上刻着：D-017 / 阿嚼。\n旁边还有两道记号：→ 短，↘ 长。\n\n又是实验编号。和照片上的 C-031 有什么关系？")
+	elif id=="medicine":
+		if today()==5 and not flag("medicine_taken") and can_pickup():open_panel("medicine")
+	elif id=="dog":interact_dog()
+	elif id=="dog_bowl" and holding==8:
+		if not flag("medicine_refused"):story("先试试直接把药交给大狗嚼吧。")
+		else:
+			set_flag("medicine_mixed")
+			set_value("a_holding",0)
+			game.ui.toast("药藏进盘子里了。叼起盘子，到给予器盛狗粮，再送给大狗嚼。",6)
+	elif id in ["feeder","dog_bowl","dog_spot","cat_bowl","cat_spot"]:
+		if holding!=0:
+			game.ui.toast("先按 G 放下叼着的物品。",3)
+			return
+		var feeding: bool = id=="dog_spot" and val("d2_holding")==5 and flag("dog_portion")
+		second.interact_item(id)
+		if feeding:dog_fed()
+	elif id=="nest":
+		if day_complete() and today()<5:
+			begin_day(today()+1)
+			return
+		elif day_complete():story("第二幕完\n\n阿嚼记得自己的名字了，也记得你。\n照片、镜头、两个编号……这些日常任务背后，有人在等待某种结果。\n\n你仍然可以在家里探索、照顾阿嚼，或在桌边回看线索。" if flag("a5_name") else "今天的照护任务完成了。\n\n大狗嚼似乎还有话想说。留下来陪它聊聊，也许能发现更多事情。")
+		else:story("今天还有事情没有做完。\n\n"+guidance())
+	elif id=="note":story("第三天的任务清单\n\n按颜色整理书架；检查水槽下的水管；给客厅的花浇水。\n\n别忘了大狗嚼的饭。")
+	elif id=="clues":story("已经收好的线索\n\n照片：主人穿着白大褂，身旁是我。C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
+	restore()
+
+func interact_dog() -> void:
+	match val("a_holding"):
+		6:
+			set_value("a_holding",0)
+			mark("a4_share")
+			set_value("dog_hunger",100)
+			dog_react()
+			set_flag("toy_requested")
+			story("大狗嚼：这鱼……是给我的？\n\n谢谢。对了，我的玩具不见了。最后一次是在客厅沙发旁。\n那个毛线球里，会不会藏着什么？")
+		7:
+			set_value("a_holding",0)
+			mark("a4_toy")
+			dog_react()
+			story("大狗嚼把骨头抱在爪子里。\n\n“是它！我一直在找它。”\n\nD-017。这个编号也属于它吗？")
+		8:
+			set_flag("medicine_refused")
+			story("大狗嚼把头扭开了。\n\n“这味道太苦了，我不吃。”\n\n它不肯直接吃药。试着把药藏进它的狗粮盘里。")
+		_:
+			if val("d2_holding")==5:
+				var fed := flag("dog_portion")
+				second.interact_item("dog")
+				if fed:dog_fed()
+			elif today()==3:story("大狗嚼：我不喜欢洗过的碗，有一股消毒水味。\n\n以后不用每顿都洗了。你今天……还记得给我带饭吧？")
+			elif today()==4:
+				set_flag("toy_requested")
+				story("大狗嚼：我的玩具丢了。最后是在客厅沙发旁边。\n\n那边不是有个毛线球吗？帮我看看里面。")
+			elif flag("a5_medicine"):
+				if flag("a5_name"):story("阿嚼：原来我叫阿嚼。\n\n我想起来了……你以前也这样叫过我。\n谢谢你没有忘记。")
+				elif flag("a4_toy"):open_panel("voice")
+				else:
+					set_flag("toy_requested")
+					story("我连名字都忘了……也许我的旧玩具上会有线索。\n\n最后记得是在客厅沙发旁，那个毛线球附近。")
+			else:story("大狗嚼：今天有点没精神。\n桌上的药，闻起来很苦。")
+
+func dog_fed() -> void:
+	if today()==3:mark("a3_feed")
+	if today()==5 and flag("medicine_mixed"):
+		mark("a5_medicine")
+		set_value("dog_affection",val("dog_affection")+1)
+		set_flag("medicine_mixed",false)
+		story("药混在狗粮里，它终于吃下去了。\n\n大狗嚼轻轻碰了碰你的额头。\n好感度上升。再和它聊聊吧。")
+
+func dog_react() -> void:
+	var actor = second.world.items.dog.get_meta("actor")
+	actor.react_to_food()
+
+func open_panel(kind: String, text := "") -> void:
+	game.cinematic_active = true
+	player.set_control(false)
+	puzzle.open(kind,text)
+
+func story(text: String) -> void:open_panel("story",text)
+
+func close_panel() -> void:
+	game.cinematic_active = false
+	player.set_control(true)
+	refresh_hud()
+
+func solved(kind: String) -> void:
+	puzzle.close()
+	match kind:
+		"pipes":
+			mark("a3_pipes")
+			story("水顺着管道流向出口。修好了。\n\n门内那个闪烁的红点，是监控镜头。\n它在观察我解开水管，而不是观察漏水。")
+		"slide":
+			mark("a4_fridge")
+			story("咔哒。冰箱门打开了。\n\n里面只有一条鱼。叼出来，放进旁边的烤箱，再关门。")
+		"yarn":
+			set_flag("yarn_solved")
+			story("最后一根毛线松开，一根玩具骨头掉了出来。\n\n叼起来，看看上面的刻字。")
+		"medicine":
+			set_flag("medicine_taken")
+			set_value("a_holding",8)
+			game.ui.toast("拿到了三瓶少量的药。先去找大狗嚼。",4)
+		"voice":
+			mark("a5_name")
+			dog_react()
+			story("“喵——喵。”\n\n大狗的尾巴摇了起来。\n“阿嚼……对，我叫阿嚼。我想起来了。”\n\n它靠近你，像认出了一个很久以前的朋友。\n\n第二幕完。回猫窝可以再次查看结语。")
+		"aim":
+			mark("a3_water")
+			set_value("a_holding",0)
+			game.ui.toast("水落进花盆，叶子慢慢舒展开了。",4)
+	restore()
+
+func day_complete() -> bool:
+	for key in GOALS:
+		if key in ["a4_share","a4_toy","a5_name"]:continue
+		if GOALS[key]==today() and not flag(key):return false
+	return true
+
+func guidance() -> String:
+	if today()==3:
+		if not flag("a3_books"):return "01 整理书架\n客厅北侧地上的三本书，按红、蓝、黄放回阶梯书格。轻点空格短跳，按住长跳。"
+		if not flag("a3_photo"):return "书里掉出了一张照片。回书架旁的地上看看。"
+		if not flag("a3_pipes"):return "02 修理水管\n到厨房水槽下面，打开柜门，接通水管。"
+		if not flag("a3_water"):return "03 浇花\n客厅西窗台取满水壶，走下窗台；去一楼淋浴间倒掉一半，再跳上沙发给花浇水。"
+		if not flag("a3_feed"):return "今天还没喂大狗嚼。叼狗盘到厨房给予器盛粮，再送回楼梯平台。"
+	elif today()==4:
+		if not flag("a4_bell"):return "桌上的清单不见了。跳上客厅南窗边的桌子看看。"
+		if not flag("a4_letter"):return "01 门外来信\n打开入户门，摇晃门外偏西的高信箱三次，再拾起掉落的信。"
+		if not flag("a4_fridge"):return "02 猫用冰箱\n跳上冰箱西侧柜台，解开侧面的八数码机关。"
+		if not flag("a4_cook"):return "03 做午饭\n叼鱼放进旁边的烤箱，再按 E 关门，等它烤熟。"
+		if not flag("a4_share"):return "厨房还有半条鱼。大狗嚼也许会想尝一尝。"
+		if not flag("a4_toy"):return "和大狗嚼聊聊。它的玩具可能藏在客厅沙发旁的毛线球里。"
+	else:
+		if not flag("a5_medicine"):return "01 喂药\n南窗桌上七瓶药，选择药量最少的三瓶。先试着直接喂，再把药混进狗盘，盛狗粮送给它。"
+		if not flag("a5_name"):return "今天的照护任务完成了，可以回窝。\n也可以再和大狗嚼聊聊，它似乎还有心事。"
+	return "今天的事情都完成了。回南窗边的猫窝休息。" if today()<5 else "第二幕已完成。阿嚼记起了名字。桌边的线索册可以回看照片与编号。"
+
+func refresh_hud() -> void:
+	if not active():return
+	day.hud.day_title.text = {3:"第三天 / 被观察的日常",4:"第四天 / 只剩一条鱼",5:"第五天 / 记得你的名字"}[today()]
+	day.hud.guidance.text = guidance()
+	day.hud.status.text = "我 %d / 100 · 大狗嚼 %d / 100\n好感度 %d"%[val("cat_hunger",65),val("dog_hunger",45),val("dog_affection")]
+	day.hud.set_paper_progress(0,4,false)
+	var holding := val("a_holding")
+	day.hud.carry.text = "叼着："+str(world.titles[CARRIED[holding]])+"\nG 放回安全位置" if holding!=0 else second.carry_text()
+	if player.jump_locked:day.hud.carry.text += "\n水太满，无法跳跃"
+
+func _input(event: InputEvent) -> void:
+	if not active() or not day.active_play():return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_G and val("a_holding")!=0:
+		if val("a_holding")==8:set_flag("medicine_taken",false)
+		set_value("a_holding",0)
+		restore()
+		get_viewport().set_input_as_handled()
+
+func reset_runtime() -> void:
+	active_number = 0
+	aim_progress = 0
+	cook_clock = 0
+	reminder_clock = 0
+	hunger_clock = 0
+	player.jump_locked = false
+	player.variable_jump = false
+	day.world.items.note.show()
+	set_world_enabled(false)
+	puzzle.mode = ""
+	puzzle.shell.hide()
+	for hinge in world.cabinet_hinges:hinge.rotation.y = 0
+	world.fridge_hinge.rotation.y = 0
+	if is_instance_valid(held_visual):
+		held_visual.queue_free()
+		held_visual = null

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 3
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a3_feed"
+text = "用给予器给大狗嚼盛粮，再送回楼梯平台。"
+kind = 3
+target_id = &"a3_feed"
+[resource]
+script = ExtResource("quest")
+id = &"a3_feed"
+title = "记得给它喂饭"
+description = "第3天 · 用给予器给大狗嚼盛粮，再送回楼梯平台。"
+priority = 77
+extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "线索已记录，进度已保存。"
