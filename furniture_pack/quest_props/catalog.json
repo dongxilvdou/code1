@@ -98,6 +98,13 @@
     "units": "metres"
   },
   {
+    "id": "shirt_draped",
+    "name": "搭在沙发前沿的蓝色上衣",
+    "triangles": 5336,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
     "id": "mailbox",
     "name": "弧角信箱、投信口与门锁",
     "triangles": 1660,
@@ -106,16 +113,16 @@
   },
   {
     "id": "fish",
-    "name": "有鱼鳍鱼尾鳞纹的鲜鱼",
-    "triangles": 3467,
-    "materials": 4,
+    "name": "像素风鲜鱼：方眼、尾鳍与鱼鳞",
+    "triangles": 848,
+    "materials": 5,
     "units": "metres"
   },
   {
     "id": "half_fish",
-    "name": "半份烤鱼与餐盘",
-    "triangles": 3947,
-    "materials": 6,
+    "name": "像素风半条烤鱼与切面餐盘",
+    "triangles": 996,
+    "materials": 7,
     "units": "metres"
   },
   {

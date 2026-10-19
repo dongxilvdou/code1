@@ -35,7 +35,8 @@ func build(parent: Node3D, game: Node) -> void:
 	for row in range(4):
 		var height: float = [.146,.495,.925,1.355][row]
 		for col in range(8 if row==0 else 6):
-			var book := Props.model(original_bookcase,["book_red","book_blue","book_gold"][(row+col)%3])
+			var book := Props.model(original_bookcase,["book_red","book_blue","book_gold"][(row+col)%3 if row==0 else row-1])
+			book.set_meta("shelf_color",row-1)
 			var x: float = -.29+col*.075 if row==0 else (-.35+col*.056 if row==2 else .03+col*.056)
 			book.position = Vector3(x,height+.123*(.9+float(col%3)*.07)+.002,.02)
 			book.basis = Basis(Vector3.UP,PI/2)*Basis(Vector3.RIGHT,-PI/2)
@@ -57,7 +58,9 @@ func build(parent: Node3D, game: Node) -> void:
 			box(ledge,"SlideRail",Vector3(x+side*.12,height-.041,center_z),Vector3(.012,.018,depth-.04),Color("899490"))
 		var anchor := original_bookcase.to_global(Vector3(x,height,stand_z))
 		shelves.append(anchor)
-		var shelf := target("shelf%d"%i,anchor,["红色书签 · 第一层","蓝色书签 · 第二层","金色书签 · 第三层"][i],[3])
+		var shelf := target("shelf%d"%i,anchor,["第一层 · 红色书列","第二层 · 蓝色书列","第三层 · 黄色书列"][i],[3])
+		for label in shelf.get_children():
+			if label is Label3D:label.position = original_bookcase.to_global(Vector3(x,height+.30,.19))-anchor
 		Props.bind(shelf,original_bookcase)
 		var marker := box(shelf,"ClothBookmark",Vector3(0,-.006,.09),Vector3(.08,.003,.10),colors[i])
 		marker.rotation.y = original_bookcase.rotation.y

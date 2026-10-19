@@ -1,5 +1,6 @@
 extends Node3D
 ## The quest manager is the only persistent state. World props are derived from it.
+const Notes = preload("res://day1/daily_notes.gd")
 const World = preload("res://day1/world.gd")
 const Hud = preload("res://day1/hud.gd")
 const SPAWN := Vector3(-.04,.03,5.45)
@@ -9,7 +10,7 @@ const INTRO := [
 	"我想起来了，我有一个主人。\n她会轻轻摸我的头，也会给我留一块暖和的地方。",
 	"我最喜欢她了。只要听到她回家的声音，我就会跑过去。",
 	"可是主人生病了。现在，应该换我照顾她。\n我记得……这里能让我学会照顾主人。",
-	"总之，先看看房间里有什么。\n试着走一走、跑一跑，再打开客厅的门吧。"
+	"总之，先读读入户门内地垫旁的小纸条。\n读完后，再走一走、跑一跑，打开客厅的门吧。"
 ]
 var game
 var player
@@ -19,6 +20,7 @@ var world
 var hud
 var initialized := false
 var dialog := ""
+var note_day := 1
 var page := 0
 var target := ""
 var held_visual: Node3D
@@ -98,6 +100,10 @@ func _physics_process(delta: float) -> void:
 		previous_position = player.global_position
 		return
 	if is_second_day():return
+	if not Notes.read(self):
+		previous_position = player.global_position
+		refresh_hud()
+		return
 	balance_cooldown = maxf(0,balance_cooldown-delta)
 	var p: Vector3 = player.global_position
 	var travel := Vector2(p.x-previous_position.x,p.z-previous_position.z).length()
@@ -111,7 +117,7 @@ func _physics_process(delta: float) -> void:
 	if flag("open_living") and player.is_on_floor():
 		if on_surface("stool",Vector2(.35,.32),.34):mark("stool")
 		if flag("stool") and on_surface("table",Vector2(.76,.43),.80):mark("table")
-	if flag("note_read") and not flag("light_off"):
+	if flag("note_read") and flag("cup_moved") and flag("walk") and flag("run") and not flag("light_off"):
 		if p.y>1.23 and p.y<1.48 and absf(p.x+1.28)<.28 and absf(p.z-2.57)<.66 and player.is_on_floor():
 			if not tv_stable and balance_cooldown<=0:start_balance()
 		if tv_stable and p.y<1.05:tv_stable = false
@@ -128,6 +134,10 @@ func _physics_process(delta: float) -> void:
 
 func on_surface(id: String, half_size: Vector2, top: float) -> bool:
 	return World.Props.surface(world.items[id],player,half_size,top)
+
+func note_target() -> Vector3:
+	# The readable label sits above the paper, clear of the tabletop at cat eye height.
+	return world.items.note.global_position+Vector3(0,.20 if value("current_day",1) in [2,3,4] else .035,0)
 
 func _process(delta: float) -> void:
 	if not initialized:return
@@ -157,6 +167,9 @@ func restore_world() -> void:
 	for n in world.items.values():
 		if n.has_meta("quest_days"):n.visible = value("current_day",1) in n.get_meta("quest_days")
 	World.Props.memo_day(world.items.note,value("current_day",1))
+	world.items.note.position = Notes.position_for(value("current_day",1),world.items.table.position)
+	for child in world.items.note.get_children():
+		if child is Label3D:child.text = "第 %d 天的小纸条 · E 阅读"%value("current_day",1)
 	var unlocked := flag("light_off")
 	for door in get_tree().get_nodes_in_group("villa_doors"):
 		if door==world.door:continue
@@ -176,7 +189,11 @@ func restore_world() -> void:
 	world.items.cup.position = world.items.tray.position+Vector3(0,.015,0) if flag("cup_moved") else anchor_positions.cup
 	world.items.ruler.visible = is_second_day() and value("holding")!=2
 	world.items.yarn.visible = is_second_day() and value("holding")!=3
-	world.items.yarn.position = Vector3(-5,.27,4.85) if flag("yarn_home") else Vector3(-4.56,.10,2.15) if flag("yarn_freed") else anchor_positions.yarn
+	if flag("yarn_home"):
+		# Current cushion top is .106 m; the yarn extends .0923 m below its origin.
+		# Settle slightly into the fabric and leave room for the loose thread inside the rim.
+		world.items.yarn.global_position = world.items.nest.to_global(Vector3(-.06,.190,-.025))
+	else:world.items.yarn.position = Vector3(-4.56,.10,2.15) if flag("yarn_freed") else anchor_positions.yarn
 	for id in ["mess_cup","mess_pot"]:
 		world.items[id].position = anchor_positions[id]+Vector3(.20,-.38 if id=="mess_cup" else .14,.12) if flag(id) else anchor_positions[id]
 		world.items[id].rotation.z = PI/2 if flag(id) else 0.0
@@ -232,6 +249,7 @@ func update_held_visual() -> void:
 	else:held_visual.scale = Vector3.ONE*.7
 
 func show_dialog(kind: String) -> void:
+	if kind=="note":note_day = value("current_day",1)
 	dialog = kind
 	page = 0
 	game.cinematic_active = true
@@ -241,7 +259,9 @@ func show_dialog(kind: String) -> void:
 func render_page() -> void:
 	match dialog:
 		"intro":hud.show_page("醒来  ·  %d / %d" % [page+1,INTRO.size()],INTRO[page],page==INTRO.size()-1)
-		"note":hud.show_page("第一天的小纸条","① 关掉客厅的灯。\n② 收集一楼的 %d 张纸片：客厅、餐厅、厨房和书房各一张。\n③ 解开厨房食物给予器，给自己和大狗嚼喂食。\n\n今天不用担心肚子饿。慢慢来。" % World.PAPER_SPOTS.size(),true)
+		"note":
+			hud.show_page("第 %d 天的小纸条"%note_day,Notes.CONTENT[note_day]+"\n\n读完后按下方按钮开始今天任务；Esc 暂时收起。",true)
+			hud.next_button.text = "我读完了，开始今天任务  ·  E / 空格"
 		"ending":hud.show_page("不是我的毛……","毛线球上缠着几根灰白色的猫毛。\n可我的毛不是这样的。\n\n在我来之前，还有别的猫住过这里吗？\n毛线球已经送回窝了。接下来，把大狗嚼的盘子洗干净吧。",true)
 		"rest":hud.show_page("第一天结束","今天，我学会了关灯、整理房间，也喂饱了自己和大狗嚼。给予器上的猫爪印……是谁留下的？\n\n蜷进窝里，好好睡一觉吧。\n醒来就是第二天，桌上会有新的小纸条。",true)
 
@@ -252,19 +272,32 @@ func advance_dialog() -> void:
 		render_page()
 		return
 	if dialog=="intro":mark("intro_seen")
+	if dialog=="note":
+		manager.set_flag(StringName("daily_note_ack_%d"%note_day),true)
+		mark(Notes.FLAGS[note_day])
 	var start_next := dialog=="rest"
 	if start_next:mark("day_complete")
 	dialog = ""
 	hud.overlay.hide()
 	game.cinematic_active = false
 	player.set_control(true)
-	refresh_hud()
+	restore_world()
+	var chapter := get_parent().get_node_or_null("ActTwo")
+	if chapter and chapter.active():chapter.restore()
 	if start_next and second_day():second_day().begin_day()
 
 func _input(event: InputEvent) -> void:
 	if not initialized or not event is InputEventKey or not event.pressed or event.echo:return
 	if not dialog.is_empty():
 		if event.keycode in [KEY_E,KEY_SPACE,KEY_ENTER,KEY_ESCAPE]:
+			if event.keycode==KEY_ESCAPE and dialog=="note":
+				dialog = ""
+				hud.overlay.hide()
+				game.cinematic_active = false
+				player.set_control(true)
+				refresh_hud()
+				get_viewport().set_input_as_handled()
+				return
 			if event.keycode==KEY_ESCAPE and dialog=="intro":page = INTRO.size()-1
 			advance_dialog()
 		get_viewport().set_input_as_handled()
@@ -299,9 +332,9 @@ func nearest_item() -> String:
 		if not World.Props.interactable(node,value("current_day",1)):continue
 		if id in ["ruler","yarn"] and not yarn_available():continue
 		if id=="yarn" and not flag("yarn_freed"):continue
-		if id=="note" and not flag("cup_moved"):continue
+
 		if id=="tray" and value("holding")!=1:continue
-		var point := node.global_position+Vector3(0,.05,0)
+		var point: Vector3 = note_target() if id=="note" else node.global_position+Vector3(0,.05,0)
 		var delta := point-eye
 		var alignment := forward.dot(delta.normalized())
 		var score := 1.0-alignment+delta.length()*.03
@@ -326,10 +359,11 @@ func target_hint() -> String:
 	if is_second_day() and second_day():return second_day().target_hint()
 	target = nearest_item()
 	if target.is_empty() and second_day():return second_day().target_hint()
+	if not target.is_empty() and target!="note" and not Notes.read(self):return "先读完地垫旁的小纸条"
 	match target:
 		"cup":return "E 叼起陶瓷水杯" if flag("table") else "先跳上单人沙发，再跳上茶几"
 		"tray":return "E 把纸杯放在杯垫上" if value("holding")==1 else "杯垫 · 用来放纸杯"
-		"note":return "E 阅读今天的小纸条" if flag("cup_moved") else "纸杯压住了纸条 · 先叼到旁边的杯垫"
+		"note":return "E 阅读今天的小纸条"
 		"ruler":return "E 叼起尺子 · R 切换横叼 / 竖叼" if yarn_available() else "一楼工作书房的尺子 · 先完成前面的任务"
 		"sofa_gap":return "E 用竖叼的尺子够出毛线球" if value("holding")==2 and value("ruler_vertical")==1 else "毛线球卡在里面 · 需要尺子，按 R 竖着叼"
 		"yarn":return "E 叼起毛线球（尺子会放回书桌）"
@@ -348,6 +382,12 @@ func try_interact() -> bool:
 	return true
 
 func perform_interaction(id: String) -> void:
+	if id=="note":
+		show_dialog("note")
+		return
+	if not Notes.read(self):
+		game.ui.toast(Notes.guidance(value("current_day",1)),4)
+		return
 	# Callers must resolve a visible, nearby target. Preconditions also protect out-of-order actions.
 	match id:
 		"cup":
@@ -357,13 +397,7 @@ func perform_interaction(id: String) -> void:
 			if value("holding")!=1:return
 			manager.set_value(&"holding",0)
 			mark("cup_moved")
-		"note":
-			if not flag("cup_moved"):return
-			if not flag("walk") or not flag("run"):
-				game.ui.toast("先试试 WASD 移动，再按住 Shift 跑一小段。",3)
-				return
-			mark("note_read")
-			show_dialog("note")
+
 		"ruler":
 			if not yarn_available() or value("holding")!=0 or second_day().val("d2_holding")!=0:return
 			manager.set_value(&"holding",2)
@@ -456,12 +490,13 @@ func refresh_hud() -> void:
 	hud.status.text = "饱腹 100 / 100  ·  今日不消耗"
 	if flag("papers_done"):hud.status.text = "我 %d / 100  ·  大狗嚼 %d / 100\n今日不消耗" % [value("cat_hunger",100),value("dog_hunger",100)]
 	var text := ""
-	if not flag("walk"):text = "WASD 走一走，鼠标环顾四周。"
+	if not Notes.read(self):text = Notes.guidance(1)
+	elif not flag("walk"):text = "WASD 走一走，鼠标环顾四周。"
 	elif not flag("run"):text = "按住 Shift + WASD，试着跑一小段。"
 	elif not flag("open_living"):text = "靠近左侧客厅门，看向把手，按 E 打开。"
 	elif not flag("stool"):text = "先按空格跳上客厅北侧的单人沙发。"
-	elif not flag("table"):text = "再跳上客厅茶几，看看杯子下面的小纸条。"
-	elif not flag("cup_moved"):text = "看向纸杯按 E 叼起，再看向左侧杯垫按 E 放下。"
+	elif not flag("table"):text = "再跳上客厅茶几，整理一下茶几上的水杯。"
+	elif not flag("cup_moved"):text = "看向水杯按 E 叼起，再看向左侧杯垫按 E 放下。"
 	elif not flag("note_read"):text = "现在能看清纸条了。看向纸条按 E。"
 	elif not flag("light_off"):text = "01  关灯\n先跳上电视柜，再跳到电视顶端。绿色区按 E，成功三次后起跳碰开关。"
 	elif not flag("papers_done"):
