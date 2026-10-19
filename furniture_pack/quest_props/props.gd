@@ -46,7 +46,7 @@ static func apply(items: Dictionary, today: int) -> void:
 		if n.has_meta("quest_days") and today not in n.get_meta("quest_days"):activate(n,false)
 
 static func memo_day(n: Node3D, today: int) -> void:
-	if today>3 or int(n.get_meta("memo_day",0))==today:return
+	if today>5 or int(n.get_meta("memo_day",0))==today:return
 	for mesh in n.find_children("*","MeshInstance3D",true,false):
 		for surface_index in range(mesh.mesh.get_surface_count()):
 			var original: Material = mesh.mesh.surface_get_material(surface_index)

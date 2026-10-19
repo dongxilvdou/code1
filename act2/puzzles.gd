@@ -1,5 +1,7 @@
 extends "res://day2/puzzle_ui.gd"
 ## Puzzle state lives in the quest manager; closing a panel never discards it.
+const WateringPreview = preload("res://act2/watering_preview.gd")
+var watering: SubViewportContainer
 var chapter
 var board: Control
 var tiles: Array = []
@@ -14,6 +16,8 @@ const MED_COUNTS := [8,2,7,1,9,3,8]
 const SLIDE_GOAL := [1,2,3,8,0,4,7,6,5]
 
 func open(kind: String, text := "") -> void:
+	if is_instance_valid(watering):watering.set_flow(false)
+	watering = null
 	super.open("story",text)
 	mode = kind
 	for n in detail.get_children():
@@ -61,7 +65,11 @@ func open(kind: String, text := "") -> void:
 		"aim":
 			title.text = "浇水 / 把水送进花盆"
 			description.text = "移动鼠标瞄准花盆开口，按住左键浇水。\n离开开口时不会累计进度；松开可重新瞄准。"
-			make_board(Vector2(580,260))
+			make_board(Vector2(580,300))
+			watering = WateringPreview.new()
+			board.add_child(watering)
+			watering.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			watering.use_plant(chapter.world.items.plant.get_meta("bound_furniture"))
 		"photo":
 			title.text = "书页里掉落的合照"
 			description.text = "白大褂、实验室，还有蹲在主人身旁的我。\n右下角：观察对象 C-031 · 照护训练 · 阶段 II。"
@@ -129,17 +137,7 @@ func draw_board() -> void:
 			board.draw_rect(Rect2(r.position+Vector2(18,18),Vector2(r.size.x-36,15)),gold)
 			for j in range(MED_COUNTS[i]):board.draw_circle(r.position+Vector2(24+(j%2)*18,130-(j/2)*18),5,gold)
 			board.draw_string(font,r.position+Vector2(20,165),str(i+1),HORIZONTAL_ALIGNMENT_LEFT,-1,18,gold)
-	elif mode=="aim":
-		var c := board.size*.5
-		board.draw_rect(Rect2(c+Vector2(-80,5),Vector2(160,75)),Color("b37a58"))
-		var rim := PackedVector2Array()
-		for i in range(48):rim.append(c+Vector2(cos(i*TAU/48)*80,sin(i*TAU/48)*32))
-		board.draw_colored_polygon(rim,Color("334940"))
-		board.draw_polyline(rim,Color("cfad7b"),5,true)
-		var mouse := board.get_local_mouse_position()
-		board.draw_line(mouse-Vector2(12,0),mouse+Vector2(12,0),Color.WHITE,2)
-		board.draw_line(mouse-Vector2(0,12),mouse+Vector2(0,12),Color.WHITE,2)
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):board.draw_line(Vector2(board.size.x-30,20),mouse,Color("86d3e3"),5,true)
+	elif mode=="aim":pass # The live viewport renders the actual models and water volume.
 
 func pipe_ends(i: int) -> Array:
 	return [(PIPE_BASE[i][0]+rotations[i])%4,(PIPE_BASE[i][1]+rotations[i])%4]
@@ -275,12 +273,19 @@ func board_input(event: InputEvent) -> void:
 			feedback.text = "已选择 %d / 3 瓶"%selected.size()
 	board.queue_redraw()
 
-func _process(delta: float) -> void:
-	if mode!="aim" or not shell.visible:return
-	var mouse := board.get_local_mouse_position()
-	var c := board.size*.5
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and ((mouse-c)/Vector2(74,29)).length()<1:
-		chapter.aim_progress += delta
-	feedback.text = "浇水进度 %d%%"%mini(100,int(chapter.aim_progress/2.5*100))
-	board.queue_redraw()
+func close() -> void:
+	if is_instance_valid(watering):watering.set_flow(false)
+	super.close()
+
+func pour_at(mouse: Vector2, pressed: bool, delta: float) -> void:
+	if mode!="aim" or not shell.visible or not is_instance_valid(watering):return
+	var hit: bool = watering.aim_at(mouse)
+	watering.set_flow(pressed and Rect2(Vector2.ZERO,watering.size).has_point(mouse))
+	if pressed and hit:chapter.aim_progress += delta
+	watering.progress = clampf(chapter.aim_progress/2.5,0,1)
+	feedback.text = "清水正在浇进花盆  %d%%"%int(watering.progress*100) if pressed and hit else "把光圈移到盆口，按住左键浇水 · %d%%"%int(watering.progress*100)
 	if chapter.aim_progress>=2.5:solved.emit("aim")
+
+func _process(delta: float) -> void:
+	if mode!="aim" or not shell.visible or not is_instance_valid(watering):return
+	pour_at(watering.get_local_mouse_position(),Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT),delta)

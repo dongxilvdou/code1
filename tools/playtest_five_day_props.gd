@@ -29,6 +29,38 @@ func restored() -> void:
 	if chapter.active():chapter.restore()
 	await ticks(2)
 
+func read_daily_note() -> void:
+	var number: int = day.value("current_day",1)
+	if number<=2:
+		day.manager.set_flag(StringName(day.Notes.FLAGS[number]),true) # Old versions marked these on opening.
+		day.reconcile_progress()
+	verify(not day.Notes.read(day),"Day "+str(number)+" unlocked before reading")
+	var flags: Dictionary = day.manager.flags.duplicate(true)
+	var values: Dictionary = day.manager.values.duplicate(true)
+	if number==1:day.perform_interaction("mess_pot")
+	elif number==2:second.interact_item("dog_bowl")
+	else:chapter.interact_item({3:"book0",4:"dog",5:"medicine"}[number])
+	verify(day.manager.flags==flags and day.manager.values==values,"Task mutated before day "+str(number)+" note acknowledgement")
+	var reading_position: Vector3 = day.world.items.table.position+Vector3(0,.02,.75)
+	if number==1:reading_position = day.SPAWN
+	elif number==5:reading_position = Vector3(-4.45,.03,4.80)
+	await settle(reading_position)
+	game.player.camera.look_at(day.note_target())
+	var selected: String = chapter.nearest_item() if number>=3 else second.nearest_item() if number==2 else day.nearest_item()
+	if selected!="note":
+		var point: Vector3 = day.note_target()
+		var hit: Dictionary = game.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(game.player.camera.global_position,point,1))
+		print("NOTE_DIAGNOSTIC ",number," player=",game.player.active," active=",day.active_play()," cine=",game.cinematic_active," dialog=",day.dialog," pause=",game.ui.pause_panel.visible," puzzle=",second.puzzle.mode," chapter_panel=",chapter.puzzle.mode," pos=",game.player.position," eye=",game.player.camera.global_position," target=",point," hit=",hit.get("position")," collider=",hit.get("collider"))
+	verify(selected=="note","Day "+str(number)+" paper cannot be selected at its real location: "+selected)
+	await key(KEY_E)
+	verify(day.dialog=="note" and not day.Notes.read(day),"Opening paper incorrectly unlocked day "+str(number))
+	await key(KEY_ESCAPE)
+	verify(not day.Notes.read(day) and game.player.active,"Esc should close paper without unlocking")
+	await key(KEY_E)
+	await key(KEY_E)
+	await ticks(2)
+	verify(day.Notes.read(day) and game.player.active,"Acknowledging paper did not unlock day "+str(number))
+
 func aim_check(id: String, position_: Vector3) -> void:
 	await settle(position_)
 	game.player.camera.look_at(chapter.target_position(id))
@@ -89,6 +121,56 @@ func feed_dog() -> void:
 		second.interact_item("dog_spot")
 	dismiss()
 
+func verify_yarn_contact(label_: String) -> void:
+	var yarn: Node3D = day.world.items.yarn
+	var ball: MeshInstance3D = yarn.find_children("*","MeshInstance3D",true,false)[0]
+	var bed: MeshInstance3D = day.world.items.nest.find_children("*","MeshInstance3D",true,false)[0]
+	var bottom: float = (ball.global_transform*ball.get_aabb()).position.y
+	var origin: Vector3 = yarn.global_position+Vector3.UP*.4
+	var support := -INF
+	var faces := bed.mesh.get_faces()
+	for i in range(0,faces.size(),3):
+		var hit = Geometry3D.ray_intersects_triangle(origin,Vector3.DOWN,bed.to_global(faces[i]),bed.to_global(faces[i+1]),bed.to_global(faces[i+2]))
+		if hit!=null:support = maxf(support,hit.y)
+	# Allow a soft cushion to cradle the ball, but no visible air gap above it.
+	verify(support>-INF and bottom-support<=.002 and bottom-support>=-.012,label_+": yarn must touch the real cushion mesh; bottom="+str(bottom)+", cushion="+str(support))
+
+func verify_returned_toy_dialogue() -> void:
+	# Exercise the optional fourth-day route, then restore it so the existing
+	# unfinished-toy route across the day boundary is still tested below.
+	var before: Dictionary = day.manager.make_save_data().duplicate(true)
+	chapter.interact_item("dog")
+	dismiss()
+	chapter.interact_item("yarn")
+	verify(chapter.puzzle.mode=="yarn","Day-four toy puzzle cannot open after the dog's request")
+	chapter.solved("yarn")
+	dismiss()
+	chapter.interact_item("dog")
+	verify(chapter.puzzle.description.text.contains("D-017") and not chapter.puzzle.description.text.contains("毛线球"),"Solved yarn should direct the player to the exposed bone")
+	dismiss()
+	chapter.interact_item("bone")
+	dismiss()
+	chapter.interact_item("dog")
+	verify(chapter.flag("a4_toy") and chapter.val("a_holding")==0,"Bone handoff did not finish the toy quest")
+	dismiss()
+	chapter.interact_item("dog")
+	verify(chapter.puzzle.description.text.contains("已经找回") and not chapter.puzzle.description.text.contains("玩具丢了"),"Dog still asks for its toy after receiving the bone")
+	dismiss()
+	var completed: Dictionary = day.manager.make_save_data().duplicate(true)
+	verify(day.manager.restore_save_data(completed),"Completed toy save cannot restore")
+	await restored()
+	chapter.interact_item("dog")
+	verify(chapter.puzzle.description.text.contains("已经找回"),"Reloaded completed toy quest repeats the missing-toy dialogue")
+	dismiss()
+	chapter.interact_item("half_fish")
+	chapter.interact_item("dog")
+	verify(chapter.flag("a4_share") and chapter.flag("a4_toy"),"Sharing fish after the toy handoff lost quest progress")
+	verify(chapter.puzzle.description.text.contains("已经找回") and not chapter.puzzle.description.text.contains("玩具不见了"),"Sharing fish after returning the bone asks for the missing toy again")
+	dismiss()
+	verify(day.manager.restore_save_data(before),"Optional route checkpoint cannot restore")
+	await restored()
+	verify(not chapter.flag("a4_toy") and not chapter.flag("yarn_solved"),"Optional cross-day route checkpoint was not restored")
+
 func run_tests() -> void:
 	capture = "--capture" in OS.get_cmdline_user_args()
 	DirAccess.make_dir_recursive_absolute("res://logs/five_day_props")
@@ -103,6 +185,7 @@ func run_tests() -> void:
 	second = game.get_node("DayTwo")
 	chapter = game.get_node("ActTwo")
 	dismiss()
+	await read_daily_note()
 	verify(day.manager.definitions.size()==20,"Existing quest catalog must retain all twenty quests")
 	verify(day.world.items.table.get_meta("bound_furniture").get_meta("asset_id")=="coffee_table","Day-one table is not the existing coffee table")
 	verify(day.world.items.stool.get_meta("bound_furniture").get_meta("asset_id")=="armchair","Day-one jump target is not the existing armchair")
@@ -136,8 +219,14 @@ func run_tests() -> void:
 	dismiss()
 	await restored()
 	verify(day.value("current_day")==2,"Cannot begin day two")
+	await read_daily_note()
+	await settle(Vector3(-4.20,.03,1.9))
+	game.player.camera.look_at(second.target_position("cloth_sofa"))
+	verify(second.nearest_item()=="cloth_sofa","Sofa garment cannot be selected from floor level")
+	await photograph("01b_day2_visible_clothing",Vector3(-3.98,.43,2.33),second.target_position("cloth_sofa"))
 	for id in ["cup","tray","paper_living","paper_dining","paper_kitchen","paper_study1"]:verify(not day.world.items[id].visible,"Retired day-one prop remains: "+id)
 	second.interact_item("note")
+	day.advance_dialog()
 	dismiss()
 	second.interact_item("washer_door")
 	for id in second.CLOTHES:
@@ -161,6 +250,12 @@ func run_tests() -> void:
 	day.perform_interaction("nest")
 	dismiss()
 	verify(day.flag("yarn_home"),"Original drafting-kit ruler cannot retrieve the ball")
+	verify_yarn_contact("After returning the yarn")
+	var yarn_save: Dictionary = day.manager.make_save_data().duplicate(true)
+	verify(day.manager.restore_save_data(yarn_save),"Returned yarn save cannot restore")
+	await restored()
+	verify_yarn_contact("After restoring the returned yarn")
+	await photograph("01c_day2_yarn_in_bed",Vector3(-4.40,.55,5.48),day.world.items.nest.global_position+Vector3(0,.12,0))
 	second.interact_item("dog_bowl")
 	second.interact_item("tap")
 	verify(second.val("dish_stage")==1 and second.world.stream.visible,"Actual faucet did not start rinsing")
@@ -173,6 +268,10 @@ func run_tests() -> void:
 	dismiss()
 	await restored()
 	verify(chapter.today()==3,"Cannot advance from day two to day three")
+	await read_daily_note()
+	for book in chapter.world.original_bookcase.get_children():
+		var color_index: int = book.get_meta("shelf_color",-1)
+		if color_index>=0:verify(book.get_meta("quest_model")==["book_red","book_blue","book_gold"][color_index],"Book row colour is incorrect")
 	verify(not day.world.items.ruler.visible,"Day-two ruler was not put away")
 	for id in second.CLOTHES:verify(not second.world.items[id].visible,"Old laundry remains in room")
 	verify(not second.get_node("WashStep").visible,"Temporary laundry step was not put away")
@@ -197,7 +296,9 @@ func run_tests() -> void:
 			verify(chapter.val("a_holding")==2 and is_instance_valid(chapter.held_visual),"Carried book lost after partial save reload")
 		await settle(chapter.world.shelves[i]+Vector3(0,.025,0))
 		verify(game.player.is_on_floor() and absf(game.player.position.y-chapter.world.shelves[i].y)<.10,"Actual bookcase ledge cannot support the cat: "+str(i)+" at "+str(game.player.position))
-		chapter.interact_item("shelf%d"%i)
+		game.player.camera.look_at(chapter.target_position("shelf%d"%i))
+		verify(chapter.nearest_item()=="shelf%d"%i,"Looking at coloured book row does not select its return slot")
+		await key(KEY_E)
 		verify(chapter.flag("book%d"%i),"Return to actual bookcase failed: "+str(i))
 	verify(chapter.flag("a3_books"),"Day-three bookcase task cannot complete")
 	chapter.interact_item("photo")
@@ -220,7 +321,44 @@ func run_tests() -> void:
 	await aim_check("plant",Vector3(-5.22,.57,2.60))
 	chapter.interact_item("plant")
 	verify(chapter.puzzle.mode=="aim","Existing plant cannot open the watering task")
-	chapter.solved("aim")
+	await ticks(3)
+	var watering = chapter.puzzle.watering
+	verify(is_instance_valid(watering) and watering.viewport.own_world_3d,"Watering preview is not a live 3D scene")
+	verify(watering.stage.has_node("RealHousePlant"),"Watering preview does not reuse the house plant")
+	var target: Vector2 = watering.soil_screen_position()
+	# parse_input_event expects native window pixels, including stretch/letterbox.
+	var mouse_position: Vector2 = root.get_final_transform()*(watering.get_global_transform_with_canvas()*target)
+	var motion := InputEventMouseMotion.new()
+	motion.position = mouse_position
+	motion.global_position = mouse_position
+	Input.parse_input_event(motion)
+	# Native windows poll the OS cursor; event injection alone only moves the dummy
+	# headless cursor. Keep the interaction check at the actual projected pot opening.
+	var previous_mouse: Vector2 = root.get_mouse_position()
+	if DisplayServer.get_name()!="headless":
+		root.warp_mouse(watering.get_global_transform_with_canvas()*target)
+		await ticks(2)
+	var click := InputEventMouseButton.new()
+	click.position = mouse_position
+	click.global_position = mouse_position
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	Input.parse_input_event(click)
+	await ticks(6)
+	if chapter.aim_progress<=0 or not watering.pouring:print("WATER_INPUT_DIAGNOSTIC expected=",target," local=",watering.get_local_mouse_position()," injected=",mouse_position," pressed=",Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)," hit=",watering.on_target," size=",watering.size)
+	verify(chapter.aim_progress>0 and watering.pouring,"Real mouse hold over the 3D pot did not start watering")
+	click = click.duplicate()
+	click.pressed = false
+	Input.parse_input_event(click)
+	if DisplayServer.get_name()!="headless":root.warp_mouse(previous_mouse)
+	chapter.puzzle.set_process(false) # Deterministic held-input samples while the 3D water keeps animating.
+	chapter.puzzle.pour_at(target,true,.2)
+	await ticks(3)
+	verify(watering.jets.size()==5 and watering.drops.multimesh.instance_count==120,"Water spray/droplets missing")
+	verify(day.value("a_holding")==4 and watering.pouring,"Pouring did not retain the water can")
+	await photograph("03b_day3_real_water",Vector3(-5.22,.8,2.6),Vector3(-5.35,.4,3.12))
+	chapter.puzzle.pour_at(target,true,2.5)
+	chapter.puzzle.set_process(true)
 	dismiss()
 	feed_dog()
 	verify(chapter.day_complete(),"Day-three required tasks cannot all complete")
@@ -229,6 +367,7 @@ func run_tests() -> void:
 	dismiss()
 	await restored()
 	verify(chapter.today()==4,"Cannot advance to day four")
+	await read_daily_note()
 	for id in ["can","drain","pipes","camera","photo","plant","shelf0","shelf1","shelf2"]:verify(not chapter.world.items[id].visible,"Retired day-three prop/target remains: "+id)
 	verify(chapter.world.items.plant.get_meta("bound_furniture").visible,"Retiring the watering target hid the real plant")
 	verify(chapter.world.items.book0.visible,"Returned books must stay on the real bookcase")
@@ -247,6 +386,7 @@ func run_tests() -> void:
 	verify(chapter.puzzle.mode=="slide","Existing refrigerator puzzle cannot open")
 	chapter.solved("slide")
 	dismiss()
+	await photograph("05a_day4_pixel_fish",Vector3(5.13,.99,-4.64),chapter.world.fish_home)
 	await aim_check("fish",Vector3(5.13,.02,-4.55))
 	chapter.interact_item("fish")
 	verify(chapter.val("a_holding")==5,"Detailed fish cannot be removed from refrigerator")
@@ -259,6 +399,8 @@ func run_tests() -> void:
 	chapter._physics_process(6.1)
 	dismiss()
 	verify(chapter.flag("a4_cook"),"Real oven cooking cannot complete")
+	await photograph("05b_day4_pixel_half_fish",Vector3(3.12,1.25,-4.91),chapter.world.items.half_fish.position)
+	await verify_returned_toy_dialogue()
 	chapter.interact_item("half_fish")
 	chapter.interact_item("dog")
 	dismiss()
@@ -270,6 +412,9 @@ func run_tests() -> void:
 	dismiss()
 	await restored()
 	verify(chapter.today()==5,"Cannot advance to day five")
+	verify(day.world.items.note.visible and day.world.items.note.position.distance_to(Vector3(-4.30,.018,4.32))<.01,"Day-five paper is not beside the cat bed")
+	await photograph("07_day5_paper_by_bed",Vector3(-3.85,.63,4.84),day.world.items.note.position)
+	await read_daily_note()
 	for id in ["letter","fish","oven","fridge_lock"]:verify(not chapter.world.items[id].visible,"Retired day-four target remains: "+id)
 	verify(chapter.world.items.yarn.visible,"Optional toy route was removed at day change")
 	verify(chapter.world.items.medicine.visible,"Day-five medication not spawned")

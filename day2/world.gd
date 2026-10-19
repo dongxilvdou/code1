@@ -35,7 +35,12 @@ func build(parent: Node3D, game: Node) -> void:
 	root = parent
 	for data in [["cloth_sofa",Vector3(-5.03,.53,2.15),Color("8ba8bc")],["cloth_chair",Vector3(-3.3,.465,-.55),Color("bca0b2")],["cloth_entry",Vector3(.03,.035,4.10),Color("d9c5a2")]]:
 		var n := item(data[0],data[1])
-		Props.model(n,["shirt_blue","shirt_red","shirt_gold"][["cloth_sofa","cloth_chair","cloth_entry"].find(data[0])])
+		if data[0]=="cloth_sofa":
+			var sofa := Props.furniture(game,"sofa","Living")
+			n.position = sofa.to_global(Vector3(-.10,.516,.39))
+			n.rotation.y = sofa.global_rotation.y
+			Props.model(n,"shirt_draped")
+		else:Props.model(n,["shirt_blue","shirt_red","shirt_gold"][["cloth_sofa","cloth_chair","cloth_entry"].find(data[0])])
 		Props.days(n,[2])
 		sign_at(n,"待洗衣服",Vector3(0,.16,0),23)
 	# Use the existing washing machine; its door is now a real rotating hinge.

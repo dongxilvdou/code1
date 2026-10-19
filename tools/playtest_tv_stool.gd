@@ -10,6 +10,8 @@ func run_tests() -> void:
 	await ticks(8)
 	var day = game.get_node("DayOne")
 	if not day.dialog.is_empty():await key(KEY_ESCAPE)
+	day.perform_interaction("note")
+	await key(KEY_E)
 	for flag in ["walk","run","open_living","stool","table","cup_moved","note_read"]:day.manager.set_flag(StringName(flag),true)
 	day.reconcile_progress()
 	day.restore_world()

@@ -13,7 +13,9 @@ if '--labels' in sys.argv:
     for name,title,lines in [
         ('memo','今日的小清单',['开门，走走，看看这个家。','把杯子放回杯垫，读一读纸条。','记得照顾自己，也照顾阿嚼。']),
         ('memo2','第二天的小清单',['收好三件衣服，放进洗衣机。','书房的尺子，可以帮你取回毛线球。','叼着狗盘，到厨房水龙头冲洗。']),
-        ('memo3','第三天的小清单',['把三本书放回原来的书架。','检查水槽下的水管，给花浇水。','也别忘了阿嚼的饭。']),
+        ('memo3','第三天的小清单',['把三本书放回对应颜色的书列。','检查水槽下的水管，给花浇水。','也别忘了阿嚼的饭。']),
+        ('memo4','第四天的小清单',['留意门铃，到门外取一封来信。','从冰箱取鱼，放进灶台烤箱。','和阿嚼分享午餐，找找它的旧玩具。']),
+        ('memo5','第五天的小清单',['观察茶几上的七只药瓶。','取剩余量最少的三瓶，照顾阿嚼。','若它不肯吃药，可以试试狗粮盘。']),
         ('letter','致 小小的探险家',['今天请自己准备午餐。','冰箱侧面的机关，为你准备。','愿你和阿嚼都吃得暖暖的。']),
         ('clues','观察手记',['照片  C-031 / 阶段 II','镜头  水槽下的一点红光','玩具  D-017 / 阿嚼']),
         ('book_red','家的小风景',['HOME & GARDEN','VOL. 01']),
@@ -224,6 +226,39 @@ for color in ['blue','red','gold']:
     box('Sewn label',(-.066,.02,-.12),(.023,.001,.012),'paper',.001)
     finish('shirt_'+color,'棉质待洗上衣 / '+color)
 
+# A visible garment hanging over the sofa edge, not a nearly invisible flat patch.
+begin()
+def drape_y(x,z):
+    t=max(0,min(1,(z-.015)/.23))
+    return .012-.24*(t*t*(3-2*t))+.008*math.sin(x*46+z*9)
+verts=[];faces=[];nx,nz=14,24
+for j in range(nz+1):
+    z=-.22+j*.47/nz
+    for i in range(nx+1):
+        width=.235 if z<-.09 else .145
+        x=(i/nx-.5)*2*width
+        verts.append((x,drape_y(x,z),z))
+for j in range(nz):
+    for i in range(nx):
+        a=j*(nx+1)+i;faces.append((a,a+nx+1,a+nx+2,a+1))
+shirt=mesh('Draped shirt front and folded sleeves',verts,faces,'blue')
+mod=shirt.modifiers.new('Cotton thickness','SOLIDIFY');mod.thickness=.005
+bpy.context.view_layer.objects.active=shirt;bpy.ops.object.modifier_apply(modifier=mod.name)
+for f in shirt.data.polygons:f.use_smooth=True
+curve('Cream neckline',[(-.055,drape_y(-.055,-.19)+.004,-.19),(0,drape_y(0,-.15)+.007,-.15),(.055,drape_y(.055,-.19)+.004,-.19)],.006,'stitch')
+for x in [-.115,.115]:curve('Side stitched seam',[(x,drape_y(x,z)+.004,z) for z in [-.09,0,.09,.18,.24]],.0014,'stitch')
+for z in [-.06,.015,.09,.165]:ball('Shirt button',(0,drape_y(0,z)+.005,z),(.007,.003,.007),'cream')
+curve('Button placket',[(.01,drape_y(.01,z)+.004,z) for z in [-.14,-.05,.05,.15,.24]],.0018,'stitch')
+curve('Hem fold',[(x,drape_y(x,.247)+.003,.247) for x in [-.14,-.07,0,.07,.14]],.002,'stitch')
+for obj in objects:
+    inverse=obj.matrix_world.inverted()
+    for vertex in obj.data.vertices:
+        point=obj.matrix_world@vertex.co;z=-point.y
+        if z>.015:point.y=-(.015+.065*(1-math.exp(-(z-.015)*22)))
+        vertex.co=inverse@point
+    obj.data.update()
+finish('shirt_draped','搭在沙发前沿的蓝色上衣')
+
 begin()
 rod('Mailbox post',(0,0,0),(0,1.18,0),.065,'black')
 box('Mounting foot',(0,.025,0),(.25,.05,.22),'black',.02)
@@ -236,25 +271,52 @@ for x in [-.20,.20]:rod('Hinge',(x,1.18,.20),(x,1.22,.20),.009,'steel')
 text('House number','017',(0,1.09,.189),.04,'cream')
 finish('mailbox','弧角信箱、投信口与门锁')
 
+# Chunky pixel/voxel fish. Only exposed faces are emitted; no interior cubes.
+mat('pixel_silver','a9bfc0',.48,.12);mat('pixel_blue','5c8289',.55)
+mat('pixel_light','d4dfd7',.65);mat('pixel_skin','ba824b',.65)
+mat('pixel_char','805738',.9);mat('pixel_cut','e5b49c',.8)
+def voxel_fish(cooked):
+    vox={};unit=.018
+    def add(x,y,z,key):vox[(x,y,z)]=key
+    for x in range(-7 if not cooked else -1,9):
+        width=3 if -3<=x<=4 else 2 if -5<=x<=7 else 1
+        for z in range(-width,width+1):
+            for y in range(0,3 if abs(z)<width and -4<x<6 else 2):
+                key=('pixel_char' if (x+z*2)%6==0 else 'pixel_skin') if cooked else ('pixel_blue' if z<0 else 'pixel_light' if z==width else 'pixel_silver')
+                if not cooked and (x+z)%4==0:key='pixel_blue'
+                add(x,y,z,key)
+    if not cooked:
+        for x in range(-12,-7):
+            for z in range(-3,4):
+                if abs(z)>=max(0,(x+12)//2):add(x,1,z,'pixel_blue')
+    # Fins and a two-pixel mouth give a strong silhouette at cat scale.
+    for x in [-3,-2,-1,0]:
+        if not cooked or x>=-1:add(x,3,-1,'pixel_char' if cooked else 'pixel_blue')
+    for z in [-4,4]:
+        for x in [0,1,2]:add(x,0,z,'pixel_skin' if cooked else 'pixel_blue')
+    if cooked:
+        for z in range(-2,3):
+            for y in [0,1,2]:add(-2,y,z,'pixel_light' if z==0 and y==1 else 'pixel_cut')
+    # White eye surround and dark square pupil, visible from above.
+    for z in [-1,1]:
+        add(6,2,z,'pixel_light');add(7,2,z,'black')
+    add(8,1,0,'dark')
+    groups={}
+    sides=[((1,0,0),[(1,0,0),(1,1,0),(1,1,1),(1,0,1)]),((-1,0,0),[(0,0,1),(0,1,1),(0,1,0),(0,0,0)]),
+           ((0,1,0),[(0,1,1),(1,1,1),(1,1,0),(0,1,0)]),((0,-1,0),[(0,0,0),(1,0,0),(1,0,1),(0,0,1)]),
+           ((0,0,1),[(1,0,1),(1,1,1),(0,1,1),(0,0,1)]),((0,0,-1),[(0,0,0),(0,1,0),(1,1,0),(1,0,0)])]
+    for (x,y,z),key in vox.items():
+        vertices,polys=groups.setdefault(key,([],[]))
+        for (dx,dy,dz),corners in sides:
+            if (x+dx,y+dy,z+dz) in vox:continue
+            offset=len(vertices)
+            vertices.extend([((x+a)*unit,(.014 if cooked else 0)+(y+b)*unit,(z+c)*unit) for a,b,c in corners])
+            polys.append(tuple(offset+i for i in range(4)))
+    for key,(v,f) in groups.items():mesh('Pixel fish '+key,v,f,key)
 for cooked in [False,True]:
-    begin();key='cooked' if cooked else 'fish';L=.34 if not cooked else .20
-    profiles=[(-L*.5,.004),(-L*.40,.034),(-L*.15,.053),(L*.22,.049),(L*.46,.028),(L*.50,.008)]
-    verts=[];faces=[]
-    for x,r in profiles:
-        for j in range(20):a=j*math.tau/20;verts.append((x,.035+math.sin(a)*r*.65,math.cos(a)*r))
-    for i in range(len(profiles)-1):
-        for j in range(20):a=i*20+j;b=i*20+(j+1)%20;faces.append((a,b,b+20,a+20))
-    o=mesh('Tapered fish body',verts,faces,key)
-    for f in o.data.polygons:f.use_smooth=True
-    mesh('Tail fin',[(-L*.49,.038,0),(-L*.76,.03,-.065),(-L*.67,.032,0),(-L*.76,.03,.065)],[(0,1,2),(0,2,3)],'fin' if not cooked else 'cooked')
-    for s in [-1,1]:
-        ball('Silver eye',(L*.35,.055,s*.027),(.019,.009,.012),'brass')
-        ball('Eye pupil',(L*.35,.059,s*.029),(.010,.005,.007),'black')
-        curve('Gill',[(L*.20,.055,s*.038),(L*.22,.033,s*.047),(L*.18,.013,s*.032)],.0012,'fin')
-    mesh('Dorsal fin',[(-.06,.06,0),(-.02,.10,0),(.05,.063,0)],[(0,1,2)],'fin')
-    for x in [-.09,-.045,0,.045]:curve('Skin marking',[(x,.063,-.019),(x+.01,.071,0),(x,.063,.019)],.001,'fin' if not cooked else 'cork')
+    begin();voxel_fish(cooked)
     if cooked:lathe('Serving plate',[(0,0),(.13,0),(.16,.012),(.15,.023),(.12,.014),(0,.013)],'cream')
-    finish('half_fish' if cooked else 'fish','半份烤鱼与餐盘' if cooked else '有鱼鳍鱼尾鳞纹的鲜鱼')
+    finish('half_fish' if cooked else 'fish','像素风半条烤鱼与切面餐盘' if cooked else '像素风鲜鱼：方眼、尾鳍与鱼鳞')
 
 begin();ball('Wound yarn core',(0,0,0),(.18,.18,.18),'gold')
 for i in range(28):
