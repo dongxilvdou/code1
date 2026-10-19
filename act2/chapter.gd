@@ -82,14 +82,12 @@ func begin_day(number: int) -> void:
 	player.spawn = Vector3(-4.45,.03,4.80)
 	player.reset_position()
 	restore()
-	story({3:"第三天 / 被观察的日常\n\n书都掉在客厅北侧地上了。按颜色放回高低不同的书格，再检查厨房水槽、给花浇水。\n别忘了给大狗嚼喂饭。\n\n轻点空格短跳，按住空格长跳。",4:"第四天 / 只剩一条鱼\n\n今天桌上的任务纸条不见了。先跳上南窗边的桌子看看。",5:"第五天 / 记得你的名字\n\n桌上多了七只药瓶。纸条只说大狗嚼需要吃药，没有写病因。\n取余量最少的三瓶，再想办法让它吃下去。"}[number])
+	story({3:"第三天 / 被观察的日常\n\n书都掉在客厅北侧地上了。按颜色放回原有书架上对应的书格，再检查厨房水槽、给花浇水。\n别忘了给大狗嚼喂饭。\n\n轻点空格短跳，按住空格长跳。",4:"第四天 / 只剩一条鱼\n\n今天桌上的任务纸条不见了。先跳上客厅茶几看看。",5:"第五天 / 记得你的名字\n\n桌上多了七只药瓶。纸条只说大狗嚼需要吃药，没有写病因。\n取余量最少的三瓶，再想办法让它吃下去。"}[number])
 
 func set_world_enabled(enabled: bool) -> void:
 	visible = enabled
 	for body in find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if enabled else 0
-	if is_instance_valid(world.original_bookcase):
-		world.original_bookcase.visible = not enabled
-		for body in world.original_bookcase.find_children("*","StaticBody3D",true,false):body.collision_layer = 0 if enabled else 1
+	# The furnished bookcase and its collisions are permanent, including on days 1–2.
 
 func _physics_process(delta: float) -> void:
 	if not day.initialized:return
@@ -131,7 +129,7 @@ func _physics_process(delta: float) -> void:
 	world.camera_led.visible = flag("cabinet_open") and fmod(Time.get_ticks_msec()/1000.0,1.3)<.65
 	for n in world.items.values():
 		for child in n.get_children():
-			if child is Label3D:child.visible = n.global_position.distance_to(player.global_position)<3.0
+			if child is Label3D:child.visible = World.Props.interactable(n,today()) and n.global_position.distance_to(player.global_position)<3.0 and not (n==world.items.fish and val("cook_state")>0)
 
 func restore() -> void:
 	set_world_enabled(active())
@@ -140,29 +138,34 @@ func restore() -> void:
 	for id in world.items:world.items[id].visible = true
 	for i in range(3):
 		world.items["book%d"%i].visible = holding!=i+1
-		world.items["book%d"%i].position = world.shelves[i]+Vector3(0,.04,0) if flag("book%d"%i) else Vector3(-2.5+i*.47,.04,.15)
+		world.items["book%d"%i].set_meta("interaction_complete",flag("book%d"%i))
+		world.place_book(i,flag("book%d"%i))
 	world.items.photo.visible = flag("photo_dropped") and not flag("a3_photo")
 	world.items.pipes.visible = flag("cabinet_open")
 	world.items.camera.visible = flag("cabinet_open")
-	for i in range(2):world.cabinet_hinges[i].rotation.y = (1.35 if i==0 else -1.35) if flag("cabinet_open") else 0
+	for i in range(2):world.cabinet_hinges[i].rotation.y = (1.35 if i==0 else -1.35) if today()==3 and flag("cabinet_open") else 0
 	world.items.can.visible = holding!=4
-	world.water_surface.position.y = .12 if flag("water_halved") else .232
+	world.water_surface.position.y = .12 if flag("water_halved") else .216
 	world.items.mailbox.visible = today()>=4
 	for body in world.items.mailbox.find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if today()>=4 else 0
 	world.items.mailbox.get_node("EnvelopeTip").visible = not flag("letter_dropped")
 	world.items.letter.visible = flag("letter_dropped") and not flag("a4_letter")
-	world.fridge_hinge.rotation.y = -1.4 if flag("a4_fridge") or (today()==3 and flag("empty_fridge_open")) else 0.0
+	world.fridge_hinge.rotation.y = -1.4 if (today()==4 and flag("a4_fridge")) or (today()==3 and flag("empty_fridge_open")) else 0.0
 	world.items.fish.visible = today()>=4 and flag("a4_fridge") and holding!=5 and val("cook_state") in [0,1,2]
-	world.items.fish.position = Vector3(3.45,1.01,-5.18) if val("cook_state") in [1,2] else Vector3(5.13,.69,-5.16)
-	world.oven_hinge.rotation.x = 1.45 if val("cook_state") in [0,1,3] else 0
-	world.items.half_fish.visible = flag("a4_cook") and not flag("a4_share") and holding!=6
-	world.items.yarn.visible = today()>=4 and not flag("yarn_solved")
+	world.items.fish.position = world.fish_in_oven if val("cook_state") in [1,2] else world.fish_home
+	world.oven_hinge.rotation.x = 1.45 if today()==4 and val("cook_state") in [0,1,3] else 0
+	world.oven_glow.light_energy = .45 if today()==4 and val("cook_state")==2 else 0
+	world.items.half_fish.visible = today() in [4,5] and flag("a4_cook") and not flag("a4_share") and holding!=6
+	world.items.yarn.visible = today()>=4 and not flag("yarn_solved") and not flag("a4_toy")
+	world.items.yarn.position = world.shared_yarn_home
 	world.items.bone.visible = flag("yarn_solved") and not flag("a4_toy") and holding!=7
-	world.items.medicine.visible = today()==5 and not flag("medicine_taken")
+	world.items.medicine.visible = today()==5 and not flag("medicine_taken") and not flag("a5_medicine")
+	world.medicine_selection(flag("medicine_taken"))
 	world.items.clues.visible = flag("a3_photo")
 	day.world.items.note.visible = today()==3
-	day.world.items.yarn.visible = false
 	day.world.items.ruler.visible = false
+	World.Props.apply(world.items,today())
+	# Dates retire interaction targets as well as their labels and colliders.
 	player.jump_locked = holding==4 and not flag("water_halved")
 	player.variable_jump = true
 	cook_clock = val("cook_millis")/1000.0
@@ -195,11 +198,11 @@ func target_position(id: String) -> Vector3:
 	if id=="note":return day.world.items.note.global_position
 	if id in ["feeder","dog","dog_bowl","dog_spot","cat_bowl","cat_spot"]:return second.target_position(id)
 	if id=="mailbox":return world.items.mailbox.global_position+Vector3(0,.40,.20)
-	if id.begins_with("shelf"):return world.items[id].global_position+Vector3(0,.20,-.22)
+	if id.begins_with("shelf"):return world.items[id].global_position+Vector3(0,.13,0)
 	if id=="can":return world.items.can.global_position+Vector3(0,.17,0)
-	if id=="plant":return world.items.plant.global_position+Vector3(0,.18,0)
+	if id=="plant":return world.items.plant.global_position+Vector3(0,.12,0)
 	if id=="cabinet" and flag("cabinet_open"):return world.items.cabinet.global_position+Vector3(-.50,0,.12)
-	if id=="oven":return world.items.oven.global_position+Vector3(0,.20,.24)
+	if id=="oven":return world.items.oven.global_position
 	return world.items[id].global_position+Vector3(0,.05,0)
 
 func nearest_item() -> String:
@@ -214,7 +217,7 @@ func nearest_item() -> String:
 	var eye: Vector3 = player.camera.global_position
 	var forward: Vector3 = -player.camera.global_basis.z
 	for id in choices:
-		if world.items.has(id) and not world.items[id].visible:continue
+		if world.items.has(id) and not World.Props.interactable(world.items[id],today()):continue
 		if id=="fish" and val("cook_state")!=0:continue
 		if id=="cat_bowl" and val("d2_holding")==4:continue
 		if id=="dog_bowl" and val("d2_holding")==5:continue
@@ -247,6 +250,7 @@ func try_interact() -> bool:
 	return true
 
 func interact_item(id: String) -> void:
+	if world.items.has(id) and not World.Props.interactable(world.items[id],today()):return
 	if not active():return
 	var holding := val("a_holding")
 	if id.begins_with("book"):
@@ -274,10 +278,10 @@ func interact_item(id: String) -> void:
 	elif id=="camera":story("那不是电源灯，是一枚很小的镜头。\n\n它一直在记录我如何修理水管。\n这个家里……也许还有别的镜头。")
 	elif id=="can":
 		if flag("a3_water"):game.ui.toast("花已经浇好了。",3)
-		elif player.global_position.y<.75:game.ui.toast("先借旁边的小凳子跳上窗台，再叼起水壶。",4)
+		elif player.global_position.y<.69:game.ui.toast("先沿猫爬架跳到西窗边的中层软垫，再叼起水壶。",4)
 		elif can_pickup():
 			set_value("a_holding",4)
-			game.ui.toast("太重了，跳不起来。可以从窗台走下去，到淋浴间倒掉一半水。",6)
+			game.ui.toast("太重了，跳不起来。可以从猫爬架走下去，到淋浴间倒掉一半水。",6)
 	elif id=="drain":
 		if holding==4 and not flag("water_halved"):
 			set_flag("water_halved")
@@ -285,7 +289,7 @@ func interact_item(id: String) -> void:
 		else:game.ui.toast("只有装满水的水壶需要在这里减重。",3)
 	elif id=="plant":
 		if flag("a3_water"):return
-		if holding!=4:game.ui.toast("先去客厅西窗台叼水壶。",3)
+		if holding!=4:game.ui.toast("先去西窗边的猫爬架中层叼水壶。",3)
 		elif not flag("water_halved"):game.ui.toast("壶里水太满，先去淋浴间倒掉一半。",4)
 		elif player.global_position.y<.43 or player.global_position.y>.82 or not player.is_on_floor() or Vector2(player.global_position.x+5.23,player.global_position.z-2).length()>1.25:game.ui.toast("先跳上花盆旁的沙发，再瞄准花盆。",4)
 		else:open_panel("aim")
@@ -428,7 +432,7 @@ func solved(kind: String) -> void:
 			story("水顺着管道流向出口。修好了。\n\n门内那个闪烁的红点，是监控镜头。\n它在观察我解开水管，而不是观察漏水。")
 		"slide":
 			mark("a4_fridge")
-			story("咔哒。冰箱门打开了。\n\n里面只有一条鱼。叼出来，放进旁边的烤箱，再关门。")
+			story("咔哒。冰箱门打开了。\n\n里面只有一条鱼。叼出来，放进灶台下方的烤箱，再关门。")
 		"yarn":
 			set_flag("yarn_solved")
 			story("最后一根毛线松开，一根玩具骨头掉了出来。\n\n叼起来，看看上面的刻字。")
@@ -454,20 +458,20 @@ func day_complete() -> bool:
 
 func guidance() -> String:
 	if today()==3:
-		if not flag("a3_books"):return "01 整理书架\n客厅北侧地上的三本书，按红、蓝、黄放回阶梯书格。轻点空格短跳，按住长跳。"
+		if not flag("a3_books"):return "01 整理书架\n客厅北侧地上的三本书，按红、蓝、黄放回原木书架的抽拉层板。轻点空格短跳，按住长跳。"
 		if not flag("a3_photo"):return "书里掉出了一张照片。回书架旁的地上看看。"
 		if not flag("a3_pipes"):return "02 修理水管\n到厨房水槽下面，打开柜门，接通水管。"
-		if not flag("a3_water"):return "03 浇花\n客厅西窗台取满水壶，走下窗台；去一楼淋浴间倒掉一半，再跳上沙发给花浇水。"
+		if not flag("a3_water"):return "03 浇花\n西窗边的猫爬架中层取满水壶，走下窗台；去一楼淋浴间倒掉一半，再跳上沙发给花浇水。"
 		if not flag("a3_feed"):return "今天还没喂大狗嚼。叼狗盘到厨房给予器盛粮，再送回楼梯平台。"
 	elif today()==4:
-		if not flag("a4_bell"):return "桌上的清单不见了。跳上客厅南窗边的桌子看看。"
+		if not flag("a4_bell"):return "桌上的清单不见了。跳上客厅客厅茶几看看。"
 		if not flag("a4_letter"):return "01 门外来信\n打开入户门，摇晃门外偏西的高信箱三次，再拾起掉落的信。"
 		if not flag("a4_fridge"):return "02 猫用冰箱\n跳上冰箱西侧柜台，解开侧面的八数码机关。"
-		if not flag("a4_cook"):return "03 做午饭\n叼鱼放进旁边的烤箱，再按 E 关门，等它烤熟。"
+		if not flag("a4_cook"):return "03 做午饭\n叼鱼放进灶台下方的烤箱，再按 E 关门，等它烤熟。"
 		if not flag("a4_share"):return "厨房还有半条鱼。大狗嚼也许会想尝一尝。"
 		if not flag("a4_toy"):return "和大狗嚼聊聊。它的玩具可能藏在客厅沙发旁的毛线球里。"
 	else:
-		if not flag("a5_medicine"):return "01 喂药\n南窗桌上七瓶药，选择药量最少的三瓶。先试着直接喂，再把药混进狗盘，盛狗粮送给它。"
+		if not flag("a5_medicine"):return "01 喂药\n客厅茶几上的七瓶药，选择药量最少的三瓶。先试着直接喂，再把药混进狗盘，盛狗粮送给它。"
 		if not flag("a5_name"):return "今天的照护任务完成了，可以回窝。\n也可以再和大狗嚼聊聊，它似乎还有心事。"
 	return "今天的事情都完成了。回南窗边的猫窝休息。" if today()<5 else "第二幕已完成。阿嚼记起了名字。桌边的线索册可以回看照片与编号。"
 
@@ -503,6 +507,8 @@ func reset_runtime() -> void:
 	puzzle.shell.hide()
 	for hinge in world.cabinet_hinges:hinge.rotation.y = 0
 	world.fridge_hinge.rotation.y = 0
+	world.oven_hinge.rotation.x = 0
+	world.oven_glow.light_energy = 0
 	if is_instance_valid(held_visual):
 		held_visual.queue_free()
 		held_visual = null

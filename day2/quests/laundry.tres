@@ -14,7 +14,7 @@ target_id = &"d2_cloth_sofa"
 [sub_resource type="Resource" id="d2_cloth_chair"]
 script = ExtResource("goal")
 id = &"d2_cloth_chair"
-text = "装入凳子上的衣服"
+text = "装入单人沙发上的衣服"
 kind = 3
 target_id = &"d2_cloth_chair"
 

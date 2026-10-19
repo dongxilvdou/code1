@@ -1,135 +1,217 @@
 extends "res://day2/world.gd"
+## Quest adapters bind to the furnished villa. Only missing portable props are created.
 var cabinet_hinges: Array = []
 var fridge_hinge: Node3D
 var oven_hinge: Node3D
+var oven_glow: OmniLight3D
 var camera_led: MeshInstance3D
 var water_surface: MeshInstance3D
 var books: Array = []
 var original_bookcase: Node3D
 var colors := [Color("be6c59"),Color("6f9daa"),Color("d4b163")]
-var shelves := [Vector3(-2.12,.38,-.86),Vector3(-1.65,.83,-.86),Vector3(-1.18,1.28,-.86)]
+var shelves: Array[Vector3] = []
+var book_returns: Array[Transform3D] = []
 var titles := {}
+var fish_home := Vector3.ZERO
+var fish_in_oven := Vector3.ZERO
+var shared_yarn: Node3D
+var shared_yarn_home := Vector3.ZERO
+var medicine_models: Array[Node3D] = []
 
-func target(id: String, pos: Vector3, title: String) -> Node3D:
+func target(id: String, pos: Vector3, title: String, available: Array = [3,4,5]) -> Node3D:
 	var n := item(id,pos)
 	titles[id] = title
+	Props.days(n,available)
 	sign_at(n,title,Vector3(0,.16,0),23)
 	return n
 
 func build(parent: Node3D, game: Node) -> void:
 	root = parent
-	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
-		if n.get_meta("asset_id","")=="bookcase" and n.global_position.distance_to(Vector3(-1.09,0,-1.14))<.3:original_bookcase = n
-	# A cat-accessible stepped bookcase at the living-room north wall.
+	original_bookcase = Props.furniture(game,"bookcase","Living")
+	assert(original_bookcase != null)
+	# Keep the actual cabinet and wood shelving. Replace its old unmarked book blocks.
+	for child in original_bookcase.get_children():
+		if str(child.name).begins_with("Book") or str(child.name).begins_with("Spine_band"):child.hide()
+	for row in range(4):
+		var height: float = [.146,.495,.925,1.355][row]
+		for col in range(8 if row==0 else 6):
+			var book := Props.model(original_bookcase,["book_red","book_blue","book_gold"][(row+col)%3])
+			var x: float = -.29+col*.075 if row==0 else (-.35+col*.056 if row==2 else .03+col*.056)
+			book.position = Vector3(x,height+.123*(.9+float(col%3)*.07)+.002,.02)
+			book.basis = Basis(Vector3.UP,PI/2)*Basis(Vector3.RIGHT,-PI/2)
+			book.scale = Vector3(.9,.9,.9+float(col%3)*.07)
+	# Shallow pull-out reading ledges are PARTS of this bookcase, not a second bookcase.
 	for i in range(3):
-		var shelf := target("shelf%d"%i,shelves[i],["红色书格","蓝色书格","黄色书格"][i])
-		box(shelf,"Shelf",Vector3(0,-.03,0),Vector3(.48,.06,.62),Color("896b4c"),true)
-		box(shelf,"Back",Vector3(0,.15,-.28),Vector3(.48,.36,.035),colors[i])
-		box(shelf,"Support",Vector3(0,-shelves[i].y*.5,0),Vector3(.08,shelves[i].y,.08),Color("896b4c"),true)
-		var book := target("book%d"%i,Vector3(-2.5+i*.47,.04,.15),["红色的书","蓝色的书","黄色的书"][i])
-		box(book,"Cover",Vector3.ZERO,Vector3(.24,.055,.18),colors[i])
-		box(book,"Pages",Vector3(0,.005,.005),Vector3(.22,.037,.16),Color("e8ddc3"))
+		var height: float = [.495,.925,1.355][i]
+		var x: float = [-.30,.30,-.30][i]
+		var depth: float = [.64,.56,.24][i]
+		var center_z := .17+depth*.5
+		var stand_z: float = [.69,.61,.32][i]
+		var ledge := Node3D.new()
+		ledge.name = "ReadingLedge%d"%i
+		original_bookcase.add_child(ledge)
+		var board := box(ledge,"OakTray",Vector3(x,height-.018,center_z),Vector3(.30,.036,depth),Color("937755"),true)
+		Props.fit_mesh(board,Props.furniture(game,"coffee_table","Living").get_node("Rounded_tabletop").mesh,Vector3(.30,.036,depth))
+		board.material_override = load("res://furniture_pack/materials/oak.tres")
+		for side in [-1,1]:
+			box(ledge,"SlideRail",Vector3(x+side*.12,height-.041,center_z),Vector3(.012,.018,depth-.04),Color("899490"))
+		var anchor := original_bookcase.to_global(Vector3(x,height,stand_z))
+		shelves.append(anchor)
+		var shelf := target("shelf%d"%i,anchor,["红色书签 · 第一层","蓝色书签 · 第二层","金色书签 · 第三层"][i],[3])
+		Props.bind(shelf,original_bookcase)
+		var marker := box(shelf,"ClothBookmark",Vector3(0,-.006,.09),Vector3(.08,.003,.10),colors[i])
+		marker.rotation.y = original_bookcase.rotation.y
+		var book := target("book%d"%i,Vector3(-2.5+i*.47,.023,.15),["红色园艺书","蓝色日记","金色植物图鉴"][i])
+		Props.model(book,["book_red","book_blue","book_gold"][i])
+		book.set_meta("interaction_days",[3])
 		books.append(book)
-	var photo := target("photo",Vector3(-2.25,.045,.40),"从书里掉下的照片")
+		var transform := original_bookcase.global_transform*Transform3D(Basis(Vector3.RIGHT,PI/2),Vector3(x,height+.125,.02))
+		book_returns.append(transform)
+	var photo := target("photo",Vector3(-2.25,.025,.40),"从书里掉下的照片",[3])
 	var photo_mesh := box(photo,"Photograph",Vector3.ZERO,Vector3(.26,.004,.17),Color.WHITE)
 	var photo_material := mat(Color.WHITE)
 	photo_material.albedo_texture = load("res://act2/memory_photo.svg")
 	photo_mesh.material_override = photo_material
-	var sink = game.get_node("DayTwo").world.sink_cabinet
+	var sink: Node3D = game.get_node("DayTwo").world.sink_cabinet
+	# Correct pivots at the true door edges; the old full-width front collider is removed.
 	for side in [-1,1]:
 		var hinge := Node3D.new()
+		hinge.name = "QuestCabinetDoorLeft" if side<0 else "QuestCabinetDoorRight"
 		sink.add_child(hinge)
-		hinge.position = Vector3(side*.56,.10,.31)
+		hinge.position = Vector3(side*.395,.49,.31)
 		cabinet_hinges.append(hinge)
 		for part in sink.get_children():
 			if part is MeshInstance3D and (str(part.name).begins_with("Door_") or str(part.name).begins_with("Handle")) and signf(part.position.x)==side:part.reparent(hinge,true)
-	target("cabinet",sink.to_global(Vector3(0,.30,.40)),"水槽下的柜门")
-	var plumbing := target("pipes",sink.to_global(Vector3(0,.34,.27)),"接错的水管")
-	for i in range(5):
-		var pipe := cylinder(plumbing,Vector3(-.3+i*.15,0,-.02),.022,.26,Color("91aaa9"))
-		pipe.rotation.z = PI/2 if i%2==0 else 0
-	var monitor := target("camera",sink.to_global(Vector3(.47,.53,.31)),"柜门内的红点")
-	box(monitor,"Monitor",Vector3.ZERO,Vector3(.055,.055,.025),Color("1c252b"))
-	camera_led = ball(monitor,Vector3(0,0,.02),Vector3(.018,.018,.012),Color("ff4a4a"))
+		collision(hinge,Vector3(-side*.197,0,-.016),Vector3(.375,.70,.035))
+	var door_shape := sink.get_node_or_null("Collision/Solid_011") as CollisionShape3D
+	if door_shape:door_shape.disabled = true
+	# Leave a proper plumbing cutout under the sink instead of a solid board through the drain.
+	sink.get_node("Cabinet_shelf2").hide()
+	sink.get_node("Collision/Solid_005").disabled = true
+	for side in [-1,1]:box(sink,"SplitInnerShelf",Vector3(side*.235,.61,0),Vector3(.33,.036,.52),Color("d4d8cc"),true)
+	var cabinet := target("cabinet",sink.to_global(Vector3(0,.30,.40)),"水槽柜门 · E 开关",[3])
+	Props.bind(cabinet,sink)
+	var plumbing := target("pipes",sink.to_global(Vector3(0,.35,.24)),"水槽排水管 · 接回水路",[3])
+	Props.bind(plumbing,sink)
+	# Continuous P-trap, drain tailpiece, collars and wall connection.
+	var points := [Vector3(0,.35,-.24),Vector3(0,.05,-.24),Vector3(.035,-.07,-.24),Vector3(.14,-.07,-.24),Vector3(.18,.03,-.24),Vector3(.18,.08,-.33),Vector3(.18,.08,-.50)]
+	for i in range(points.size()-1):
+		var a: Vector3 = points[i]
+		var b: Vector3 = points[i+1]
+		var pipe := cylinder(plumbing,(a+b)/2,.025,a.distance_to(b),Color("a9b6b1"))
+		pipe.quaternion = Quaternion(Vector3.UP,(b-a).normalized())
+		ball(plumbing,a,Vector3(.056,.056,.056),Color("a9b6b1"))
+		var collar := cylinder(plumbing,a,.033,.026,Color("71847c"))
+		collar.quaternion = pipe.quaternion
+	var monitor := target("camera",sink.to_global(Vector3(.27,.53,.27)),"柜门里的微型镜头",[3])
+	box(monitor,"Mount",Vector3(0,0,-.018),Vector3(.065,.065,.015),Color("3f4d48"))
+	var lens := cylinder(monitor,Vector3.ZERO,.023,.028,Color("253336"))
+	lens.rotation.x = PI/2
+	var glass := cylinder(monitor,Vector3(0,0,.017),.016,.004,Color("344f57"))
+	glass.rotation.x = PI/2
+	camera_led = ball(monitor,Vector3(.025,.022,.014),Vector3(.006,.006,.006),Color("ff4a4a"))
 	camera_led.material_override = mat(Color("ff2222"),true)
-	# Window ledge beside the living-room sofa. Full water locks jumping.
-	var can := target("can",Vector3(-5.52,.96,3.35),"装满水的水壶")
-	cylinder(can,Vector3(0,.12,0),.12,.24,Color("8aafa4"))
-	var spout := cylinder(can,Vector3(.16,.16,0),.025,.24,Color("8aafa4"))
-	spout.rotation.z = -.9
-	var handle := MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = .12
-	torus.outer_radius = .15
-	handle.mesh = torus
-	handle.material_override = mat(Color("8aafa4"))
-	can.add_child(handle)
-	handle.rotation.x = PI/2
-	handle.position = Vector3(-.07,.17,0)
-	water_surface = cylinder(can,Vector3(0,.232,0),.105,.007,Color("84bec7"))
-	box(root,"WindowLedge",Vector3(-5.53,.92,3.35),Vector3(.46,.06,.70),Color("b29871"),true)
-	box(root,"CanStep",Vector3(-4.93,.23,3.35),Vector3(.46,.46,.46),Color("b29871"),true)
-	target("drain",Vector3(2.52,.07,-.38),"淋浴间地漏 · 倒掉一半水")
-	var plant := target("plant",Vector3(-5.40,1.05,1.90),"需要浇水的花盆")
-	cylinder(plant,Vector3(0,.10,0),.14,.20,Color("ae745b"))
-	for i in range(5):
-		var leaf := ball(plant,Vector3(sin(i)*.10,.28,cos(i)*.10),Vector3(.11,.26,.07),Color("78956b"))
-		leaf.rotation.z = sin(i)*.5
-	box(root,"PlantShelf",Vector3(-5.50,1.02,1.90),Vector3(.42,.05,.48),Color("b29871"),true)
-	# Outdoor mailbox: unreachable letter comes down only after shaking.
-	var mailbox := target("mailbox",Vector3(-1.60,0,7.30),"高信箱 · 摇晃")
-	box(mailbox,"Post",Vector3(0,.65,0),Vector3(.12,1.3,.12),Color("666f69"),true)
-	box(mailbox,"Box",Vector3(0,1.40,0),Vector3(.60,.38,.40),Color("5e8b82"),true)
-	box(mailbox,"Opening",Vector3(0,1.40,.211),Vector3(.47,.16,.015),Color("253d39"))
-	box(mailbox,"EnvelopeTip",Vector3(.08,1.40,.25),Vector3(.27,.10,.16),Color("eadfc4"))
-	mailbox.get_child(0).position.y = .55
-	var letter := target("letter",Vector3(-1.60,.035,7.70),"掉落的信")
-	box(letter,"Envelope",Vector3.ZERO,Vector3(.30,.01,.18),Color("eadfc4"))
-	# Side lock sits above the existing neighboring kitchen cabinet.
-	var fridge: Node3D
+	# Reuse the existing climbing tree by the window, and an existing living-room plant.
+	var tree := Props.furniture(game,"cat_tree","Living")
+	var can := target("can",tree.to_global(Vector3(.13,.756,.04)),"猫爬架上的浇花壶",[3])
+	Props.model(can,"watering_can")
+	water_surface = cylinder(can,Vector3(0,.216,0),.103,.003,Color("84bec7"))
+	var shower := Props.furniture(game,"decor_shower","Bath1")
+	if shower==null:
+		for n in game.get_tree().get_nodes_in_group("placed_furniture"):
+			if n.get_meta("asset_id","")=="decor_shower" and n.global_position.y<1:shower = n
+	assert(shower != null)
+	var drain := target("drain",shower.get_node("Drain").global_position+Vector3(0,.01,0),"淋浴地漏 · 倒掉一半水",[3])
+	Props.bind(drain,shower)
+	var plant_furniture: Node3D
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
-		if n.get_meta("asset_id","")=="fridge":fridge = n
-	# Replace the closed furniture block with a real hollow compartment.
+		if n.get_meta("asset_id","")=="decor_plant" and n.global_position.distance_to(Vector3(-4.65,0,-1.10))<.25:plant_furniture = n
+	assert(plant_furniture != null)
+	plant_furniture.global_position = Vector3(-5.35,0,3.12)
+	var plant := target("plant",plant_furniture.global_position+Vector3(0,.24,0),"沙发旁的花盆",[3])
+	Props.bind(plant,plant_furniture)
+	var mailbox := target("mailbox",Vector3(-1.60,0,7.30),"门外信箱 · 摇晃",[1,2,3,4,5])
+	mailbox.set_meta("interaction_days",[4])
+	Props.model(mailbox,"mailbox")
+	collision(mailbox,Vector3(0,.65,0),Vector3(.12,1.3,.12))
+	collision(mailbox,Vector3(0,1.32,0),Vector3(.54,.40,.36))
+	box(mailbox,"EnvelopeTip",Vector3(.08,1.39,.21),Vector3(.19,.014,.08),Color("eadfc4"))
+	var letter := target("letter",Vector3(-1.60,.012,7.70),"掉落的信",[4])
+	Props.model(letter,"letter")
+	var fridge := Props.furniture(game,"fridge","Kitchen")
 	fridge.get_node("Fridge_body").hide()
 	for shape in fridge.get_node("Collision").get_children():shape.disabled = true
-	for side in [-1,1]:box(fridge,"CaseSide",Vector3(side*.325,.9,0),Vector3(.05,1.8,.70),Color("d6d9c9"),true)
-	box(fridge,"CaseBack",Vector3(0,.9,-.325),Vector3(.60,1.8,.05),Color("a4b6ac"),true)
-	for height in [.035,.63,1.35,1.775]:box(fridge,"CaseShelf",Vector3(0,height,0),Vector3(.60,.05,.66),Color("d6d9c9"),true)
+	for side in [-1,1]:box(fridge,"InnerSide",Vector3(side*.325,.9,0),Vector3(.05,1.8,.70),Color("d6d9c9"),true)
+	box(fridge,"InnerBack",Vector3(0,.9,-.325),Vector3(.60,1.8,.05),Color("a4b6ac"),true)
+	for height in [.035,.63,1.35,1.775]:box(fridge,"GlassShelf",Vector3(0,height,0),Vector3(.60,.025,.66),Color("c8d3c9"),true)
 	fridge_hinge = Node3D.new()
+	fridge_hinge.name = "QuestFridgeDoor"
 	fridge.add_child(fridge_hinge)
-	fridge_hinge.position = Vector3(-.38,.10,.37)
+	fridge_hinge.position = Vector3(-.365,0,.35)
 	for part in fridge.get_children():
 		if part is MeshInstance3D and (str(part.name) in ["Upper_door","Lower_freezer"] or "Handle" in str(part.name)):part.reparent(fridge_hinge,true)
-	var lock := target("fridge_lock",Vector3(4.71,1.12,-5.12),"冰箱侧面的猫爪机关")
-	box(lock,"Lock",Vector3.ZERO,Vector3(.06,.24,.25),Color("c2b38a"))
-	box(root,"FridgeStep",Vector3(3.88,.21,-4.91),Vector3(.48,.42,.52),Color("b29871"),true)
-	var fish := target("fish",Vector3(5.13,.69,-5.16),"冰箱里唯一的一条鱼")
-	ball(fish,Vector3.ZERO,Vector3(.34,.08,.12),Color("8daeb0"))
-	var tail := box(fish,"Tail",Vector3(-.19,0,0),Vector3(.09,.02,.15),Color("76999e"))
-	tail.rotation.y = .6
-	ball(fish,Vector3(.12,.035,.04),Vector3(.018,.018,.018),Color("182b30"))
-	var oven := target("oven",Vector3(3.45,.91,-5.45),"烤箱 · 放入鱼，再关门")
-	box(root,"OvenStep",Vector3(3.15,.20,-4.93),Vector3(.46,.40,.48),Color("b29871"),true)
-	box(oven,"Body",Vector3(0,.20,0),Vector3(.64,.40,.42),Color("d0c7b3"),true)
-	box(oven,"Inside",Vector3(0,.19,.22),Vector3(.52,.28,.02),Color("293937"))
+	collision(fridge_hinge,Vector3(.365,.90,.01),Vector3(.70,1.74,.045))
+	var lock := target("fridge_lock",fridge.to_global(Vector3(-.42,1.12,.27)),"冰箱侧面 · 猫爪机关",[3,4])
+	Props.bind(lock,fridge)
+	Props.model(lock,"fridge_lock")
+	fish_home = fridge.to_global(Vector3(0,.65,.06))
+	var fish := target("fish",fish_home,"冰箱里的鲜鱼",[4])
+	Props.model(fish,"fish")
+	# Reuse the existing range oven, keeping its burners, dials and manufactured trim.
+	var cooker := Props.furniture(game,"cooker","Kitchen")
+	cooker.get_node("Range_body").hide()
+	cooker.get_node("Collision/Solid_000").disabled = true
+	for side in [-1,1]:box(cooker,"OvenSide",Vector3(side*.28,.43,0),Vector3(.04,.86,.58),Color("c6cec2"),true)
+	box(cooker,"OvenBack",Vector3(0,.43,-.27),Vector3(.52,.86,.04),Color("3d4b48"),true)
+	for h in [.10,.73]:box(cooker,"OvenLiner",Vector3(0,h,0),Vector3(.52,.04,.54),Color("3f4a47"),true)
+	for i in range(10):box(cooker,"RackBar",Vector3(-.23+i*.051,.30,0),Vector3(.006,.006,.46),Color("a4b3af"))
+	for z in [-.20,.20]:box(cooker,"RackRail",Vector3(0,.30,z),Vector3(.49,.008,.008),Color("a4b3af"))
 	oven_hinge = Node3D.new()
-	oven.add_child(oven_hinge)
-	oven_hinge.position = Vector3(0,.02,.24)
-	box(oven_hinge,"Door",Vector3(0,.15,0),Vector3(.56,.29,.025),Color("60746b"))
-	box(oven_hinge,"Handle",Vector3(0,.25,.04),Vector3(.28,.035,.04),Color("c8b18a"))
-	cylinder(root,Vector3(3.96,.921,-5.38),.16,.018,Color("ddd6bc"))
-	var half := target("half_fish",Vector3(3.96,.95,-5.38),"留下的半条熟鱼")
-	ball(half,Vector3.ZERO,Vector3(.19,.065,.11),Color("c99559"))
-	var yarn := target("yarn",Vector3(-4.64,.13,2.30),"沙发旁的毛线球")
-	ball(yarn,Vector3.ZERO,Vector3(.19,.19,.19),Color("cb9670"))
-	var bone := target("bone",Vector3(-4.48,.05,2.30),"刻着编号的玩具骨头")
-	box(bone,"Bone",Vector3.ZERO,Vector3(.24,.05,.06),Color("dec99b"))
-	for x in [-.12,.12]:
-		for z in [-.04,.04]:ball(bone,Vector3(x,0,z),Vector3(.075,.07,.075),Color("dec99b"))
-	var medicines := target("medicine",Vector3(-3.0,.82,4.65),"七只药瓶")
+	oven_hinge.name = "QuestOvenDoor"
+	cooker.add_child(oven_hinge)
+	oven_hinge.position = Vector3(0,.17,.315)
+	for part in ["Oven_frame","Oven_glass","Handle","Handle_mount","Handle_mount2"]:cooker.get_node(part).reparent(oven_hinge,true)
+	oven_hinge.get_node("Oven_frame").hide()
+	for side in [-1,1]:box(oven_hinge,"WindowSide",Vector3(side*.244,.23,-.013),Vector3(.042,.48,.025),Color("26332f"))
+	for h in [.012,.448]:box(oven_hinge,"WindowRail",Vector3(0,h,-.013),Vector3(.45,.044,.025),Color("26332f"))
+	var oven_glass := StandardMaterial3D.new()
+	oven_glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	oven_glass.albedo_color = Color(.15,.21,.18,.28)
+	oven_glass.roughness = .16
+	oven_glass.metallic = .2
+	oven_hinge.get_node("Oven_glass").material_override = oven_glass
+	collision(oven_hinge,Vector3(0,.23,.006),Vector3(.53,.47,.035))
+	oven_glow = OmniLight3D.new()
+	cooker.add_child(oven_glow)
+	oven_glow.position = Vector3(.18,.55,.05)
+	oven_glow.light_color = Color("ffc887")
+	oven_glow.light_energy = 0
+	oven_glow.omni_range = .65
+	var oven := target("oven",cooker.to_global(Vector3(0,.32,.37)),"灶台烤箱 · 放鱼 / 关门",[4])
+	Props.bind(oven,cooker)
+	fish_in_oven = cooker.to_global(Vector3(0,.313,.02))
+	var half := target("half_fish",Vector3(3.35,.915,-5.38),"餐盘里的半份烤鱼",[4,5])
+	Props.model(half,"half_fish")
+	# One yarn ball moves between its day-two home and the optional later clue.
+	shared_yarn = game.get_node("DayOne").world.items.yarn
+	shared_yarn.set_meta("interaction_days",[2,4,5])
+	shared_yarn_home = Vector3(-4.64,.13,2.30)
+	items["yarn"] = shared_yarn
+	titles["yarn"] = "熟悉的毛线球"
+	var bone := target("bone",Vector3(-4.48,.025,2.30),"编号 D-017 的磨牙玩具",[4,5])
+	Props.model(bone,"bone")
+	var table: Node3D = game.get_node("DayOne").world.items.table
+	var medicines := target("medicine",table.position+Vector3(.12,.454,-.04),"七只药瓶 · 检查剩余量",[5])
 	for i in range(7):
-		var offset := Vector3((i-3)*.135,0,0)
-		cylinder(medicines,offset+Vector3(0,.08,0),.042,.16,Color("7da38e"))
-		cylinder(medicines,offset+Vector3(0,.17,0),.045,.035,Color("e2d9be"))
-		box(medicines,"Label",offset+Vector3(0,.09,.043),Vector3(.055,.075,.002),Color("f1e5c7"))
-	target("clues",Vector3(-3.40,.82,4.65),"线索册 · 回看照片与编号")
+		var visual := Props.model(medicines,"medicine_%d"%i,Vector3((i%4)*.10-.15,0,(i/4)*.13))
+		medicine_models.append(visual)
+	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索手记 · 照片与编号")
+	Props.model(clues,"clues")
+
+func place_book(index: int, returned: bool) -> void:
+	var book: Node3D = items["book%d"%index]
+	book.global_transform = book_returns[index] if returned else Transform3D(Basis(Vector3.UP,index*.38),Vector3(-2.5+index*.47,.023,.15))
+
+func medicine_selection(taken: bool) -> void:
+	# Keep only the selected three bottles in the mouth. Unselected bottles are put away.
+	for i in range(medicine_models.size()):medicine_models[i].visible = not taken or i in [1,3,5]

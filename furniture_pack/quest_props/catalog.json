@@ -1,0 +1,212 @@
+[
+  {
+    "id": "book_red",
+    "name": "红色硬壳园艺书",
+    "triangles": 1486,
+    "materials": 5,
+    "units": "metres"
+  },
+  {
+    "id": "book_blue",
+    "name": "蓝色硬壳日记",
+    "triangles": 1486,
+    "materials": 5,
+    "units": "metres"
+  },
+  {
+    "id": "book_gold",
+    "name": "金色植物图鉴",
+    "triangles": 1486,
+    "materials": 5,
+    "units": "metres"
+  },
+  {
+    "id": "memo",
+    "name": "任务便笺",
+    "triangles": 190,
+    "materials": 2,
+    "units": "metres"
+  },
+  {
+    "id": "letter",
+    "name": "折好的来信",
+    "triangles": 910,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "clues",
+    "name": "线索手记",
+    "triangles": 1722,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "mug",
+    "name": "有杯柄与杯口的陶瓷杯",
+    "triangles": 1440,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "coaster",
+    "name": "软木杯垫",
+    "triangles": 480,
+    "materials": 2,
+    "units": "metres"
+  },
+  {
+    "id": "watering_can",
+    "name": "开口金属浇花壶",
+    "triangles": 7008,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "pet_bowl",
+    "name": "带凹槽与防滑圈的陶瓷食碗",
+    "triangles": 2184,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "feeder",
+    "name": "双仓宠物自动喂食器",
+    "triangles": 21148,
+    "materials": 7,
+    "units": "metres"
+  },
+  {
+    "id": "shirt_blue",
+    "name": "棉质待洗上衣 / blue",
+    "triangles": 1196,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "shirt_red",
+    "name": "棉质待洗上衣 / red",
+    "triangles": 1196,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "shirt_gold",
+    "name": "棉质待洗上衣 / gold",
+    "triangles": 1196,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "mailbox",
+    "name": "弧角信箱、投信口与门锁",
+    "triangles": 1660,
+    "materials": 6,
+    "units": "metres"
+  },
+  {
+    "id": "fish",
+    "name": "有鱼鳍鱼尾鳞纹的鲜鱼",
+    "triangles": 3467,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "half_fish",
+    "name": "半份烤鱼与餐盘",
+    "triangles": 3947,
+    "materials": 6,
+    "units": "metres"
+  },
+  {
+    "id": "yarn",
+    "name": "绕线毛球与松开的线头",
+    "triangles": 7536,
+    "materials": 2,
+    "units": "metres"
+  },
+  {
+    "id": "bone",
+    "name": "带编号的磨牙骨头",
+    "triangles": 2944,
+    "materials": 2,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_0",
+    "name": "照护药瓶 1 / 余量 8",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_1",
+    "name": "照护药瓶 2 / 余量 2",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_2",
+    "name": "照护药瓶 3 / 余量 7",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_3",
+    "name": "照护药瓶 4 / 余量 1",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_4",
+    "name": "照护药瓶 5 / 余量 9",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_5",
+    "name": "照护药瓶 6 / 余量 3",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "medicine_6",
+    "name": "照护药瓶 7 / 余量 8",
+    "triangles": 1826,
+    "materials": 4,
+    "units": "metres"
+  },
+  {
+    "id": "cat_bed",
+    "name": "带围边和软垫的猫窝",
+    "triangles": 4656,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "step_stool",
+    "name": "实木圆角脚凳",
+    "triangles": 644,
+    "materials": 1,
+    "units": "metres"
+  },
+  {
+    "id": "fridge_lock",
+    "name": "冰箱侧面滑块机关面板",
+    "triangles": 12968,
+    "materials": 3,
+    "units": "metres"
+  },
+  {
+    "id": "ruler",
+    "name": "从原书房工具套装中分离的 30cm 尺子",
+    "triangles": 908,
+    "units": "metres",
+    "source": "existing drafting_kit"
+  }
+]

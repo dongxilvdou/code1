@@ -1,5 +1,6 @@
 extends RefCounted
 ## All coordinates are world metres. This additive set never rebuilds villa.tscn.
+const Props = preload("res://furniture_pack/quest_props/props.gd")
 var root: Node3D
 var items := {}
 var gates: Array[Node3D] = []
@@ -132,51 +133,39 @@ func build(parent: Node3D, game: Node) -> void:
 		# Original 26 px label enlarged exactly fivefold, at cat-readable height.
 		sign_at(gate,"先完成客厅\n的事情",Vector3(0,-.80,0),130)
 		gates.append(gate)
-	var table := item("table", Vector3(-3,0,4.65))
-	box(table,"Tabletop",Vector3(0,.76,0),Vector3(1.45,.08,.8),Color("a17851"),true)
-	for x in [-.6,.6]:
-		for z in [-.29,.29]:box(table,"Leg",Vector3(x,.36,z),Vector3(.065,.72,.065),Color("75543d"),true)
-	var stool := item("stool",Vector3(-2.45,0,3.76))
-	box(stool,"Seat",Vector3(0,.32,0),Vector3(.58,.08,.52),Color("d1b27f"),true)
-	for x in [-.22,.22]:
-		for z in [-.19,.19]:box(stool,"Leg",Vector3(x,.14,z),Vector3(.05,.28,.05),Color("876747"),true)
-	var note := item("note",Vector3(-3,.806,4.65))
-	box(note,"Paper",Vector3.ZERO,Vector3(.40,.007,.29),Color("fff0ca"))
-	for i in range(5):box(note,"Ink",Vector3(-.03,.005,-.09+i*.035),Vector3(.25,.002,.006),Color("526159"))
-	sign_at(note,"今日的小纸条",Vector3(0,.28,0),26)
-	var cup := item("cup",Vector3(-3,.81,4.65))
-	cylinder(cup,Vector3(0,.09,0),.075,.18,Color("f1dec4"))
-	cylinder(cup,Vector3(0,.179,0),.065,.004,Color("73aeb5"))
-	var tray := item("tray",Vector3(-3.48,.809,4.65))
-	cylinder(tray,Vector3.ZERO,.13,.014,Color("80a395"))
+	# Reuse the furnished living room: no extra teaching table or chair.
+	var existing_table := Props.furniture(game,"coffee_table","Living")
+	existing_table.rotation.y = 0
+	var table := item("table",existing_table.global_position)
+	Props.bind(table,existing_table)
+	table.set_meta("surface_top",.45)
+	table.set_meta("surface_half",Vector2(.52,.32))
+	var chair := Props.furniture(game,"armchair","Living")
+	var stool := item("stool",Vector3(-3.3,0,-.55))
+	Props.bind(stool,chair)
+	stool.set_meta("surface_top",.46)
+	stool.set_meta("surface_half",Vector2(.43,.40))
+	var top := existing_table.global_position+Vector3(0,.454,0)
+	var note := item("note",top+Vector3(.12,0,0))
+	Props.model(note,"memo")
+	Props.days(note,[1,2,3])
+	sign_at(note,"今日的小纸条",Vector3(0,.20,0),23)
+	var cup := item("cup",note.position+Vector3(0,.006,0))
+	Props.model(cup,"mug")
+	Props.days(cup,[1])
+	var tray := item("tray",top+Vector3(-.28,0,0))
+	Props.model(tray,"coaster")
+	Props.days(tray,[1])
 	sign_at(tray,"杯垫",Vector3(0,.14,0),22)
-	var ruler := item("ruler",Vector3(4.15,.802,3.78))
-	box(ruler,"WoodRuler",Vector3.ZERO,Vector3(.6,.018,.05),Color("edbf65"))
-	for i in range(20):box(ruler,"Tick",Vector3(-.28+i*.028,.010,.009),Vector3(.003,.002,.025 if i%5==0 else .014),Color("514330"))
-	sign_at(ruler,"尺子 · E 叼起",Vector3(0,.18,0),24)
+	var ruler := item("ruler",Vector3(4.065,.794,3.725))
+	Props.model(ruler,"ruler")
+	Props.days(ruler,[2])
+	sign_at(ruler,"书房桌上的尺子 · E 叼起",Vector3(0,.14,0),23)
 	var yarn := item("yarn",Vector3(-5.18,.10,2.15))
-	var sphere := MeshInstance3D.new()
-	var ball := SphereMesh.new()
-	ball.radius = .095
-	ball.height = .19
-	sphere.mesh = ball
-	sphere.material_override = mat(Color("b77c58"))
-	yarn.add_child(sphere)
-	for i in range(8):
-		var ring := MeshInstance3D.new()
-		var torus := TorusMesh.new()
-		torus.inner_radius = .088
-		torus.outer_radius = .099
-		ring.mesh = torus
-		ring.material_override = mat(Color("e4b284"))
-		yarn.add_child(ring)
-		ring.rotation = Vector3(i*.41,i*.74,i*.21)
-	for i in range(4):
-		var hair := box(yarn,"UnfamiliarFur",Vector3(-.018+i*.012,.088,.008),Vector3(.052,.002,.002),Color("d9dedb"))
-		hair.rotation.y = i*.48
-	var nest := item("nest",Vector3(-5,.08,4.85))
-	cylinder(nest,Vector3.ZERO,.43,.14,Color("8caa9a"))
-	cylinder(nest,Vector3(0,.08,0),.34,.02,Color("e5d5b6"))
+	Props.model(yarn,"yarn")
+	Props.days(yarn,[2,4,5],[2])
+	var nest := item("nest",Vector3(-5,0,4.85))
+	Props.model(nest,"cat_bed")
 	sign_at(nest,"我的窝",Vector3(0,.34,0),28)
 	var switch := item("switch",Vector3(-.985,1.91,3.13))
 	box(switch,"Plate",Vector3.ZERO,Vector3(.055,.20,.16),Color("e8e4d7"))
@@ -186,24 +175,36 @@ func build(parent: Node3D, game: Node) -> void:
 	box(root,"TVTopRail",Vector3(-1.28,1.315,2.57),Vector3(.32,.07,1.18),Color("343c3b"),true)
 	# A freestanding step stool clears even the cabinet handles by 10 cm.
 	# The former extension shared its .52 m top surface with the cabinet.
-	box(root,"TVSideShelf",TV_STEP_POSITION,TV_STEP_SIZE,Color("94734f"),true)
+	var tv_stool := box(root,"TVSideShelf",TV_STEP_POSITION,TV_STEP_SIZE,Color("94734f"),true)
+	Props.fit_mesh(tv_stool,existing_table.get_node("Rounded_tabletop").mesh,TV_STEP_SIZE)
+	tv_stool.material_override = load("res://furniture_pack/materials/oak.tres")
 	var leg_index := 0
 	for x in [-.23,.23]:
 		for z in [-.18,.18]:
-			box(root,"ShelfLeg%d" % leg_index,Vector3(TV_STEP_POSITION.x+x,.24,TV_STEP_POSITION.z+z),Vector3(.055,.48,.055),Color("75543d"),true)
+			var leg := box(root,"ShelfLeg%d" % leg_index,Vector3(TV_STEP_POSITION.x+x,.24,TV_STEP_POSITION.z+z),Vector3(.055,.48,.055),Color("75543d"),true)
+			Props.fit_mesh(leg,existing_table.get_node("Tapered_leg").mesh,Vector3(.055,.48,.055))
+			leg.material_override = load("res://furniture_pack/materials/walnut.tres")
 			leg_index += 1
 	for data in PAPER_SPOTS:
 		var paper := item("paper_"+data[0],data[2])
-		box(paper,"Scrap",Vector3.ZERO,Vector3(.17,.012,.12),Color("fff0ce"))
+		var visual := Props.model(paper,"memo")
+		visual.scale = Vector3(.62,1,.43)
 		paper.rotation.y = float(items.size())*.74
-		box(paper,"Fold",Vector3(.03,.012,0),Vector3(.012,.012,.11),Color("dccba6"))
+		Props.days(paper,[1])
 		sign_at(paper,"纸片",Vector3(0,.15,0),18)
 	# Two reachable optional mess props, separate from the tutorial's protected cup.
 	var loose_cup := item("mess_cup",Vector3(-3.85,.46,1.72))
-	cylinder(loose_cup,Vector3(0,.075,0),.065,.15,Color("c9d9cb"))
-	var pot := item("mess_pot",Vector3(-4.25,.01,3.5))
-	cylinder(pot,Vector3(0,.14,0),.15,.28,Color("be825d"))
-	for i in range(5):box(pot,"Leaf",Vector3(sin(i)*.10,.36,cos(i)*.10),Vector3(.09,.27,.04),Color("728954"))
+	Props.model(loose_cup,"mug")
+	Props.days(loose_cup,[1,2])
+	# This optional interaction belongs to a real house plant, not another blocky pot.
+	var plant := Props.furniture(game,"decor_plant","Living")
+	var pot := item("mess_pot",plant.global_position)
+	Props.bind(pot,plant)
+	Props.days(pot,[1,2])
+	# Tabletop decor is set at the rear, leaving the note and mug accessible.
+	var decor := Props.furniture(game,"decor_books_vase","Living")
+	decor.global_position = Vector3(-1.24,.52,3.05)
+	decor.rotation.y = -PI/2
 	# Scene already includes a ground-floor Workshop (not the upstairs Study).
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
 		if n.get_meta("asset_id","")=="armchair" and n.get_meta("placement_room","")=="Living":n.position = Vector3(-3.3,0,-.55)

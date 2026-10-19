@@ -87,7 +87,7 @@ func _process(_delta: float) -> void:
 		for child in item.get_children():
 			if child is Label3D:
 				var distance: float = player.camera.global_position.distance_to(child.global_position)
-				child.visible = distance>.60 and distance<3.5
+				child.visible = World.Props.interactable(item,val("current_day",1)) and distance>.60 and distance<3.5
 
 func advance_time(delta: float) -> void:
 	# Only active play counts, never menus, puzzles or time outside the game.
@@ -137,12 +137,13 @@ func _set_collisions(enabled: bool) -> void:
 	for n in find_children("*","StaticBody3D",true,false):n.collision_layer = 1 if enabled else 0
 
 func restore_world() -> void:
+	if not active_day() and val("d2_holding") in [1,2,3]:set_value("d2_holding",0)
 	visible = runtime_available()
 	_set_collisions(runtime_available())
 	if not runtime_available():return
 	for id in world.items:world.items[id].visible = active_day() or id in ["feeder","cat_bowl","dog_bowl","dog","dog_spot"]
 	for name in ["WashStep","SinkStep"]:
-		get_node(name).visible = active_day()
+		World.Props.activate(get_node(name),active_day() if name=="WashStep" else true)
 	# Step colliders are siblings of their meshes; only the dog/feeder collide on day one.
 	for body in get_children():
 		if body is StaticBody3D:body.collision_layer = 1 if active_day() else 0
@@ -163,6 +164,7 @@ func restore_world() -> void:
 	world.stream.set_running(active_day() and stage==1)
 	for n in get_tree().get_nodes_in_group("placed_furniture"):
 		if n.get_meta("asset_id","")=="decor_pet_bowls":n.hide()
+	World.Props.apply(world.items,val("current_day",1))
 	update_held()
 	refresh_hud()
 
@@ -188,7 +190,7 @@ func open_puzzle(kind: String, text := "") -> void:
 	puzzle.open(kind,text)
 	if kind=="wash":
 		puzzle.knob.value_changed.connect(func(value: float):
-			world.items.washer_dial.rotation.y = (value-1)*PI*.65)
+			world.washer_selector.basis = Basis.from_euler(world.items.washer_dial.get_meta("dial_base"))*Basis(Vector3.UP,(value-1)*PI*.65))
 
 func show_story(text: String) -> void:open_puzzle("story",text)
 
@@ -227,7 +229,7 @@ func nearest_item() -> String:
 	var found := ""
 	for id in choices:
 		var n: Node3D = choices[id]
-		if not n.visible and id!="cat_spot":continue
+		if not World.Props.interactable(n,val("current_day",1)) and id!="cat_spot":continue
 		var pos: Vector3 = target_position(id)
 		var delta := pos-eye
 		var alignment := forward.dot(delta.normalized())
@@ -387,9 +389,9 @@ func refresh_hud() -> void:
 	day.hud.status.text = "我  %d / 100    大狗嚼  %d / 100" % [val("cat_hunger",65),val("dog_hunger",45)]
 	var text := ""
 	if not day.feeding_done():text = "旧进度已保留。先补完已移到第一天的喂食：到厨房解锁给予器，叼猫碗和狗盘盛粮，分别吃饭、送给大狗嚼。"
-	elif not flag("d2_note"):text = "先去客厅南窗边的桌子，阅读今天的小纸条。"
+	elif not flag("d2_note"):text = "先去客厅茶几，阅读今天的小纸条。"
 	elif not flag("d2_washed"):
-		text = "01  洗衣服  %d / 3\n衣服在沙发、客厅小凳子、玄关地上。叼到洗衣间，开机门、放入、关门，再跳上洗衣机调旋钮。" % loaded_count()
+		text = "01  洗衣服  %d / 3\n衣服在沙发、单人沙发、玄关地上。叼到洗衣间，开机门、放入、关门，再跳上洗衣机调旋钮。" % loaded_count()
 		if flag("d2_washing"):text = "洗衣机正在运转……\n洗好后去工作书房找尺子。"
 	elif not flag("ruler_found"):text = "02  沙发底下的秘密\n到一楼东南角工作书房，跳上书桌叼起尺子。"
 	elif not flag("yarn_freed"):text = "02  取回毛线球\n叼尺子回客厅沙发前，R 改为竖叼，低头按 E 够出毛线球。"
@@ -403,7 +405,7 @@ func refresh_hud() -> void:
 
 func carry_text() -> String:
 	var holding := val("d2_holding")
-	return "J 任务日志  ·  M 地图" if holding==0 else "叼着：%s\nG 松口并放回安全位置" % (["","沙发上的衣服","凳子上的衣服","玄关的衣服","自己的猫碗","大狗嚼的盘子"][holding])
+	return "J 任务日志  ·  M 地图" if holding==0 else "叼着：%s\nG 松口并放回安全位置" % (["","沙发上的衣服","单人沙发上的衣服","玄关的衣服","自己的猫碗","大狗嚼的盘子"][holding])
 
 func reset_runtime() -> void:
 	ready_state = false

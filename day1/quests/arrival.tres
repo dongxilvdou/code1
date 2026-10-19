@@ -30,7 +30,7 @@ target_count = 1
 [sub_resource type="Resource" id="stool"]
 script = ExtResource("goal")
 id = &"stool"
-text = "跳上小凳子"
+text = "跳上单人沙发"
 kind = 3
 target_id = &"stool"
 target_count = 1
@@ -38,7 +38,7 @@ target_count = 1
 [sub_resource type="Resource" id="table"]
 script = ExtResource("goal")
 id = &"table"
-text = "从凳子跳上桌子"
+text = "跳上客厅茶几"
 kind = 3
 target_id = &"table"
 target_count = 1
@@ -63,7 +63,7 @@ target_count = 1
 script = ExtResource("quest")
 id = &"day1_arrival"
 title = "初来乍到"
-description = "走跑、开门、跳跃、叼取和阅读。小凳子与纸条桌在客厅南窗边。"
+description = "走跑、开门、跳跃、叼取和阅读。单人沙发在客厅北侧，小纸条在客厅茶几上。"
 priority = 100
 objectives = Array[ExtResource("goal")]([SubResource("walk"), SubResource("run"), SubResource("open_living"), SubResource("stool"), SubResource("table"), SubResource("cup_moved"), SubResource("note_read")])
 result_text = "开始今天的三件事"
