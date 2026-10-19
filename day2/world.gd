@@ -8,6 +8,7 @@ var sink_cabinet: Node3D
 var dog_tail: Node3D
 var stains: Node3D
 var food := {}
+var original_bowls: Node3D
 
 func ball(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
 	var n := MeshInstance3D.new()
@@ -23,7 +24,12 @@ func ball(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> MeshInst
 
 func bowl(id: String, pos: Vector3, color: Color) -> void:
 	var n := item(id,pos)
-	Props.model(n,"pet_bowl")
+	# Use the actual ceramic bowls already furnished in this house.
+	var ceramic: MeshInstance3D = original_bowls.get_node("Bowl2" if id=="dog_bowl" else "Bowl")
+	ceramic.reparent(n,false)
+	ceramic.position = Vector3.ZERO
+	ceramic.scale = Vector3(1.65,1.65,1.65)
+	Props.bind(n,ceramic)
 	var kibble := Node3D.new()
 	n.add_child(kibble)
 	for i in range(14):
@@ -33,6 +39,12 @@ func bowl(id: String, pos: Vector3, color: Color) -> void:
 
 func build(parent: Node3D, game: Node) -> void:
 	root = parent
+	original_bowls = Props.furniture(game,"decor_pet_bowls","Living")
+	if original_bowls==null:original_bowls = Props.furniture(game,"decor_pet_bowls")
+	assert(original_bowls!=null)
+	# Keep its mat as the feeding station, remove only the baked-in fake food discs.
+	original_bowls.global_position = Vector3(4.00,0,-2.88)
+	for part in ["Water_or_food","Water_or_food2"]:original_bowls.get_node(part).hide()
 	for data in [["cloth_sofa",Vector3(-5.03,.53,2.15),Color("8ba8bc")],["cloth_chair",Vector3(-3.3,.465,-.55),Color("bca0b2")],["cloth_entry",Vector3(.03,.035,4.10),Color("d9c5a2")]]:
 		var n := item(data[0],data[1])
 		if data[0]=="cloth_sofa":
@@ -56,6 +68,7 @@ func build(parent: Node3D, game: Node) -> void:
 				if mesh:mesh.reparent(washer_hinge,true)
 			washer_selector = n.get_node("Selector")
 	var loading := item("washer_door",Vector3(2.33,.40,.86))
+	Props.bind(loading,washer_hinge.get_parent())
 	sign_at(loading,"洗衣机门 · E",Vector3(-.03,.16,0),23)
 	var dial := item("washer_dial",washer_selector.global_position+Vector3(0,.02,.025))
 	Props.bind(dial,washer_selector)
@@ -103,7 +116,7 @@ func build(parent: Node3D, game: Node) -> void:
 	root.add_child(stream)
 	stream.configure(nozzle,basin_position.y+.072)
 	# A small step beside the washer and sink supports ordinary cat jumps.
-	for data in [["WashStep",Vector3(1.65,0,1.14),[2]],["SinkStep",Vector3(1.23,0,-4.71),[1,2,3,4,5]]]:
+	for data in [["WashStep",Vector3(1.65,0,1.14),[2]],["SinkStep",Vector3(1.23,0,-4.71),[2,4]]]:
 		var step := Node3D.new()
 		step.name = data[0]
 		root.add_child(step)

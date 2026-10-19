@@ -50,7 +50,7 @@ func open(kind: String, text := "") -> void:
 			make_board(Vector2(400,300))
 		"medicine":
 			title.text = "七只药瓶 / 观察余量"
-			description.text = "纸条只写着：取药量最少的三瓶。点击选择，再确认。\n瓶内每一个圆点代表剩余药片；选错可以重新选择。"
+			description.text = "来信只写着：取药量最少的三瓶。点击选择，再确认。\n瓶内每一个圆点代表剩余药片；选错可以重新选择。"
 			selected.clear()
 			make_board(Vector2(588,180))
 			button("从选中的三瓶取药",detail,check_medicine)

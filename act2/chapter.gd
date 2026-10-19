@@ -2,7 +2,7 @@ extends Node3D
 const World = preload("res://act2/world.gd")
 const Puzzles = preload("res://act2/puzzles.gd")
 const CARRIED := ["","book0","book1","book2","can","fish","half_fish","bone","medicine"]
-const GOALS := {"a3_books":3,"a3_photo":3,"a3_pipes":3,"a3_water":3,"a3_feed":3,"a4_letter":4,"a4_fridge":4,"a4_cook":4,"a4_share":4,"a4_toy":4,"a5_medicine":5,"a5_name":5}
+const GOALS := {"a3_books":3,"a3_photo":3,"a3_pipes":3,"a3_water":3,"a3_feed":3,"a5_letter":5,"a4_fridge":4,"a4_cook":4,"a4_share":4,"a4_toy":4,"a5_medicine":5,"a5_name":5}
 var game
 var day
 var second
@@ -65,7 +65,19 @@ func set_flag(key: String, value := true) -> void:day.manager.set_flag(StringNam
 func mark(key: String) -> void:
 	if flag(key):return
 	set_flag(key)
-	day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName(key),1,"act2:"+key)
+	# Keep the historical catalog ID so existing saves still recognize this quest.
+	day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName("a4_letter" if key=="a5_letter" else key),1,"act2:"+key)
+
+func migrate_schedule() -> void:
+	if val("act2_schedule_version")>=3:return
+	var data: Dictionary = day.manager.make_save_data()
+	# The old fourth-day lunch letter does not count as the new care instructions.
+	data.flags["a5_letter"] = false
+	data.quests["a4_letter"] = {"status":CalicoQuestManager.State.ACTIVE if today()==5 else CalicoQuestManager.State.LOCKED,"progress":{"a4_letter":0}}
+	data.flags["letter_dropped"] = false
+	data.values["mail_shakes"] = 0
+	data.values["act2_schedule_version"] = 3
+	day.manager.restore_save_data(data)
 
 func begin_day(number: int) -> void:
 	if number<3 or number>5:return
@@ -82,7 +94,7 @@ func begin_day(number: int) -> void:
 	player.spawn = Vector3(-4.45,.03,4.80)
 	player.reset_position()
 	restore()
-	story({3:"第三天 / 被观察的日常\n\n书都掉在客厅北侧地上了。按颜色放回原有书架上对应的书格，再检查厨房水槽、给花浇水。\n别忘了给大狗嚼喂饭。\n\n轻点空格短跳，按住空格长跳。",4:"第四天 / 只剩一条鱼\n\n茶几上有新的任务纸条。先读完，再去看看门外的来信。",5:"第五天 / 记得你的名字\n\n先读猫窝旁的小纸条。茶几上多了七只药瓶。纸条只说大狗嚼需要吃药，没有写病因。\n取余量最少的三瓶，再想办法让它吃下去。"}[number])
+	story({3:"第三天 / 被观察的日常\n\n书都掉在客厅北侧地上了。按颜色放回原有书架，再检查厨房水槽、给花浇水。\n别忘了给大狗嚼喂饭。\n\n轻点空格短跳，按住空格长跳。",4:"第四天 / 只剩一条鱼\n\n茶几上有新的任务纸条。读完后，跳上冰箱旁边的柜台，研究侧面的猫爪机关。",5:"第五天 / 记得你的名字\n\n今天的任务清单不见了。\n先跳上客厅茶几，看看原来放纸条的地方。"}[number])
 
 func set_world_enabled(enabled: bool) -> void:
 	visible = enabled
@@ -99,13 +111,14 @@ func _physics_process(delta: float) -> void:
 		day.restore_world()
 		restore()
 	if not day.active_play():return
+	if today()==5 and not flag("a5_bell") and day.on_surface("table",Vector2(.76,.43),.80):
+		mark("a5_bell")
+		puzzle.play_note(3)
+		story("茶几上没有今天的清单。\n\n叮咚——门铃响了！\n打开入户门，到门外看看信箱吧。")
+		return
 	if not day.Notes.read(day):
 		refresh_hud()
 		return
-	if today()==4 and not flag("a4_bell") and day.on_surface("table",Vector2(.76,.43),.80):
-		mark("a4_bell")
-		puzzle.play_note(3)
-		story("叮咚——\n\n我刚看完今天的安排，门铃就响了。\n打开入户门，到门外看看信箱吧。")
 	if val("cook_state")==2:
 		cook_clock += delta
 		set_value("cook_millis",int(cook_clock*1000))
@@ -135,9 +148,13 @@ func _physics_process(delta: float) -> void:
 			if child is Label3D:child.visible = World.Props.interactable(n,today()) and n.global_position.distance_to(player.global_position)<3.0 and not (n==world.items.fish and val("cook_state")>0)
 
 func restore() -> void:
+	if active():migrate_schedule()
 	set_world_enabled(active())
 	if not active():return
 	var holding := val("a_holding")
+	if holding>0 and today() not in world.items[CARRIED[holding]].get_meta("interaction_days",[3,4,5]):
+		set_value("a_holding",0)
+		holding = 0
 	for id in world.items:world.items[id].visible = true
 	for i in range(3):
 		world.items["book%d"%i].visible = holding!=i+1
@@ -149,10 +166,10 @@ func restore() -> void:
 	for i in range(2):world.cabinet_hinges[i].rotation.y = (1.35 if i==0 else -1.35) if today()==3 and flag("cabinet_open") else 0
 	world.items.can.visible = holding!=4
 	world.water_surface.position.y = .12 if flag("water_halved") else .216
-	world.items.mailbox.visible = today()>=4
-	for body in world.items.mailbox.find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if today()>=4 else 0
-	world.items.mailbox.get_node("EnvelopeTip").visible = not flag("letter_dropped")
-	world.items.letter.visible = flag("letter_dropped") and not flag("a4_letter")
+	world.items.mailbox.visible = true
+	world.items.mailbox.set_meta("interaction_complete",flag("a5_letter"))
+	world.items.mailbox.get_node("EnvelopeTip").visible = today()==5 and not flag("letter_dropped") and not flag("a5_letter")
+	world.items.letter.visible = today()==5 and flag("letter_dropped") and not flag("a5_letter")
 	world.fridge_hinge.rotation.y = -1.4 if (today()==4 and flag("a4_fridge")) or (today()==3 and flag("empty_fridge_open")) else 0.0
 	world.items.fish.visible = today()>=4 and flag("a4_fridge") and holding!=5 and val("cook_state") in [0,1,2]
 	world.items.fish.position = world.fish_in_oven if val("cook_state") in [1,2] else world.fish_home
@@ -165,7 +182,7 @@ func restore() -> void:
 	world.items.medicine.visible = today()==5 and not flag("medicine_taken") and not flag("a5_medicine")
 	world.medicine_selection(flag("medicine_taken"))
 	world.items.clues.visible = flag("a3_photo")
-	day.world.items.note.visible = true
+	day.world.items.note.visible = today()<5
 	day.world.items.ruler.visible = false
 	World.Props.apply(world.items,today())
 	# Dates retire interaction targets as well as their labels and colliders.
@@ -212,7 +229,7 @@ func nearest_item() -> String:
 	if not active() or not day.active_play():return ""
 	var choices: Array = world.items.keys()
 	choices.append_array(["nest","dog","feeder","dog_bowl","cat_bowl"])
-	choices.append("note")
+	if today()<5:choices.append("note")
 	if val("d2_holding")==5:choices.append("dog_spot")
 	if val("d2_holding")==4:choices.append("cat_spot")
 	var found := ""
@@ -240,7 +257,9 @@ func target_hint() -> String:
 	var id := nearest_item()
 	if id=="":return ""
 	if id=="note":return "E 阅读第 %d 天的小纸条"%today()
-	if not day.Notes.read(day):return "先读完今天的小纸条"
+	if today()==5 and id=="mailbox":return "E 摇晃信箱，让信掉下来" if flag("a5_bell") else "今天的清单不见了，先跳上客厅茶几看看"
+	if today()==5 and id=="letter":return "E 拾起并阅读来信"
+	if not day.Notes.read(day):return "先去门外取信" if today()==5 else "先读完今天的小纸条"
 	if id=="nest":return "E 休息，进入下一天" if day_complete() else "E 查看今天还要完成的事情"
 	if id=="dog":return "E 与大狗嚼互动 / 交出叼着的物品"
 	if id=="dog_bowl" and val("a_holding")==8:return "E 把药混进狗粮"
@@ -257,11 +276,18 @@ func interact_item(id: String) -> void:
 	if id=="note":
 		day.show_dialog("note")
 		return
-	if not day.Notes.read(day):
+	if not day.Notes.read(day) and not (today()==5 and id in ["mailbox","letter","nest"]):
 		game.ui.toast(day.Notes.guidance(today()),4)
 		return
 	if world.items.has(id) and not World.Props.interactable(world.items[id],today()):return
 	if not active():return
+	if today()==3 and id in ["cabinet","pipes","can","drain","plant"]:
+		if not flag("a3_books") or not flag("a3_photo"):
+			game.ui.toast("先整理书架，并看看书里掉出来的照片。",4)
+			return
+		if id in ["can","drain","plant"] and not flag("a3_pipes"):
+			game.ui.toast("先修好厨房水槽下的水管，再去浇花。",4)
+			return
 	var holding := val("a_holding")
 	if id.begins_with("book"):
 		var i := int(id.right(1))
@@ -288,10 +314,10 @@ func interact_item(id: String) -> void:
 	elif id=="camera":story("那不是电源灯，是一枚很小的镜头。\n\n它一直在记录我如何修理水管。\n这个家里……也许还有别的镜头。")
 	elif id=="can":
 		if flag("a3_water"):game.ui.toast("花已经浇好了。",3)
-		elif player.global_position.y<.69:game.ui.toast("先沿猫爬架跳到西窗边的中层软垫，再叼起水壶。",4)
+		elif player.global_position.y<.69:game.ui.toast("先跳上沙发，再到西窗的窗台边叼起水壶。",4)
 		elif can_pickup():
 			set_value("a_holding",4)
-			game.ui.toast("太重了，跳不起来。可以从猫爬架走下去，到淋浴间倒掉一半水。",6)
+			game.ui.toast("太重了，跳不起来。可以从窗台走下去，到淋浴间倒掉一半水。",6)
 	elif id=="drain":
 		if holding==4 and not flag("water_halved"):
 			set_flag("water_halved")
@@ -299,12 +325,12 @@ func interact_item(id: String) -> void:
 		else:game.ui.toast("只有装满水的水壶需要在这里减重。",3)
 	elif id=="plant":
 		if flag("a3_water"):return
-		if holding!=4:game.ui.toast("先去西窗边的猫爬架中层叼水壶。",3)
+		if holding!=4:game.ui.toast("先去客厅西侧窗台叼水壶。",3)
 		elif not flag("water_halved"):game.ui.toast("壶里水太满，先去淋浴间倒掉一半。",4)
 		elif player.global_position.y<.43 or player.global_position.y>.82 or not player.is_on_floor() or Vector2(player.global_position.x+5.23,player.global_position.z-2).length()>1.25:game.ui.toast("先跳上花盆旁的沙发，再瞄准花盆。",4)
 		else:open_panel("aim")
 	elif id=="mailbox":
-		if today()<4 or not flag("a4_bell"):return
+		if today()!=5 or not flag("a5_bell"):return
 		if flag("letter_dropped"):game.ui.toast("信已经落在信箱前面的地上。",3)
 		else:
 			set_value("mail_shakes",val("mail_shakes")+1)
@@ -316,13 +342,12 @@ func interact_item(id: String) -> void:
 			game.ui.toast("信掉下来了！" if flag("letter_dropped") else "信松动了一点，再摇一摇。",3)
 	elif id=="letter":
 		if not flag("letter_dropped"):return
-		mark("a4_letter")
-		story("信上写着：\n\n今天请自己准备午餐。冰箱侧面的机关是特意为你设计的。\n\n没有署名。也没有提起主人去了哪里。")
+		mark("a5_letter")
+		story("信上写着：\n\n大狗嚼今天需要吃药。\n客厅茶几上有七瓶药，请从余量最少的三瓶里取药，照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。")
 	elif id=="fridge_lock":
 		if today()<4:
 			set_flag("empty_fridge_open",not flag("empty_fridge_open"))
 			story("冰箱里空空的。今天还没有食材。")
-		elif not flag("a4_letter"):game.ui.toast("先到门外取信，看看今天的安排。",3)
 		elif player.global_position.y<.80 or not player.is_on_floor():game.ui.toast("先跳上冰箱西侧的柜子，才能碰到机关。",4)
 		elif flag("a4_fridge"):story("里面只有一条鱼，没有其他食材。")
 		else:open_panel("slide")
@@ -404,10 +429,9 @@ func interact_dog() -> void:
 				story("大狗嚼："+toy_dialogue())
 			elif flag("a5_medicine"):
 				if flag("a5_name"):story("阿嚼：原来我叫阿嚼。\n\n我想起来了……你以前也这样叫过我。\n谢谢你没有忘记。")
-				elif flag("a4_toy"):open_panel("voice")
 				else:
-					set_flag("toy_requested")
-					story("我连名字都忘了……也许我的旧玩具上会有线索。\n\n"+toy_dialogue())
+					if not flag("a4_toy"):set_flag("toy_requested")
+					open_panel("voice")
 			else:story("大狗嚼：今天有点没精神。\n桌上的药，闻起来很苦。")
 
 func toy_dialogue() -> String:
@@ -475,22 +499,22 @@ func day_complete() -> bool:
 	return true
 
 func guidance() -> String:
+	if today()==5 and not flag("a5_letter"):
+		return "01 没有清单的一天\n打开入户门，摇晃门外偏西的高信箱三次，再拾起掉落的信。" if flag("a5_bell") else day.Notes.guidance(5)
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==3:
 		if not flag("a3_books"):return "01 整理书架\n客厅北侧地上的三本书，按红、蓝、黄放回原木书架的抽拉层板。轻点空格短跳，按住长跳。"
 		if not flag("a3_photo"):return "书里掉出了一张照片。回书架旁的地上看看。"
 		if not flag("a3_pipes"):return "02 修理水管\n到厨房水槽下面，打开柜门，接通水管。"
-		if not flag("a3_water"):return "03 浇花\n西窗边的猫爬架中层取满水壶，走下窗台；去一楼淋浴间倒掉一半，再跳上沙发给花浇水。"
+		if not flag("a3_water"):return "03 浇花\n沿沙发跳上西侧窗台，取满水壶后走下窗台；去一楼淋浴间倒掉一半，再跳上沙发给花浇水。"
 		if not flag("a3_feed"):return "今天还没喂大狗嚼。叼狗盘到厨房给予器盛粮，再送回楼梯平台。"
 	elif today()==4:
-		if not flag("a4_bell"):return "跳上客厅茶几，留意门铃的声音。"
-		if not flag("a4_letter"):return "01 门外来信\n打开入户门，摇晃门外偏西的高信箱三次，再拾起掉落的信。"
-		if not flag("a4_fridge"):return "02 猫用冰箱\n跳上冰箱西侧柜台，解开侧面的八数码机关。"
-		if not flag("a4_cook"):return "03 做午饭\n叼鱼放进灶台下方的烤箱，再按 E 关门，等它烤熟。"
+		if not flag("a4_fridge"):return "01 猫用冰箱\n跳上冰箱西侧柜台，解开侧面的八数码机关。"
+		if not flag("a4_cook"):return "02 做午饭\n叼鱼放进灶台下方的烤箱，再按 E 关门，等它烤熟。"
 		if not flag("a4_share"):return "厨房还有半条鱼。大狗嚼也许会想尝一尝。"
 		if not flag("a4_toy"):return "和大狗嚼聊聊。它的玩具可能藏在客厅沙发旁的毛线球里。"
 	else:
-		if not flag("a5_medicine"):return "01 喂药\n客厅茶几上的七瓶药，选择药量最少的三瓶。先试着直接喂，再把药混进狗盘，盛狗粮送给它。"
+		if not flag("a5_medicine"):return "02 喂药\n客厅茶几上的七瓶药，选择药量最少的三瓶。先试着直接喂，再把药混进狗盘，盛狗粮送给它。"
 		if not flag("a5_name"):return "今天的照护任务完成了，可以回窝。\n也可以再和大狗嚼聊聊，它似乎还有心事。"
 	return "今天的事情都完成了。回南窗边的猫窝休息。" if today()<5 else "第二幕已完成。阿嚼记起了名字。桌边的线索册可以回看照片与编号。"
 

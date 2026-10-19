@@ -198,6 +198,9 @@ func restore_world() -> void:
 		world.items[id].position = anchor_positions[id]+Vector3(.20,-.38 if id=="mess_cup" else .14,.12) if flag(id) else anchor_positions[id]
 		world.items[id].rotation.z = PI/2 if flag(id) else 0.0
 	World.Props.apply(world.items,value("current_day",1))
+	world.items.note.visible = value("current_day",1)<5
+	world.items.mess_cup.hide()
+	for n in world.tutorial_steps:World.Props.activate(n,value("current_day",1)==1)
 	# Furniture stays in the room when its one-day interaction is retired.
 	world.items.mess_pot.get_meta("bound_furniture").rotation.z = PI/2 if value("current_day",1)<=2 and flag("mess_pot") else 0.0
 	update_held_visual()
@@ -249,6 +252,7 @@ func update_held_visual() -> void:
 	else:held_visual.scale = Vector3.ONE*.7
 
 func show_dialog(kind: String) -> void:
+	if kind=="note" and value("current_day",1)==5:return
 	if kind=="note":note_day = value("current_day",1)
 	dialog = kind
 	page = 0

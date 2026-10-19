@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://4duf8ygqy4kv"
-path="res://.godot/imported/book_blue_book_blue.png-b5050d9f8534ebf96f5f9de461fe1317.ctex"
+path.s3tc="res://.godot/imported/book_blue_book_blue.png-b5050d9f8534ebf96f5f9de461fe1317.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0de8fe0024a4f2d7e507ffc2de256070"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://furniture_pack/quest_props/book_blue_book_blue.png"
-dest_files=["res://.godot/imported/book_blue_book_blue.png-b5050d9f8534ebf96f5f9de461fe1317.ctex"]
+dest_files=["res://.godot/imported/book_blue_book_blue.png-b5050d9f8534ebf96f5f9de461fe1317.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

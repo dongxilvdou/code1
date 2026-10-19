@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://besn5v51c3ru1"
-path="res://.godot/imported/book_gold_book_gold.png-7df94f4f0f157c474691905a4db50501.ctex"
+path.s3tc="res://.godot/imported/book_gold_book_gold.png-7df94f4f0f157c474691905a4db50501.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "e9b229662a3c906690833bf5a6f9cb45"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://furniture_pack/quest_props/book_gold_book_gold.png"
-dest_files=["res://.godot/imported/book_gold_book_gold.png-7df94f4f0f157c474691905a4db50501.ctex"]
+dest_files=["res://.godot/imported/book_gold_book_gold.png-7df94f4f0f157c474691905a4db50501.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

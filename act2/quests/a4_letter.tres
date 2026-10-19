@@ -6,7 +6,7 @@
 script = ExtResource("condition")
 kind = 1
 key = &"current_day"
-required_value = 4
+required_value = 5
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a4_letter"
@@ -17,7 +17,7 @@ target_id = &"a4_letter"
 script = ExtResource("quest")
 id = &"a4_letter"
 title = "01 · 没有清单的一天"
-description = "第4天 · 跳上桌子触发门铃，摇信箱三次并拾信。"
+description = "第5天 · 今天没有清单。跳上茶几触发门铃，摇信箱三次，读取照护来信。"
 priority = 76
 extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

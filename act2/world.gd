@@ -114,9 +114,17 @@ func build(parent: Node3D, game: Node) -> void:
 	glass.rotation.x = PI/2
 	camera_led = ball(monitor,Vector3(.025,.022,.014),Vector3(.006,.006,.006),Color("ff4a4a"))
 	camera_led.material_override = mat(Color("ff2222"),true)
-	# Reuse the existing climbing tree by the window, and an existing living-room plant.
-	var tree := Props.furniture(game,"cat_tree","Living")
-	var can := target("can",tree.to_global(Vector3(.13,.756,.04)),"猫爬架上的浇花壶",[3])
+	# The house already has a solid west-facing window ledge, reached from the sofa.
+	var sill := game.get_node("Apartment/GroundFloor/GroundWest_WindowSill_0621") as MeshInstance3D
+	# Deepen this existing sill inward, so a cat carrying the full can can walk off safely.
+	sill.mesh = sill.mesh.duplicate()
+	sill.mesh.size.x = .72
+	sill.position.x += .16
+	var sill_shape := sill.get_node("Detail_0622/Detail_0623") as CollisionShape3D
+	sill_shape.shape = sill_shape.shape.duplicate()
+	sill_shape.shape.size.x = .72
+	var can := target("can",sill.to_global(Vector3(.09,.0325,0)),"西侧窗台上的浇花壶",[3])
+	can.rotation.y = PI/2
 	Props.model(can,"watering_can")
 	water_surface = cylinder(can,Vector3(0,.216,0),.103,.003,Color("84bec7"))
 	var shower := Props.furniture(game,"decor_shower","Bath1")
@@ -134,12 +142,12 @@ func build(parent: Node3D, game: Node) -> void:
 	var plant := target("plant",plant_furniture.global_position+Vector3(0,.24,0),"沙发旁的花盆",[3])
 	Props.bind(plant,plant_furniture)
 	var mailbox := target("mailbox",Vector3(-1.60,0,7.30),"门外信箱 · 摇晃",[1,2,3,4,5])
-	mailbox.set_meta("interaction_days",[4])
+	mailbox.set_meta("interaction_days",[5])
 	Props.model(mailbox,"mailbox")
 	collision(mailbox,Vector3(0,.65,0),Vector3(.12,1.3,.12))
 	collision(mailbox,Vector3(0,1.32,0),Vector3(.54,.40,.36))
 	box(mailbox,"EnvelopeTip",Vector3(.08,1.39,.21),Vector3(.19,.014,.08),Color("eadfc4"))
-	var letter := target("letter",Vector3(-1.60,.012,7.70),"掉落的信",[4])
+	var letter := target("letter",Vector3(-1.60,.012,7.70),"掉落的照护来信",[5])
 	Props.model(letter,"letter")
 	var fridge := Props.furniture(game,"fridge","Kitchen")
 	fridge.get_node("Fridge_body").hide()

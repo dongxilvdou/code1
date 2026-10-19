@@ -4,6 +4,7 @@ const Props = preload("res://furniture_pack/quest_props/props.gd")
 var root: Node3D
 var items := {}
 var gates: Array[Node3D] = []
+var tutorial_steps: Array[Node3D] = []
 var door: Node3D
 const TV_STEP_POSITION := Vector3(-1.89,.50,3.20)
 const TV_STEP_SIZE := Vector3(.60,.04,.50)
@@ -107,7 +108,12 @@ func build(parent: Node3D, game: Node) -> void:
 	col.shape = shape
 	col.position = Vector3(.6575,1.1,0)
 	leaf.add_child(col)
-	box(leaf,"WoodPanel",col.position,shape.size,Color("b9a786"))
+	var wood_panel := box(leaf,"WoodPanel",col.position,shape.size,Color("b9a786"))
+	wood_panel.material_override = load("res://furniture_pack/materials/oak.tres")
+	for face in [-1,1]:
+		for h in [.60,1.56]:
+			var inset := box(leaf,"RecessedPanel",Vector3(.6575,h,face*.032),Vector3(1.06,.76,.012),Color("937755"))
+			inset.material_override = load("res://furniture_pack/materials/walnut.tres")
 	for side in [-1,1]:
 		box(leaf,"Handle",Vector3(1.12,.58,side*.065),Vector3(.2,.035,.07),Color("d6b16b"))
 	root.add_child(door)
@@ -172,16 +178,20 @@ func build(parent: Node3D, game: Node) -> void:
 	box(switch,"Rocker",Vector3(-.035,0,0),Vector3(.035,.11,.08),Color("acc69e"))
 	sign_at(switch,"灯的开关",Vector3(-.08,.20,0),24)
 	# A wider top rail makes the thin television a fair landing surface for the cat capsule.
-	box(root,"TVTopRail",Vector3(-1.28,1.315,2.57),Vector3(.32,.07,1.18),Color("343c3b"),true)
+	var steps := Node3D.new()
+	steps.name = "TutorialClimbingSteps"
+	root.add_child(steps)
+	tutorial_steps.append(steps)
+	box(steps,"TVTopRail",Vector3(-1.28,1.315,2.57),Vector3(.32,.07,1.18),Color("343c3b"),true)
 	# A freestanding step stool clears even the cabinet handles by 10 cm.
 	# The former extension shared its .52 m top surface with the cabinet.
-	var tv_stool := box(root,"TVSideShelf",TV_STEP_POSITION,TV_STEP_SIZE,Color("94734f"),true)
+	var tv_stool := box(steps,"TVSideShelf",TV_STEP_POSITION,TV_STEP_SIZE,Color("94734f"),true)
 	Props.fit_mesh(tv_stool,existing_table.get_node("Rounded_tabletop").mesh,TV_STEP_SIZE)
 	tv_stool.material_override = load("res://furniture_pack/materials/oak.tres")
 	var leg_index := 0
 	for x in [-.23,.23]:
 		for z in [-.18,.18]:
-			var leg := box(root,"ShelfLeg%d" % leg_index,Vector3(TV_STEP_POSITION.x+x,.24,TV_STEP_POSITION.z+z),Vector3(.055,.48,.055),Color("75543d"),true)
+			var leg := box(steps,"ShelfLeg%d" % leg_index,Vector3(TV_STEP_POSITION.x+x,.24,TV_STEP_POSITION.z+z),Vector3(.055,.48,.055),Color("75543d"),true)
 			Props.fit_mesh(leg,existing_table.get_node("Tapered_leg").mesh,Vector3(.055,.48,.055))
 			leg.material_override = load("res://furniture_pack/materials/walnut.tres")
 			leg_index += 1
@@ -194,8 +204,9 @@ func build(parent: Node3D, game: Node) -> void:
 		sign_at(paper,"纸片",Vector3(0,.15,0),18)
 	# Two reachable optional mess props, separate from the tutorial's protected cup.
 	var loose_cup := item("mess_cup",Vector3(-3.85,.46,1.72))
-	Props.model(loose_cup,"mug")
-	Props.days(loose_cup,[1,2])
+	Props.bind(loose_cup,cup)
+	loose_cup.set_meta("quest_days",[])
+	loose_cup.set_meta("interaction_days",[])
 	# This optional interaction belongs to a real house plant, not another blocky pot.
 	var plant := Props.furniture(game,"decor_plant","Living")
 	var pot := item("mess_pot",plant.global_position)

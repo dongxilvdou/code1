@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://3m7s1rjg0xyp"
-path="res://.godot/imported/memo_memo.png-9c395630180c82e11b6d470c89ca6993.ctex"
+path.s3tc="res://.godot/imported/memo_memo.png-9c395630180c82e11b6d470c89ca6993.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1bba47733c2b634457ebfa128e6cd91b"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://furniture_pack/quest_props/memo_memo.png"
-dest_files=["res://.godot/imported/memo_memo.png-9c395630180c82e11b6d470c89ca6993.ctex"]
+dest_files=["res://.godot/imported/memo_memo.png-9c395630180c82e11b6d470c89ca6993.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
