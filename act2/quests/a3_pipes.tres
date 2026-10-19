@@ -13,12 +13,20 @@ id = &"a3_pipes"
 text = "打开水槽柜门，旋转管道接通入口与出口。"
 kind = 3
 target_id = &"a3_pipes"
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a3_books"
+
+[sub_resource type="Resource" id="prior1"]
+script = ExtResource("condition")
+key = &"a3_photo"
+
 [resource]
 script = ExtResource("quest")
 id = &"a3_pipes"
 title = "02 · 柜门之内"
 description = "第3天 · 打开水槽柜门，旋转管道接通入口与出口。"
 priority = 77
-extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0"), SubResource("prior1")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])
 result_text = "线索已记录，进度已保存。"

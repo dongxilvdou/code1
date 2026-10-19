@@ -1,11 +1,18 @@
 extends RefCounted
 ## Shared visual resources and reversible, save-derived daily lifecycle.
 const PATH := "res://furniture_pack/quest_props/"
+const Details = preload("res://furniture_pack/quest_props/refined_props.gd")
 
 static func model(parent: Node3D, id: String, pos := Vector3.ZERO) -> Node3D:
-	var scene := load(PATH+id+".glb") as PackedScene
-	assert(scene != null,"Missing quest prop: "+id)
-	var visual := scene.instantiate() as Node3D
+	var visual: Node3D
+	if id in ["fish","half_fish"]:
+		visual = Node3D.new()
+		Details.fish(visual,id=="half_fish")
+	else:
+		var scene := load(PATH+id+".glb") as PackedScene
+		assert(scene != null,"Missing quest prop: "+id)
+		visual = scene.instantiate() as Node3D
+		Details.finish_imported(visual,id)
 	visual.name = "Visual_"+id
 	parent.add_child(visual)
 	visual.position = pos
@@ -52,7 +59,7 @@ static func memo_day(n: Node3D, today: int) -> void:
 			var original: Material = mesh.mesh.surface_get_material(surface_index)
 			if original is StandardMaterial3D and original.resource_name=="memo":
 				var material := original.duplicate() as StandardMaterial3D
-				material.albedo_texture = load(PATH+("memo.png" if today==1 else "memo%d.png"%today))
+				material.albedo_texture = load(PATH+("lunch_memo.png" if today==4 else "memo.png" if today==1 else "memo%d.png"%today))
 				mesh.set_surface_override_material(surface_index,material)
 	n.set_meta("memo_day",today)
 

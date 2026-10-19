@@ -13,12 +13,16 @@ id = &"a4_cook"
 text = "叼鱼入烤箱，再关门，等待烤熟进食。"
 kind = 3
 target_id = &"a4_cook"
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a4_fridge"
+
 [resource]
 script = ExtResource("quest")
 id = &"a4_cook"
-title = "03 · 唯一的鱼"
+title = "02 · 唯一的鱼"
 description = "第4天 · 叼鱼入烤箱，再关门，等待烤熟进食。"
 priority = 76
-extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])
 result_text = "线索已记录，进度已保存。"

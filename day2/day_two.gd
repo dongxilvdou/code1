@@ -143,7 +143,7 @@ func restore_world() -> void:
 	if not runtime_available():return
 	for id in world.items:world.items[id].visible = active_day() or id in ["feeder","cat_bowl","dog_bowl","dog","dog_spot"]
 	for name in ["WashStep","SinkStep"]:
-		World.Props.activate(get_node(name),active_day() if name=="WashStep" else true)
+		World.Props.activate(get_node(name),val("current_day",1) in get_node(name).get_meta("quest_days"))
 	# Step colliders are siblings of their meshes; only the dog/feeder collide on day one.
 	for body in get_children():
 		if body is StaticBody3D:body.collision_layer = 1 if active_day() else 0
@@ -162,8 +162,6 @@ func restore_world() -> void:
 	if stage!=1:
 		for stain in world.stains.get_children():stain.show()
 	world.stream.set_running(active_day() and stage==1)
-	for n in get_tree().get_nodes_in_group("placed_furniture"):
-		if n.get_meta("asset_id","")=="decor_pet_bowls":n.hide()
 	World.Props.apply(world.items,val("current_day",1))
 	update_held()
 	refresh_hud()

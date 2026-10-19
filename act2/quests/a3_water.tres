@@ -13,12 +13,16 @@ id = &"a3_water"
 text = "满壶不能跳；去淋浴间减半后，在沙发上瞄准浇花。"
 kind = 3
 target_id = &"a3_water"
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a3_pipes"
+
 [resource]
 script = ExtResource("quest")
 id = &"a3_water"
 title = "03 · 刚好的重量"
 description = "第3天 · 满壶不能跳；去淋浴间减半后，在沙发上瞄准浇花。"
 priority = 77
-extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])
 result_text = "线索已记录，进度已保存。"
