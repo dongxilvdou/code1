@@ -23,15 +23,7 @@ func ball(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> MeshInst
 
 func bowl(id: String, pos: Vector3, color: Color) -> void:
 	var n := item(id,pos)
-	cylinder(n,Vector3(0,.035,0),.14,.06,color)
-	var ring := MeshInstance3D.new()
-	var shape := TorusMesh.new()
-	shape.inner_radius = .12
-	shape.outer_radius = .15
-	ring.mesh = shape
-	ring.material_override = mat(color)
-	n.add_child(ring)
-	ring.position.y = .06
+	Props.model(n,"pet_bowl")
 	var kibble := Node3D.new()
 	n.add_child(kibble)
 	for i in range(14):
@@ -41,12 +33,10 @@ func bowl(id: String, pos: Vector3, color: Color) -> void:
 
 func build(parent: Node3D, game: Node) -> void:
 	root = parent
-	for data in [["cloth_sofa",Vector3(-5.03,.53,2.15),Color("8ba8bc")],["cloth_chair",Vector3(-2.45,.38,3.76),Color("bca0b2")],["cloth_entry",Vector3(.03,.035,4.10),Color("d9c5a2")]]:
+	for data in [["cloth_sofa",Vector3(-5.03,.53,2.15),Color("8ba8bc")],["cloth_chair",Vector3(-3.3,.465,-.55),Color("bca0b2")],["cloth_entry",Vector3(.03,.035,4.10),Color("d9c5a2")]]:
 		var n := item(data[0],data[1])
-		box(n,"Shirt",Vector3.ZERO,Vector3(.27,.03,.33),data[2])
-		for side in [-1,1]:
-			var sleeve := box(n,"Sleeve",Vector3(side*.18,0,-.07),Vector3(.17,.025,.13),data[2])
-			sleeve.rotation.y = side*.35
+		Props.model(n,["shirt_blue","shirt_red","shirt_gold"][["cloth_sofa","cloth_chair","cloth_entry"].find(data[0])])
+		Props.days(n,[2])
 		sign_at(n,"待洗衣服",Vector3(0,.16,0),23)
 	# Use the existing washing machine; its door is now a real rotating hinge.
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
@@ -62,23 +52,19 @@ func build(parent: Node3D, game: Node) -> void:
 			washer_selector = n.get_node("Selector")
 	var loading := item("washer_door",Vector3(2.33,.40,.86))
 	sign_at(loading,"洗衣机门 · E",Vector3(-.03,.16,0),23)
-	var dial := item("washer_dial",Vector3(2.70,.89,.60))
-	cylinder(dial,Vector3.ZERO,.055,.04,Color("b8c8b2"))
-	box(dial,"Pointer",Vector3(0,.022,-.028),Vector3(.012,.005,.038),Color("405749"))
+	var dial := item("washer_dial",washer_selector.global_position+Vector3(0,.02,.025))
+	Props.bind(dial,washer_selector)
+	dial.set_meta("dial_base",washer_selector.rotation)
+	box(washer_selector,"Indicator",Vector3(0,.022,-.020),Vector3(.006,.003,.024),Color("3b5149"))
+	# The original rotary selector is the only visible knob.
+	Props.days(loading,[2])
+	Props.days(dial,[2])
 	sign_at(dial,"洗衣旋钮",Vector3(0,.17,0),23)
 	var dispenser := item("feeder",Vector3(4.75,0,-2.77))
 	# Face the central kitchen aisle, like the adjacent preparation cabinets.
 	dispenser.rotation.y = PI
-	box(dispenser,"Body",Vector3(0,.45,0),Vector3(.68,.90,.48),Color("bac8bb"),true)
-	box(dispenser,"Face",Vector3(0,.55,.25),Vector3(.57,.35,.025),Color("354d43"))
-	for side in [-1,1]:
-		cylinder(dispenser,Vector3(side*.17,.95,0),.14,.28,Color("cbb484"))
-		box(dispenser,"Spout",Vector3(side*.16,.20,.30),Vector3(.14,.10,.17),Color("61766b"))
-	for column in range(3):
-		for row in range([2,4,1][column]):
-			var p := Vector3(-.18+column*.18,.70-row*.065,.27)
-			ball(dispenser,p,Vector3(.035,.026,.006),Color("d0bd8d"))
-			for toe in range(3):ball(dispenser,p+Vector3((toe-1)*.017,.025,0),Vector3(.013,.015,.006),Color("d0bd8d"))
+	Props.model(dispenser,"feeder")
+	collision(dispenser,Vector3(0,.37,0),Vector3(.63,.74,.44))
 	sign_at(dispenser,"食物给予器",Vector3(0,1.18,0),28)
 	bowl("cat_bowl",Vector3(4.00,.01,-2.88),Color("9ab9ad"))
 	var actor: Node3D = game.get_node("Apartment/Staircase/DogNest")
@@ -104,11 +90,19 @@ func build(parent: Node3D, game: Node) -> void:
 	var nozzle := spout.to_global(Vector3(0,(spout.mesh as CylinderMesh).height*.5,0))
 	basin_position = sink_cabinet.to_global(Vector3(0,.72,-.035))
 	var tap := item("tap",nozzle)
+	Props.bind(tap,sink_cabinet)
+	Props.days(tap,[2])
 	sign_at(tap,"水龙头 · E 冲洗狗盘",Vector3(0,.15,0),22)
 	stream = preload("res://day2/water_stream.gd").new()
 	stream.name = "RinseWater"
 	root.add_child(stream)
 	stream.configure(nozzle,basin_position.y+.072)
 	# A small step beside the washer and sink supports ordinary cat jumps.
-	box(root,"WashStep",Vector3(1.65,.16,1.14),Vector3(.43,.32,.42),Color("ae9472"),true)
-	box(root,"SinkStep",Vector3(1.23,.19,-4.71),Vector3(.48,.38,.45),Color("ae9472"),true)
+	for data in [["WashStep",Vector3(1.65,0,1.14),[2]],["SinkStep",Vector3(1.23,0,-4.71),[1,2,3,4,5]]]:
+		var step := Node3D.new()
+		step.name = data[0]
+		root.add_child(step)
+		step.position = data[1]
+		Props.model(step,"step_stool")
+		collision(step,Vector3(0,.305,0),Vector3(.43,.035,.42))
+		Props.days(step,data[2])

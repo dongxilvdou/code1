@@ -127,8 +127,7 @@ func _physics_process(delta: float) -> void:
 		refresh_hud()
 
 func on_surface(id: String, half_size: Vector2, top: float) -> bool:
-	var p: Vector3 = player.global_position-world.items[id].global_position
-	return absf(p.x)<half_size.x and absf(p.z)<half_size.y and absf(p.y-top)<.10
+	return World.Props.surface(world.items[id],player,half_size,top)
 
 func _process(delta: float) -> void:
 	if not initialized:return
@@ -152,6 +151,12 @@ func reset_spawn() -> void:
 	previous_position = player.global_position
 
 func restore_world() -> void:
+	# Normalize obsolete carried tutorial props from older saves before rebuilding visuals.
+	var held := value("holding")
+	if (held==1 and value("current_day",1)!=1) or (held in [2,3] and value("current_day",1)!=2):manager.values["holding"] = 0
+	for n in world.items.values():
+		if n.has_meta("quest_days"):n.visible = value("current_day",1) in n.get_meta("quest_days")
+	World.Props.memo_day(world.items.note,value("current_day",1))
 	var unlocked := flag("light_off")
 	for door in get_tree().get_nodes_in_group("villa_doors"):
 		if door==world.door:continue
@@ -168,13 +173,16 @@ func restore_world() -> void:
 	world.items.switch.get_node("Rocker").rotation.z = -.25 if flag("light_off") else .25
 	for data in World.PAPER_SPOTS:world.items["paper_"+data[0]].visible = not flag("paper_"+data[0])
 	world.items.cup.visible = value("holding")!=1
-	world.items.cup.position = Vector3(-3.48,.82,4.65) if flag("cup_moved") else anchor_positions.cup
+	world.items.cup.position = world.items.tray.position+Vector3(0,.015,0) if flag("cup_moved") else anchor_positions.cup
 	world.items.ruler.visible = is_second_day() and value("holding")!=2
 	world.items.yarn.visible = is_second_day() and value("holding")!=3
 	world.items.yarn.position = Vector3(-5,.27,4.85) if flag("yarn_home") else Vector3(-4.56,.10,2.15) if flag("yarn_freed") else anchor_positions.yarn
 	for id in ["mess_cup","mess_pot"]:
 		world.items[id].position = anchor_positions[id]+Vector3(.20,-.38 if id=="mess_cup" else .14,.12) if flag(id) else anchor_positions[id]
 		world.items[id].rotation.z = PI/2 if flag(id) else 0.0
+	World.Props.apply(world.items,value("current_day",1))
+	# Furniture stays in the room when its one-day interaction is retired.
+	world.items.mess_pot.get_meta("bound_furniture").rotation.z = PI/2 if value("current_day",1)<=2 and flag("mess_pot") else 0.0
 	update_held_visual()
 	if second_day() and second_day().world:second_day().restore_world()
 	refresh_hud()
@@ -288,7 +296,7 @@ func nearest_item() -> String:
 	for id in world.items:
 		if id in ["table","stool","television","switch"]:continue
 		var node: Node3D = world.items[id]
-		if not node.visible:continue
+		if not World.Props.interactable(node,value("current_day",1)):continue
 		if id in ["ruler","yarn"] and not yarn_available():continue
 		if id=="yarn" and not flag("yarn_freed"):continue
 		if id=="note" and not flag("cup_moved"):continue
@@ -319,7 +327,7 @@ func target_hint() -> String:
 	target = nearest_item()
 	if target.is_empty() and second_day():return second_day().target_hint()
 	match target:
-		"cup":return "E 叼起装水的纸杯" if flag("table") else "先跳上凳子，再跳上桌子"
+		"cup":return "E 叼起陶瓷水杯" if flag("table") else "先跳上单人沙发，再跳上茶几"
 		"tray":return "E 把纸杯放在杯垫上" if value("holding")==1 else "杯垫 · 用来放纸杯"
 		"note":return "E 阅读今天的小纸条" if flag("cup_moved") else "纸杯压住了纸条 · 先叼到旁边的杯垫"
 		"ruler":return "E 叼起尺子 · R 切换横叼 / 竖叼" if yarn_available() else "一楼工作书房的尺子 · 先完成前面的任务"
@@ -451,8 +459,8 @@ func refresh_hud() -> void:
 	if not flag("walk"):text = "WASD 走一走，鼠标环顾四周。"
 	elif not flag("run"):text = "按住 Shift + WASD，试着跑一小段。"
 	elif not flag("open_living"):text = "靠近左侧客厅门，看向把手，按 E 打开。"
-	elif not flag("stool"):text = "客厅南窗边有一张桌子。按空格先跳上旁边的小凳子。"
-	elif not flag("table"):text = "从凳子起跳，跳到放着纸条的桌上。"
+	elif not flag("stool"):text = "先按空格跳上客厅北侧的单人沙发。"
+	elif not flag("table"):text = "再跳上客厅茶几，看看杯子下面的小纸条。"
 	elif not flag("cup_moved"):text = "看向纸杯按 E 叼起，再看向左侧杯垫按 E 放下。"
 	elif not flag("note_read"):text = "现在能看清纸条了。看向纸条按 E。"
 	elif not flag("light_off"):text = "01  关灯\n先跳上电视柜，再跳到电视顶端。绿色区按 E，成功三次后起跳碰开关。"
