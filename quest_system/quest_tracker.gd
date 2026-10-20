@@ -136,6 +136,7 @@ func refresh() -> void:
 	var available := 0
 	var completed := 0
 	for quest in manager.sorted_quests():
+		if not relevant_today(quest):continue
 		var status := manager.get_status(quest.id)
 		if status == CalicoQuestManager.State.COMPLETED: completed += 1
 		if status == CalicoQuestManager.State.AVAILABLE: available += 1
@@ -147,6 +148,11 @@ func refresh() -> void:
 	if count > 2: footer.text += "\n另有 %d 个进行中任务" % (count - 2)
 	if available > 0: footer.text += "\n%d 个任务可接取" % available
 	if journal_visible(): _refresh_journal()
+
+func relevant_today(quest: CalicoQuest) -> bool:
+	var today := int(manager.values.get("current_day",1))
+	if today>=6 and not str(quest.id).begins_with("a%d_"%today):return false
+	return true
 
 func _build_journal() -> void:
 	journal = Control.new()
@@ -260,7 +266,7 @@ func _process(delta: float) -> void:
 	var story = system.game.get_node_or_null("DayOne")
 	var has_side_quest := false
 	for quest in manager.sorted_quests():
-		if not quest.main_quest and manager.get_status(quest.id)==CalicoQuestManager.State.ACTIVE:has_side_quest = true
+		if relevant_today(quest) and not quest.main_quest and manager.get_status(quest.id)==CalicoQuestManager.State.ACTIVE:has_side_quest = true
 	var story_card: bool = story != null and story.initialized and story.hud.card.visible and not has_side_quest
 	task_scroll.visible = not story_card
 	footer.visible = not story_card

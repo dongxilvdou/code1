@@ -49,10 +49,18 @@ func open(kind: String, text := "") -> void:
 			for i in range(16):arrows.append(chapter.val("yarn_%d"%i,1 if i%3==0 else 0))
 			make_board(Vector2(400,300))
 		"medicine":
-			title.text = "七只药瓶 / 观察余量"
-			description.text = "来信只写着：取药量最少的三瓶。点击选择，再确认。\n瓶内每一个圆点代表剩余药片；选错可以重新选择。"
+			title.text = "七只密封药瓶 / 听声音"
+			description.text = "瓶盖无法打开，也看不见里面。点击瓶子摇晃，比较声音的响度和音色。\n药片越多，碰撞声越响、越密。反复试听，选出药片最少的三瓶。"
 			selected.clear()
+			for i in range(7):
+				if chapter.val("med_selection_mask") & (1<<i):selected.append(i)
 			make_board(Vector2(588,180))
+			var choose_row := HBoxContainer.new()
+			detail.add_child(choose_row)
+			for i in range(7):
+				var choose := button("选 / 取消 %d"%(i+1),choose_row,toggle_medicine.bind(i))
+				choose.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				choose.add_theme_font_size_override("font_size",14)
 			button("从选中的三瓶取药",detail,check_medicine)
 		"voice":
 			title.text = "再叫一次我的名字"
@@ -133,10 +141,18 @@ func draw_board() -> void:
 	elif mode=="medicine":
 		for i in range(7):
 			var r := cell_rect(i,7,1)
-			board.draw_rect(Rect2(r.position+Vector2(10,30),r.size-Vector2(20,60)),sage if selected.has(i) else Color("3c514c"))
-			board.draw_rect(Rect2(r.position+Vector2(18,18),Vector2(r.size.x-36,15)),gold)
-			for j in range(MED_COUNTS[i]):board.draw_circle(r.position+Vector2(24+(j%2)*18,130-(j/2)*18),5,gold)
-			board.draw_string(font,r.position+Vector2(20,165),str(i+1),HORIZONTAL_ALIGNMENT_LEFT,-1,18,gold)
+			var body := QuestTheme.panel(13)
+			body.bg_color = Color("73553d")
+			body.border_color = sage if selected.has(i) else Color("a18a65")
+			body.set_border_width_all(3 if selected.has(i) else 1)
+			board.draw_style_box(body,Rect2(r.position+Vector2(9,32),r.size-Vector2(18,62)))
+			var cap := QuestTheme.panel(5)
+			cap.bg_color = Color("ded8bf")
+			board.draw_style_box(cap,Rect2(r.position+Vector2(15,18),Vector2(r.size.x-30,22)))
+			for x in range(5):board.draw_line(r.position+Vector2(20+x*7,21),r.position+Vector2(20+x*7,36),Color("a9a38d"),1)
+			board.draw_rect(Rect2(r.position+Vector2(15,66),Vector2(r.size.x-30,45)),Color("e2dcc5"))
+			board.draw_string(font,r.position+Vector2(24,96),"%02d"%(i+1),HORIZONTAL_ALIGNMENT_LEFT,-1,20,Color("455950"))
+			board.draw_string(font,r.position+Vector2(10,165),"已听" if chapter.val("med_heard_mask") & (1<<i) else "摇一摇",HORIZONTAL_ALIGNMENT_LEFT,-1,14,sage if selected.has(i) else gold)
 	elif mode=="aim":pass # The live viewport renders the actual models and water volume.
 
 func pipe_ends(i: int) -> Array:
@@ -212,8 +228,35 @@ func pull_thread(i: int) -> void:
 
 func check_medicine() -> void:
 	selected.sort()
-	if selected==[1,3,5]:solved.emit("medicine")
-	else:feedback.text = "数量不对。比较每瓶的余量，只选最少的三瓶。"
+	for i in selected:
+		if not chapter.val("med_heard_mask") & (1<<i):
+			feedback.text = "先摇晃选中的药瓶，听一听里面的声音。"
+			return
+	if selected==[1,3,5]:
+		chapter.set_value("med_selection_mask",0)
+		solved.emit("medicine")
+	else:feedback.text = "还不对。再摇一摇，比较响度和音色，只选最少的三瓶。"
+
+func shake_medicine(i: int) -> void:
+	chapter.set_value("med_heard_mask",chapter.val("med_heard_mask") | (1<<i))
+	audio.stream = load("res://act3/audio/bottle_%d.wav"%i)
+	audio.volume_db = 0
+	audio.pitch_scale = 1.0
+	audio.play()
+	feedback.text = "正在摇晃 %d 号药瓶。听完后，可以再次点击比较。"%(i+1)
+	board.queue_redraw()
+
+func toggle_medicine(i: int) -> void:
+	if selected.has(i):selected.erase(i)
+	elif selected.size()<3:selected.append(i)
+	else:
+		feedback.text = "最多选择三瓶，先取消一瓶再重新选择。"
+		return
+	var mask := 0
+	for entry in selected:mask |= 1<<entry
+	chapter.set_value("med_selection_mask",mask)
+	feedback.text = "已选择 %d / 3 瓶。"%selected.size()
+	board.queue_redraw()
 
 func try_tone(i: int) -> void:
 	play_voice(i,false)
@@ -268,9 +311,7 @@ func board_input(event: InputEvent) -> void:
 		"slide":move_tile(i)
 		"yarn":pull_thread(i)
 		"medicine":
-			if selected.has(i):selected.erase(i)
-			elif selected.size()<3:selected.append(i)
-			feedback.text = "已选择 %d / 3 瓶"%selected.size()
+			if i in range(7):shake_medicine(i)
 	board.queue_redraw()
 
 func close() -> void:

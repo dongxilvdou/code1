@@ -24,6 +24,13 @@
 [ext_resource type="Resource" path="res://act2/quests/a5_medicine.tres" id="a5_medicine"]
 [ext_resource type="Resource" path="res://act2/quests/a5_name.tres" id="a5_name"]
 
+[ext_resource type="Resource" path="res://act3/quests/a6_feed.tres" id="a6_feed"]
+[ext_resource type="Resource" path="res://act3/quests/a6_permission.tres" id="a6_permission"]
+[ext_resource type="Resource" path="res://act3/quests/a6_snacks.tres" id="a6_snacks"]
+[ext_resource type="Resource" path="res://act3/quests/a7_power.tres" id="a7_power"]
+[ext_resource type="Resource" path="res://act3/quests/a7_computer_power.tres" id="a7_computer_power"]
+[ext_resource type="Resource" path="res://act3/quests/a7_login.tres" id="a7_login"]
+
 [resource]
 script = ExtResource("catalog")
-quests = Array[ExtResource("quest")]([ExtResource("day1_arrival"), ExtResource("day1_lights"), ExtResource("day1_papers"), ExtResource("day1_yarn"), ExtResource("day2_note"), ExtResource("day2_laundry"), ExtResource("day2_feed"), ExtResource("day2_dishes"), ExtResource("a3_books"), ExtResource("a3_photo"), ExtResource("a3_pipes"), ExtResource("a3_water"), ExtResource("a3_feed"), ExtResource("a4_letter"), ExtResource("a4_fridge"), ExtResource("a4_cook"), ExtResource("a4_share"), ExtResource("a4_toy"), ExtResource("a5_medicine"), ExtResource("a5_name")])
+quests = Array[ExtResource("quest")]([ExtResource("day1_arrival"), ExtResource("day1_lights"), ExtResource("day1_papers"), ExtResource("day1_yarn"), ExtResource("day2_note"), ExtResource("day2_laundry"), ExtResource("day2_feed"), ExtResource("day2_dishes"), ExtResource("a3_books"), ExtResource("a3_photo"), ExtResource("a3_pipes"), ExtResource("a3_water"), ExtResource("a3_feed"), ExtResource("a4_letter"), ExtResource("a4_fridge"), ExtResource("a4_cook"), ExtResource("a4_share"), ExtResource("a4_toy"), ExtResource("a5_medicine"), ExtResource("a5_name"), ExtResource("a6_feed"), ExtResource("a6_permission"), ExtResource("a6_snacks"), ExtResource("a7_power"), ExtResource("a7_computer_power"), ExtResource("a7_login")])

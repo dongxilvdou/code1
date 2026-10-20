@@ -10,7 +10,7 @@ required_value = 5
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a5_medicine"
-text = "选择余量最少的三瓶，直接喂被拒后，混进狗粮喂食。"
+text = "摇晃密封药瓶，听声音选出药片最少的三瓶；直接喂被拒后，混进狗粮喂食。"
 kind = 3
 target_id = &"a5_medicine"
 [sub_resource type="Resource" id="prior0"]
@@ -21,7 +21,7 @@ key = &"a5_letter"
 script = ExtResource("quest")
 id = &"a5_medicine"
 title = "02 · 不肯吃的药"
-description = "第5天 · 选择余量最少的三瓶，直接喂被拒后，混进狗粮喂食。"
+description = "第5天 · 摇晃密封药瓶，听声音选出药片最少的三瓶；直接喂被拒后，混进狗粮喂食。"
 priority = 75
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

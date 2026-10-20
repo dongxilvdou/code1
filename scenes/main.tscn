@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://day2/day_two.gd" id="9_day2"]
 
 [ext_resource type="Script" path="res://act2/chapter.gd" id="10_act2"]
+[ext_resource type="Script" path="res://act3/chapter.gd" id="11_act3"]
 
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")
@@ -35,6 +36,9 @@ script = ExtResource("9_day2")
 
 [node name="ActTwo" type="Node3D" parent="."]
 script = ExtResource("10_act2")
+
+[node name="ActThree" type="Node3D" parent="."]
+script = ExtResource("11_act3")
 
 [node name="OpeningCutscene" parent="." node_paths=PackedStringArray("environment_source", "sun_source") instance=ExtResource("6_intro")]
 environment_source = NodePath("../Apartment/Lighting/VillaEnvironment")

@@ -74,6 +74,8 @@ func update_target() -> void:
 	if day and day.has_method("target_hint"):
 		var hint: String = day.target_hint()
 		if not hint.is_empty():ui.hint_label.text = hint
+		elif day.initialized and not day.flag("a6_permission") and player.global_position.distance_to(Vector3(5.20,1.65,-1.13))<1.6:
+			ui.hint_label.text = "阿嚼守着通往二楼的楼梯，现在还不肯让路。"
 
 func interact() -> void:
 	var day := get_node_or_null("DayOne")

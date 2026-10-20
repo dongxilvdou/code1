@@ -135,7 +135,13 @@ static func finish_imported(visual: Node3D, id: String) -> void:
 			var original: Material = mesh.mesh.surface_get_material(surface)
 			if not original is StandardMaterial3D:continue
 			var key: String = original.resource_name
-			if key=="amber" and (id.begins_with("medicine_") or id=="feeder"):
+			if key=="amber" and id.begins_with("medicine_"):
+				mesh.set_surface_override_material(surface,material("sealed_amber",Color("806048"),.34))
+			elif key.begins_with("medicine_") and id.begins_with("medicine_"):
+				var label_mat := original.duplicate() as StandardMaterial3D
+				label_mat.albedo_texture = load("res://act3/textures/sealed_%s.png"%id)
+				mesh.set_surface_override_material(surface,label_mat)
+			elif key=="amber" and id=="feeder":
 				var glass := material("amber_glass",Color(.64,.43,.22,.23),.16)
 				glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 				glass.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -150,18 +156,8 @@ static func finish_imported(visual: Node3D, id: String) -> void:
 				mesh.set_surface_override_material(surface,cloth)
 			elif id=="step_stool" and key=="cork":
 				mesh.set_surface_override_material(surface,load("res://furniture_pack/materials/oak.tres"))
-	if id.begins_with("medicine_"):
-		var index := int(id.trim_prefix("medicine_"))
-		var count: int = [8,2,7,1,9,3,8][index]
-		var pills := Node3D.new()
-		pills.name = "VisibleTablets"
-		visual.add_child(pills)
-		for i in range(count):
-			var p := Vector3((i%2-.5)*.025,.012+floori(i/2.0)*.012,-.010 if i%2==0 else .008)
-			var tablet := ellipsoid(pills,"ScoredTablet",p,Vector3(.020,.012,.016),material("tablet",Color("ede4ca"),.82))
-			tablet.rotation.z = (i%3-1)*.21
-			rod(pills,"TabletScore",p+Vector3(-.006,.006,0),p+Vector3(.006,.006,0),.0005,material("tablet_score",Color("bfbaa8"),.85))
-	elif id=="feeder":
+
+	if id=="feeder":
 		var kibble := material("kibble",Color("9f7045"),.9)
 		var grain := SphereMesh.new()
 		grain.radius = .5

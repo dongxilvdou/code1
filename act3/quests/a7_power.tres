@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 7
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a7_note"
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a7_power"
+text = "在二楼走廊让配电板十六盏灯同时点亮。"
+kind = 3
+target_id = &"a7_power"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a7_power"
+title = "01 · 断开的电路"
+description = "第7天 · 在二楼走廊让配电板十六盏灯同时点亮。"
+priority = 73
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"

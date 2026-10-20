@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 7
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a7_power"
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a7_computer_power"
+text = "把厚书和花盆放到感应垫上，再站上去启动电脑。"
+kind = 3
+target_id = &"a7_computer_power"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a7_computer_power"
+title = "02 · 座椅上的重量"
+description = "第7天 · 把厚书和花盆放到感应垫上，再站上去启动电脑。"
+priority = 73
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"

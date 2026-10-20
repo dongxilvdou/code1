@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 7
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a7_computer_power"
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a7_login"
+text = "参考桌上便签和最近的照片，输入电脑密码。"
+kind = 3
+target_id = &"a7_login"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a7_login"
+title = "03 · 你的名字"
+description = "第7天 · 参考桌上便签和最近的照片，输入电脑密码。"
+priority = 73
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"
