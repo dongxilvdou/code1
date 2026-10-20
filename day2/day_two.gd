@@ -292,7 +292,7 @@ func interact_item(id: String) -> void:
 	if id=="note":
 		day.show_dialog("note")
 		return
-	if not day.Notes.read(day):
+	if not day.Notes.read(day) and not (val("current_day",1)==6 and id in ["feeder","cat_bowl","cat_spot","dog_bowl","dog_spot","dog"]):
 		game.ui.toast(day.Notes.guidance(val("current_day",1)),4)
 		return
 	if not runtime_available():return
@@ -325,6 +325,9 @@ func interact_item(id: String) -> void:
 			return
 		open_puzzle("wash")
 	elif id=="feeder":
+		if val("current_day",1)==7 and not flag("a7_power"):
+			game.ui.toast("整栋楼都停电了，给予器也没有反应。先去二楼走廊检查电路。",4)
+			return
 		if not feeding_available():
 			game.ui.toast("先收齐第一天的纸片，再来研究给予器。",3)
 			return

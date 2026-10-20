@@ -212,7 +212,7 @@ func build(parent: Node3D, game: Node) -> void:
 	var bone := target("bone",Vector3(-4.48,.025,2.30),"编号 D-017 的磨牙玩具",[4,5])
 	Props.model(bone,"bone")
 	var table: Node3D = game.get_node("DayOne").world.items.table
-	var medicines := target("medicine",table.position+Vector3(.12,.454,-.04),"七只药瓶 · 检查剩余量",[5])
+	var medicines := target("medicine",table.position+Vector3(.12,.454,-.04),"七只密封药瓶 · 摇晃听声音",[5])
 	for i in range(7):
 		var visual := Props.model(medicines,"medicine_%d"%i,Vector3((i%4)*.10-.15,0,(i/4)*.13))
 		medicine_models.append(visual)

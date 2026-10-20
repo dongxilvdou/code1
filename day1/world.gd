@@ -154,7 +154,7 @@ func build(parent: Node3D, game: Node) -> void:
 	var top := existing_table.global_position+Vector3(0,.454,0)
 	var note := item("note",top+Vector3(.12,0,0))
 	Props.model(note,"memo")
-	Props.days(note,[1,2,3,4,5])
+	Props.days(note,[1,2,3,4,6,7])
 	sign_at(note,"今日的小纸条",Vector3(0,.20,0),23)
 	var cup := item("cup",note.position+Vector3(0,.006,0))
 	Props.model(cup,"mug")

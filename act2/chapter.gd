@@ -57,7 +57,7 @@ func seed_previous_days() -> void:
 	day.reconcile_progress()
 
 func today() -> int:return day.value("current_day",1)
-func active() -> bool:return day.initialized and today()>=3
+func active() -> bool:return day.initialized and today() in [3,4,5]
 func flag(key: String) -> bool:return day.flag(key)
 func val(key: String, fallback := 0) -> int:return day.value(key,fallback)
 func set_value(key: String, value: int) -> void:day.manager.set_value(StringName(key),value)
@@ -343,7 +343,7 @@ func interact_item(id: String) -> void:
 	elif id=="letter":
 		if not flag("letter_dropped"):return
 		mark("a5_letter")
-		story("信上写着：\n\n大狗嚼今天需要吃药。\n客厅茶几上有七瓶药，请从余量最少的三瓶里取药，照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。")
+		story("信上写着：\n\n大狗嚼今天需要吃药。\n七只药瓶无法开盖，只能摇晃听声音。药片越多，碰撞声越响、越密。\n请从药片最少的三瓶里取药，照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。")
 	elif id=="fridge_lock":
 		if today()<4:
 			set_flag("empty_fridge_open",not flag("empty_fridge_open"))
@@ -395,7 +395,9 @@ func interact_item(id: String) -> void:
 		if day_complete() and today()<5:
 			begin_day(today()+1)
 			return
-		elif day_complete():story("第二幕完\n\n阿嚼记得自己的名字了，也记得你。\n照片、镜头、两个编号……这些日常任务背后，有人在等待某种结果。\n\n你仍然可以在家里探索、照顾阿嚼，或在桌边回看线索。" if flag("a5_name") else "今天的照护任务完成了。\n\n大狗嚼似乎还有话想说。留下来陪它聊聊，也许能发现更多事情。")
+		elif day_complete():
+			get_parent().get_node("ActThree").begin_day(6)
+			return
 		else:story("今天还有事情没有做完。\n\n"+guidance())
 
 	elif id=="clues":story("已经收好的线索\n\n照片：主人穿着白大褂，身旁是我。C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
@@ -514,7 +516,7 @@ func guidance() -> String:
 		if not flag("a4_share"):return "厨房还有半条鱼。大狗嚼也许会想尝一尝。"
 		if not flag("a4_toy"):return "和大狗嚼聊聊。它的玩具可能藏在客厅沙发旁的毛线球里。"
 	else:
-		if not flag("a5_medicine"):return "02 喂药\n客厅茶几上的七瓶药，选择药量最少的三瓶。先试着直接喂，再把药混进狗盘，盛狗粮送给它。"
+		if not flag("a5_medicine"):return "02 喂药\n七只药瓶不能开盖。摇晃听响度和音色，选出药片最少的三瓶。直接喂被拒后，把药混进狗盘，再盛粮喂它。"
 		if not flag("a5_name"):return "今天的照护任务完成了，可以回窝。\n也可以再和大狗嚼聊聊，它似乎还有心事。"
 	return "今天的事情都完成了。回南窗边的猫窝休息。" if today()<5 else "第二幕已完成。阿嚼记起了名字。桌边的线索册可以回看照片与编号。"
 

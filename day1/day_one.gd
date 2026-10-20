@@ -137,7 +137,7 @@ func on_surface(id: String, half_size: Vector2, top: float) -> bool:
 
 func note_target() -> Vector3:
 	# The readable label sits above the paper, clear of the tabletop at cat eye height.
-	return world.items.note.global_position+Vector3(0,.20 if value("current_day",1) in [2,3,4] else .035,0)
+	return world.items.note.global_position+Vector3(0,.20 if value("current_day",1) in [2,3,4,6,7] else .035,0)
 
 func _process(delta: float) -> void:
 	if not initialized:return
@@ -198,7 +198,7 @@ func restore_world() -> void:
 		world.items[id].position = anchor_positions[id]+Vector3(.20,-.38 if id=="mess_cup" else .14,.12) if flag(id) else anchor_positions[id]
 		world.items[id].rotation.z = PI/2 if flag(id) else 0.0
 	World.Props.apply(world.items,value("current_day",1))
-	world.items.note.visible = value("current_day",1)<5
+	world.items.note.visible = value("current_day",1)!=5
 	world.items.mess_cup.hide()
 	for n in world.tutorial_steps:World.Props.activate(n,value("current_day",1)==1)
 	# Furniture stays in the room when its one-day interaction is retired.
@@ -288,6 +288,8 @@ func advance_dialog() -> void:
 	restore_world()
 	var chapter := get_parent().get_node_or_null("ActTwo")
 	if chapter and chapter.active():chapter.restore()
+	var third := get_parent().get_node_or_null("ActThree")
+	if third and third.active():third.restore()
 	if start_next and second_day():second_day().begin_day()
 
 func _input(event: InputEvent) -> void:
@@ -358,6 +360,7 @@ func nearest_item() -> String:
 	return found
 
 func target_hint() -> String:
+	if value("current_day",1)>=6:return get_parent().get_node("ActThree").target_hint()
 	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").target_hint()
 	if not initialized:return ""
 	if is_second_day() and second_day():return second_day().target_hint()
@@ -377,6 +380,7 @@ func target_hint() -> String:
 	return ""
 
 func try_interact() -> bool:
+	if value("current_day",1)>=6:return get_parent().get_node("ActThree").try_interact()
 	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").try_interact()
 	if not active_play():return false
 	if is_second_day() and second_day():return second_day().try_interact()
@@ -483,6 +487,9 @@ func finish_balance(success: bool) -> void:
 		game.ui.toast("滑回小凳子了。再跳上电视就能重试。",3)
 
 func refresh_hud() -> void:
+	if value("current_day",1)>=6:
+		get_parent().get_node("ActThree").refresh_hud()
+		return
 	if value("current_day",1)>=3:
 		get_parent().get_node("ActTwo").refresh_hud()
 		return
@@ -530,6 +537,7 @@ func restart_day() -> void:
 	game.cinematic_active = false
 	if second_day():second_day().reset_runtime()
 	if get_parent().has_node("ActTwo"):get_parent().get_node("ActTwo").reset_runtime()
+	if get_parent().has_node("ActThree"):get_parent().get_node("ActThree").reset_runtime()
 	restore_world()
 	reset_spawn()
 	# The caller is still inside the journal; do not steal pause/input ownership.
