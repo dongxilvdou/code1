@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 11
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a11_locks"
+text = "使用转向器、延迟线圈、汇流门和变速带解开三组锁。"
+kind = 3
+target_id = &"a11_lock"
+target_count = 3
+[resource]
+script = ExtResource("quest")
+id = &"a11_locks"
+title = "01 · 三组电流锁"
+description = "第11天 · 使用转向器、延迟线圈、汇流门和变速带解开三组锁。"
+priority = 110
+extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"

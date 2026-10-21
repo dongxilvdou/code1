@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 10
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a10_catch"
+text = "追过指定房间，在厨房抓住老鼠。"
+kind = 3
+target_id = &"a10_catch"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a10_catch"
+title = "01 · 差一点抓住"
+description = "第10天 · 追过指定房间，在厨房抓住老鼠。"
+priority = 100
+extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 11
+[sub_resource type="Resource" id="prior"]
+script = ExtResource("condition")
+key = &"a11_locks"
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a11_enter"
+text = "沿真实楼梯走到地下室底部的平台。"
+kind = 3
+target_id = &"a11_enter"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a11_enter"
+title = "02 · 来地下室"
+description = "第11天 · 沿真实楼梯走到地下室底部的平台。"
+priority = 111
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"
