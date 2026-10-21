@@ -137,7 +137,7 @@ func on_surface(id: String, half_size: Vector2, top: float) -> bool:
 
 func note_target() -> Vector3:
 	# The readable label sits above the paper, clear of the tabletop at cat eye height.
-	return world.items.note.global_position+Vector3(0,.20 if value("current_day",1) in [2,3,4,6,7] else .035,0)
+	return world.items.note.global_position+Vector3(0,.20 if value("current_day",1) in [2,3,4,6,7,8,9,10,11] else .035,0)
 
 func _process(delta: float) -> void:
 	if not initialized:return
@@ -290,6 +290,8 @@ func advance_dialog() -> void:
 	if chapter and chapter.active():chapter.restore()
 	var third := get_parent().get_node_or_null("ActThree")
 	if third and third.active():third.restore()
+	var fourth := get_parent().get_node_or_null("ActFour")
+	if fourth and fourth.active():fourth.restore()
 	if start_next and second_day():second_day().begin_day()
 
 func _input(event: InputEvent) -> void:
@@ -360,6 +362,7 @@ func nearest_item() -> String:
 	return found
 
 func target_hint() -> String:
+	if value("current_day",1)>=8:return get_parent().get_node("ActFour").target_hint()
 	if value("current_day",1)>=6:return get_parent().get_node("ActThree").target_hint()
 	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").target_hint()
 	if not initialized:return ""
@@ -380,6 +383,7 @@ func target_hint() -> String:
 	return ""
 
 func try_interact() -> bool:
+	if value("current_day",1)>=8:return get_parent().get_node("ActFour").try_interact()
 	if value("current_day",1)>=6:return get_parent().get_node("ActThree").try_interact()
 	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").try_interact()
 	if not active_play():return false
@@ -487,6 +491,9 @@ func finish_balance(success: bool) -> void:
 		game.ui.toast("滑回小凳子了。再跳上电视就能重试。",3)
 
 func refresh_hud() -> void:
+	if value("current_day",1)>=8:
+		get_parent().get_node("ActFour").refresh_hud()
+		return
 	if value("current_day",1)>=6:
 		get_parent().get_node("ActThree").refresh_hud()
 		return
@@ -538,6 +545,7 @@ func restart_day() -> void:
 	if second_day():second_day().reset_runtime()
 	if get_parent().has_node("ActTwo"):get_parent().get_node("ActTwo").reset_runtime()
 	if get_parent().has_node("ActThree"):get_parent().get_node("ActThree").reset_runtime()
+	if get_parent().has_node("ActFour"):get_parent().get_node("ActFour").reset_runtime()
 	restore_world()
 	reset_spawn()
 	# The caller is still inside the journal; do not steal pause/input ownership.

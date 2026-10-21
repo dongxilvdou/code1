@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 8
+[sub_resource type="Resource" id="prior"]
+script = ExtResource("condition")
+key = &"a8_wash"
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a8_clock"
+text = "找到旧照片与便签，把三根指针调整到正确时间。"
+kind = 3
+target_id = &"a8_clock"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a8_clock"
+title = "03 · 倒走的时钟"
+description = "第8天 · 找到旧照片与便签，把三根指针调整到正确时间。"
+priority = 82
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"

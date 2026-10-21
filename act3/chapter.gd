@@ -284,6 +284,9 @@ func interact_item(id: String) -> void:
 		else:story("阿嚼：我就在这里。\n"+("二楼每个房间都去看看吧，小鱼干不会自己跑掉。" if today()==6 else "今天连给予器也停了。电路修好后，看看电脑桌旁的东西吧。"))
 	elif id=="nest":
 		if not day_complete():story(guidance())
+		elif today()==7 and flag("a7_complete") and get_parent().has_node("ActFour"):
+			get_parent().get_node("ActFour").begin_day(8)
+			return
 		elif today()==6:
 			begin_day(7)
 			return
@@ -293,7 +296,7 @@ func interact_item(id: String) -> void:
 			set_flag("weight_book_placed",false)
 			set_flag("weight_plant_placed",false)
 			restore()
-			story("第三幕当前任务完成\n\n电路恢复了，电脑也认出了照片上的 C-031。\n阿嚼留在厨房等你。\n\n可以继续在家中探索，或再次查看电脑桌面。")
+			story("第三幕当前任务完成\n\n电路恢复了，电脑也认出了照片上的 C-031。\n阿嚼留在厨房等你。\n\n再次回窝休息，将进入第八天。也可以继续探索或查看电脑桌面。")
 	elif not day.Notes.read(day):game.ui.toast(day.Notes.guidance(today()),4)
 	elif id.begins_with("snack"):
 		if not flag("a6_permission"):return

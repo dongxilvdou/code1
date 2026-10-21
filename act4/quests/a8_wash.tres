@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 8
+[sub_resource type="Resource" id="prior"]
+script = ExtResource("condition")
+key = &"a8_food"
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a8_wash"
+text = "依据水垢与磨痕调水流，在原淋浴间洗澡。"
+kind = 3
+target_id = &"a8_wash"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a8_wash"
+title = "02 · 磨平的刻度"
+description = "第8天 · 依据水垢与磨痕调水流，在原淋浴间洗澡。"
+priority = 81
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"
