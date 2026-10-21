@@ -2,14 +2,14 @@ extends "res://day2/world.gd"
 const Details = preload("res://furniture_pack/quest_props/refined_props.gd")
 const Circuit = preload("res://act3/lights_out.gd")
 const SNACKS := [
-	["MasterBedroom","主卧","tv_console",Vector3(.35,.525,.18)],
-	["BedroomA","次卧 A","nightstand",Vector3(.15,.555,.12)],
-	["Study","书房","decor_side_table",Vector3(.04,.535,.22)],
-	["Terrace","露台","coffee_table",Vector3(-.24,.455,.07)],
-	["Reading","阅读角","decor_side_table",Vector3(.04,.535,.22)],
-	["Bathroom","卫生间","decor_bath_mat",Vector3(-.12,.010,.04)],
-	["Dressing","衣帽储物","decor_basket",Vector3(-.40,.010,0)],
-	["ComputerRoom","电脑房","decor_side_table",Vector3(0,.535,.01)]
+	["MasterBedroom","主卧","tv_console",Vector3(.35,.521,.18)],
+	["BedroomA","次卧 A","nightstand",Vector3(.15,.551,.12)],
+	["Study","书房","desk",Vector3(-.06,.781,.13)],
+	["Terrace","露台","coffee_table",Vector3(-.24,.451,.07)],
+	["Reading","阅读角","decor_side_table",Vector3(0,.531,.17)],
+	["Bathroom","卫生间","decor_bath_mat",Vector3(-.12,.016,.04)],
+	["Dressing","衣帽储物","decor_basket",Vector3(-.40,.001,0)],
+	["ComputerRoom","电脑房","decor_side_table",Vector3(0,.531,.01)]
 ]
 var desk: Node3D
 var chair: Node3D
@@ -54,22 +54,11 @@ func build(parent: Node3D, game: Node) -> void:
 		assert(furniture_!=null,"Missing upstairs furniture: "+data[0])
 		var snack := target("snack%d"%i,furniture_.to_global(data[3]),data[1]+"的小鱼干",[6])
 		Props.bind(snack,furniture_)
-		var dried := Node3D.new()
+		var dried := preload("res://act3/dried_anchovy.glb").instantiate() as Node3D
 		snack.add_child(dried)
-		Details.fish(dried,false)
-		dried.scale = Vector3(.40,.36,.40)
-		dried.rotation.y = .24+i*.57
-		for mesh in dried.find_children("*","MeshInstance3D",true,false):
-			if mesh.name=="TaperedFishBody" or mesh.name=="GillCover":
-				var skin := StandardMaterial3D.new()
-				skin.albedo_texture = load("res://furniture_pack/quest_props/roast_skin.png")
-				skin.albedo_color = Color("b7a578")
-				skin.roughness = .82
-				mesh.material_override = skin
-			elif "Fin" in str(mesh.name) or str(mesh.name)=="ForkedTail":
-				var fin_mat := Details.material("dried_fish_fins",Color("93805d"),.82)
-				fin_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-				mesh.material_override = fin_mat
+		dried.rotation.y = 0.0 if i==4 else .24+i*.57
+		# Whole dried anchovies have a thin, curved body, sunken eye and papery fins.
+		# Their mesh and skin are distinct from the fresh fish used on day four.
 	desk = Props.furniture(game,"work_desk","ComputerRoom")
 	chair = Props.furniture(game,"office_chair","ComputerRoom")
 	monitor = Props.furniture(game,"dual_monitor","ComputerRoom")
@@ -101,17 +90,8 @@ func build(parent: Node3D, game: Node) -> void:
 	var paper := Props.model(note,"memo")
 	paper.scale = Vector3(.62,1,.42)
 	replace_print(paper,"memo","res://act3/textures/password_note.png")
-	var photo := target("recent_photo",desk.to_global(Vector3(.17,.785,.17)),"最近的照片",[7])
-	var image := box(photo,"PhotoPaper",Vector3.ZERO,Vector3(.24,.003,.12),Color.WHITE)
-	var photo_mat := mat(Color.WHITE)
-	photo_mat.albedo_texture = load("res://act2/memory_photo.svg")
-	image.material_override = photo_mat
-	var serial := sign_at(photo,"C-031",Vector3(.07,.004,.042),24)
-	serial.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-	serial.rotation.x = -PI/2
-	serial.pixel_size = .00055
-	serial.modulate = Color("273e3d")
-	serial.outline_size = 0
+	# Reuse the collected album on the ground-floor living-room table.
+	items["clues"] = game.get_node("ActTwo").world.items.clues
 	var panel := target("circuit",Vector3(3.05,3.80,2.80),"走廊配电板 · E 检查",[7])
 	panel.rotation.y = PI
 	build_panel(panel,game)

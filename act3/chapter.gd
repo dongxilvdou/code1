@@ -139,11 +139,12 @@ func restore() -> void:
 	second.restore_world()
 	day.world.items.note.visible = not (today()==7 and flag("a7_complete"))
 	for i in range(world.SNACKS.size()):world.items["snack%d"%i].visible = today()==6 and not (val("snack_mask") & (1<<i))
-	for id in ["circuit","seat","computer","computer_note","recent_photo","weight_book","weight_plant"]:
+	world.items.clues.visible = true
+	for id in ["circuit","seat","computer","computer_note","weight_book","weight_plant"]:
 		world.items[id].visible = today()==7
 	if today()==7:
 		world.place_weights(flag("weight_book_placed"),flag("weight_plant_placed"),val("a3_holding"),flag("a7_complete"))
-		for id in ["seat","computer_note","recent_photo"]:world.items[id].visible = not flag("a7_complete")
+		for id in ["seat","computer_note"]:world.items[id].visible = not flag("a7_complete")
 	else:
 		world.source_book.show()
 		if world.source_band:world.source_band.show()
@@ -203,6 +204,7 @@ func target_position(id: String) -> Vector3:
 	if id=="nest":return day.world.items.nest.global_position+Vector3(0,.12,0)
 	if id in ["feeder","dog","dog_bowl","dog_spot","cat_bowl","cat_spot"]:return second.target_position(id)
 	var n: Node3D = world.items[id]
+	if id=="clues":return n.global_position+Vector3(0,.012,0)
 	if id=="weight_plant":return n.global_position+Vector3(0,.13,0)
 	return n.global_position+Vector3(0,.045,0)
 
@@ -323,7 +325,7 @@ func interact_item(id: String) -> void:
 			set_value("a3_holding",0)
 		else:story("感应垫需要至少 %.1f kg。\n\n猫重 %.1f kg，桌上的厚书重 2.0 kg，花盆重 3.2 kg。\n把物品叼到垫子上，再自己站上去。\n\n电脑启动后会保持开启。"%[REQUIRED_KG,CAT_KG])
 	elif id=="computer_note":story("电脑桌上的便签\n\n“密码是你的名字呀。”")
-	elif id=="recent_photo":show_photo()
+	elif id=="clues":show_clues()
 	elif id=="computer":
 		if not flag("a7_power"):game.ui.toast("房子还没有恢复供电。",3)
 		elif not flag("a7_computer_power"):game.ui.toast("电脑接着座椅感应垫，先凑够重量再站上去。",4)
@@ -332,8 +334,8 @@ func interact_item(id: String) -> void:
 			computer.open()
 	restore()
 
-func show_photo() -> void:
-	story("最近的照片\n\n白大褂实验人员，身旁蹲着我。右下角印着一个编号。")
+func show_clues() -> void:
+	story("客厅线索册 / 收好的照片\n\n白大褂实验人员，身旁蹲着我。右下角印着一个编号。\n照片背面：C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
 	var image := TextureRect.new()
 	image.texture = load("res://act2/memory_photo.svg")
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -402,7 +404,7 @@ func guidance() -> String:
 	if not day.Notes.read(day):return day.Notes.guidance(7)
 	if not flag("a7_power"):return "01 恢复供电\n二楼走廊、电脑房门外的配电板：按开关切换自己和上下左右的灯，让十六盏同时点亮。"
 	if not flag("a7_computer_power"):return "02 启动电脑\n把现有书桌上的厚书、花盆叼到办公椅感应垫上，再跳上座椅。重量达到 8.0 kg 后，电脑会保持开启。"
-	if not flag("a7_login"):return "03 输入密码\n靠近二楼电脑屏幕，按 E 或鼠标左键。电脑桌上的便签写着：密码是你的名字呀。"
+	if not flag("a7_login"):return "03 输入密码\n电脑桌上的便签写着：密码是你的名字呀。\n照片收在一楼客厅桌上的线索册里。回到电脑屏幕，按 E 或鼠标左键输入。"
 	return "电脑已登录。\n桌面目前只能查看。按 Esc 离开电脑，回猫窝可结束今天。"
 
 func refresh_hud() -> void:

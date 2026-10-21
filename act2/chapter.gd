@@ -98,6 +98,7 @@ func begin_day(number: int) -> void:
 
 func set_world_enabled(enabled: bool) -> void:
 	visible = enabled
+	world.items.clues.visible = today()>=6 or (today()>=3 and flag("a3_photo"))
 	for body in find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if enabled else 0
 	# The furnished bookcase and its collisions are permanent, including on days 1–2.
 

@@ -13,7 +13,7 @@ key = &"a7_computer_power"
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a7_login"
-text = "参考桌上便签和最近的照片，输入电脑密码。"
+text = "参考电脑便签和一楼客厅线索册里的照片，输入电脑密码。"
 kind = 3
 target_id = &"a7_login"
 target_count = 1
@@ -21,7 +21,7 @@ target_count = 1
 script = ExtResource("quest")
 id = &"a7_login"
 title = "03 · 你的名字"
-description = "第7天 · 参考桌上便签和最近的照片，输入电脑密码。"
+description = "第7天 · 参考电脑便签和一楼客厅线索册里的照片，输入电脑密码。"
 priority = 73
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

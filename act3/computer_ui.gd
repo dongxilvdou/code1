@@ -80,7 +80,7 @@ func _ready() -> void:
 	col.add_child(password)
 	password.text_submitted.connect(func(_value: String):submit_password())
 	password.focus_entered.connect(reveal_hint)
-	hint = text("在最近的照片上。",16,col)
+	hint = text("在最近的照片上。照片收在一楼客厅桌上的线索册里。",16,col)
 	hint.modulate = Color("cbd9c4")
 	var enter := Button.new()
 	enter.text = "登 录"
