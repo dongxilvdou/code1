@@ -216,8 +216,28 @@ func build(parent: Node3D, game: Node) -> void:
 	for i in range(7):
 		var visual := Props.model(medicines,"medicine_%d"%i,Vector3((i%4)*.10-.15,0,(i/4)*.13))
 		medicine_models.append(visual)
-	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索手记 · 照片与编号")
+	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索册 · 照片与编号",[3,4,5,6,7])
+	clues.set_meta("title","翻阅线索册 · 照片与编号")
 	Props.model(clues,"clues")
+	var album_photo := MeshInstance3D.new()
+	album_photo.name = "CollectedPhotograph"
+	var paper := PlaneMesh.new()
+	paper.size = Vector2(.19,.095)
+	album_photo.mesh = paper
+	var ink := mat(Color.WHITE)
+	ink.albedo_texture = load("res://act2/memory_photo.svg")
+	album_photo.material_override = ink
+	clues.add_child(album_photo)
+	album_photo.position = Vector3(0,.011,-.065)
+	var serial := sign_at(clues,"C-031",Vector3(.055,.012,.002),20)
+	serial.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	serial.rotation.x = -PI/2
+	serial.pixel_size = .00035
+	serial.modulate = Color("273e3d")
+	serial.outline_size = 0
+	Props.bind(clues,table)
+	# Collected clues remain in the furnished room across chapters.
+	clues.reparent(table,true)
 
 func place_book(index: int, returned: bool) -> void:
 	var book: Node3D = items["book%d"%index]
