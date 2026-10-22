@@ -135,10 +135,11 @@ func build(parent: Node3D, game: Node) -> void:
 	var drain := target("drain",shower.get_node("Drain").global_position+Vector3(0,.01,0),"淋浴地漏 · 倒掉一半水",[3])
 	Props.bind(drain,shower)
 	var plant_furniture: Node3D
+	var optional_plant := Props.furniture(game,"decor_plant","Living")
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
-		if n.get_meta("asset_id","")=="decor_plant" and n.global_position.distance_to(Vector3(-4.65,0,-1.10))<.25:plant_furniture = n
+		if n.get_meta("asset_id","")=="decor_plant" and n.get_meta("placement_room","")=="Living" and n!=optional_plant:plant_furniture = n
 	assert(plant_furniture != null)
-	plant_furniture.global_position = Vector3(-5.35,0,3.12)
+	plant_furniture.global_position = Vector3(-5.40,0,3.65)
 	var plant := target("plant",plant_furniture.global_position+Vector3(0,.24,0),"沙发旁的花盆",[3])
 	Props.bind(plant,plant_furniture)
 	var mailbox := target("mailbox",Vector3(-1.60,0,7.30),"门外信箱 · 摇晃",[1,2,3,4,5])

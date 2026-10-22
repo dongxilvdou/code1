@@ -13,7 +13,7 @@ key = &"a11_locks"
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a11_enter"
-text = "沿真实楼梯走到地下室底部的平台。"
+text = "穿过地下平台旁的密码门，进入医学实验室。"
 kind = 3
 target_id = &"a11_enter"
 target_count = 1
@@ -21,7 +21,7 @@ target_count = 1
 script = ExtResource("quest")
 id = &"a11_enter"
 title = "02 · 来地下室"
-description = "第11天 · 沿真实楼梯走到地下室底部的平台。"
+description = "第11天 · 穿过地下平台旁的密码门，进入医学实验室。"
 priority = 111
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

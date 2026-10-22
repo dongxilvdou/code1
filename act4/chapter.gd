@@ -191,7 +191,7 @@ func _physics_process(delta: float) -> void:
 		elif mole_clock>3:
 			mole_clock=0;set_value("mole_hole",(val("mole_hole")+5)%9);restore()
 	if today()==10 and not chase_path.is_empty():advance_mouse(delta)
-	if today()==11 and val("locks")==3 and player.global_position.y< -2.45 and not flag("a11_enter"):
+	if today()==11 and val("locks")==3 and world.items.basement.beyond_door(player.global_position) and not flag("a11_enter"):
 		mark("a11_enter");mark("a11_complete");restore();story("第四幕 / 地下室\n\n三组电流锁熄灭，门已经留在身后。\n楼梯下的空气有一点冷。那张纸条上写着：地下室逃跑计划。\n\n第四幕当前任务已完成。")
 	hud_time+=delta
 	if hud_time>.15:
@@ -254,7 +254,7 @@ func target_position(id: String) -> Vector3:
 	if id=="clues":return third.world.items.clues.global_position+Vector3(0,.012,0)
 	if id=="computer":return third.world.items.computer.global_position
 	if id in ["dog","feeder","dog_bowl","dog_spot","cat_bowl","cat_spot"]:return second.target_position(id)
-	if id=="basement":return world.items.basement.global_position+Vector3(0,.43,.09)
+	if id=="basement":return world.items.basement.interaction_position()
 	return world.items[id].global_position+Vector3(0,.035,0)
 func nearest_item() -> String:
 	if not active() or not day.active_play():return ""
@@ -277,6 +277,10 @@ func nearest_item() -> String:
 func target_hint() -> String:
 	var id:=nearest_item()
 	if id.is_empty():return ""
+	if id=="basement":
+		if val("locks")<3:return "E 检查实验室密码门 · 三组电流锁"
+		if world.items.basement.blocked:return "让开一点，门会继续移动 · E 改变方向"
+		return "E "+("关闭" if world.items.basement.is_open else "打开")+"实验室密码门"
 	return {"note":"E 阅读今天的小纸条","nest":"E 回窝休息" if day_complete() else "E 查看未完成的事情","mouse":"E 伸爪抓取老鼠","mole":"E 扑向地鼠","clues":"E 翻阅客厅线索册","computer":"E 查看电脑桌面","dog":"E 与阿嚼说话"}.get(id,"E "+str(world.items[id].get_meta("title",id)) if world.items.has(id) else "E 查看")
 func try_interact() -> bool:
 	var id:=nearest_item()
@@ -342,7 +346,7 @@ func interact_item(id: String) -> void:
 		story("潮湿的小纸条\n\n地下室逃跑计划。")
 	elif id=="basement":
 		if val("locks")<3:open_panel("circuit")
-		else:story("三组电流锁已经同时亮起。门后就是通往地下室的楼梯。")
+		else:world.items.basement.toggle()
 	refresh_hud()
 func open_panel(kind: String,value := "") -> void:
 	game.cinematic_active=true;player.set_control(false);panel.open4(kind,value)
@@ -370,8 +374,8 @@ func guidance() -> String:
 		if not flag("a10_eat"):return "02 主人的命令\n厨房里，阿嚼似乎认出了它的味道。靠近阿嚼按 E，听它说完。"
 		if not flag("a10_note"):return "03 掉下的纸条\n查看厨房地面上的潮湿纸条。"
 	else:
-		if val("locks")<3:return "01 地下室门\n一楼楼梯旁入口，完成三组电流锁。%d / 3\n普通球一拍一格，线圈停一拍，转向器可绕路。"%val("locks")
-		if not flag("a11_enter"):return "02 沿楼梯下去\n门已经打开，走到地下室楼梯底部的平台。"
+		if val("locks")<3:return "01 实验室密码门\n沿一楼楼梯下到地下平台，左转检查门上的三组电流锁。%d / 3\n普通球一拍一格，线圈停一拍，转向器可绕路。"%val("locks")
+		if not flag("a11_enter"):return "02 进入实验室\n门锁已解开，穿过平台旁的密码门进入实验室。"
 	return "今天的任务都完成了。\n回客厅猫窝按 E 休息。" if today()<11 else "第四幕当前任务完成。\n地下室门已打开。"
 func refresh_hud() -> void:
 	if not active():return

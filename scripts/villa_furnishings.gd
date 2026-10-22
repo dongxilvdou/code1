@@ -119,8 +119,9 @@ func apply(target) -> void:
 	put("bookcase",4.91,4.86,-90)
 	put("decor_rug",2.48,8.12,0,.002)
 	put("decor_books_vase",2.53,8.05,90,.45)
-	put("decor_plant",.62,11.20)
-	put("decor_plant",1.35,4.90)
+	# Keep the pots clear of the cat bed, sofa end and the two adjoining walls.
+	put("decor_plant",.60,11.53,0,0,Vector3.ONE*.92)
+	put("decor_plant",.60,9.65,0,0,Vector3.ONE*.92)
 	put("decor_pet_bowls",4.84,9.71,-90,.003)
 	put("decor_wall_art",5.08,8.56,-90,1.64,Vector3(1.25,1.25,1))
 	curtains(.22,7.20,90,3.34)

@@ -1,5 +1,7 @@
 [gd_scene format=4]
 
+[ext_resource type="PackedScene" path="res://scenes/basement/medical_laboratory.tscn" id="basement_lab"]
+
 [ext_resource type="Shader" path="res://shaders/villa_finish.gdshader" id="1_vhd44"]
 [ext_resource type="Texture2D" path="res://furniture_pack/textures/oak_planks.png" id="2_tgh2w"]
 [ext_resource type="Texture2D" path="res://furniture_pack/textures/mineral_detail.png" id="3_heyry"]
@@ -4177,40 +4179,40 @@ shader_parameter/grass_dark = null
 shader_parameter/grass_light = null
 
 [sub_resource type="BoxMesh" id="BoxMesh_1l3yw"]
-size = Vector3(15.65, 0.18, 28)
+size = Vector3(4.875, 0.18, 28)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_04ome"]
-size = Vector3(15.65, 0.18, 28)
+size = Vector3(4.875, 0.18, 28)
 
 [sub_resource type="BoxMesh" id="BoxMesh_4ntu8"]
-size = Vector3(5.25, 0.18, 28)
+size = Vector3(4.875, 0.18, 28)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_y7e5m"]
-size = Vector3(5.25, 0.18, 28)
+size = Vector3(4.875, 0.18, 28)
 
 [sub_resource type="BoxMesh" id="BoxMesh_4pqyg"]
-size = Vector3(1.1000004, 0.18, 13.9)
+size = Vector3(12.25, 0.18, 9.875)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1go8b"]
-size = Vector3(1.1000004, 0.18, 13.9)
+size = Vector3(12.25, 0.18, 9.875)
 
 [sub_resource type="BoxMesh" id="BoxMesh_228mp"]
-size = Vector3(1.1000004, 0.18, 10.5)
+size = Vector3(12.25, 0.18, 5.875)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_30syt"]
-size = Vector3(1.1000004, 0.18, 10.5)
+size = Vector3(12.25, 0.18, 5.875)
 
 [sub_resource type="BoxMesh" id="BoxMesh_jk72x"]
-size = Vector3(54.65, 0.12, 100)
+size = Vector3(43.875, 0.12, 100)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ncxbh"]
-size = Vector3(44.25, 0.12, 100)
+size = Vector3(43.875, 0.12, 100)
 
 [sub_resource type="BoxMesh" id="BoxMesh_opc2e"]
-size = Vector3(1.1000004, 0.12, 49.9)
+size = Vector3(12.25, 0.12, 45.875)
 
 [sub_resource type="BoxMesh" id="BoxMesh_n21ev"]
-size = Vector3(1.1000004, 0.12, 46.5)
+size = Vector3(12.25, 0.12, 41.875)
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_j02uc"]
 _surfaces = [{
@@ -8362,6 +8364,9 @@ size = Vector3(0.025, 0.12, 0.15)
 [sub_resource type="BoxMesh" id="BoxMesh_nf6la"]
 size = Vector3(0.025, 0.12, 0.15)
 
+[sub_resource type="BoxMesh" id="BoxMesh_basement_north_soffit"]
+size = Vector3(1.11, 0.29, 0.024)
+
 [node name="GardenVilla" type="Node3D" unique_id=907148159]
 metadata/plan_version = "V1"
 metadata/site_size = Vector2(22, 28)
@@ -10823,7 +10828,7 @@ mesh = SubResource("ArrayMesh_0kweq")
 mesh = SubResource("ArrayMesh_v8jit")
 
 [node name="RoomSign_地下室" type="Node3D" parent="GroundFloor" unique_id=1979214766 instance=ExtResource("10_xg0um")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 5.88, 1.04, 1.8)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 5.86, 1.04, 1.8)
 script = ExtResource("11_k52uc")
 room_title = "地下室"
 
@@ -11321,7 +11326,7 @@ metadata/placement_room = "Living"
 metadata/asset_id = "decor_books_vase"
 
 [node name="DecorPlant_010" type="Node3D" parent="GroundFloor/Furnishings/Living" unique_id=400780681 groups=["placed_furniture"] instance=ExtResource("25_qn85c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.38, 0, 5.2)
+transform = Transform3D(0.92, 0, 0, 0, 0.92, 0, 0, 0, 0.92, -5.4, 0, 5.53)
 script = ExtResource("15_0eavx")
 metadata/furniture = {
 "bounds_min_m": [-0.34323227, 0.0, -0.34156173],
@@ -11338,7 +11343,7 @@ metadata/placement_room = "Living"
 metadata/asset_id = "decor_plant"
 
 [node name="DecorPlant_011" type="Node3D" parent="GroundFloor/Furnishings/Living" unique_id=917522441 groups=["placed_furniture"] instance=ExtResource("25_qn85c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.65, 0, -1.1)
+transform = Transform3D(0.92, 0, 0, 0, 0.92, 0, 0, 0, 0.92, -5.4, 0, 3.65)
 script = ExtResource("15_0eavx")
 metadata/furniture = {
 "bounds_min_m": [-0.34323227, 0.0, -0.34156173],
@@ -12512,7 +12517,7 @@ script = ExtResource("11_k52uc")
 room_title = "卫生间"
 
 [node name="RoomSign_洗衣间" type="Node3D" parent="GroundFloor" unique_id=1671963948 instance=ExtResource("10_xg0um")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.61, 1.02, 1.46)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.61, 1.02, 0.03)
 script = ExtResource("11_k52uc")
 room_title = "洗衣间"
 
@@ -12522,7 +12527,7 @@ script = ExtResource("11_k52uc")
 room_title = "工作书房"
 
 [node name="RoomSign_厨房" type="Node3D" parent="GroundFloor" unique_id=982610078 instance=ExtResource("10_xg0um")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 1.02, -2.31)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 2.36, -2.31)
 script = ExtResource("11_k52uc")
 room_title = "厨房"
 
@@ -16626,7 +16631,7 @@ script = ExtResource("11_k52uc")
 room_title = "卫生间"
 
 [node name="RoomSign_衣帽间" type="Node3D" parent="UpperFloor" unique_id=404216683 instance=ExtResource("10_xg0um")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.61, 4.02, 1.46)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.61, 4.02, 0.03)
 script = ExtResource("11_k52uc")
 room_title = "衣帽间"
 
@@ -16636,7 +16641,7 @@ script = ExtResource("11_k52uc")
 room_title = "电脑房"
 
 [node name="RoomSign_次卧 A" type="Node3D" parent="UpperFloor" unique_id=583091821 instance=ExtResource("10_xg0um")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 4.02, -2.31)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 5.36, -2.31)
 script = ExtResource("11_k52uc")
 room_title = "次卧 A"
 
@@ -16982,7 +16987,7 @@ mesh = SubResource("BoxMesh_q6f3f")
 [node name="Garden" type="Node3D" parent="." unique_id=576860219]
 
 [node name="PlotGround_0007" type="MeshInstance3D" parent="Garden" unique_id=380066326]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1750002, -0.13, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5625, -0.13, -2.0)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_1l3yw")
 
@@ -16992,7 +16997,7 @@ mesh = SubResource("BoxMesh_1l3yw")
 shape = SubResource("BoxShape3D_04ome")
 
 [node name="PlotGround_0010" type="MeshInstance3D" parent="Garden" unique_id=1806134891]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.375, -0.13, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5625, -0.13, -2.0)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_4ntu8")
 
@@ -17002,7 +17007,7 @@ mesh = SubResource("BoxMesh_4ntu8")
 shape = SubResource("BoxShape3D_y7e5m")
 
 [node name="PlotGround_0013" type="MeshInstance3D" parent="Garden" unique_id=648425219]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2, -0.13, -9.05)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, -0.13, -11.0625)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_4pqyg")
 
@@ -17012,7 +17017,7 @@ mesh = SubResource("BoxMesh_4pqyg")
 shape = SubResource("BoxShape3D_1go8b")
 
 [node name="PlotGround_0016" type="MeshInstance3D" parent="Garden" unique_id=1552681145]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2, -0.13, 6.75)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, -0.13, 9.0625)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_228mp")
 
@@ -17022,22 +17027,22 @@ mesh = SubResource("BoxMesh_228mp")
 shape = SubResource("BoxShape3D_30syt")
 
 [node name="DistantGround_0019" type="MeshInstance3D" parent="Garden" unique_id=1258242958]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.675, -0.24, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.0625, -0.24, -2.0)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_jk72x")
 
 [node name="DistantGround_0020" type="MeshInstance3D" parent="Garden" unique_id=1936791285]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.875, -0.24, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.0625, -0.24, -2.0)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_ncxbh")
 
 [node name="DistantGround_0021" type="MeshInstance3D" parent="Garden" unique_id=495231478]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2, -0.24, -27.05)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, -0.24, -29.0625)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_opc2e")
 
 [node name="DistantGround_0022" type="MeshInstance3D" parent="Garden" unique_id=1251730387]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2, -0.24, 24.75)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, -0.24, 27.0625)
 material_override = SubResource("ShaderMaterial_5fxap")
 mesh = SubResource("BoxMesh_n21ev")
 
@@ -19536,16 +19541,6 @@ mesh = SubResource("BoxMesh_0nvcy")
 [node name="Detail_1582" type="CollisionShape3D" parent="Basement/LandingNorthWall_1580/Detail_1581" unique_id=375331963]
 shape = SubResource("BoxShape3D_ro4v4")
 
-[node name="LandingWestWall_1583" type="MeshInstance3D" parent="Basement" unique_id=1776947496]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.34, -1.4, -2.8)
-material_override = SubResource("ShaderMaterial_s6ru4")
-mesh = SubResource("BoxMesh_l0s5x")
-
-[node name="Detail_1584" type="StaticBody3D" parent="Basement/LandingWestWall_1583" unique_id=190076065]
-
-[node name="Detail_1585" type="CollisionShape3D" parent="Basement/LandingWestWall_1583/Detail_1584" unique_id=1260034956]
-shape = SubResource("BoxShape3D_72wc7")
-
 [node name="LandingEastWall_1586" type="MeshInstance3D" parent="Basement" unique_id=923426439]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.82, -1.4, -2.8)
 material_override = SubResource("ShaderMaterial_s6ru4")
@@ -19673,3 +19668,10 @@ modulate = Color(0.25, 0.29, 0.25, 1)
 text = "07"
 font_size = 52
 outline_size = 0
+
+[node name="MedicalLaboratory" parent="Basement" instance=ExtResource("basement_lab")]
+
+[node name="BasementNorthSoffit" type="MeshInstance3D" parent="Basement"]
+position = Vector3(5.2, -0.145, -2.094)
+material_override = SubResource("ShaderMaterial_s6ru4")
+mesh = SubResource("BoxMesh_basement_north_soffit")

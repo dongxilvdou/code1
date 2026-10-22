@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/basement/lab_cage.gd" id="1_2y2d6"]
+[ext_resource type="PackedScene" path="res://furniture_pack/basement/models/cage_shell.glb" id="2_muku2"]
+[ext_resource type="PackedScene" path="res://furniture_pack/basement/models/cage_door.glb" id="3_b26jf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8vm3s"]
+size = Vector3(1.06, 0.935, 0.042)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qeh2y"]
+resource_name = "label"
+albedo_color = Color(0.79, 0.8, 0.72, 1)
+metallic = 0.12
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_cu2d6"]
+size = Vector3(0.3, 0.115, 0.012)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qdc7w"]
+size = Vector3(1.14, 0.05, 1.62)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fc50r"]
+size = Vector3(1.14, 0.055, 1.62)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_37f1y"]
+size = Vector3(0.035, 1.01, 1.62)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_le5pc"]
+size = Vector3(0.035, 1.01, 1.62)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_62kaf"]
+size = Vector3(1.1, 1.01, 0.035)
+
+[node name="ObservationCage" type="Node3D" unique_id=99995525]
+script = ExtResource("1_2y2d6")
+metadata/dimensions_m = Vector3(1.14, 1.05, 1.62)
+
+[node name="CageShell" type="Node3D" parent="." unique_id=605774445 groups=["placed_furniture"] instance=ExtResource("2_muku2")]
+metadata/asset_id = "cage_shell"
+metadata/placement_room = "BasementLaboratory"
+
+[node name="Leaf" type="AnimatableBody3D" parent="." unique_id=1947618216]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.517, 0.045, -0.802)
+sync_to_physics = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Leaf" unique_id=537216386]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.517, 0.467, 0)
+shape = SubResource("BoxShape3D_8vm3s")
+
+[node name="HingedDoor" type="Node3D" parent="Leaf" unique_id=837593562 groups=["placed_furniture"] instance=ExtResource("3_b26jf")]
+metadata/asset_id = "cage_door"
+metadata/placement_room = "BasementLaboratory"
+
+[node name="EnclosureTag_0015" type="MeshInstance3D" parent="Leaf" unique_id=1325887602]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.777, 0.815, -0.022)
+material_override = SubResource("StandardMaterial3D_qeh2y")
+mesh = SubResource("BoxMesh_cu2d6")
+
+[node name="Sign" type="Label3D" parent="Leaf" unique_id=1430559643]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.777, 0.815, -0.03)
+pixel_size = 0.0015
+modulate = Color(0.13, 0.22, 0.21, 1)
+text = "OBSERVATION
+FELIS / 031"
+font_size = 22
+outline_size = 0
+
+[node name="TrayFloor" type="StaticBody3D" parent="." unique_id=840380960]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TrayFloor" unique_id=179489472]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.024, 0)
+shape = SubResource("BoxShape3D_qdc7w")
+
+[node name="Roof" type="StaticBody3D" parent="." unique_id=523102641]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Roof" unique_id=1369687518]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.01, 0)
+shape = SubResource("BoxShape3D_fc50r")
+
+[node name="LeftBars" type="StaticBody3D" parent="." unique_id=1922281579]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LeftBars" unique_id=428601243]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.553, 0.53, 0)
+shape = SubResource("BoxShape3D_37f1y")
+
+[node name="RightBars" type="StaticBody3D" parent="." unique_id=1629306781]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RightBars" unique_id=1864694076]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.553, 0.53, 0)
+shape = SubResource("BoxShape3D_le5pc")
+
+[node name="BackBars" type="StaticBody3D" parent="." unique_id=1166920938]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BackBars" unique_id=464510043]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.53, 0.791)
+shape = SubResource("BoxShape3D_62kaf")

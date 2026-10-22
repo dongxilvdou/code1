@@ -177,14 +177,14 @@
 			"height_m": 0.0,
 			"node": "GroundFloor/Furnishings/Living/DecorPlant_010",
 			"plan_xz": [
-				0.62,
-				11.2
+				0.6,
+				11.53
 			],
 			"room": "Living",
 			"scale": [
-				1.0,
-				1.0,
-				1.0
+				0.92,
+				0.92,
+				0.92
 			],
 			"yaw_degrees": 0.0
 		},
@@ -194,14 +194,14 @@
 			"height_m": 0.0,
 			"node": "GroundFloor/Furnishings/Living/DecorPlant_011",
 			"plan_xz": [
-				1.35,
-				4.9
+				0.6,
+				9.65
 			],
 			"room": "Living",
 			"scale": [
-				1.0,
-				1.0,
-				1.0
+				0.92,
+				0.92,
+				0.92
 			],
 			"yaw_degrees": 0.0
 		},

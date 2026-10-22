@@ -34,7 +34,11 @@ func _ready() -> void:
 
 func room_at(p: Vector3) -> String:
 	var q := Vector2(p.x+6,p.z+6)
-	if p.y<-.20:return "地下层 · 楼梯与平台"
+	if p.y<-.20:
+		if p.x>3.30:return "地下层 · 楼梯与平台"
+		if p.z>-.95:return "地下层 · 留观笼舍"
+		if p.z<-3.25:return "地下层 · 医学检查区"
+		return "地下层 · 实验室"
 	if q.x<0 or q.x>12 or q.y<0 or q.y>12:
 		return "北侧花园" if q.y<0 else "入户庭院" if q.y>12 else "侧花园"
 	if Rect2(9.2,3.6,2.8,3.9).has_point(q):return "楼梯"
@@ -57,7 +61,9 @@ func update_target() -> void:
 	var distance := 1.40
 	var eye: Vector3 = player.camera.global_position
 	var forward: Vector3 = -player.camera.global_basis.z
-	for door in get_tree().get_nodes_in_group("villa_doors"):
+	# Cage doors share E/hints, but stay out of tutorial locks and mouse-chase
+	# routines that deliberately open/close every ordinary room door.
+	for door in get_tree().get_nodes_in_group("villa_doors")+get_tree().get_nodes_in_group("lab_cages"):
 		var target: Vector3 = door.interaction_position()
 		var delta := target-eye
 		if delta.length()>distance or forward.dot(delta.normalized())<.20:continue

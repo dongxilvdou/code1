@@ -11,6 +11,18 @@ func run_tests() -> void:
 	game.start_game()
 	map_hud = game.get_node("VillaMap/MapHUD")
 	await ticks(8)
+	# This geometry test predates the story/tutorial gates. Enter a disposable,
+	# unlocked day-eleven state instead of leaving the arrival dialog in control.
+	var day = game.get_node("DayOne")
+	var fourth = game.get_node("ActFour")
+	fourth.third.previous.seed_previous_days()
+	fourth.mark("a6_permission")
+	fourth.begin_day(11)
+	fourth.set_value("locks",3)
+	fourth.mark("a11_enter");fourth.mark("a11_complete")
+	fourth.restore()
+	day.dialog = "";day.hud.overlay.hide();fourth.panel.close()
+	game.cinematic_active = false;game.player.set_control(true)
 	var house: Node3D = game.get_node("Apartment")
 	verify(house.has_node("GroundFloor/Furnishings/Workshop"),"Downstairs study missing")
 	verify(house.has_node("UpperFloor/Furnishings/ComputerRoom"),"Upstairs computer room missing")

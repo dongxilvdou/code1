@@ -169,9 +169,13 @@ func build_room_signs() -> void:
 	for floor_y in [0.0,3.0]:
 		var p := ground_floor if floor_y==0 else upper_floor
 		room_sign("卫生间",6.61,5.25,floor_y+1.02,-90,p)
-		room_sign("洗衣间" if floor_y==0 else "衣帽间",6.61,7.46,floor_y+1.02,-90,p)
+		# The short wall after this door is only .25m wide. Mount on the broad
+		# fixed wall before the doorway, leaving its architrave and corner clear.
+		room_sign("洗衣间" if floor_y==0 else "衣帽间",6.61,6.03,floor_y+1.02,-90,p)
 		room_sign("工作书房" if floor_y==0 else "电脑房",8.28,8.81,floor_y+1.02,180,p)
-		room_sign("厨房" if floor_y==0 else "次卧 A",6.78,3.69,floor_y+1.02,0,p)
+		# Both side piers are too narrow beside the perpendicular wet-room wall.
+		# Put this plaque on the fixed header, centred over its actual doorway.
+		room_sign("厨房" if floor_y==0 else "次卧 A",5.95,3.69,floor_y+2.36,0,p)
 	room_sign("主卧",5.29,5.18,4.02,90,upper_floor)
 	room_sign("书房",5.29,7.68,4.02,90,upper_floor)
 
@@ -561,8 +565,10 @@ func garden_loop(points: Array[Vector2], width: float) -> void:
 	custom_mesh("ContinuousGardenPath",triangles,"path_stone",garden,true)
 
 func build_garden() -> void:
-	Basement.split_slab(self,"PlotGround",Rect2(-5,-10,22,28),-.04,.18,"grass",garden)
-	Basement.split_slab(self,"DistantGround",Rect2(-44,-46,100,100),-.18,.12,"grass",garden,false)
+	# Outdoor soil must stop at the foundation, including its hidden bottom faces.
+	# Cutting only the stair hole left soil/slab cut faces in the same planes.
+	Basement.split_site_slab(self,"PlotGround",Rect2(-5,-10,22,28),-.04,.18,"grass",garden)
+	Basement.split_site_slab(self,"DistantGround",Rect2(-44,-46,100,100),-.18,.12,"grass",garden,false)
 	var walk: Array[Vector2] = [Vector2(3,25),Vector2(3,5.8),Vector2(5.6,3.2),Vector2(14.8,3.2),Vector2(19.2,5.8),Vector2(19.2,24.5),Vector2(12,25.2)]
 	garden_loop(walk,1.15)
 	garden_strip(Vector2(11,22),Vector2(11,28),1.6)
