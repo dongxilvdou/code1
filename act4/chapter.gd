@@ -30,6 +30,21 @@ var chase_point := 0
 var clock_tick := 0.0
 var hud_time := 0.0
 var held_mouse: Node3D
+const CLOCK_CLUES := {"clock_clue":"hour","clock_minute_clue":"minute","clock_second_clue":"second"}
+const WARM_MIN := 45
+const WARM_MAX := 62
+
+func valve_setting() -> int:
+	# Preserve the old successful detent on pre-update saves.
+	return val("valve_setting",[18,55,85,30][clampi(val("valve"),0,3)])
+
+func warm_water() -> bool:return valve_setting()>=WARM_MIN and valve_setting()<=WARM_MAX
+
+func clock_clue_count() -> int:
+	var count := 0
+	for part in CLOCK_CLUES.values():
+		if flag("a8_clue_"+part):count+=1
+	return count
 func _ready() -> void:
 	game=get_parent();day=game.get_node("DayOne");second=game.get_node("DayTwo");third=game.get_node("ActThree");player=game.get_node("Miso")
 	world=World.new();world.build(self,game)
@@ -115,8 +130,9 @@ func restore() -> void:
 		var item_: Node3D=world.items[id]
 		if item_.has_meta("quest_days"):item_.visible=today() in item_.get_meta("quest_days")
 	world.items.food.visible=today()==8 and not flag("a8_food")
-	for id in ["bed","tracks","valve","wash","limescale","clock_clue"]:world.items[id].visible=today()==8 and not flag("a8_complete")
-	world.items.water.visible=bathing
+	for id in ["bed","tracks","valve","wash","limescale","clock_clue","clock_minute_clue","clock_second_clue"]:world.items[id].visible=today()==8 and not flag("a8_complete")
+	world.valve_wheel.rotation.z = -deg_to_rad(lerpf(-140,140,valve_setting()/100.0))
+	if today()!=8:world.items.water.stop()
 	world.arrange(plant_order(),today()==9 and not flag("a9_complete"))
 	for i in range(3):world.items["plant%d"%i].visible=today()==9 and not flag("a9_complete")
 	world.update_jigsaw(jigsaw_order())
@@ -134,6 +150,8 @@ func on_bed() -> bool:
 	var p: Vector3=world.bed.to_local(player.global_position)
 	return player.is_on_floor() and absf(p.x)<.78 and absf(p.z)<.97 and absf(p.y-.59)<.11
 func _physics_process(delta: float) -> void:
+	world.mouse_actor.set_active(active() and today()==10 and not flag("a10_catch") and day.active_play(),not chase_path.is_empty())
+	world.mole_actor.set_active(active() and today()==9 and day.active_play())
 	if not day.initialized:return
 	if not active():
 		if active_number!=0:reset_runtime()
@@ -155,9 +173,9 @@ func _physics_process(delta: float) -> void:
 	was_on_bed=on_bed()
 	if bathing:
 		if player.global_position.distance_to(world.items.wash.global_position)<.62:wash_time+=delta
-		else:wash_time=0;bathing=false;world.items.water.hide()
+		else:wash_time=0;bathing=false;world.items.water.stop()
 		if wash_time>=4:
-			bathing=false;mark("a8_wash");world.items.water.hide();story("水流温和地冲过毛发。\n两道痕迹都停在同一个位置：这里一直有人使用过。")
+			bathing=false;mark("a8_wash");world.items.water.stop();story("水温正合适，水流轻轻冲过毛发。\n被水垢盖住的温度数字仍然看不清，但我记住了旋钮上这段舒适的位置。")
 	if flag("a8_clock"):
 		clock_tick+=delta
 		if clock_tick>=1:
@@ -182,6 +200,9 @@ func _physics_process(delta: float) -> void:
 			for child in item_.get_children():
 				if child is Label3D:child.visible=item_.is_visible_in_tree() and player.global_position.distance_to(item_.global_position)<2.6
 func solve_clock() -> void:
+	if flag("a8_clock"):return
+	if not flag("a8_wash") or clock_clue_count()<3:return
+	if val("clock_h")!=3 or val("clock_m")!=42 or val("clock_s")!=0:return
 	mark("a8_clock");set_value("clock_back_seconds",0);restore()
 	story("指针终于开始运行。\n\n03:42:00。还剩下三天。\n\n可秒针……是在倒着走。")
 func pounce() -> void:
@@ -288,17 +309,22 @@ func interact_item(id: String) -> void:
 	elif id in ["valve","wash","limescale"]:
 		if not flag("a8_food"):game.ui.toast("先拿到并吃掉柜顶的猫粮。",3);return
 		if id=="valve":open_panel("valve")
-		elif id=="limescale":story("水管上有四圈浅痕。\n从下往上第二圈，留下了一道明显的白色水垢分界。旋钮底座也有对应的停靠磨痕。")
+		elif id=="limescale":story("白色水垢盖住了水温数字，只露出一些短刻线。\n旋钮底座靠中间有一小段被经常转动留下的磨痕。\n\n先转到附近，再站进底盘试水；太冷就往热水转一点，太热就往冷水转一点。")
 		elif flag("a8_wash"):story("毛已经洗干净了。关好水，去书房看看时钟吧。")
-		elif val("valve")!=1:
+		elif not warm_water():
+			world.items.water.start(1.6)
 			var away: Vector3=Vector3(-1,0,-.3).normalized()
-			player.velocity=away*2.8+Vector3.UP*4.6
-			game.ui.toast("水流不对！我被一下冲出了底盘。再看看两处使用痕迹。",4)
-		else:bathing=true;wash_time=0;world.items.water.show();game.ui.toast("保持站在淋浴底盘内，洗澡中……",4)
-	elif id=="clock_clue":story("旧照片背面压着一张便签：\n\n照片时间：03 : 42\n便签：秒针对准最上面的刻线。\n\n还剩下三天。")
+			player.velocity=away*1.7+Vector3.UP*2.2
+			game.ui.toast("好冷……把旋钮往热水方向转一点，再试试。" if valve_setting()<WARM_MIN else "太烫了！把旋钮往冷水方向退一点，再试试。",4)
+		else:bathing=true;wash_time=0;world.items.water.start();game.ui.toast("温温的，正合适。留在淋浴底盘里，洗澡中……",4)
+	elif CLOCK_CLUES.has(id):
+		var part: String = CLOCK_CLUES[id]
+		mark("a8_clue_"+part)
+		story({"hour":"时针纸条\n\n时针：03。\n这张只写了小时，另外两张在哪里？","minute":"分针纸条\n\n分针：42。\n把这个数字记在分针的位置。","second":"秒针纸条\n\n秒针：00。\n它要对准最上面的刻线。"}[part]+"\n\n已经找到 %d / 3 张时间纸条。"%clock_clue_count())
 	elif id=="clock":
 		if flag("a8_clock"):story("时钟还在走。\n可是它在倒着走。还剩下三天。")
 		elif not flag("a8_wash"):game.ui.toast("先去淋浴间洗澡，再调整时钟。",3)
+		elif clock_clue_count()<3:game.ui.toast("还缺时间纸条：已找到 %d / 3。书桌、书柜脚边和阅读小桌各有一张。"%clock_clue_count(),4)
 		else:open_panel("clock")
 	elif id=="painting" or id.begins_with("plant"):
 		if flag("a9_plants"):story("三盆植物已经按照墙画排列好了。")
@@ -333,8 +359,8 @@ func guidance() -> String:
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==8:
 		if not flag("a8_food"):return "01 柜顶的猫粮\n在二楼主卧原床垫上连续跳三次，第三次跃向衣柜顶。蓄力 %d / 3。"%val("bed_jumps")
-		if not flag("a8_wash"):return "02 洗个澡\n二楼淋浴间：比较旋钮底座与水管的使用痕迹。调好水流，再站进底盘按 E。"
-		if not flag("a8_clock"):return "03 沉默的时钟\n跳上二楼书房原书桌，查看旧照片和便签，再分别调整时钟的三根指针。"
+		if not flag("a8_wash"):return "02 洗个澡\n水垢盖住了温度数字。转动旋钮后，到底盘按 E 试水，找到不冷不烫的范围。"
+		if not flag("a8_clock"):return "03 沉默的时钟\n找到 %d / 3 张纸条：时、分、秒。二楼书房的书桌、书柜脚边和阅读小桌各有一张。"%clock_clue_count()
 	elif today()==9:
 		if not flag("a9_plants"):return "01 露台花盆\n按照旁边墙画中三种植物的顺序交换现有盆栽。"
 		if not flag("a9_mole"):return "02 花园捕猎\n北花园九个地鼠洞。看准露头的地鼠，靠近按 E 猫扑。已抓住 %d / 2。"%val("mole_catches")
@@ -356,6 +382,9 @@ func refresh_hud() -> void:
 	day.hud.set_paper_progress(0,4,false)
 func reset_runtime() -> void:
 	active_number=0;bathing=false;wash_time=0;chase_path.clear();pounce_time=0
+	world.items.water.stop()
+	world.mouse_actor.set_active(false)
+	world.mole_actor.set_active(false)
 	world.arrange([0,1,2],false)
 	world.door_state(false,0,false)
 	visible=false

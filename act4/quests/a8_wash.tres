@@ -13,15 +13,15 @@ key = &"a8_food"
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a8_wash"
-text = "依据水垢与磨痕调水流，在原淋浴间洗澡。"
+text = "水垢遮住水温数字。转动旋钮并试水，在合适的温度范围洗澡。"
 kind = 3
 target_id = &"a8_wash"
 target_count = 1
 [resource]
 script = ExtResource("quest")
 id = &"a8_wash"
-title = "02 · 磨平的刻度"
-description = "第8天 · 依据水垢与磨痕调水流，在原淋浴间洗澡。"
+title = "02 · 水垢下的温度"
+description = "第8天 · 水垢遮住水温数字。转动旋钮并试水，在合适的温度范围洗澡。"
 priority = 81
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

@@ -8,6 +8,8 @@ var fed_time := 0.0
 var current_pose := "sleep"
 var stand_pose: Array[Transform3D] = []
 var lying_pose: Array[Transform3D] = []
+var kitchen_pose: Array[Transform3D] = []
+var kitchen_pose_active := false
 var transition_from: Array[Transform3D] = []
 var transition_time := 1.0
 var was_standing := false
@@ -33,6 +35,24 @@ func _ready() -> void:
 	player.play(sleep_clip,0)
 	player.advance(0)
 	lying_pose = capture_pose()
+	var kitchen_data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/models/pets/kitchen_rest_pose.json"))
+	var source_rest_global: Array[Transform3D] = []
+	var source_pose_global: Array[Transform3D] = []
+	var corrected_global: Array[Transform3D] = []
+	for i in range(skeleton.get_bone_count()):
+		var bone_name := skeleton.get_bone_name(i)
+		var parent := skeleton.get_bone_parent(i)
+		var rest := pose_entry(kitchen_data.reference_rest[bone_name])
+		var posed := pose_entry(kitchen_data.pose[bone_name])
+		source_rest_global.append(source_rest_global[parent]*rest if parent>=0 else rest)
+		source_pose_global.append(source_pose_global[parent]*posed if parent>=0 else posed)
+		# Blender's importer aligns bone axes differently; retarget in global bind
+		# space rather than assigning its local rotations directly to Godot bones.
+		var corrected := source_pose_global[i]*source_rest_global[i].affine_inverse()*skeleton.get_bone_global_rest(i)
+		corrected_global.append(corrected)
+		var local := corrected_global[parent].affine_inverse()*corrected if parent>=0 else corrected
+		local.basis = local.basis.orthonormalized()
+		kitchen_pose.append(local)
 	# Freeze the source clip. Pose changes below always start from an absolute pose.
 	player.pause()
 	for mesh in find_children("*","MeshInstance3D",true,false):
@@ -59,6 +79,11 @@ func capture_pose() -> Array[Transform3D]:
 		result.append(Transform3D(Basis(skeleton.get_bone_pose_rotation(i).normalized()),skeleton.get_bone_pose_position(i)))
 	return result
 
+func pose_entry(entry: Dictionary) -> Transform3D:
+	var p: Array = entry.position
+	var q: Array = entry.rotation
+	return Transform3D(Basis(Quaternion(q[0],q[1],q[2],q[3]).normalized()),Vector3(p[0],p[1],p[2]))
+
 func set_pose(value: String, immediate := false) -> void:
 	if value not in ["stand","lie","sleep"]:return
 	if value!=current_pose or immediate:
@@ -71,7 +96,7 @@ func set_pose(value: String, immediate := false) -> void:
 func apply_pose(delta: float) -> void:
 	transition_time = minf(1.0,transition_time+delta/1.2)
 	var blend := smoothstep(0.0,1.0,transition_time)
-	var target := stand_pose if current_pose=="stand" else lying_pose
+	var target := stand_pose if current_pose=="stand" else kitchen_pose if kitchen_pose_active else lying_pose
 	for i in range(skeleton.get_bone_count()):
 		var a := transition_from[i]
 		var b := target[i]
@@ -99,12 +124,16 @@ func apply_pose(delta: float) -> void:
 func _process(delta: float) -> void:
 	clock += delta
 	fed_time = maxf(0.0,fed_time-delta)
+	var kitchen := bool(get_meta("free_to_roam",false))
+	if kitchen!=kitchen_pose_active:
+		transition_from=capture_pose();transition_time=0
+		kitchen_pose_active=kitchen
 	var desired := pose_mode
 	if desired=="auto":
 		if fed_time>0:desired = "stand"
-		elif get_meta("free_to_roam",false):
+		elif kitchen:
 			var phase := fmod(clock,36.0)
-			desired = "stand" if phase<10.0 else "lie" if phase<25.0 else "sleep"
+			desired = "lie" if phase<25.0 else "sleep"
 		else:desired = "sleep"
 	set_pose(desired)
 	apply_pose(delta)
