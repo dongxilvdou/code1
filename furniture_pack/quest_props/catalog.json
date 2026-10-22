@@ -215,5 +215,21 @@
     "triangles": 908,
     "units": "metres",
     "source": "existing drafting_kit"
+  },
+  {
+    "id": "mole_upper_body",
+    "name": "完整上半身地鼠：肩胸、鼻吻与五指掘土爪",
+    "triangles": 19574,
+    "materials": 6,
+    "units": "metres",
+    "source": "tools/build_act4_animals.py"
+  },
+  {
+    "id": "house_mouse",
+    "name": "短毛家鼠：连续躯干、耳廓、四肢、尖吻与渐细长尾",
+    "triangles": 25884,
+    "materials": 6,
+    "units": "metres",
+    "source": "tools/build_act4_animals.py"
   }
 ]

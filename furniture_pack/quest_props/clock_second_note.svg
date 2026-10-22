@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="360" viewBox="0 0 512 360">
+<rect width="512" height="360" fill="#d8cbae"/><path d="M18 25H494V333H18Z" fill="#e5d9bf" stroke="#b6a587" stroke-width="2"/>
+<path d="M40 105H472M40 270H472" stroke="#b6aa8d" stroke-width="2"/>
+<text x="256" y="80" font-family="Microsoft YaHei, sans-serif" font-size="30" text-anchor="middle" fill="#514f42">秒 / 秒针</text>
+<text x="256" y="246" font-family="Georgia,serif" font-size="150" text-anchor="middle" fill="#a5674f">00</text>
+<text x="256" y="309" font-family="Microsoft YaHei, sans-serif" font-size="19" text-anchor="middle" fill="#746953">时间纸条 · 只记录一根指针</text>
+<path d="M403 328L482 280" stroke="#c2b398" stroke-width="3"/>
+</svg>

@@ -43,18 +43,22 @@ func art(kind: String, height: int) -> Control:
 	detail.add_child(display)
 	return display
 func open_valve() -> void:
-	title.text = "磨平的刻度"
-	description.text = "旋钮控制水流大小。数字已经磨光，只剩四个缺口。\n观察旋钮底座磨痕和水管上的水垢分界，找到日常使用的位置。"
-	art("valve",210)
+	title.text = "水垢下的温度"
+	description.text = "水垢挡住了水温数字，只能看见刻线和一段旧磨痕。\n按住旋钮拖动，或点按钮微调；回到底盘按 E，用试水判断冷热。"
+	art("valve",245)
 	var row := HBoxContainer.new()
 	detail.add_child(row)
-	for i in range(4):
-		var b := button(["◜","╷","╷","◝"][i],row,func():chapter.set_value("valve",i);feedback.text="旋钮停在所选缺口。回到底盘按 E 试水。")
+	for direction in [-1,1]:
+		var b := button("← 往冷水转一点" if direction<0 else "往热水转一点 →",row,adjust_valve.bind(direction*4))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button("仔细比较两处磨痕",detail,func():feedback.text="水垢的浅色圈和最深的停靠磨痕，均对准从左往右第二个缺口。")
+	feedback.text = "温度数字看不清。浅色磨痕附近，似乎是平时常用的位置。"
+func adjust_valve(amount: int) -> void:
+	chapter.set_value("valve_setting",clampi(chapter.valve_setting()+amount,0,100))
+	chapter.world.valve_wheel.rotation.z = -deg_to_rad(lerpf(-140,140,chapter.valve_setting()/100.0))
+	feedback.text = "已转动旋钮。回到底盘按 E 试水；太冷往热转，太热往冷退。"
 func open_clock() -> void:
 	title.text = "三根指针 / 沉默的时钟"
-	description.text = "分别旋转时针、分针和秒针。书桌上的旧照片和便签记录着目标时间。"
+	description.text = "三张纸条分别记录时、分、秒。按找到的线索调整三根指针。"
 	art("clock",220)
 	var row := HBoxContainer.new()
 	detail.add_child(row)
@@ -70,9 +74,10 @@ func open_clock() -> void:
 		col.add_child(spin)
 		spin.value_changed.connect(func(v: float):chapter.set_value(["clock_h","clock_m","clock_s"][i],int(v)))
 	button("确认这个时间",detail,func():
-		if chapter.val("clock_h")==3 and chapter.val("clock_m")==42 and chapter.val("clock_s")==0:
+		if chapter.clock_clue_count()<3:feedback.text="先找到三张纸条：小时、分钟、秒各一张。"
+		elif chapter.val("clock_h")==3 and chapter.val("clock_m")==42 and chapter.val("clock_s")==0:
 			close();chapter.solve_clock()
-		else:feedback.text="指针仍然停着。再去看看旧照片背面的时间，以及便签的秒针提示。")
+		else:feedback.text="指针仍然停着。再核对三张纸条上的小时、分钟和秒。")
 func open_plants() -> void:
 	title.text = "让盆栽回到画里的位置"
 	description.text = "观察墙画中叶片与花朵的特征，选择两盆交换位置。"

@@ -1,5 +1,10 @@
 extends "res://act3/world.gd"
 const Art = preload("res://furniture_pack/quest_props/refined_props.gd")
+const Rodent = preload("res://act4/rodent_actor.gd")
+const Spray = preload("res://act4/shower_spray.gd")
+var mouse_actor
+var mole_actor
+var valve_wheel: Node3D
 var bed: Node3D
 var wardrobe: Node3D
 var shower: Node3D
@@ -73,25 +78,27 @@ func build(parent: Node3D, game: Node) -> void:
 		for j in range(3):Art.ellipsoid(tracks,"ToePrint",p+Vector3((j-1)*.012,0,-.019),Vector3(.009,.001,.012),Art.material("dust_track",Color("766e5c"),.95))
 	var mattress := target4("bed",bed.to_global(Vector3(0,.592,0)),"床垫 · 连续跳三次蓄力",[8])
 	Props.bind(mattress,bed)
-	var valve := target4("valve",shower.to_global(Vector3(.12,.94,-.31)),"淋浴旋钮 · 查看磨损痕迹",[8])
+	var valve := target4("valve",shower.to_global(Vector3(.12,.94,-.31)),"淋浴旋钮 · 调整水温",[8])
 	Props.bind(valve,shower)
-	valve.set_meta("worn_temperature_order",[50,40,60,30])
+	valve.set_meta("hidden_temperature_scale",true)
 	var wheel := cylinder(valve,Vector3.ZERO,.045,.018,Color("b6bcb4"))
 	wheel.rotation.x = PI/2
-	for i in range(4):
-		var a := -.9+i*.6
-		Art.rod(valve,"WornDetent",Vector3(sin(a)*.055,cos(a)*.055,.015),Vector3(sin(a)*.063,cos(a)*.063,.015),.0025,Art.material("detent%d"%i,Color("e7dfbc") if i==1 else Color("707a72"),.8))
+	valve_wheel = Node3D.new();valve.add_child(valve_wheel)
+	Art.rod(valve_wheel,"TemperaturePointer",Vector3(0,.018,.016),Vector3(0,.041,.016),.0022,Art.material("pointer",Color("3c544c"),.4))
+	for i in range(23):
+		var a := deg_to_rad(-140+i*280.0/22)
+		Art.rod(valve,"CoveredTick",Vector3(sin(a)*.052,cos(a)*.052,.015),Vector3(sin(a)*.058,cos(a)*.058,.015),.0008,Art.material("covered_ticks",Color("69726a"),.8))
+		if i%2==0:Art.ellipsoid(valve,"OpaqueCalcium",Vector3(sin(a)*.060,cos(a)*.060,.017),Vector3(.022,.013,.003),grain("chalk_limescale",Color("d0c6aa")))
 	var wash := target4("wash",shower.to_global(Vector3(0,.057,.12)),"淋浴底盘 · E 试水并洗澡",[8])
 	Props.bind(wash,shower)
-	var limescale := target4("limescale",shower.to_global(Vector3(0,1.15,-.372)),"水管上的水垢分界",[8])
+	var limescale := target4("limescale",shower.to_global(Vector3(0,1.15,-.372)),"水垢 · 温度数字被遮住了",[8])
 	for i in range(4):
 		var ring := cylinder(limescale,Vector3(0,(i-1)*.035,0),.016,.002,Color("e1d6b5") if i==1 else Color("a5aba2"))
-	var water := item("water",wash.global_position)
-	for i in range(16):
-		var x := sin(i*2.4)*.19
-		var z := cos(i*2.4)*.19
-		Art.rod(water,"WaterJet",Vector3(x,1.73,z),Vector3(x*.9,.01,z*.9),.0017,Art.material("water_stream",Color(.55,.78,.83,.55),.12))
-	water.hide()
+	var water := Spray.new()
+	water.name = "ShowerSpray"
+	root.add_child(water)
+	water.global_transform = shower.global_transform
+	items["water"] = water
 	var clock := target4("clock",Vector3(-5.86,4.50,2.65),"书房时钟 · 三根指针",[8,9,10,11])
 	clock.rotation.y = PI/2
 	var rim := cylinder(clock,Vector3.ZERO,.22,.055,Color("a68a50"))
@@ -104,9 +111,12 @@ func build(parent: Node3D, game: Node) -> void:
 		clock.add_child(pivot)
 		Art.rod(pivot,"ClockHand",Vector3(0,0,.035+i*.003),Vector3(0,[.105,.16,.18][i],.035+i*.003),[.004,.003,.0015][i],Art.material("hand%d"%i,Color("aa543b") if i==2 else Color("263f3c")))
 		hands.append(pivot)
-	var clue := target4("clock_clue",study_desk.to_global(Vector3(-.10,.782,.24)),"旧照片与便签",[8])
-	textured(clue,"TimestampPhoto",Vector3.ZERO,Vector2(.21,.14),"res://act4/textures/clock_clue.svg")
-	textured(clue,"OldPhotograph",Vector3(-.052,.001,.036),Vector2(.090,.046),"res://act2/memory_photo.svg")
+	var study_case := upstairs_furniture(game,"bookcase","Study")
+	var side_table := upstairs_furniture(game,"decor_side_table","Study")
+	var clue_positions := [study_desk.to_global(Vector3(-.38,.790,.19)),study_case.to_global(Vector3(.22,.018,.42)),side_table.to_global(Vector3(.12,.540,.14))]
+	for i in range(3):
+		var clue := target4(["clock_clue","clock_minute_clue","clock_second_clue"][i],clue_positions[i],["时针纸条 · 书桌","分针纸条 · 书柜脚边","秒针纸条 · 阅读小桌"][i],[8])
+		textured(clue,"SeparateTimeClue",Vector3(0,.001,0),Vector2(.17,.12),"res://furniture_pack/quest_props/clock_%s_note.svg"%["hour","minute","second"][i])
 	var painting := target4("painting",Vector3(-5.43,4.32,3.08),"墙上的植物画",[9])
 	var frame := box(painting,"OakFrame",Vector3.ZERO,Vector3(.68,.43,.025),Color("8b7049"))
 	frame.material_override = load("res://furniture_pack/materials/oak.tres")
@@ -142,11 +152,28 @@ func build(parent: Node3D, game: Node) -> void:
 		Art.ellipsoid(burrows,"DarkBurrow",pos+Vector3(0,.006,0),Vector3(.225,.012,.225),Art.material("hole",Color("151b17"),1))
 		for k in range(9):Art.ellipsoid(burrows,"SoilClod",pos+Vector3(sin(k*2.3)*.18,.024,cos(k*2.3)*.18),Vector3(.035,.026,.025),grain("soil_clods",Color("80674b")))
 	var mole := target4("mole",holes[0],"地鼠 · E 猫扑",[9])
-	rodent(mole,true)
+	mole_actor = Rodent.new();mole.add_child(mole_actor);mole_actor.build(true)
 	var mouse := target4("mouse",Vector3(.05,.02,2.1),"老鼠 · 靠近按 E 抓取",[10])
-	rodent(mouse,false)
-	var plan := target4("escape_note",Vector3(1.60,.006,-3.52),"老鼠掉下的纸条",[10,11])
-	textured(plan,"DampFoldedPaper",Vector3.ZERO,Vector2(.18,.12),"res://act4/textures/escape_note.svg")
+	mouse_actor = Rodent.new();mouse.add_child(mouse_actor);mouse_actor.build(false)
+	var carried_note := textured(mouse_actor.visual,"CarriedNote",Vector3(0,.042,-.159),Vector2(.035,.018),"res://act4/textures/escape_note.svg")
+	carried_note.rotation.x = .18
+	var plan := target4("escape_note",Vector3(1.60,.010,-3.52),"老鼠掉下的纸条",[10,11])
+	# Keep the actual folded surface above the non-colliding kitchen finish.
+	for floor_mesh in game.get_node("Apartment/GroundFloor").get_children():
+		if floor_mesh is MeshInstance3D and str(floor_mesh.name).begins_with("KitchenFinish"):
+			var aabb: AABB = floor_mesh.global_transform*floor_mesh.get_aabb()
+			plan.global_position.y = maxf(plan.global_position.y,aabb.end.y+.004)
+	var paper_mesh := SurfaceTool.new();paper_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for x in range(8):
+		for z in range(6):
+			for uv in [Vector2(x,z),Vector2(x+1,z+1),Vector2(x+1,z),Vector2(x,z),Vector2(x,z+1),Vector2(x+1,z+1)]:
+				uv /= Vector2(8,6)
+				paper_mesh.set_uv(uv)
+				paper_mesh.add_vertex(Vector3((uv.x-.5)*.18,.001+pow(absf(uv.x-.5)*2,5)*.003,(uv.y-.5)*.12))
+	paper_mesh.generate_normals()
+	var paper_mat := mat(Color.WHITE);paper_mat.albedo_texture = load("res://act4/textures/escape_note.svg")
+	paper_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	Art.mesh_node(plan,"DampFoldedPaper",paper_mesh.commit(),paper_mat)
 	build_door()
 	root.hide()
 func foil_pouch(parent: Node3D) -> void:
@@ -198,34 +225,6 @@ func plant_species(parent: Node3D, species: int) -> void:
 				for side in [-1,1]:
 					var leaflet := Art.ellipsoid(parent,"FernLeaflet" if species==0 else "RosemaryNeedle",base+Vector3(side*.02,0,0),Vector3(.065 if species==0 else .028,.005,.014 if species==0 else .004),green)
 					leaflet.rotation.y = angle+side*.4
-func rodent(parent: Node3D, mole: bool) -> void:
-	var fur := Art.material("mole_fur" if mole else "mouse_fur",Color("8b847a") if mole else Color("e2ddd3"),.96)
-	fur.albedo_texture=load("res://act4/textures/rodent_fur.png")
-	fur.uv1_triplanar=false
-	fur.uv1_scale=Vector3(.35,.35,1)
-	var skin := grain("rodent_skin",Color("b39b8d"))
-	if not mole:
-		Art.ellipsoid(parent,"FurredTorso",Vector3(0,.054,0),Vector3(.086,.075,.16),fur)
-		var tail_points: Array[Vector3] = []
-		for i in range(15):tail_points.append(Vector3(sin(i*.3)*.045,.014,i*.013+.055))
-		Art.line(parent,"RingedTaperedTail",tail_points,.004,skin)
-		for i in [-1,1]:
-			for z in [-.045,.045]:
-				Art.ellipsoid(parent,"SmallClawedPaw",Vector3(i*.043,.011,z),Vector3(.018,.008,.028),skin)
-				for toe in range(3):Art.rod(parent,"FineToe",Vector3(i*.043+(toe-1)*.004,.009,z-.010),Vector3(i*.043+(toe-1)*.005,.007,z-.022),.0011,skin)
-	Art.ellipsoid(parent,"VelvetHead",Vector3(0,.065,-.070 if not mole else -.005),Vector3(.066,.065,.083) if not mole else Vector3(.085,.067,.105),fur)
-	Art.ellipsoid(parent,"TaperedSnout",Vector3(0,.051,-.111 if not mole else -.057),Vector3(.028,.027,.044) if not mole else Vector3(.026,.021,.041),fur if not mole else skin)
-	Art.ellipsoid(parent,"SensitiveNose",Vector3(0,.051,-.132 if not mole else -.077),Vector3(.012,.010,.008),skin)
-	Art.rod(parent,"SplitUpperLip",Vector3(0,.050,-.137 if not mole else -.082),Vector3(0,.044,-.134 if not mole else -.080),.0006,Art.material("muzzle_seam",Color("54443d"),.8))
-	for side in [-1,1]:
-		Art.ellipsoid(parent,"SmallDarkEye",Vector3(side*.026,.078,-.091 if not mole else -.032),Vector3.ONE*(.005 if not mole else .0028),Art.material("rodent_eye",Color("171c19"),.16))
-		if not mole:
-			Art.ellipsoid(parent,"ThinRoundedEar",Vector3(side*.033,.096,-.054),Vector3(.027,.031,.005),fur)
-			Art.ellipsoid(parent,"EarInnerSkin",Vector3(side*.033,.096,-.057),Vector3(.020,.025,.002),skin)
-		for i in range(3):Art.rod(parent,"FineWhisker",Vector3(side*.012,.058,-.12 if not mole else -.060),Vector3(side*.065,.06+i*.004,(-.1 if not mole else -.045)+i*.01),.0004,Art.material("whisker",Color("c6bdad"),.77))
-	if not mole:
-		var paper := textured(parent,"CarriedNote",Vector3(0,.044,-.145),Vector2(.035,.018),"res://act4/textures/escape_note.svg")
-		paper.rotation.x = .3
 func earth_mound(parent: Node3D, origin: Vector3) -> void:
 	var mesh:=SurfaceTool.new()
 	mesh.begin(Mesh.PRIMITIVE_TRIANGLES)

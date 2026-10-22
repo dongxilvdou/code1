@@ -7,7 +7,27 @@ var routes: Array = []
 var coils: Array = []
 var result := {}
 var level := 0
+var dragging := false
+var last_angle := 0.0
 const Circuit = preload("res://act4/circuit.gd")
+func _ready() -> void:
+	focus_mode = Control.FOCUS_ALL
+func _gui_input(event: InputEvent) -> void:
+	if kind!="valve":return
+	var center := Vector2(size.x*.5,size.y*.5)
+	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT:
+		dragging = event.pressed and event.position.distance_to(center)<110
+		last_angle = (event.position-center).angle()
+		if dragging:grab_focus();accept_event()
+	elif event is InputEventMouseMotion and dragging:
+		var angle: float = (event.position-center).angle()
+		var change := rad_to_deg(angle_difference(last_angle,angle))/2.8
+		chapter.panel.adjust_valve(roundi(change))
+		if absf(change)>=.5:last_angle=angle
+		accept_event()
+	elif event is InputEventKey and event.pressed and event.keycode in [KEY_LEFT,KEY_RIGHT]:
+		chapter.panel.adjust_valve(-2 if event.keycode==KEY_LEFT else 2)
+		accept_event()
 func _process(delta: float) -> void:
 	if running:
 		elapsed += delta/.55
@@ -33,21 +53,36 @@ func draw_clock() -> void:
 		draw_line(c,c+Vector2(sin(a),-cos(a))*r*[.49,.72,.83][i],[Color("394c4d"),Color("394c4d"),Color("a75e42")][i],5-i*2,true)
 	draw_circle(c,6,Color("a88852"))
 func draw_valve() -> void:
-	var c := Vector2(size.x*.35,size.y*.5)
-	var r := 80.0
-	draw_circle(c,r+15,Color("89918a"))
-	draw_circle(c,r,Color("c3c9bf"))
-	for i in range(4):
-		var a := -.9+i*.60
+	var c := size*.5
+	var r := 85.0
+	draw_circle(c,r+23,Color("47534e"))
+	draw_circle(c,r+19,Color("9ca396"))
+	for i in range(29):
+		var a := deg_to_rad(-140+i*10)
 		var v := Vector2(sin(a),-cos(a))
-		draw_line(c+v*(r+3),c+v*(r+13),Color("e8e1ca") if i==1 else Color("464c47"),6 if i==1 else 3,true)
-		if i==1:
-			for j in range(7):draw_arc(c,r+5+j*.8,a-PI/2-.11,a-PI/2+.11,8,Color(.9,.87,.7,.45),1,true)
-	var a: float = -.9+chapter.val("valve")*.60
-	draw_line(c,c+Vector2(sin(a),-cos(a))*(r-13),Color("465956"),8,true)
-	var p := Vector2(size.x*.72,20)
-	draw_rect(Rect2(p,Vector2(28,165)),Color("84988f"))
-	for i in range(4):draw_line(p+Vector2(-8,135-i*30),p+Vector2(40,135-i*30),Color("eee4ba") if i==1 else Color("485b55"),5 if i==1 else 1,true)
+		draw_line(c+v*(r+4),c+v*(r+15),Color("5b6256"),2,true)
+	# Opaque mineral deposits cover the numeric temperature scale, not the pointer.
+	for span in [Vector2(-145,-24),Vector2(40,145)]:
+		var patch := PackedVector2Array()
+		for j in range(25):
+			var a := deg_to_rad(lerpf(span.x,span.y,j/24.0))
+			patch.append(c+Vector2(sin(a),-cos(a))*(r+22+sin(j*2.3)*2))
+		for j in range(24,-1,-1):
+			var a := deg_to_rad(lerpf(span.x,span.y,j/24.0))
+			patch.append(c+Vector2(sin(a),-cos(a))*(r+2+sin(j*1.8)*3))
+		draw_colored_polygon(patch,Color("c9bea2"))
+		for j in range(40):
+			var a := deg_to_rad(lerpf(span.x,span.y,fposmod(j*.618,1)))
+			draw_circle(c+Vector2(sin(a),-cos(a))*(r+5+fposmod(j*3.17,16)),.6+fposmod(j*.7,1.2),Color("e0d6bb"))
+	draw_arc(c,r+4,deg_to_rad(-104),deg_to_rad(-56),32,Color(.92,.86,.67,.65),5,true)
+	for i in range(12):draw_circle(c,r-i*.7,Color("a7afa6").lerp(Color("d0d3c7"),i/16.0))
+	var a := deg_to_rad(lerpf(-140,140,chapter.valve_setting()/100.0))
+	var v := Vector2(sin(a),-cos(a))
+	draw_line(c+v*35,c+v*(r-12),Color("38564f"),7,true)
+	draw_circle(c,14,Color("7a877c"))
+	draw_line(c-Vector2(6,0),c+Vector2(6,0),Color("d2d3c3"),2,true)
+	draw_circle(c+Vector2(-127,66),8,Color("74a6ba"))
+	draw_circle(c+Vector2(127,66),8,Color("b8765e"))
 func draw_circuit() -> void:
 	draw_style_box(chapter.panel.QuestTheme.panel(8),Rect2(Vector2.ZERO,size))
 	for lane in range(Circuit.count_(level)):
