@@ -17,7 +17,7 @@ var plant_art: Array = []
 var plant_pot_materials: Array = []
 var terrace_bench: Node3D
 var leaf: Node3D
-var door_body: StaticBody3D
+var door_body: AnimatableBody3D
 var bolts: Array = []
 var tiles: Array = []
 var holes: Array[Vector3] = []
@@ -242,15 +242,36 @@ func earth_mound(parent: Node3D, origin: Vector3) -> void:
 	soil.cull_mode=BaseMaterial3D.CULL_DISABLED
 	Art.mesh_node(parent,"UnevenExcavatedSoil",mesh.commit(),soil)
 func build_door() -> void:
-	var gate := target4("basement",Vector3(5.20,0,1.53),"地下室门 · 三组电流锁",[8,9,10,11])
-	leaf = Node3D.new()
+	var width := 1.28
+	var gate = load("res://scripts/basement/laboratory_lock_door.gd").new()
+	gate.name = "basement"
+	gate.position = Vector3(3.34,-2.70,-2.80+width*.5)
+	gate.rotation.y = PI/2
+	gate.leaf_width = width
+	gate.open_angle = 100
+	gate.door_title = "实验室密码门"
+	Props.days(gate,[8,9,10,11],[11])
+	gate.set_meta("title","实验室密码门 · 三组电流锁")
+	items["basement"] = gate
+	# The gate origin is its hinge. The slab occupies the actual 1.3m portal,
+	# and opens into the laboratory, away from the narrow lower stair landing.
+	leaf = AnimatableBody3D.new()
+	leaf.name = "Leaf"
 	gate.add_child(leaf)
-	leaf.position.x = -.52
 	var slab := box(leaf,"PaintedSteelDoor",Vector3(.52,1.0,0),Vector3(1.04,2,.055),Color("344c47"))
+	(slab.mesh as BoxMesh).size.x = width
+	(slab.mesh as BoxMesh).size.y = 2.04
+	slab.position.x = width*.5
+	slab.position.y = 1.02
 	slab.material_override = grain("door_paint",Color("485852"))
-	for x in [.07,.97]:
+	for x in [.07,width-.07]:
 		for y in [.25,1.75]:cylinder(leaf,Vector3(x,y,.035),.014,.006,Color("afaa94")).rotation.x = PI/2
-	door_body = collision(leaf,Vector3(.52,1,0),Vector3(1.04,2,.055))
+	door_body = leaf as AnimatableBody3D
+	door_body.collision_layer = 1;door_body.collision_mask = 2
+	var collider := CollisionShape3D.new();collider.name = "CollisionShape3D"
+	var shape := BoxShape3D.new();shape.size = Vector3(width,2.04,.055)
+	collider.shape = shape;collider.position = Vector3(width*.5,1.02,0)
+	leaf.add_child(collider)
 	for i in range(3):
 		var body := box(leaf,"RelayLock%d"%i,Vector3(.52,.35+i*.25,.046),Vector3(.33,.17,.035),Color("8f8b76"))
 		body.material_override = grain("relay_case",Color("8b9285"))
@@ -266,8 +287,9 @@ func build_door() -> void:
 		for j in range(4):
 			var lamp := ball(leaf,Vector3(.42+j*.065,.35+i*.25,.07),Vector3(.026,.026,.012),Color("9a694e"))
 			bolts.append(lamp)
-	Art.rod(leaf,"SteelPullHandle",Vector3(.86,.88,.10),Vector3(.86,1.12,.10),.013,Art.material("door_hardware",Color("b7b7a5"),.3,.7))
-	door_body.collision_layer = 0
+	Art.rod(leaf,"SteelPullHandle",Vector3(width-.17,.88,.10),Vector3(width-.17,1.12,.10),.013,Art.material("door_hardware",Color("b7b7a5"),.3,.7))
+	root.add_child(gate)
+	gate.apply_lock_state(false,false)
 func arrange(order: Array, active_: bool) -> void:
 	for slot in range(3):
 		var i: int = order[slot]
@@ -287,7 +309,5 @@ func clock_pose(seconds: float) -> void:
 	var angles := [seconds/43200.0*TAU,seconds/3600.0*TAU,seconds/60.0*TAU]
 	for i in range(3):hands[i].rotation.z = -angles[i]
 func door_state(opened: bool, level: int, enabled: bool) -> void:
-	items.basement.visible = enabled
-	door_body.collision_layer = 1 if enabled else 0
-	leaf.rotation.y = PI/2 if opened else 0
+	items.basement.apply_lock_state(opened,enabled)
 	for i in range(bolts.size()):bolts[i].material_override = Art.material("lock_ready" if i/4<level else "lock_waiting",Color("adc99a") if i/4<level else Color("9c7355"),.3)

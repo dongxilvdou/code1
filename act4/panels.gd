@@ -187,7 +187,7 @@ func finish_circuit(result: Dictionary) -> void:
 	if result.ok:
 		chapter.complete_lock()
 		close()
-		chapter.story("第 %d 组电流锁已解开。\n%s"%[chapter.val("locks"),("三道锁都亮了，门已经打开。沿楼梯下去吧。\n全程使用 %d 枚线圈。%s"%[chapter.val("delay_total"),"高分挑战达成。" if chapter.flag("a11_high_score") else "高分目标为累计不超过 3 枚。"] ) if chapter.val("locks")==3 else "锁扣松开了。继续检查门上的下一组导线。"])
+		chapter.story("第 %d 组电流锁已解开。\n%s"%[chapter.val("locks"),("三道锁都亮了，推门进入实验室吧。\n全程使用 %d 枚线圈。%s"%[chapter.val("delay_total"),"高分挑战达成。" if chapter.flag("a11_high_score") else "高分目标为累计不超过 3 枚。"] ) if chapter.val("locks")==3 else "锁扣松开了。继续检查门上的下一组导线。"])
 func circuit_hint() -> void:
 	var solution := Circuit.solution(chapter.val("locks"))
 	for i in range(Circuit.count_(chapter.val("locks"))):

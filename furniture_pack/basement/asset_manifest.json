@@ -1,0 +1,59 @@
+{
+  "medical_cart": {
+    "source": "medical_cart.glb",
+    "source_sha256": "2eb86c522554f75eb97db149b0936112dcc0911677c6905af73cdbd6ac343d48",
+    "size_blender_xyz_m": [
+      0.9580109715461731,
+      0.4814378023147583,
+      0.9200000166893005
+    ],
+    "triangles": 17744
+  },
+  "examination_table": {
+    "source": "medical_table.glb",
+    "source_sha256": "56a08b7601a3d6199344bdf54abda153aafe82d83e130f5d09c577c059cfe72d",
+    "size_blender_xyz_m": [
+      0.629366397857666,
+      1.1745423078536987,
+      0.9100000262260437
+    ],
+    "triangles": 1468
+  },
+  "instrument_table": {
+    "source": "medical_table_-_17mb.glb",
+    "source_sha256": "d32b81e28fc7dabcb75cefd17df764e562604ae0662941b9cccf16fec613537d",
+    "size_blender_xyz_m": [
+      2.5735878944396973,
+      1.2684353590011597,
+      0.85999995470047
+    ],
+    "triangles": 5021
+  },
+  "privacy_screen": {
+    "source": "the_screen_is_medical.glb",
+    "source_sha256": "57cfd7d25e892f619c5b7965758d9de6f4eb0e939f16b62a32b0503b7c87a87b",
+    "size_blender_xyz_m": [
+      1.1074755191802979,
+      0.3504827916622162,
+      1.8500001430511475
+    ],
+    "triangles": 2108
+  },
+  "cat_observation_cage": {
+    "source": "square_rat_cage_-_steampunk.glb",
+    "source_sha256": "024c198a7c8130a546e4174394a0b5597153df7f22f00dab693d33dfbeb9d315",
+    "size_blender_xyz_m": [
+      1.1399999856948853,
+      1.6660000085830688,
+      1.0499999523162842
+    ],
+    "triangles": 18155,
+    "door_width_m": 1.035,
+    "hinge_godot_xyz": [
+      -0.517,
+      0.045,
+      -0.802
+    ],
+    "removed_front_faces": 305
+  }
+}
