@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 11
+[sub_resource type="Resource" id="prior"]
+script = ExtResource("condition")
+key = &"a11_memory"
+[sub_resource type="Resource" id="a11_cage"]
+script = ExtResource("goal")
+id = &"a11_cage"
+text = "观察笼里的猫毛、旧抓痕和离开的路径。"
+kind = 3
+target_id = &"a11_cage"
+target_count = 1
+[sub_resource type="Resource" id="a11_vent"]
+script = ExtResource("goal")
+id = &"a11_vent"
+text = "找到监控底下的通风口。"
+kind = 3
+target_id = &"a11_vent"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a11_traces"
+title = "04 · 前代实验猫"
+description = "结局篇 · 检查观察笼里的旧抓痕与猫毛，沿爪印找到监控下方的通风口。"
+priority = 113
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
+objectives = Array[ExtResource("goal")]([SubResource("a11_cage"), SubResource("a11_vent")])
+result_text = "线索已记入手记。"

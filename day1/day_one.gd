@@ -198,11 +198,14 @@ func restore_world() -> void:
 		world.items[id].position = anchor_positions[id]+Vector3(.20,-.38 if id=="mess_cup" else .14,.12) if flag(id) else anchor_positions[id]
 		world.items[id].rotation.z = PI/2 if flag(id) else 0.0
 	World.Props.apply(world.items,value("current_day",1))
-	world.items.note.visible = value("current_day",1)!=5
+	world.items.note.visible = value("current_day",1)!=5 and not flag("a11_enter")
 	world.items.mess_cup.hide()
 	for n in world.tutorial_steps:World.Props.activate(n,value("current_day",1)==1)
 	# Furniture stays in the room when its one-day interaction is retired.
 	world.items.mess_pot.get_meta("bound_furniture").rotation.z = PI/2 if value("current_day",1)<=2 and flag("mess_pot") else 0.0
+	for name_ in ["DayTwo","ActTwo","ActThree","ActFour","Ending"]:
+		var chapter_ := get_parent().get_node_or_null(name_)
+		if chapter_ and chapter_.world:World.Props.retire(chapter_.world.items,value("current_day",1))
 	update_held_visual()
 	if second_day() and second_day().world:second_day().restore_world()
 	refresh_hud()
@@ -362,6 +365,7 @@ func nearest_item() -> String:
 	return found
 
 func target_hint() -> String:
+	if value("current_day",1)==11 and flag("a11_enter"):return get_parent().get_node("Ending").target_hint()
 	if value("current_day",1)>=8:return get_parent().get_node("ActFour").target_hint()
 	if value("current_day",1)>=6:return get_parent().get_node("ActThree").target_hint()
 	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").target_hint()
@@ -383,6 +387,7 @@ func target_hint() -> String:
 	return ""
 
 func try_interact() -> bool:
+	if value("current_day",1)==11 and flag("a11_enter"):return get_parent().get_node("Ending").try_interact()
 	if value("current_day",1)>=8:return get_parent().get_node("ActFour").try_interact()
 	if value("current_day",1)>=6:return get_parent().get_node("ActThree").try_interact()
 	if value("current_day",1)>=3:return get_parent().get_node("ActTwo").try_interact()
@@ -546,6 +551,7 @@ func restart_day() -> void:
 	if get_parent().has_node("ActTwo"):get_parent().get_node("ActTwo").reset_runtime()
 	if get_parent().has_node("ActThree"):get_parent().get_node("ActThree").reset_runtime()
 	if get_parent().has_node("ActFour"):get_parent().get_node("ActFour").reset_runtime()
+	if get_parent().has_node("Ending"):get_parent().get_node("Ending").reset_runtime()
 	restore_world()
 	reset_spawn()
 	# The caller is still inside the journal; do not steal pause/input ownership.
