@@ -45,10 +45,15 @@ static func fit_mesh(n: MeshInstance3D, template: Mesh, dimensions: Vector3) -> 
 static func activate(n: Node3D, enabled: bool) -> void:
 	n.visible = enabled
 	for body in n.find_children("*","CollisionObject3D",true,false):
-		if not body.has_meta("quest_layer"):body.set_meta("quest_layer",body.collision_layer)
+		if not body.has_meta("quest_layer") or body.collision_layer!=0:body.set_meta("quest_layer",body.collision_layer)
 		body.collision_layer = int(body.get_meta("quest_layer")) if enabled else 0
 
 static func apply(items: Dictionary, today: int) -> void:
+	for n in items.values():
+		if n.has_meta("quest_days"):activate(n,n.visible and today in n.get_meta("quest_days"))
+
+static func retire(items: Dictionary, today: int) -> void:
+	# Also visit inactive chapters: a hidden parent does not disable physics.
 	for n in items.values():
 		if n.has_meta("quest_days") and today not in n.get_meta("quest_days"):activate(n,false)
 

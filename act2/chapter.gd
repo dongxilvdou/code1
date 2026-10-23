@@ -221,7 +221,7 @@ func target_position(id: String) -> Vector3:
 	if id=="mailbox":return world.items.mailbox.global_position+Vector3(0,.40,.20)
 	if id.begins_with("shelf"):return world.book_returns[int(id.right(1))].origin+world.original_bookcase.global_basis.z*.04
 	if id=="can":return world.items.can.global_position+Vector3(0,.17,0)
-	if id=="plant":return world.items.plant.global_position+Vector3(0,.12,0)
+	if id=="plant":return world.items.plant.global_position+Vector3(0,.65,0)
 	if id=="cabinet" and flag("cabinet_open"):return world.items.cabinet.global_position+Vector3(-.50,0,.12)
 	if id=="oven":return world.items.oven.global_position
 	return world.items[id].global_position+Vector3(0,.05,0)
@@ -245,7 +245,7 @@ func nearest_item() -> String:
 		var pos := target_position(id)
 		var delta := pos-eye
 		var alignment := forward.dot(delta.normalized())
-		if delta.length()>1.20 or alignment<.65:continue
+		if delta.length()>(1.60 if id=="plant" else 1.20) or alignment<.65:continue
 		var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(eye,pos,1))
 		if not hit.is_empty() and hit.position.distance_to(pos)>.36:continue
 		var score := 1.0-alignment+delta.length()*.08

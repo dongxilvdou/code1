@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 11
+[sub_resource type="Resource" id="prior"]
+script = ExtResource("condition")
+key = &"a11_vent"
+[sub_resource type="Resource" id="a11_finished"]
+script = ExtResource("goal")
+id = &"a11_finished"
+text = "逃出实验室，回到原来的家。"
+kind = 3
+target_id = &"a11_finished"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a11_finished"
+title = "05 · 逃跑"
+description = "结局篇 · 沿着前代实验猫留下的路线穿过通风管道，回到原来的家。"
+priority = 114
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
+objectives = Array[ExtResource("goal")]([SubResource("a11_finished")])
+result_text = "实验失败。全剧终。"

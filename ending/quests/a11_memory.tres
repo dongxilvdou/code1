@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 11
+[sub_resource type="Resource" id="prior"]
+script = ExtResource("condition")
+key = &"a11_enter"
+[sub_resource type="Resource" id="a11_memory"]
+script = ExtResource("goal")
+id = &"a11_memory"
+text = "回想纸条，选择到处看看。"
+kind = 3
+target_id = &"a11_memory"
+target_count = 1
+[resource]
+script = ExtResource("quest")
+id = &"a11_memory"
+title = "03 · 转化装置"
+description = "结局篇 · 走近原有检查台上的转化装置，回想起昨天的纸条。"
+priority = 112
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
+objectives = Array[ExtResource("goal")]([SubResource("a11_memory")])
+result_text = "线索已记入手记。"

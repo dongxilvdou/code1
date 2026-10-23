@@ -144,7 +144,8 @@ func restore() -> void:
 	world.items.escape_note.visible=(today()==10 and flag("a10_eat")) or (today()==11 and not flag("a11_enter"))
 	world.items.basement.set_meta("interaction_days",[11])
 	world.door_state(val("locks")>=3,val("locks"),true)
-	day.world.items.note.visible=not flag("a11_complete")
+	World.Props.apply(world.items,today())
+	day.world.items.note.visible=not flag("a11_enter")
 	refresh_hud()
 func on_bed() -> bool:
 	var p: Vector3=world.bed.to_local(player.global_position)
@@ -157,6 +158,7 @@ func _physics_process(delta: float) -> void:
 		if active_number!=0:reset_runtime()
 		return
 	if active_number!=today():active_number=today();restore()
+	if today()==11 and flag("a11_enter"):return
 	if not day.active_play():return
 	if today()==8 and not flag("a8_food"):
 		if Input.is_action_just_pressed("jump") and was_on_bed:
@@ -192,7 +194,8 @@ func _physics_process(delta: float) -> void:
 			mole_clock=0;set_value("mole_hole",(val("mole_hole")+5)%9);restore()
 	if today()==10 and not chase_path.is_empty():advance_mouse(delta)
 	if today()==11 and val("locks")==3 and world.items.basement.beyond_door(player.global_position) and not flag("a11_enter"):
-		mark("a11_enter");mark("a11_complete");restore();story("第四幕 / 地下室\n\n三组电流锁熄灭，门已经留在身后。\n楼梯下的空气有一点冷。那张纸条上写着：地下室逃跑计划。\n\n第四幕当前任务已完成。")
+		mark("a11_enter");restore();game.get_node("Ending").enter_laboratory()
+		return
 	hud_time+=delta
 	if hud_time>.15:
 		hud_time=0;refresh_hud()
@@ -343,7 +346,7 @@ func interact_item(id: String) -> void:
 	elif id=="mouse":chase_mouse()
 	elif id=="escape_note":
 		if today()==10:mark("a10_note")
-		story("潮湿的小纸条\n\n地下室逃跑计划。")
+		story("潮湿的小纸条\n\n地下室逃跑计划。\n\n监控底下。\n沿着旧抓痕走。")
 	elif id=="basement":
 		if val("locks")<3:open_panel("circuit")
 		else:world.items.basement.toggle()
@@ -360,6 +363,7 @@ func day_complete() -> bool:
 		if not flag(key):return false
 	return true
 func guidance() -> String:
+	if today()==11 and flag("a11_enter"):return game.get_node("Ending").guidance()
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==8:
 		if not flag("a8_food"):return "01 柜顶的猫粮\n在二楼主卧原床垫上连续跳三次，第三次跃向衣柜顶。蓄力 %d / 3。"%val("bed_jumps")
@@ -376,7 +380,7 @@ func guidance() -> String:
 	else:
 		if val("locks")<3:return "01 实验室密码门\n沿一楼楼梯下到地下平台，左转检查门上的三组电流锁。%d / 3\n普通球一拍一格，线圈停一拍，转向器可绕路。"%val("locks")
 		if not flag("a11_enter"):return "02 进入实验室\n门锁已解开，穿过平台旁的密码门进入实验室。"
-	return "今天的任务都完成了。\n回客厅猫窝按 E 休息。" if today()<11 else "第四幕当前任务完成。\n地下室门已打开。"
+	return "今天的任务都完成了。\n回客厅猫窝按 E 休息。" if today()<11 else "进入实验室，检查里面的转化装置。"
 func refresh_hud() -> void:
 	if not active():return
 	day.hud.day_title.text="第 %d 天 / %s"%[today(),{8:"倒走的时间",9:"身体的记忆",10:"主人的命令",11:"来地下室"}[today()]]
