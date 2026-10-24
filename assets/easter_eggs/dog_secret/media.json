@@ -1,0 +1,13 @@
+{
+  "source": "C:\\zGoDot\\3D\\UP主必备爆款绿幕素材包，200+猫猫meme动态素材\\【高清无水印】大狗大狗叫叫叫meme绿幕素材30秒循环.mp4",
+  "source_sha256": "79c536dbff615d6491a3bff8702a6e81e805ae107d77ef78a9fb6feb3dc6b9de",
+  "output": "dog_power.ogv",
+  "seconds": 6,
+  "width": 960,
+  "height": 540,
+  "fps": 30,
+  "audio_gain": 1.4,
+  "audio_limiter": 0.95,
+  "output_sha256": "58d7e6b41432555340365f2809131e49e716b53ef403c10ad6d5a7949d10c047",
+  "chroma_key": "Runtime spatial shader; source green is retained only in the encoded clip."
+}

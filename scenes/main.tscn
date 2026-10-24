@@ -14,6 +14,8 @@
 [ext_resource type="Script" path="res://act3/chapter.gd" id="11_act3"]
 [ext_resource type="Script" path="res://act4/chapter.gd" id="12_act4"]
 [ext_resource type="Script" path="res://ending/chapter.gd" id="13_ending"]
+[ext_resource type="Script" path="res://scripts/cinematics/dog_secret.gd" id="14_dog_secret"]
+[ext_resource type="Script" path="res://scripts/cinematics/bedroom_secret.gd" id="15_bedroom_secret"]
 
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")
@@ -51,3 +53,13 @@ script = ExtResource("13_ending")
 [node name="OpeningCutscene" parent="." node_paths=PackedStringArray("environment_source", "sun_source") instance=ExtResource("6_intro")]
 environment_source = NodePath("../Apartment/Lighting/VillaEnvironment")
 sun_source = NodePath("../Apartment/Lighting/DaylightSun")
+
+[node name="DogSecret" type="Node3D" parent="." node_paths=PackedStringArray("dog_actor")]
+script = ExtResource("14_dog_secret")
+dog_actor = NodePath("../Apartment/Staircase/DogNest")
+
+[node name="BedroomSecret" type="Node3D" parent="." node_paths=PackedStringArray("desk", "bed", "room_door")]
+script = ExtResource("15_bedroom_secret")
+desk = NodePath("../Apartment/UpperFloor/Furnishings/BedroomA/Desk_095")
+bed = NodePath("../Apartment/UpperFloor/Furnishings/BedroomA/Bed_091")
+room_door = NodePath("../Apartment/UpperFloor/Door_15")

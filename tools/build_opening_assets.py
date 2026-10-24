@@ -2,6 +2,8 @@
 from pathlib import Path
 import numpy as np, wave
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'assets/audio';OUT.mkdir(parents=True,exist_ok=True)
+if (ROOT/'assets/cinematics/comic/opening_book.json').exists():
+    raise SystemExit('The 3D opening generator is retired. Edit assets/cinematics/comic/opening_book.json and scenes/cinematics/OpeningCutscene.tscn; the original score is already included.')
 rate=32000;audio=np.zeros((rate*28,2),np.float64)
 def note(key,start,length,amp,pan=0):
     t=np.arange(int(length*rate))/rate;hz=440*2**((key-69)/12)

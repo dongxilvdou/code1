@@ -94,7 +94,9 @@ func _physics_process(delta: float) -> void:
 			reconcile_progress()
 			restore_world()
 			reset_spawn()
-			if not flag("intro_seen"):show_dialog("intro")
+			if not flag("intro_seen"):
+				if game.comic_intro_completed:mark("intro_seen")
+				else:show_dialog("intro")
 		return
 	if not active_play():
 		previous_position = player.global_position

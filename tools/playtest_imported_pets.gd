@@ -28,7 +28,14 @@ func run_tests() -> void:
 	var dog_shoulder: float = ds.get_bone_global_rest(ds.find_bone("Dog_Spine_TopSHJnt")).origin.y*dog.scale.y
 	verify(absf(dog_shoulder/cat_shoulder-2)<.01,"Dog is not twice cat's reference shoulder height")
 	verify(ds.get_bone_count()==45,"Supplied dog skeleton missing")
-	verify(dog.find_children("*","AnimationPlayer",true,false)[0].is_playing(),"Dog resting animation not running")
+	# The dog now freezes the source clip and applies authored joint poses itself.
+	# A paused AnimationPlayer is intentional; verify the actual resting skeleton.
+	verify(nest.current_pose=="sleep" and nest.lying_pose.size()==ds.get_bone_count(),"Dog resting pose not loaded")
+	var resting_joint := false
+	for i in range(ds.get_bone_count()):
+		var pose := Transform3D(Basis(ds.get_bone_pose_rotation(i)),ds.get_bone_pose_position(i))
+		if not pose.is_equal_approx(ds.get_bone_rest(i)):resting_joint = true
+	verify(resting_joint,"Dog stayed in its standing bind pose")
 	game.player.position = Vector3(-8,.02,8)
 	await ticks(30)
 	var walking_start: Vector3 = game.player.position

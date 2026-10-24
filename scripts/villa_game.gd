@@ -82,8 +82,14 @@ func update_target() -> void:
 		if not hint.is_empty():ui.hint_label.text = hint
 		elif day.initialized and not day.flag("a6_permission") and player.global_position.distance_to(Vector3(5.20,1.65,-1.13))<1.6:
 			ui.hint_label.text = "阿嚼守着通往二楼的楼梯，现在还不肯让路。"
+	var secret := get_node_or_null("BedroomSecret")
+	if secret:
+		var button_hint: String = secret.target_hint()
+		if not button_hint.is_empty():ui.hint_label.text = button_hint
 
 func interact() -> void:
+	var secret := get_node_or_null("BedroomSecret")
+	if secret and secret.try_interact():return
 	var day := get_node_or_null("DayOne")
 	if day and day.has_method("try_interact") and day.try_interact():return
 	update_target()
