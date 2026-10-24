@@ -144,7 +144,8 @@ func build(parent: Node3D, game: Node) -> void:
 	for i in range(9):
 		var piece := textured(board,"CardboardPiece%d"%i,Vector3((i%3-1)*.101,.011,(i/3-1)*.068),Vector2(.10,.067),"res://act4/textures/laboratory_cats.png")
 		tiles.append(piece)
-	var burrows := target4("burrows",Vector3(-.9,-.035,-9.1),"九个地鼠洞",[9])
+	# Keep the entire 3x3 field on lawn, clear of the terrace's north edge at z=-8.
+	var burrows := target4("burrows",Vector3(-.9,-.035,-10.0),"九个地鼠洞",[9])
 	for i in range(9):
 		var pos := Vector3((i%3-1)*1.1,0,(i/3-1)*1.1)
 		holes.append(burrows.position+pos)

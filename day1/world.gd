@@ -219,7 +219,4 @@ func build(parent: Node3D, game: Node) -> void:
 	# Scene already includes a ground-floor Workshop (not the upstairs Study).
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):
 		if n.get_meta("asset_id","")=="armchair" and n.get_meta("placement_room","")=="Living":n.position = Vector3(-3.3,0,-.55)
-		if n.get_meta("asset_id","")=="decor_wall_art" and n.get_meta("placement_room","")=="Living":
-			n.position = Vector3(-4.3,1.65,5.80)
-			n.rotation.y = PI
 		if n.get_meta("asset_id","")=="decor_television" and n.global_position.y<1:items["television"] = n

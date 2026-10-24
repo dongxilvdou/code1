@@ -86,10 +86,16 @@ func update_target() -> void:
 	if secret:
 		var button_hint: String = secret.target_hint()
 		if not button_hint.is_empty():ui.hint_label.text = button_hint
+	var memes := get_node_or_null("HouseMemes")
+	if memes:
+		var meme_hint: String = memes.target_hint()
+		if not meme_hint.is_empty():ui.hint_label.text = meme_hint
 
 func interact() -> void:
 	var secret := get_node_or_null("BedroomSecret")
 	if secret and secret.try_interact():return
+	var memes := get_node_or_null("HouseMemes")
+	if memes and memes.try_interact():return
 	var day := get_node_or_null("DayOne")
 	if day and day.has_method("try_interact") and day.try_interact():return
 	update_target()
@@ -144,7 +150,7 @@ func _process(delta: float) -> void:
 		update_overview_camera()
 		ui.navigation_label.text = "1 / 2 / 3  楼层     拖动旋转 · 滚轮缩放     B  返回"
 	elif photo:ui.navigation_label.text = "V  返回猫视角     Esc  暂停"
-	else:ui.navigation_label.text = "M  地图     B  总览     Esc  暂停"
+	else:ui.navigation_label.text = "M  地图     J  任务     Esc  暂停"
 
 func toggle_pause() -> void:
 	if inspecting:toggle_overview()

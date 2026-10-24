@@ -387,8 +387,8 @@ func refresh_hud() -> void:
 	if not active():return
 	day.hud.day_title.text="第 %d 天 / %s"%[today(),{8:"倒走的时间",9:"身体的记忆",10:"主人的命令",11:"来地下室"}[today()]]
 	day.hud.guidance.text=guidance()
-	day.hud.status.text="我 %d / 100 · 阿嚼在厨房"%val("cat_hunger",65)
-	day.hud.carry.text="WASD 移动 · 空格 跳跃\nE 交互 · J 任务日志"
+	day.hud.status.text="饱食度：%d/100"%val("cat_hunger",65)
+	day.hud.carry.text=""
 	day.hud.set_paper_progress(0,4,false)
 func reset_runtime() -> void:
 	active_number=0;bathing=false;wash_time=0;chase_path.clear();pounce_time=0

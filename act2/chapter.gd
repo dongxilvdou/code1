@@ -525,7 +525,7 @@ func refresh_hud() -> void:
 	if not active():return
 	day.hud.day_title.text = {3:"第三天 / 被观察的日常",4:"第四天 / 只剩一条鱼",5:"第五天 / 记得你的名字"}[today()]
 	day.hud.guidance.text = guidance()
-	day.hud.status.text = "我 %d / 100 · 大狗嚼 %d / 100\n好感度 %d"%[val("cat_hunger",65),val("dog_hunger",45),val("dog_affection")]
+	day.hud.status.text = "饱食度：%d/100"%val("cat_hunger",65)
 	day.hud.set_paper_progress(0,4,false)
 	var holding := val("a_holding")
 	day.hud.carry.text = "叼着："+str(world.titles[CARRIED[holding]])+"\nG 放回安全位置" if holding!=0 else second.carry_text()
