@@ -395,7 +395,7 @@ func _input(event: InputEvent) -> void:
 func refresh_hud() -> void:
 	if not active_day():return
 	day.hud.day_title.text = "第二天  /  学着照顾"
-	day.hud.status.text = "我  %d / 100    大狗嚼  %d / 100" % [val("cat_hunger",65),val("dog_hunger",45)]
+	day.hud.status.text = "饱食度：%d/100" % val("cat_hunger",65)
 	var text := ""
 	if not day.Notes.read(day):text = day.Notes.guidance(2)
 	elif not day.feeding_done():text = "旧进度已保留。先补完已移到第一天的喂食：到厨房解锁给予器，叼猫碗和狗盘盛粮，分别吃饭、送给大狗嚼。"
@@ -414,7 +414,7 @@ func refresh_hud() -> void:
 
 func carry_text() -> String:
 	var holding := val("d2_holding")
-	return "J 任务日志  ·  M 地图" if holding==0 else "叼着：%s\nG 松口并放回安全位置" % (["","沙发上的衣服","单人沙发上的衣服","玄关的衣服","自己的猫碗","大狗嚼的盘子"][holding])
+	return "" if holding==0 else "叼着：%s\nG 松口并放回安全位置" % (["","沙发上的衣服","单人沙发上的衣服","玄关的衣服","自己的猫碗","大狗嚼的盘子"][holding])
 
 func reset_runtime() -> void:
 	ready_state = false

@@ -416,7 +416,7 @@ func refresh_hud() -> void:
 	if not active():return
 	day.hud.day_title.text = "第六天 / 楼梯之上" if today()==6 else "第七天 / 我的名字"
 	day.hud.guidance.text = guidance()
-	day.hud.status.text = "我 %d / 100 · 阿嚼 %d / 100\n%s"%[val("cat_hunger",65),val("dog_hunger",45),"阿嚼在厨房" if flag("a6_permission") else "阿嚼守着楼梯"]
+	day.hud.status.text = "饱食度：%d/100"%val("cat_hunger",65)
 	day.hud.set_paper_progress(0,4,false)
 	day.hud.carry.text = second.carry_text() if val("a3_holding")==0 else "叼着：%s\n对感应垫按 E 放下 · G 放回书桌"%("厚书 · 2.0 kg" if val("a3_holding")==1 else "花盆 · 3.2 kg")
 

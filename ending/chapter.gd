@@ -171,7 +171,7 @@ func refresh_hud() -> void:
 	if not active():return
 	day.hud.day_title.text="结局篇 / 地下室逃跑计划"
 	day.hud.guidance.text=guidance();day.hud.status.text="循着前代实验猫的痕迹，寻找出口。"
-	day.hud.carry.text="WASD 移动 · 空格 跳跃\nE 交互 · J 任务日志"
+	day.hud.carry.text=""
 
 func reset_runtime() -> void:
 	initialized=false;needs_restore=true

@@ -512,8 +512,7 @@ func refresh_hud() -> void:
 		if second_day():second_day().refresh_hud()
 		return
 	hud.day_title.text = "第一天  /  陌生的家"
-	hud.status.text = "饱腹 100 / 100  ·  今日不消耗"
-	if flag("papers_done"):hud.status.text = "我 %d / 100  ·  大狗嚼 %d / 100\n今日不消耗" % [value("cat_hunger",100),value("dog_hunger",100)]
+	hud.status.text = "饱食度：%d/100" % value("cat_hunger",100)
 	var text := ""
 	if not Notes.read(self):text = Notes.guidance(1)
 	elif not flag("walk"):text = "WASD 走一走，鼠标环顾四周。"
@@ -534,7 +533,7 @@ func refresh_hud() -> void:
 	hud.guidance.text = text
 	hud.set_paper_progress(paper_count(),World.PAPER_SPOTS.size(),flag("light_off") and not flag("papers_done"))
 	var holding := value("holding")
-	hud.carry.text = "J 任务日志  ·  M 地图" if holding==0 else "叼着：%s\n%sG 松口并放回原处" % [["","水杯","尺子","毛线球"][holding],("竖叼" if value("ruler_vertical")==1 else "横叼")+" · R 切换\n" if holding==2 else ""]
+	hud.carry.text = "" if holding==0 else "叼着：%s\n%sG 松口并放回原处" % [["","水杯","尺子","毛线球"][holding],("竖叼" if value("ruler_vertical")==1 else "横叼")+" · R 切换\n" if holding==2 else ""]
 
 	if second_day() and second_day().val("d2_holding")!=0:hud.carry.text = second_day().carry_text()
 

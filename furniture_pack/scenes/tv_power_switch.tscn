@@ -1,0 +1,42 @@
+[gd_scene format=3]
+[sub_resource type="StandardMaterial3D" id="HousingMat"]
+albedo_color = Color(0.12,0.13,0.12,1)
+roughness = 0.38
+[sub_resource type="StandardMaterial3D" id="CapMat"]
+albedo_color = Color(0.25,0.27,0.25,1)
+roughness = 0.35
+[sub_resource type="StandardMaterial3D" id="IconMat"]
+albedo_color = Color(0.8,0.83,0.76,1)
+[sub_resource type="BoxMesh" id="Housing"]
+size = Vector3(0.13,0.09,0.018)
+material = SubResource("HousingMat")
+[sub_resource type="CylinderMesh" id="Button"]
+top_radius = 0.031
+bottom_radius = 0.031
+height = 0.009
+radial_segments = 32
+material = SubResource("CapMat")
+[sub_resource type="TorusMesh" id="Ring"]
+inner_radius = 0.011
+outer_radius = 0.014
+rings = 24
+ring_segments = 8
+material = SubResource("IconMat")
+[sub_resource type="BoxMesh" id="Stroke"]
+size = Vector3(0.003,0.016,0.002)
+material = SubResource("IconMat")
+[node name="TVPowerSwitch" type="Node3D"]
+metadata/asset_id = "tv_power_switch"
+[node name="Housing" type="MeshInstance3D" parent="."]
+mesh = SubResource("Housing")
+[node name="Button" type="MeshInstance3D" parent="."]
+position = Vector3(0,0,0.013)
+rotation = Vector3(1.5707963,0,0)
+mesh = SubResource("Button")
+[node name="PowerRing" type="MeshInstance3D" parent="."]
+position = Vector3(0,-0.002,0.019)
+rotation = Vector3(1.5707963,0,0)
+mesh = SubResource("Ring")
+[node name="PowerStroke" type="MeshInstance3D" parent="."]
+position = Vector3(0,0.011,0.020)
+mesh = SubResource("Stroke")

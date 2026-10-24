@@ -41,7 +41,7 @@ func _ready() -> void:
 	task_progress = QuestTheme.progress(0,4)
 	column.add_child(task_progress)
 	task_progress.hide()
-	status = label("",12,column,QuestTheme.MUTED)
+	status = label("",14,column,QuestTheme.MUTED)
 	carry = label("",12,column,QuestTheme.SAGE)
 	overlay = Control.new()
 	canvas.add_child(overlay)
@@ -111,6 +111,8 @@ func style() -> StyleBoxFlat:
 func _process(_delta: float) -> void:
 	var viewport := get_viewport().get_visible_rect().size
 	card.offset_left = -minf(320,viewport.x*.34)-24
+	carry.visible = not carry.text.is_empty()
+	card.size.y = card.get_combined_minimum_size().y
 	dialog_panel.custom_minimum_size.x = minf(640,viewport.x-64)
 
 func set_paper_progress(current: int, total: int, enabled: bool) -> void:

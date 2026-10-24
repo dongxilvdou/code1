@@ -195,7 +195,7 @@ func make_hud() -> void:
 	panel.content_margin_bottom = 7
 	navigation.add_theme_stylebox_override("panel",panel)
 	hud.add_child(navigation)
-	navigation_label = text("M  地图     B  总览     Esc  暂停",13,MUTED,navigation)
+	navigation_label = text("M  地图     J  任务     Esc  暂停",13,MUTED,navigation)
 
 func center_box(parent: Node) -> VBoxContainer:
 	var center := CenterContainer.new()

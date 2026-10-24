@@ -123,7 +123,8 @@ func apply(target) -> void:
 	put("decor_plant",.60,11.53,0,0,Vector3.ONE*.92)
 	put("decor_plant",.60,9.65,0,0,Vector3.ONE*.92)
 	put("decor_pet_bowls",4.84,9.71,-90,.003)
-	put("decor_wall_art",5.08,8.56,-90,1.64,Vector3(1.25,1.25,1))
+	# Solid west-wall pier before the window; leave clear space around the curtains.
+	put("decor_wall_art",.16,4.97,90,1.52,Vector3(.85,.85,1))
 	curtains(.22,7.20,90,3.34)
 	curtains(2.55,11.78,180,3.43)
 

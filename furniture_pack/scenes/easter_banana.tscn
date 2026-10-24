@@ -1,0 +1,5 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://furniture_pack/models/easter_banana.glb" id="1"]
+[node name="EasterBanana" type="Node3D"]
+metadata/asset_id = "easter_banana"
+[node name="Peel" parent="." instance=ExtResource("1")]
