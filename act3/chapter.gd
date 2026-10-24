@@ -281,7 +281,9 @@ func interact_item(id: String) -> void:
 			world.dog_actor.react_to_food()
 			restore()
 			story("阿嚼：谢谢你这几天的帮助。\n\n其实我不知道为什么不让你上去，那好像一道程序一样留在我的意识里。\n现在，我又觉得可以放你上去了……虽然我也不知道为什么。\n\n接下来，我和窝都待在厨房的给予器旁边。你有问题，可以来那里找我。")
-		else:story("阿嚼：我就在这里。\n"+("二楼每个房间都去看看吧，小鱼干不会自己跑掉。" if today()==6 else "今天连给予器也停了。电路修好后，看看电脑桌旁的东西吧。"))
+		else:
+			story("阿嚼：我就在这里。\n"+("二楼每个房间都去看看吧，小鱼干不会自己跑掉。" if today()==6 else "今天连给予器也停了。电路修好后，看看电脑桌旁的东西吧。"))
+			game.get_node("DogSecret").queue_after_chat(panel)
 	elif id=="nest":
 		if not day_complete():story(guidance())
 		elif today()==7 and flag("a7_complete") and get_parent().has_node("ActFour"):

@@ -7,11 +7,13 @@ var photo := false
 var started := false
 var room_name := ""
 var rooms := {}
+# Retain this handle for existing cutscene fades; its source is now summer ambience.
 var rain_audio: AudioStreamPlayer
 var meow_audio: AudioStreamPlayer
 var paw_audio: AudioStreamPlayer
 var reaction_time := 0.0
 var cinematic_active := false
+var comic_intro_completed := false
 var opening: Node3D
 @export var opening_preview_on_ready := false
 
@@ -49,12 +51,10 @@ func _ready() -> void:
 	if "--verify" in OS.get_cmdline_user_args(): call_deferred("verify_game")
 
 func setup_audio() -> void:
-	rain_audio = sound("rain",-13)
-	var rain: AudioStreamWAV = rain_audio.stream.duplicate()
-	rain.loop_mode = AudioStreamWAV.LOOP_FORWARD
-	rain.loop_end = rain.data.size()/2
-	rain_audio.stream = rain
-	rain_audio.play()
+	var ambience = load("res://scripts/environment_ambience.gd").new()
+	ambience.configure(player,self,get_node_or_null("Apartment"))
+	rain_audio = ambience
+	add_child(ambience)
 	meow_audio = sound("meow",-6)
 	paw_audio = sound("paw",-7)
 	set_volume(.65)
@@ -129,6 +129,7 @@ func request_start_game(force_intro: bool = false) -> void:
 	start_game()
 
 func _on_opening_finished(_skipped: bool) -> void:
+	comic_intro_completed = true
 	cinematic_active = false
 	start_game()
 

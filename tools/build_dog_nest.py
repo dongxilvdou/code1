@@ -14,8 +14,11 @@ seam=mat('Woven piping',(.16,.20,.16),.93)
 def lathe(name,profile,material,dip=False):
  vertices=[];faces=[];segments=96;n=len(profile)
  for i in range(segments):
-  a=math.tau*i/segments;entry=max(0,-math.sin(a))**8
-  for r,z in profile:vertices.append((r*math.cos(a),r*math.sin(a),z-(.065*entry if dip else 0)))
+  a=math.tau*i/segments;entry=max(0,-math.sin(a))**4
+  # Wide, compressed front entry: paws can rest above it, without sinking below plinth.
+  for r,z in profile:
+   drop=.105*entry*max(0,min(1,(z-.065)/.149)) if dip else 0
+   vertices.append((r*math.cos(a),r*math.sin(a),z-drop))
  for i in range(segments):
   for j in range(n-1):faces.append((i*n+j,((i+1)%segments)*n+j,((i+1)%segments)*n+j+1,i*n+j+1))
  mesh=bpy.data.meshes.new(name);mesh.from_pydata(vertices,[],faces);mesh.update()

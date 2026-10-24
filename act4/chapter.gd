@@ -305,7 +305,9 @@ func interact_item(id: String) -> void:
 	if id=="computer":open_panel("story");panel.close();game.cinematic_active=true;player.set_control(false);third.computer.open();return
 	if id=="dog":
 		if today()==10 and flag("a10_catch") and not flag("a10_eat"):open_panel("eat")
-		else:story("阿嚼："+("它的味道……我好像认识它。" if today()>=10 else "我在这里。你今天的任务，还是写在那张纸条上吗？"))
+		else:
+			story("阿嚼："+("它的味道……我好像认识它。" if today()>=10 else "我在这里。你今天的任务，还是写在那张纸条上吗？"))
+			game.get_node("DogSecret").queue_after_chat(panel)
 		return
 	if not world.items.has(id) or not World.Props.interactable(world.items[id],today()):return
 	if id=="food":

@@ -16,11 +16,12 @@ script = ExtResource("3")
 metadata/asset_id = "dog_nest"
 
 [node name="Bed" parent="." instance=ExtResource("1")]
+rotation = Vector3(0,-1.5707963,0)
 
 [node name="Dog" parent="." instance=ExtResource("2")]
 rotation = Vector3(0,1.5707963,0)
 scale = Vector3(0.8,0.8,0.8)
-position = Vector3(0.05238,0.140,-0.09084)
+position = Vector3(0.11238,0.140,-0.00084)
 
 [node name="Collision" type="StaticBody3D" parent="."]
 [node name="Bed" type="CollisionShape3D" parent="Collision"]

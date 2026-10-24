@@ -1,0 +1,19 @@
+{
+  "source": "C:\\zGoDot\\3D\\UP主必备爆款绿幕素材包，200+猫猫meme动态素材\\猫猫meme绿幕【1】\\臭猫摇晃（有声）.mp4",
+  "source_sha256": "431a1ef85c495abb1de90dcd9bdcc53905e0de99d461532251f163a236765895",
+  "output": "cat_sway.ogv",
+  "seconds": 6,
+  "width": 768,
+  "height": 576,
+  "fps": 30,
+  "audio_gain": 1.4,
+  "audio_limiter": 0.95,
+  "crop_source_pixels": [
+    976,
+    320,
+    1760,
+    1320
+  ],
+  "output_sha256": "c36c1356133e9f8e6c7196c8f5934eff5e667d9578a525a85c002fd957b1575e",
+  "chroma_key": "Runtime spatial shader; green is removed when rendered above the bed."
+}

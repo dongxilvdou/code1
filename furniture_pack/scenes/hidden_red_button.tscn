@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Metal"]
+albedo_color = Color(0.12,0.13,0.14,1)
+metallic = 0.65
+roughness = 0.38
+[sub_resource type="StandardMaterial3D" id="Red"]
+albedo_color = Color(0.66,0.028,0.022,1)
+roughness = 0.32
+emission_enabled = true
+emission = Color(0.22,0.004,0.002,1)
+emission_energy_multiplier = 0.22
+[sub_resource type="StandardMaterial3D" id="Steel"]
+albedo_color = Color(0.37,0.38,0.39,1)
+metallic = 0.8
+roughness = 0.3
+[sub_resource type="BoxMesh" id="Housing"]
+size = Vector3(0.145,0.024,0.105)
+material = SubResource("Metal")
+[sub_resource type="CylinderMesh" id="Bezel"]
+top_radius = 0.044
+bottom_radius = 0.044
+height = 0.012
+radial_segments = 48
+material = SubResource("Steel")
+[sub_resource type="CylinderMesh" id="Cap"]
+top_radius = 0.033
+bottom_radius = 0.036
+height = 0.016
+radial_segments = 48
+material = SubResource("Red")
+[sub_resource type="CylinderMesh" id="Screw"]
+top_radius = 0.004
+bottom_radius = 0.004
+height = 0.003
+radial_segments = 12
+material = SubResource("Steel")
+
+[node name="HiddenRedButton" type="Node3D"]
+metadata/asset_id = "hidden_red_button"
+[node name="Mount" type="MeshInstance3D" parent="."]
+mesh = SubResource("Housing")
+[node name="Bezel" type="MeshInstance3D" parent="."]
+position = Vector3(0,-0.016,0)
+mesh = SubResource("Bezel")
+[node name="Cap" type="MeshInstance3D" parent="."]
+position = Vector3(0,-0.027,0)
+mesh = SubResource("Cap")
+[node name="ScrewLeft" type="MeshInstance3D" parent="."]
+position = Vector3(-0.058,-0.013,0)
+mesh = SubResource("Screw")
+[node name="ScrewRight" type="MeshInstance3D" parent="."]
+position = Vector3(0.058,-0.013,0)
+mesh = SubResource("Screw")
