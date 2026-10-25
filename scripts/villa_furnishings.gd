@@ -5,6 +5,7 @@ var builder
 var parent: Node3D
 var room := ""
 var placed: Array = []
+var placement_serial := 0
 var groups: Dictionary = {}
 var floor_y := 0.0
 
@@ -28,7 +29,8 @@ func select_room(name: String, floor_index: int, outside: bool = false) -> void:
 func put(id: String, x: float, z: float, yaw: float = 0, height: float = 0, scaling: Vector3 = Vector3.ONE) -> Node3D:
 	var path := "res://furniture_pack/scenes/"+id+".tscn"
 	var n: Node3D = load(path).instantiate()
-	n.name = id.to_pascal_case()+"_%03d" % placed.size()
+	n.name = id.to_pascal_case()+"_%03d" % placement_serial
+	placement_serial += 1
 	n.position = builder.at(x,floor_y+height,z)
 	n.rotation.y = deg_to_rad(yaw)
 	n.scale = scaling
@@ -123,8 +125,8 @@ func apply(target) -> void:
 	put("decor_plant",.60,11.53,0,0,Vector3.ONE*.92)
 	put("decor_plant",.60,9.65,0,0,Vector3.ONE*.92)
 	put("decor_pet_bowls",4.84,9.71,-90,.003)
-	# Solid west-wall pier before the window; leave clear space around the curtains.
-	put("decor_wall_art",.16,4.97,90,1.52,Vector3(.85,.85,1))
+	# Retire the small living-room print; keep later furniture node paths stable.
+	placement_serial += 1
 	curtains(.22,7.20,90,3.34)
 	curtains(2.55,11.78,180,3.43)
 

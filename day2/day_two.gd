@@ -242,7 +242,7 @@ func nearest_item() -> String:
 
 func target_position(id: String) -> Vector3:
 	if id=="note":return day.note_target()
-	if id=="cloth_sofa":return world.items.cloth_sofa.to_global(Vector3(0,-.13,.075))
+	if id in ["cloth_sofa","cloth_chair"]:return world.items[id].to_global(Vector3(0,-.13,.075))
 	if id=="sofa_gap":return Vector3(-4.64,.13,2.15)
 	var n: Node3D = day.world.items[id] if id in ["note","nest","mess_cup","mess_pot","ruler","yarn"] else world.items["cat_bowl" if id=="cat_spot" else id]
 	var pos := n.global_position+Vector3(0,.05,0)

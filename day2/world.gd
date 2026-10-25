@@ -52,6 +52,23 @@ func build(parent: Node3D, game: Node) -> void:
 			n.position = sofa.to_global(Vector3(-.10,.516,.39))
 			n.rotation.y = sofa.global_rotation.y
 			Props.model(n,"shirt_draped")
+		elif data[0]=="cloth_chair":
+			# The former .465 m anchor buried the flat shirt below the .51 m cushion.
+			# Drape over the back facing the living room, visible/reachable at cat height.
+			var chair := Props.furniture(game,"armchair","Living")
+			var back := chair.get_node("Back_shell") as MeshInstance3D
+			var bounds := back.transform*back.get_aabb()
+			n.position = chair.to_global(Vector3(0,bounds.end.y+.008,bounds.position.z+.015))
+			n.rotation.y = chair.global_rotation.y+PI
+			var shirt := Props.model(n,"shirt_draped")
+			for mesh in shirt.find_children("*","MeshInstance3D",true,false):
+				for surface in range(mesh.mesh.get_surface_count()):
+					var material_: Material = mesh.get_active_material(surface)
+					if material_ is StandardMaterial3D and material_.resource_name=="blue":
+						# This packed fabric map needs its R/G/B-aware furniture shader.
+						var warm := load("res://furniture_pack/materials/sage_fabric.tres").duplicate() as ShaderMaterial
+						warm.set_shader_parameter("tint",Color("c48a73"))
+						mesh.set_surface_override_material(surface,warm)
 		else:Props.model(n,["shirt_blue","shirt_red","shirt_gold"][["cloth_sofa","cloth_chair","cloth_entry"].find(data[0])])
 		Props.days(n,[2])
 		sign_at(n,"待洗衣服",Vector3(0,.16,0),23)

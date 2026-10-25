@@ -8432,7 +8432,7 @@ metadata/room_zones = [{
 "floor": -1,
 "name": "地下室平台"
 }]
-metadata/furniture_count = 165
+metadata/furniture_count = 164
 metadata/furnished_rooms = 16
 metadata/door_count = 19
 
@@ -11375,25 +11375,6 @@ metadata/furniture = {
 }
 metadata/placement_room = "Living"
 metadata/asset_id = "decor_pet_bowls"
-
-[node name="DecorWallArt_013" type="Node3D" parent="GroundFloor/Furnishings/Living" unique_id=1516663514 groups=["placed_furniture"] instance=ExtResource("27_gcuda")]
-position = Vector3(-5.84, 1.52, -1.03)
-rotation = Vector3(0, 1.5707963, 0)
-scale = Vector3(0.85, 0.85, 1)
-script = ExtResource("15_0eavx")
-metadata/furniture = {
-"bounds_min_m": [-0.4, 0.0, -0.0225],
-"collision_shapes": 0,
-"dimensions_m": [0.8, 0.64, 0.067],
-"id": "decor_wall_art",
-"name": "暖色风景挂画",
-"note": "画面为原创几何风景，无外部图片依赖。",
-"room": "陈设与生活设备",
-"scene": "res://furniture_pack/scenes/decor_wall_art.tscn",
-"triangles": 6296
-}
-metadata/placement_room = "Living"
-metadata/asset_id = "decor_wall_art"
 
 [node name="DecorCurtains_014" type="Node3D" parent="GroundFloor/Furnishings/Living" unique_id=1572231690 groups=["placed_furniture"] instance=ExtResource("28_r5ypp")]
 transform = Transform3D(-5.983444e-08, 0, 1, 0, 1, 0, -1.3688525, 0, -4.371139e-08, -5.78, 0.18, 1.2)

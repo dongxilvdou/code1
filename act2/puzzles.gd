@@ -50,7 +50,7 @@ func open(kind: String, text := "") -> void:
 			make_board(Vector2(400,300))
 		"medicine":
 			title.text = "七只密封药瓶 / 听声音"
-			description.text = "瓶盖无法打开，也看不见里面。点击瓶子摇晃，比较声音的响度和音色。\n药片越多，碰撞声越响、越密。反复试听，选出药片最少的三瓶。"
+			description.text = "瓶盖无法打开，也看不见里面。点击瓶子，听三次摇晃。\n药少时是分开的轻响，药多时碰撞更密、更响。可反复试听，选出药片最少的三瓶。"
 			selected.clear()
 			for i in range(7):
 				if chapter.val("med_selection_mask") & (1<<i):selected.append(i)
@@ -235,7 +235,7 @@ func check_medicine() -> void:
 	if selected==[1,3,5]:
 		chapter.set_value("med_selection_mask",0)
 		solved.emit("medicine")
-	else:feedback.text = "还不对。再摇一摇，比较响度和音色，只选最少的三瓶。"
+	else:feedback.text = "还不对。比较每次摇晃里的碰撞声：越少、越疏、越轻，药片越少。"
 
 func shake_medicine(i: int) -> void:
 	chapter.set_value("med_heard_mask",chapter.val("med_heard_mask") | (1<<i))
