@@ -3,11 +3,11 @@
   "game": {
     "status": "published",
     "filename": "cat.zip",
-    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-10-25/cat.zip",
+    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-10-27/cat.zip",
     "label": "Windows 64位 · ZIP",
-    "bytes": 183494204,
-    "sha256": "9c7db4663a326dcb0e65a90a214be933d8e1f88707f2e346e574c85ec2544034",
-    "release_tag": "windows-2026-10-25"
+    "bytes": 185362338,
+    "sha256": "864043caaefc09e9cae6cea4fc37fae05a6aec6ca55cf1babf5139aa830712ab",
+    "release_tag": "windows-2026-10-27"
   },
   "soundtrack": {
     "status": "pending",

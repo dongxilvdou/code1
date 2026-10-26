@@ -67,7 +67,8 @@ if (quickButton && quickAudio) {
 
 const dialog = document.querySelector('#download-status');
 let release = null;
-fetch('release.json').then(response => { if (!response.ok) throw new Error('release unavailable'); return response.json(); }).then(info => {
+const releaseVersion = document.currentScript ? new URL(document.currentScript.src).search : '';
+fetch('release.json' + releaseVersion, {cache: 'no-store'}).then(response => { if (!response.ok) throw new Error('release unavailable'); return response.json(); }).then(info => {
   release = info;
   ['game', 'soundtrack'].forEach(kind => {
     const entry = info[kind];
