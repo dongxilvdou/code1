@@ -1,4 +1,5 @@
 extends CanvasLayer
+const PaperTheme = preload("res://quest_system/quest_theme.gd")
 signal action(id: String)
 var shell: Control
 var heading: Label
@@ -10,19 +11,27 @@ var caption: Label
 var blackout: ColorRect
 var eyelids: Array[ColorRect] = []
 var film_root: Control
+var paper_panel: PanelContainer
+var reading: ScrollContainer
+var dimmer: ColorRect
 
 func _ready() -> void:
 	layer=45
 	shell=Control.new();shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);add_child(shell)
-	var shade:=ColorRect.new();shade.color=Color(.015,.025,.028,.78);shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);shell.add_child(shade)
-	var center:=CenterContainer.new();center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);shell.add_child(center)
+	shell.theme=PaperTheme.resource()
+	var shade:=ColorRect.new();dimmer=shade;shade.color=Color(.10,.075,.05,.43);shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);shell.add_child(shade)
+	var center:=Control.new();center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);shell.add_child(center)
 	var panel:=PanelContainer.new();panel.custom_minimum_size=Vector2(720,0);center.add_child(panel)
-	var style:=StyleBoxFlat.new();style.bg_color=Color("182c2e");style.border_color=Color("78938a");style.set_border_width_all(1);style.set_corner_radius_all(10)
-	style.content_margin_left=36;style.content_margin_right=36;style.content_margin_top=30;style.content_margin_bottom=30
+	paper_panel=panel
+	var style:=PaperTheme.panel(28)
 	panel.add_theme_stylebox_override("panel",style)
-	var column:=VBoxContainer.new();column.add_theme_constant_override("separation",22);panel.add_child(column)
-	heading=Label.new();heading.add_theme_font_size_override("font_size",29);heading.add_theme_color_override("font_color",Color("e7ddbf"));column.add_child(heading)
-	body=Label.new();body.custom_minimum_size.x=648;body.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;body.add_theme_font_size_override("font_size",21);body.add_theme_color_override("font_color",Color("e0e6da"));body.add_theme_constant_override("line_spacing",9);column.add_child(body)
+	PaperTheme.decorate_dialogue(panel)
+	var column:=VBoxContainer.new();column.add_theme_constant_override("separation",10);panel.add_child(column)
+	var title_row:=HBoxContainer.new();title_row.add_theme_constant_override("separation",10);column.add_child(title_row)
+	title_row.add_child(PaperTheme.symbol("chat",16))
+	heading=Label.new();heading.size_flags_horizontal=Control.SIZE_EXPAND_FILL;heading.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;heading.add_theme_font_size_override("font_size",14);heading.add_theme_color_override("font_color",PaperTheme.ACCENT);title_row.add_child(heading)
+	reading=ScrollContainer.new();reading.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;reading.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO;column.add_child(reading)
+	body=Label.new();body.size_flags_horizontal=Control.SIZE_EXPAND_FILL;body.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;body.add_theme_font_size_override("font_size",15);body.add_theme_color_override("font_color",PaperTheme.TEXT);body.add_theme_constant_override("line_spacing",5);reading.add_child(body)
 	actions=VBoxContainer.new();actions.add_theme_constant_override("separation",10);column.add_child(actions)
 	film_root=Control.new();film_root.mouse_filter=Control.MOUSE_FILTER_IGNORE;film_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);add_child(film_root)
 	for i in range(2):
@@ -37,10 +46,16 @@ func _ready() -> void:
 
 func show_panel(kind: String, title: String, text_: String, options: Array) -> void:
 	mode=kind;heading.text=title;body.text=text_
+	reading.scroll_vertical=0
 	for child in actions.get_children():actions.remove_child(child);child.queue_free()
 	first_button=null
 	for option in options:
-		var button:=Button.new();button.text=option[1];button.custom_minimum_size.y=48;button.add_theme_font_size_override("font_size",20)
+		var button:=Button.new();button.text=option[1];button.custom_minimum_size.y=36;button.add_theme_font_size_override("font_size",13)
+		PaperTheme.button(button)
+		button.add_theme_constant_override("icon_max_width",14)
+		button.alignment=HORIZONTAL_ALIGNMENT_LEFT
+		button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		if options.size()>1:button.icon=PaperTheme.icon("arrow")
 		var id: String=option[0]
 		button.pressed.connect(func():action.emit(id));actions.add_child(button)
 		if first_button==null:first_button=button
@@ -55,6 +70,18 @@ func shade_lids(amount: float) -> void:
 	var height:=viewport.y*clampf(amount,0,.47)
 	eyelids[0].position=Vector2.ZERO;eyelids[0].size=Vector2(viewport.x,height)
 	eyelids[1].position=Vector2(0,viewport.y-height);eyelids[1].size=Vector2(viewport.x,height)
+
+func _process(_delta: float) -> void:
+	if not shell.visible:return
+	var viewport:=get_viewport().get_visible_rect().size
+	var narrative:=mode in ["story","cage","camera","locked_vent","memory"]
+	var width:=minf(minf(1000,viewport.x*.74) if narrative else 650,viewport.x-64)
+	paper_panel.custom_minimum_size.x=width
+	body.size.x=width-48
+	reading.custom_minimum_size.y=clampf(body.get_minimum_size().y,60,viewport.y*(.40 if narrative else .43))
+	paper_panel.size=Vector2(width,0)
+	paper_panel.position=Vector2((viewport.x-width)*.5,viewport.y-paper_panel.size.y-30 if narrative else maxf(20,(viewport.y-paper_panel.size.y)*.5))
+	dimmer.color.a=.08 if narrative else .16
 
 func _input(event: InputEvent) -> void:
 	if not shell.visible:return

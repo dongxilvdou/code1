@@ -14,6 +14,14 @@ var picked: Array[int] = []
 var font: SystemFont
 var audio: AudioStreamPlayer
 var memory_audio: AudioStreamPlayer
+var paper_panel: PanelContainer
+var paper_scroll: ScrollContainer
+var paper_column: VBoxContainer
+var close_button: Button
+var dimmer: ColorRect
+var dialogue_frame: Node2D
+var story_style: StyleBoxFlat
+var puzzle_style: StyleBoxFlat
 const NOTES := ["低音","中音","高音"]
 const MELODY := [1,3,2]
 const PASSWORD := "241"
@@ -27,32 +35,47 @@ func _ready() -> void:
 	memory_audio = AudioStreamPlayer.new()
 	add_child(memory_audio)
 	shell = Control.new()
+	shell.theme=QuestTheme.resource()
 	add_child(shell)
 	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
-	shade.color = Color(.035,.028,.020,.76)
+	dimmer=shade
+	shade.color = Color(.10,.075,.05,.12)
 	shell.add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var center := CenterContainer.new()
+	var center := Control.new()
 	shell.add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var panel := PanelContainer.new()
+	paper_panel=panel
 	panel.custom_minimum_size.x = 650
 	var style := QuestTheme.panel(24)
 	panel.add_theme_stylebox_override("panel",style)
 	center.add_child(panel)
+	dialogue_frame=QuestTheme.decorate_dialogue(panel)
+	story_style=QuestTheme.panel(32)
+	puzzle_style=style
 	var column := VBoxContainer.new()
+	paper_column=column
 	column.add_theme_constant_override("separation",16)
 	panel.add_child(column)
-	title = label("",25,column)
+	var title_row:=HBoxContainer.new();title_row.add_theme_constant_override("separation",10);column.add_child(title_row)
+	title_row.add_child(QuestTheme.symbol("book",24))
+	title = label("",16,title_row)
+	title.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	title.add_theme_color_override("font_color",QuestTheme.BRASS)
-	description = label("",19,column)
+	paper_scroll=ScrollContainer.new();paper_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;paper_scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO;column.add_child(paper_scroll)
+	var reading:=VBoxContainer.new();reading.size_flags_horizontal=Control.SIZE_EXPAND_FILL;reading.add_theme_constant_override("separation",14);paper_scroll.add_child(reading)
+	description = label("",15,reading)
+	description.add_theme_constant_override("line_spacing",5)
 	description.custom_minimum_size.x = 598
 	detail = VBoxContainer.new()
 	detail.add_theme_constant_override("separation",12)
-	column.add_child(detail)
-	feedback = label("",17,column)
-	button("返回  ·  Esc",column,close)
+	reading.add_child(detail)
+	feedback = label("",12,reading)
+	feedback.add_theme_color_override("font_color",QuestTheme.MUTED)
+	close_button=button("返回  ·  Esc",column,close)
+	close_button.icon=QuestTheme.icon("back")
 	shell.hide()
 
 func label(text: String, size: int, parent: Node) -> Label:
@@ -69,8 +92,8 @@ func button(text: String, parent: Node, callback: Callable) -> Button:
 	var result := Button.new()
 	result.text = text
 	result.add_theme_font_override("font",font)
-	result.add_theme_font_size_override("font_size",17)
-	result.custom_minimum_size.y = 42
+	result.add_theme_font_size_override("font_size",14)
+	result.custom_minimum_size.y = 36
 	QuestTheme.button(result)
 	result.pressed.connect(callback)
 	parent.add_child(result)
@@ -84,6 +107,7 @@ func open(kind: String, text := "") -> void:
 		detail.remove_child(n)
 		n.queue_free()
 	shell.show()
+	paper_scroll.scroll_vertical=0
 	if kind=="wash":
 		title.text = "洗衣的旋律"
 		description.text = "我记得主人洗衣服时的声音……\n拖动旋钮，按 E 依次确认三个音，找到正确的洗衣程序。"
@@ -129,8 +153,8 @@ func open(kind: String, text := "") -> void:
 				paw.custom_minimum_size = Vector2(48,30)
 				col.add_child(paw)
 				paw.draw.connect(func():
-					paw.draw_circle(Vector2(24,21),8,Color("d3bd87"))
-					for x in [12,24,36]:paw.draw_circle(Vector2(x,7),4,Color("d3bd87")))
+					paw.draw_circle(Vector2(24,21),8,QuestTheme.ACCENT)
+					for x in [12,24,36]:paw.draw_circle(Vector2(x,7),4,QuestTheme.ACCENT))
 		code = LineEdit.new()
 		code.max_length = 3
 		code.placeholder_text = "三位数字"
@@ -184,6 +208,35 @@ func close() -> void:
 	audio.stop()
 	memory_audio.stop()
 	dismissed.emit()
+
+func _process(_delta: float) -> void:
+	if not shell.visible:return
+	feedback.visible=not feedback.text.is_empty()
+	var viewport:=get_viewport().get_visible_rect().size
+	var story_only:=mode=="story"
+	for child in detail.get_children():
+		if not child is Button:story_only=false
+	dialogue_frame.ornaments=story_only
+	var frame_style:=story_style if story_only else puzzle_style
+	frame_style.bg_color=Color.TRANSPARENT
+	if paper_panel.get_theme_stylebox("panel")!=frame_style:paper_panel.add_theme_stylebox_override("panel",frame_style)
+	close_button.visible=not story_only
+	var width:=minf(minf(1000,viewport.x*.74) if story_only else 760,viewport.x-64)
+	# The live puzzle art keeps its original 598px coordinate space.
+	width=maxf(minf(650,viewport.x-32),width)
+	paper_panel.custom_minimum_size.x=width
+	description.custom_minimum_size.x=0
+	var content_width:=maxf(200,width-(64 if story_only else 48))
+	description.size.x=content_width
+	var reading:=paper_scroll.get_child(0) as VBoxContainer
+	reading.custom_minimum_size.x=content_width
+	var reading_height:=reading.get_combined_minimum_size().y
+	var limit:=viewport.y*(.43 if story_only else .67)
+	paper_scroll.custom_minimum_size.y=minf(reading_height,limit)
+	paper_panel.size=Vector2(width,0)
+	var height:=paper_panel.size.y
+	paper_panel.position=Vector2((viewport.x-width)*.5,viewport.y-height-30 if story_only else maxf(20,(viewport.y-height)*.5))
+	dimmer.color.a=.08 if story_only else .16
 
 func _input(event: InputEvent) -> void:
 	if mode.is_empty() or not event is InputEventKey or not event.pressed or event.echo:return

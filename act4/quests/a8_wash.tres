@@ -1,22 +1,27 @@
-[gd_resource type="Resource" script_class="CalicoQuest" format=3]
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://bxu6eumdvirgm"]
+
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_4vcjj"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
 [sub_resource type="Resource" id="day"]
 script = ExtResource("condition")
 kind = 1
 key = &"current_day"
 required_value = 8
+
 [sub_resource type="Resource" id="prior"]
 script = ExtResource("condition")
 key = &"a8_food"
+
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a8_wash"
 text = "水垢遮住水温数字。转动旋钮并试水，在合适的温度范围洗澡。"
 kind = 3
 target_id = &"a8_wash"
-target_count = 1
+
 [resource]
 script = ExtResource("quest")
 id = &"a8_wash"

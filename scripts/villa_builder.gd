@@ -451,15 +451,7 @@ func build_staircase() -> void:
 		box("EastNosing",at(11.2,h-.022,z-depth/2-.004),Vector3(1.12,.036,.018),"villa_trim",false,stair_group)
 	# Union removes hidden/coplanar landing faces; the final tread ends at the slab edge.
 	union_mesh("StairTreadsAndLanding",surfaces,["villa_floor"],stair_group,0)
-	# Slim inner handrails preserve the walkable 1.10 m flights.
-	rod(at(10.56,.96,7.38),at(10.56,2.43,5.54),.028,"roof_edge",stair_group)
-	rod(at(10.64,2.43,5.54),at(10.64,3.90,7.38),.028,"roof_edge",stair_group)
-	for i in range(5):
-		var t := float(i)/4
-		var z: float = lerpf(7.38,5.54,t)
-		var y: float = lerpf(.16,1.5,t)
-		rod(at(10.56,y,z),at(10.56,y+.86,z),.015,"roof_edge",stair_group)
-		rod(at(10.64,3-y,z),at(10.64,3-y+.86,z),.015,"roof_edge",stair_group)
+	Geometry.refine_stair_rails(stair_group)
 	var dog_nest := load("res://furniture_pack/scenes/dog_nest.tscn").instantiate() as Node3D
 	dog_nest.position = at(10.60,1.50,landing_center)
 	attach(dog_nest,stair_group)

@@ -137,16 +137,18 @@ func _make_ui() -> void:
 	var root := Control.new();root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE;ui.add_child(root)
 	dialogue = CenterContainer.new();root.add_child(dialogue)
+	dialogue.theme=QuestTheme.resource()
 	dialogue.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var card := PanelContainer.new();card.custom_minimum_size.x = 580
 	card.add_theme_stylebox_override("panel",QuestTheme.panel(24));dialogue.add_child(card)
+	QuestTheme.decorate_dialogue(card)
 	var column := VBoxContainer.new();column.add_theme_constant_override("separation",20);card.add_child(column)
 	var font := SystemFont.new();font.font_names = PackedStringArray(["Microsoft YaHei UI","Microsoft YaHei","SimHei"])
 	heading = Label.new();column.add_child(heading)
-	heading.add_theme_font_override("font",font);heading.add_theme_font_size_override("font_size",24)
+	heading.add_theme_font_override("font",font);heading.add_theme_font_size_override("font_size",14)
 	heading.add_theme_color_override("font_color",QuestTheme.BRASS)
 	words = Label.new();words.custom_minimum_size = Vector2(500,95);words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	words.add_theme_font_override("font",font);words.add_theme_font_size_override("font_size",21);column.add_child(words)
+	words.add_theme_font_override("font",font);words.add_theme_font_size_override("font_size",15);column.add_child(words)
 	next_button = Button.new();next_button.text = "继续  ·  E / 空格";next_button.custom_minimum_size.y = 46
 	next_button.add_theme_font_override("font",font);QuestTheme.button(next_button)
 	next_button.pressed.connect(advance);column.add_child(next_button)

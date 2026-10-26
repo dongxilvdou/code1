@@ -11,6 +11,7 @@ var menu_camera: Camera3D
 
 func _ready() -> void:
 	zone_records = $Apartment.get_meta("room_zones",[])
+	preload("res://scripts/villa_geometry.gd").refine_stair_rails($Apartment/Staircase)
 	super._ready()
 	inspection_camera = Camera3D.new()
 	inspection_camera.name = "VillaOverviewCamera"

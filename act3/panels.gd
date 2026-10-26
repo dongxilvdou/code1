@@ -34,12 +34,12 @@ func refresh_switches() -> void:
 	for i in range(switches.size()):
 		var on: bool = chapter.val("circuit_bits") & (1<<i)!=0
 		var style := QuestTheme.panel(10)
-		style.bg_color = Color("c0a66d") if on else Color("293a3b")
-		style.border_color = Color("fff3c7") if i==hint_cell else Color("6f8e88")
+		style.bg_color = Color("d5c19a") if on else QuestTheme.SOFT
+		style.border_color = QuestTheme.ACCENT if i==hint_cell else QuestTheme.BORDER
 		style.set_border_width_all(3 if i==hint_cell else 1)
 		switches[i].add_theme_stylebox_override("normal",style)
 		switches[i].text = "%02d\n%s"%[i+1,"● 亮" if on else "○ 灭"]
-		switches[i].add_theme_color_override("font_color",Color("243936") if on else Color("c6d2c5"))
+		switches[i].add_theme_color_override("font_color",QuestTheme.TEXT if on else QuestTheme.MUTED)
 	feedback.text = "已点亮 %d / 16"%lit_count(chapter.val("circuit_bits"))
 
 func lit_count(state: int) -> int:

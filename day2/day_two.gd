@@ -61,9 +61,10 @@ func begin_day() -> void:
 	day.restore_world()
 	player.spawn = Vector3(-4.45,.03,4.80)
 	player.reset_position()
-	show_story("天亮了。昨天我和大狗嚼都吃饱了。\n\n先去茶几读完今天的小纸条，任务才会开始。\n这一次，肚子开始有一点饿了。")
+	refresh_hud()
 
 func _physics_process(delta: float) -> void:
+	if world.feeder_audio.playing and (not game.started or game.ui.pause_panel.visible or game.ui.settings_panel.visible):world.feeder_audio.stop()
 	if not day.initialized:return
 	if not ready_state:
 		if active_day():
@@ -204,7 +205,9 @@ func solve_puzzle(kind: String) -> void:
 		if loaded_count()!=3 or flag("washer_open") or not flag("d2_note"):return
 		set_flag("d2_washing",true)
 		wash_clock = 0
-	elif kind=="code":mark("d2_unlocked")
+	elif kind=="code":
+		mark("d2_unlocked")
+		world.play_feeder_sound("unlock")
 	puzzle.close()
 	restore_world()
 	game.ui.toast("洗衣机开始转动了。" if kind=="wash" else "咔哒，解锁了。叼着对应的碗，再按 E 盛粮。",4)
@@ -233,16 +236,19 @@ func nearest_item() -> String:
 		var delta := pos-eye
 		var alignment := forward.dot(delta.normalized())
 		var score := 1.0-alignment+delta.length()*.005
-		if delta.length()>1.15 or alignment<.77 or score>=best:continue
+		var clothing: bool = id in CLOTHES
+		if delta.length()>(1.65 if clothing else 1.15) or alignment<(.65 if clothing else .77) or score>=best:continue
 		var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(eye,pos,1))
-		if not hit.is_empty() and hit.position.distance_to(pos)>.12:continue
+		if not hit.is_empty() and hit.position.distance_to(pos)>.12:
+			var support: Node = n.get_meta("clothing_support",null)
+			if not clothing or support==null or not support.is_ancestor_of(hit.collider) or hit.position.distance_to(pos)>.65:continue
 		best = score
 		found = id
 	return found
 
 func target_position(id: String) -> Vector3:
 	if id=="note":return day.note_target()
-	if id in ["cloth_sofa","cloth_chair"]:return world.items[id].to_global(Vector3(0,-.13,.075))
+	if id in CLOTHES:return world.clothing_target(id,player.camera.global_position)
 	if id=="sofa_gap":return Vector3(-4.64,.13,2.15)
 	var n: Node3D = day.world.items[id] if id in ["note","nest","mess_cup","mess_pot","ruler","yarn"] else world.items["cat_bowl" if id=="cat_spot" else id]
 	var pos := n.global_position+Vector3(0,.05,0)
@@ -325,16 +331,27 @@ func interact_item(id: String) -> void:
 			return
 		open_puzzle("wash")
 	elif id=="feeder":
+		if val("current_day",1)==1 and holding==5 and flag("d2_dog_fed"):
+			game.ui.toast("阿嚼今天已经吃饱了。",3)
+			return
 		if val("current_day",1)==7 and not flag("a7_power"):
 			game.ui.toast("整栋楼都停电了，给予器也没有反应。先去二楼走廊检查电路。",4)
 			return
 		if not feeding_available():
 			game.ui.toast("先收齐第一天的纸片，再来研究给予器。",3)
 			return
-		if not flag("d2_unlocked"):open_puzzle("code")
-		elif holding==4:set_flag("cat_portion",true)
-		elif holding==5 and (flag("d2_dishes_done") or not flag("d2_dog_fed") or val("dish_stage") in [8,9]):set_flag("dog_portion",true)
-		else:game.ui.toast("先叼起空碗；脏的狗盘需要洗净才能再盛粮。",3)
+		if not flag("d2_unlocked"):
+			world.play_feeder_sound("button")
+			open_puzzle("code")
+		elif holding==4:
+			world.play_feeder_sound("button" if flag("cat_portion") else "dispense")
+			set_flag("cat_portion",true)
+		elif holding==5 and (flag("d2_dishes_done") or not flag("d2_dog_fed") or val("dish_stage") in [8,9]):
+			world.play_feeder_sound("button" if flag("dog_portion") else "dispense")
+			set_flag("dog_portion",true)
+		else:
+			world.play_feeder_sound("button")
+			game.ui.toast("先叼起空碗；脏的狗盘需要洗净才能再盛粮。",3)
 	elif id=="cat_bowl":
 		if not feeding_available() or holding!=0 or val("holding")!=0:return
 		set_value("d2_holding",4)
@@ -347,6 +364,9 @@ func interact_item(id: String) -> void:
 		game.ui.toast("吃饱了。也别忘了大狗嚼。",3)
 	elif id in ["dog","dog_spot"]:
 		if holding!=5:return
+		if val("current_day",1)==1 and flag("d2_dog_fed"):
+			game.ui.toast("阿嚼今天已经吃饱了。",3)
+			return
 		if flag("dog_portion"):
 			if val("dish_stage")==8:place_dog_bowl()
 			set_flag("dog_portion",false)
@@ -359,6 +379,9 @@ func interact_item(id: String) -> void:
 		else:place_dog_bowl()
 	elif id=="dog_bowl":
 		if not feeding_available() or holding!=0 or val("holding")!=0:return
+		if val("current_day",1)==1 and flag("d2_dog_fed"):
+			game.ui.toast("盘子先留在阿嚼身边，明天再收拾。",3)
+			return
 		if val("dish_stage") in [0,8,9]:set_value("d2_holding",5)
 	elif id=="tap":
 		if not dishes_available() or holding!=5 or not day.feeding_done() or flag("dog_portion") or val("dish_stage")!=0:return
@@ -375,7 +398,7 @@ func interact_item(id: String) -> void:
 	if not active_day():day.refresh_hud()
 
 func place_dog_bowl() -> void:
-	var clean := val("dish_stage")==8
+	var clean := active_day() and val("dish_stage")==8
 	var first_completion := clean and not flag("d2_dishes_done")
 	set_value("d2_holding",0)
 	if clean:
@@ -398,16 +421,16 @@ func refresh_hud() -> void:
 	day.hud.status.text = "饱食度：%d/100" % val("cat_hunger",65)
 	var text := ""
 	if not day.Notes.read(day):text = day.Notes.guidance(2)
-	elif not day.feeding_done():text = "旧进度已保留。先补完已移到第一天的喂食：到厨房解锁给予器，叼猫碗和狗盘盛粮，分别吃饭、送给大狗嚼。"
+	elif not day.feeding_done():text = "先照顾自己和阿嚼。叼碗到厨房给予器盛粮。"
 	elif not flag("d2_washed"):
-		text = "01  洗衣服  %d / 3\n衣服在沙发、单人沙发、玄关地上。叼到洗衣间，开机门、放入、关门，再跳上洗衣机调旋钮。" % loaded_count()
+		text = "01  洗衣服  %d / 3\n收齐三件衣服，送到洗衣间。" % loaded_count()
 		if flag("d2_washing"):text = "洗衣机正在运转……\n洗好后去工作书房找尺子。"
 	elif not flag("ruler_found"):text = "02  沙发底下的秘密\n到一楼东南角工作书房，跳上书桌叼起尺子。"
 	elif not flag("yarn_freed"):text = "02  取回毛线球\n叼尺子回客厅沙发前，R 改为竖叼，低头按 E 够出毛线球。"
 	elif not flag("yarn_home"):text = "02  取回毛线球\n叼起滚出来的毛线球，送到客厅南窗边的猫窝。"
 	elif not flag("d2_dishes_done"):
 		text = "03  洗狗盘\n从大狗旁叼起脏盘，对厨房水龙头按 E 冲洗，再叼回大狗旁的餐位。\n"+dish_hint()
-	else:text = "今天的事情完成了。\n回窝可以休息。饱腹仍会下降，给予器已永久解锁，可以随时补粮；洗碗任务只需完成一次。"
+	else:text = "今天的事情完成了。\n回猫窝休息吧。"
 	day.hud.guidance.text = text
 	day.hud.carry.text = carry_text()
 	if val("holding") in [2,3]:day.hud.carry.text = "叼着：%s\n%sG 松口并放回原处" % ["尺子" if val("holding")==2 else "毛线球", ("竖叼" if val("ruler_vertical")==1 else "横叼")+" · R 切换\n" if val("holding")==2 else ""]

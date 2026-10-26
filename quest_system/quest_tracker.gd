@@ -23,6 +23,7 @@ var _notice_time := 0.0
 var journal_panel: PanelContainer
 
 func setup(owner_system: Node) -> void:
+	theme=QuestTheme.resource()
 	system = owner_system
 	manager = system.manager
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -32,12 +33,12 @@ func setup(owner_system: Node) -> void:
 	panel = PanelContainer.new()
 	panel.name = "TaskPanelBelowMinimap"
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", QuestTheme.panel(14))
 	add_child(panel)
+	QuestTheme.glass(panel,10)
 	var column := VBoxContainer.new()
 	sidebar_column = column
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_theme_constant_override("separation", 10)
+	column.add_theme_constant_override("separation", 6)
 	panel.add_child(column)
 	_label("探 索 手 记", 12, ACCENT, column)
 	var scroll := ScrollContainer.new()
@@ -110,14 +111,14 @@ func _card(quest: CalicoQuest, parent: Node, detailed: bool) -> void:
 	parent.add_child(card)
 	var status := manager.get_status(quest.id)
 	var category := "主线" if quest.main_quest else "支线"
-	_label((category + " · " if detailed else "") + quest.title, 17 if detailed else 15, PAPER, card)
+	_label((category + " · " if detailed else "") + quest.title, 16 if detailed else 13, PAPER, card)
 	if detailed:
 		_label(STATUS[status],12,GREEN if status == CalicoQuestManager.State.COMPLETED else ACCENT,card)
 		_label(quest.description,15,MUTED,card)
 	for goal in quest.objectives:
 		var count := manager.get_progress(quest.id, goal.id)
 		var complete := count >= goal.target_count
-		_label(("✓ " if complete else "○ ") + goal.text + "  %d/%d" % [count, goal.target_count], 14, GREEN if complete else PAPER, card)
+		_label(("✓ " if complete else "○ ") + goal.text + "  %d/%d" % [count, goal.target_count], 12, GREEN if complete else PAPER, card)
 		card.add_child(QuestTheme.progress(count,goal.target_count))
 	if detailed:
 		var requirements := PackedStringArray()
@@ -164,8 +165,8 @@ func _build_journal() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	journal.add_child(shade)
 	journal_panel = PanelContainer.new()
-	journal_panel.add_theme_stylebox_override("panel",QuestTheme.panel(28))
 	journal.add_child(journal_panel)
+	QuestTheme.glass(journal_panel,24)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	journal_panel.add_child(column)
@@ -267,7 +268,7 @@ func _process(delta: float) -> void:
 	var has_side_quest := false
 	for quest in manager.sorted_quests():
 		if relevant_today(quest) and not quest.main_quest and manager.get_status(quest.id)==CalicoQuestManager.State.ACTIVE:has_side_quest = true
-	var story_card: bool = story != null and story.initialized and story.hud.card.visible and not has_side_quest
+	var story_card: bool = story != null and story.initialized and (story.hud.card.visible or story.hud.overlay.visible) and not has_side_quest
 	task_scroll.visible = not story_card
 	footer.visible = not story_card
 	(sidebar_column.get_child(0) as Label).text = "手记已更新" if story_card else "探 索 手 记"
@@ -277,7 +278,7 @@ func _process(delta: float) -> void:
 	var map_card: Control = system.map_hud.mini_back
 	var rect := map_card.get_global_rect()
 	panel.position = Vector2(rect.position.x, rect.end.y + system.gap_below_map)
-	var width := minf(system.tracker_width, get_viewport_rect().size.x - panel.position.x - 24)
+	var width := minf(220,minf(system.tracker_width, get_viewport_rect().size.x - panel.position.x - 24))
 	var available_height := maxf(0, get_viewport_rect().size.y - panel.position.y - 82)
 	panel.size.x = width
 	# 自动换行的高度依赖最终宽度；第一次显示时也先给文字分配宽度。

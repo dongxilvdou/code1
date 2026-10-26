@@ -2,6 +2,7 @@ extends CanvasLayer
 signal dismissed
 const Wallpaper = preload("res://act3/desktop_art.gd")
 const DesktopIcon = preload("res://act3/desktop_icon.gd")
+const PaperTheme = preload("res://quest_system/quest_theme.gd")
 var chapter
 var shell: Control
 var login: PanelContainer
@@ -17,6 +18,7 @@ func _ready() -> void:
 	font = SystemFont.new()
 	font.font_names = PackedStringArray(["Microsoft YaHei","SimHei"])
 	shell = Control.new()
+	shell.theme=PaperTheme.resource()
 	add_child(shell)
 	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var art := Wallpaper.new()
@@ -31,6 +33,7 @@ func _ready() -> void:
 	header.position = Vector2(34,26)
 	var close := Button.new()
 	close.text = "退出电脑  ·  Esc"
+	PaperTheme.button(close)
 	close.add_theme_font_override("font",font)
 	shell.add_child(close)
 	close.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
@@ -45,15 +48,10 @@ func _ready() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	login = PanelContainer.new()
 	login.custom_minimum_size.x = 430
-	var card := StyleBoxFlat.new()
-	card.bg_color = Color(.08,.15,.20,.92)
-	card.set_corner_radius_all(18)
-	card.content_margin_left = 40
-	card.content_margin_right = 40
-	card.content_margin_top = 34
-	card.content_margin_bottom = 30
+	var card := PaperTheme.panel(30)
 	login.add_theme_stylebox_override("panel",card)
 	center.add_child(login)
+	PaperTheme.glass(login,24)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation",17)
 	login.add_child(col)
@@ -81,15 +79,16 @@ func _ready() -> void:
 	password.text_submitted.connect(func(_value: String):submit_password())
 	password.focus_entered.connect(reveal_hint)
 	hint = text("在最近的照片上。照片收在一楼客厅桌上的线索册里。",16,col)
-	hint.modulate = Color("cbd9c4")
+	hint.add_theme_color_override("font_color",PaperTheme.MUTED)
 	var enter := Button.new()
 	enter.text = "登 录"
+	PaperTheme.button(enter,true)
 	enter.custom_minimum_size.y = 46
 	enter.add_theme_font_override("font",font)
 	col.add_child(enter)
 	enter.pressed.connect(submit_password)
 	error = text("",15,col)
-	error.modulate = Color("f0bfab")
+	error.add_theme_color_override("font_color",PaperTheme.ACCENT)
 	desktop = Control.new()
 	shell.add_child(desktop)
 	desktop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -132,7 +131,7 @@ func text(value: String, size_: int, parent: Node) -> Label:
 	label.text = value
 	label.add_theme_font_override("font",font)
 	label.add_theme_font_size_override("font_size",size_)
-	label.add_theme_color_override("font_color",Color("f0f3eb"))
+	label.add_theme_color_override("font_color",PaperTheme.TEXT if is_instance_valid(login) and login.is_ancestor_of(parent) else Color("f0f3eb"))
 	parent.add_child(label)
 	return label
 

@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://dh3il0nno3nsm"]
 
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Resource" path="res://day2/quests/laundry.tres" id="pre"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_aoj8t"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_vr4mq"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" uid="uid://5tqv7nuhgoq2" path="res://day2/quests/laundry.tres" id="pre"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
 
 [sub_resource type="Resource" id="ruler_found"]
 script = ExtResource("goal")
@@ -10,7 +12,6 @@ id = &"ruler_found"
 text = "找到并叼起尺子"
 kind = 3
 target_id = &"ruler_found"
-target_count = 1
 
 [sub_resource type="Resource" id="yarn_freed"]
 script = ExtResource("goal")
@@ -18,7 +19,6 @@ id = &"yarn_freed"
 text = "用竖叼尺子够出毛线球"
 kind = 3
 target_id = &"yarn_freed"
-target_count = 1
 
 [sub_resource type="Resource" id="yarn_home"]
 script = ExtResource("goal")
@@ -26,7 +26,6 @@ id = &"yarn_home"
 text = "把毛线球送到猫窝"
 kind = 3
 target_id = &"yarn_home"
-target_count = 1
 
 [resource]
 script = ExtResource("quest")

@@ -10,6 +10,7 @@ var arrows: Array = []
 var selected: Array = []
 var sequence: Array = []
 var voice_tween: Tween
+var slide_hint_tile := -1
 const PIPE_BASE := [[3,1],[3,1],[3,2],[1,2],[3,1],[0,3],[0,1],[3,1],[3,1]]
 const DIRECTIONS := [Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0)]
 const MED_COUNTS := [8,2,7,1,9,3,8]
@@ -41,6 +42,8 @@ func open(kind: String, text := "") -> void:
 				shuffle_tiles()
 				if migrated:feedback.text = "目标排列已更新，旧机关已重新排列，其他任务进度保留。"
 			make_board(Vector2(330,300))
+			slide_hint_tile=-1
+			button("提示下一步（根据当前排列）",detail,show_slide_hint)
 			button("重新打乱（始终可解）",detail,shuffle_tiles)
 		"yarn":
 			title.text = "毛线里的秘密 / 顺着线头"
@@ -80,19 +83,13 @@ func open(kind: String, text := "") -> void:
 			watering.use_plant(chapter.world.items.plant.get_meta("bound_furniture"))
 		"photo":
 			title.text = "书页里掉落的合照"
-			description.text = "白大褂、实验室，还有蹲在主人身旁的我。\n右下角：观察对象 C-031 · 照护训练 · 阶段 II。"
+			description.text = "主人穿着白大褂，背后是家中的房间，旁边蹲着我。\n照片上的编号：观察对象 C-031 · 照护训练 · 阶段 II。"
 			var picture := TextureRect.new()
-			picture.texture = load("res://act2/memory_photo.svg")
+			picture.texture = load("res://act2/memory_photo.png")
 			picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			picture.custom_minimum_size = Vector2(540,270)
 			detail.add_child(picture)
-			var serial := label("C-031 / PHASE II",14,picture)
-			serial.add_theme_color_override("font_color",Color("334f4e"))
-			serial.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-			serial.position = Vector2(310,238)
-			serial.size = Vector2(205,25)
-			serial.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			button("收好照片",detail,close)
 		_:
 			title.text = "第二幕 / "+["","","","被观察的日常","只剩一条鱼","记得你的名字"][clampi(chapter.today(),3,5)]
@@ -112,22 +109,23 @@ func cell_rect(i: int, columns: int, rows: int) -> Rect2:
 	return Rect2(Vector2(i%columns,i/columns)*s+Vector2(5,5),s-Vector2(10,10))
 
 func draw_board() -> void:
-	var gold := Color("e1bd80")
-	var sage := Color("8bbdb0")
+	var gold := QuestTheme.ACCENT
+	var sage := QuestTheme.SUCCESS
 	if mode=="pipes":
 		var wet := connected_pipes()
 		for i in range(9):
 			var r := cell_rect(i,3,3)
 			board.draw_style_box(QuestTheme.panel(8),r)
-			for d in pipe_ends(i):board.draw_line(r.get_center(),r.get_center()+Vector2(DIRECTIONS[d])*Vector2(board.size.x/6,board.size.y/6),Color("7dcddc") if wet.has(i) else gold,13,true)
+			for d in pipe_ends(i):board.draw_line(r.get_center(),r.get_center()+Vector2(DIRECTIONS[d])*Vector2(board.size.x/6,board.size.y/6),Color("347e83") if wet.has(i) else gold,13,true)
 			board.draw_circle(r.get_center(),9,sage if wet.has(i) else gold)
-		board.draw_string(font,Vector2(0,18),"入",HORIZONTAL_ALIGNMENT_LEFT,-1,16,Color.WHITE)
-		board.draw_string(font,board.size-Vector2(20,8),"出",HORIZONTAL_ALIGNMENT_LEFT,-1,16,Color.WHITE)
+		board.draw_string(font,Vector2(0,18),"入",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
+		board.draw_string(font,board.size-Vector2(20,8),"出",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
 	elif mode=="slide":
 		for i in range(9):
 			var r := cell_rect(i,3,3)
 			if tiles[i]==0:continue
 			board.draw_style_box(QuestTheme.panel(10),r)
+			if tiles[i]==slide_hint_tile:board.draw_rect(r.grow(-3),QuestTheme.ACCENT,false,3)
 			board.draw_string(font,r.get_center()+Vector2(-9,10),str(tiles[i]),HORIZONTAL_ALIGNMENT_LEFT,-1,30,gold)
 	elif mode=="yarn":
 		for i in range(16):
@@ -143,7 +141,7 @@ func draw_board() -> void:
 			var r := cell_rect(i,7,1)
 			var body := QuestTheme.panel(13)
 			body.bg_color = Color("73553d")
-			body.border_color = sage if selected.has(i) else Color("a18a65")
+			body.border_color = Color("c9ddba") if selected.has(i) else Color("a18a65")
 			body.set_border_width_all(3 if selected.has(i) else 1)
 			board.draw_style_box(body,Rect2(r.position+Vector2(9,32),r.size-Vector2(18,62)))
 			var cap := QuestTheme.panel(5)
@@ -178,6 +176,8 @@ func check_pipes() -> void:
 	else:feedback.text = "水还没到出口。看看蓝色水路在哪里断开了。"
 
 func shuffle_tiles() -> void:
+	slide_hint_tile=-1
+	feedback.text=""
 	tiles = SLIDE_GOAL.duplicate()
 	var previous := -1
 	for turn in range(60):
@@ -196,10 +196,80 @@ func shuffle_tiles() -> void:
 func move_tile(i: int) -> void:
 	var empty := tiles.find(0)
 	if abs(i%3-empty%3)+abs(i/3-empty/3)!=1:return
+	slide_hint_tile=-1
+	feedback.text=""
 	tiles[empty] = tiles[i]
 	tiles[i] = 0
 	save_array("tile",tiles)
 	if tiles==SLIDE_GOAL:solved.emit("slide")
+
+func slide_key(state: Array) -> int:
+	var key:=0
+	for value in state:key=(key<<4)|int(value)
+	return key
+
+func slide_distance(state: Array) -> int:
+	var cost:=0
+	for i in range(9):
+		if state[i]==0:continue
+		var goal:=SLIDE_GOAL.find(state[i])
+		cost+=absi(i%3-goal%3)+absi(i/3-goal/3)
+	return cost
+
+func hint_push(heap: Array, entry: Array) -> void:
+	heap.append(entry)
+	var i:=heap.size()-1
+	while i>0:
+		var parent: int=(i-1)/2
+		if heap[parent][0]<=entry[0]:break
+		heap[i]=heap[parent];i=parent
+	heap[i]=entry
+
+func hint_pop(heap: Array) -> Array:
+	var best: Array=heap[0]
+	var last: Array=heap.pop_back()
+	if heap.is_empty():return best
+	var i:=0
+	while i*2+1<heap.size():
+		var child:=i*2+1
+		if child+1<heap.size() and heap[child+1][0]<heap[child][0]:child+=1
+		if last[0]<=heap[child][0]:break
+		heap[i]=heap[child];i=child
+	heap[i]=last
+	return best
+
+func slide_next_tile(state: Array) -> int:
+	if not slide_reachable(state) or state==SLIDE_GOAL:return -1
+	var heap: Array=[]
+	var visited: Dictionary={slide_key(state):0}
+	hint_push(heap,[slide_distance(state)*100,0,state.duplicate(),state.find(0),-1])
+	while not heap.is_empty():
+		var entry:=hint_pop(heap)
+		var board_state: Array=entry[2]
+		var steps: int=entry[1]
+		if steps>visited.get(slide_key(board_state),steps):continue
+		if board_state==SLIDE_GOAL:return entry[4]
+		var empty: int=entry[3]
+		for i in range(9):
+			if absi(i%3-empty%3)+absi(i/3-empty/3)!=1:continue
+			var next:=board_state.duplicate()
+			next[empty]=next[i];next[i]=0
+			var key:=slide_key(next)
+			if visited.get(key,999)<=steps+1:continue
+			visited[key]=steps+1
+			var distance:=slide_distance(next)
+			hint_push(heap,[(steps+1+distance)*100+distance,steps+1,next,i,board_state[i] if steps==0 else entry[4]])
+	return -1
+
+func show_slide_hint() -> void:
+	if tiles==SLIDE_GOAL:feedback.text="排列已经正确。";return
+	slide_hint_tile=slide_next_tile(tiles)
+	if slide_hint_tile<0:feedback.text="当前排列无法求解，请重新打乱。";return
+	var index:=tiles.find(slide_hint_tile)
+	var empty:=tiles.find(0)
+	var direction: String="右" if empty==index+1 else "左" if empty==index-1 else "下" if empty>index else "上"
+	feedback.text="下一步：点击数字 %d，向%s移入空格。高亮的就是这一块。"%[slide_hint_tile,direction]
+	board.queue_redraw()
 
 func slide_reachable(values: Array) -> bool:
 	if values.size()!=9:return false
@@ -328,5 +398,6 @@ func pour_at(mouse: Vector2, pressed: bool, delta: float) -> void:
 	if chapter.aim_progress>=2.5:solved.emit("aim")
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	if mode!="aim" or not shell.visible or not is_instance_valid(watering):return
 	pour_at(watering.get_local_mouse_position(),Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT),delta)

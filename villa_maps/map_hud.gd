@@ -3,10 +3,11 @@ extends Control
 ## Instance villa_map.tscn under the main root. Original scripts need no edits.
 const MapCanvas = preload("res://villa_maps/map_canvas.gd")
 const MapTextures = preload("res://villa_maps/map_textures.gd")
+const PaperTheme = preload("res://quest_system/quest_theme.gd")
 const ASSET_ROOT := "res://villa_maps/"
 @export var player_path := NodePath("../../Miso")
-@export var minimap_position := Vector2(24, 24)
-@export var minimap_size := Vector2(264, 264)
+@export var minimap_position := Vector2(16, 16)
+@export var minimap_size := Vector2(124, 124)
 var player: CharacterBody3D
 var camera: Camera3D
 var game: Node
@@ -23,8 +24,11 @@ var mini_title: Label
 var big_title: Label
 var shade: ColorRect
 var mini_back: Panel
+var mini_day: Label
+var mini_chapter: Label
 
 func _ready() -> void:
+	theme=PaperTheme.resource()
 	hide()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -48,23 +52,27 @@ func _ready() -> void:
 	mini_back = Panel.new()
 	mini_back.name = "MinimapCard"
 	mini_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var panel := StyleBoxFlat.new()
-	panel.bg_color = Color(.025,.042,.035,.84)
-	panel.border_color = Color(.56,.62,.54,.25)
-	panel.set_border_width_all(1)
-	panel.set_corner_radius_all(8)
-	mini_back.add_theme_stylebox_override("panel",panel)
 	mini_back.position = minimap_position
-	mini_back.size = minimap_size+Vector2(20,54)
+	mini_back.size = minimap_size+Vector2(12,56)
 	add_child(mini_back)
+	PaperTheme.glass(mini_back,6)
+	var header:=HBoxContainer.new();header.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	header.position=Vector2(6,4);header.size=Vector2(minimap_size.x,18);header.add_theme_constant_override("separation",4);mini_back.add_child(header)
+	header.add_child(PaperTheme.symbol("paw",12))
+	mini_day=Label.new();mini_day.add_theme_font_size_override("font_size",11);mini_day.mouse_filter=Control.MOUSE_FILTER_IGNORE;header.add_child(mini_day)
+	mini_chapter=Label.new();mini_chapter.add_theme_font_size_override("font_size",11);mini_chapter.add_theme_color_override("font_color",PaperTheme.MUTED)
+	mini_chapter.clip_text=true;mini_chapter.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;mini_chapter.size_flags_horizontal=Control.SIZE_EXPAND_FILL;header.add_child(mini_chapter)
 	mini = MapCanvas.new()
 	add_child(mini)
-	mini.position = minimap_position+Vector2(10,10)
+	mini.position = minimap_position+Vector2(6,26)
 	mini.size = minimap_size
-	mini_title = make_label(15)
-	mini_title.position = minimap_position + Vector2(12, minimap_size.y + 19)
+	mini_title = make_label(11)
+	mini_title.add_theme_color_override("font_color",PaperTheme.TEXT)
+	mini_title.position = minimap_position + Vector2(6, minimap_size.y + 31)
+	mini_title.size=Vector2(minimap_size.x-20,19);mini_title.clip_text=true;mini_title.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+	var map_key:=Label.new();map_key.text="M";map_key.add_theme_font_size_override("font_size",11);map_key.position=Vector2(minimap_size.x-7,minimap_size.y+31);map_key.mouse_filter=Control.MOUSE_FILTER_IGNORE;mini_back.add_child(map_key)
 	shade = ColorRect.new()
-	shade.color = Color(0.025,0.05,0.06,0.94)
+	shade.color = Color(0.025,0.05,0.06,0.88)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
@@ -226,6 +234,10 @@ func _process(_delta: float) -> void:
 	mini.set("map_angle", map_angle)
 	mini.set("pixels_per_metre", 60.0 if current_map in ["stairs","basement"] else 11.0 if current_map == "garden" else 22.0)
 	mini_title.text = "%s · %s" % [maps[current_map].name, current_room]
+	var day:=game.get_node_or_null("DayOne")
+	if day!=null and day.initialized:
+		mini_day.text="第 %d 天"%day.value("current_day",1)
+		mini_chapter.text=day.hud.day_title.text.get_slice("/",1).strip_edges()
 	var viewport_size := get_viewport_rect().size
 	var side := maxf(160.0, minf(viewport_size.x-96, viewport_size.y-180))
 	big.size = Vector2(side, side)

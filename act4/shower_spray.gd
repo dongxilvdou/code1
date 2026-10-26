@@ -5,6 +5,7 @@ const FLOOR_Y := .057
 const COUNT := 420
 var elapsed := 0.0
 var running := false
+var flow := .5
 var stop_after := 0.0
 var drops: MultiMeshInstance3D
 var ripples: MultiMeshInstance3D
@@ -73,7 +74,7 @@ func _process(delta: float) -> void:
 func update_drops() -> void:
 	for i in range(COUNT):
 		var seed_ := fposmod(i*.61803399,1)
-		var speed := 1.0+fposmod(i*.37,1)*1.4
+		var speed := (.65+clampf(flow,0,1))*(1.0+fposmod(i*.37,1)*1.4)
 		var flight := (-speed+sqrt(speed*speed+20*(SOURCE.y-FLOOR_Y)))/10
 		var t := fposmod(elapsed+seed_*flight,flight)
 		var angle := i*2.39996
@@ -82,7 +83,7 @@ func update_drops() -> void:
 		var pos := SOURCE+radial*(radius+t*.18)
 		pos.y -= speed*t+5*t*t
 		drop_positions[i] = pos
-		var width := .0015+seed_*.0018
+		var width := (.0015+seed_*.0018)*(.35+clampf(flow,0,1))
 		var length_ := .005+(speed+10*t)*.0018
 		drops.multimesh.set_instance_transform(i,Transform3D(Basis.IDENTITY.scaled(Vector3(width,length_,width)),pos))
 		drops.multimesh.set_instance_color(i,Color(1,1,1,.35+seed_*.55))

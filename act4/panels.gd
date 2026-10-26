@@ -44,21 +44,33 @@ func art(kind: String, height: int) -> Control:
 	return display
 func open_valve() -> void:
 	title.text = "水垢下的温度"
-	description.text = "水垢挡住了水温数字，只能看见刻线和一段旧磨痕。\n按住旋钮拖动，或点按钮微调；回到底盘按 E，用试水判断冷热。"
+	description.text = "水温数字被水垢遮住了。温度和出水量会一起影响体感。\n先观察两个旋钮的磨痕，用小水试温，再逐步增加出水。回到底盘按 E 检查。"
 	art("valve",245)
 	var row := HBoxContainer.new()
 	detail.add_child(row)
 	for direction in [-1,1]:
 		var b := button("← 往冷水转一点" if direction<0 else "往热水转一点 →",row,adjust_valve.bind(direction*4))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	feedback.text = "温度数字看不清。浅色磨痕附近，似乎是平时常用的位置。"
+	var flow_row:=HBoxContainer.new();detail.add_child(flow_row)
+	for direction in [-1,1]:
+		var b:=button("− 收小出水量" if direction<0 else "＋ 增大出水量",flow_row,adjust_pressure.bind(direction*6))
+		b.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	feedback.text = "数字看不清。左侧小旋钮管出水，右侧旋钮调冷热；浅色磨痕是常用位置。"
+
+func adjust_pressure(amount: int) -> void:
+	chapter.set_value("pressure_setting",clampi(chapter.pressure_setting()+amount,0,100))
+	chapter.world.pressure_wheel.rotation.z=-deg_to_rad(lerpf(-120,120,chapter.pressure_setting()/100.0))
+	chapter.world.items.water.flow=chapter.pressure_setting()/100.0
+	chapter.bathing=false;chapter.wash_time=0;chapter.world.items.water.stop()
+	feedback.text="出水旋钮已调整。回到底盘试水，注意水流是否稳定、是否冲得太急。"
 func adjust_valve(amount: int) -> void:
+	chapter.bathing=false;chapter.wash_time=0;chapter.world.items.water.stop()
 	chapter.set_value("valve_setting",clampi(chapter.valve_setting()+amount,0,100))
 	chapter.world.valve_wheel.rotation.z = -deg_to_rad(lerpf(-140,140,chapter.valve_setting()/100.0))
 	feedback.text = "已转动旋钮。回到底盘按 E 试水；太冷往热转，太热往冷退。"
 func open_clock() -> void:
 	title.text = "三根指针 / 沉默的时钟"
-	description.text = "三张纸条分别记录时、分、秒。按找到的线索调整三根指针。"
+	description.text = "地点：二楼书房。\n书桌、书柜脚边和阅读小桌各有一张纸条，分别记录时、分、秒。按找到的线索调整三根指针。"
 	art("clock",220)
 	var row := HBoxContainer.new()
 	detail.add_child(row)
@@ -134,7 +146,7 @@ func open_circuit() -> void:
 	var level: int = chapter.val("locks")
 	if level>=3:close();return
 	title.text = "电流锁 %d / 3 · %s"%[level+1,Circuit.NAMES[level]]
-	description.text = ["两球每拍走一格。让终点灯同时点亮。短路可放四枚线圈，每枚停一拍。", "两路必须同一拍到达汇流门，随后共同走两格。早到会卡死，晚到也打不开门。", "红、绿球每拍一格；蓝球每拍两格，经过齿形变速带后每拍四格。红→蓝→绿，每灯间隔两拍。全关最多三枚线圈。 "][level]
+	description.text = ["两球每拍走一格。让终点灯同时点亮。短路可放四枚线圈，每枚停一拍。", "两路必须同一拍到达汇流门，随后共同走两格。早到会卡死，晚到也打不开门。", "红、绿球每拍一格；蓝球每拍两格，经过齿形变速带后每拍四格。红→蓝→绿，每灯间隔两拍。每条线路最多3个线圈。"][level]
 	var board := art("circuit",350 if level==2 else 205)
 	board.level = level
 	board.routes = chapter.circuit_routes()
@@ -165,18 +177,18 @@ func refresh_circuit() -> void:
 		route_labels[i].text = "转向器：%s / %d 格"%[["直行","短绕路","长绕路"][routes[i]],Circuit.length_(chapter.val("locks"),i,routes[i])]
 		coil_labels[i].text = str(coils[i])
 	display.routes=routes;display.coils=coils
-	feedback.text="本关线圈 %d / %d · 高分挑战：三关累计不超过 3 枚，已用 %d。"%[coils.reduce(func(a,b):return a+b,0),Circuit.budget(chapter.val("locks")),chapter.val("delay_total")]
+	feedback.text="红路 %d / 3 · 蓝路 %d / 3 · 绿路 %d / 3 · 每条线路最多3个线圈。"%coils if chapter.val("locks")==2 else "本关线圈 %d / %d。"%[coils.reduce(func(a,b):return a+b,0),Circuit.budget(chapter.val("locks"))]
 func adjust_circuit(lane: int, route: bool, delta: int) -> void:
 	if display.running:return
 	var key := "a11_%s_%d_%d"%["route" if route else "coil",chapter.val("locks"),lane]
 	var value: int = chapter.val(key)
-	value = (value+1)%3 if route else clampi(value+delta,0,4)
+	value = (value+1)%3 if route else clampi(value+delta,0,Circuit.coil_limit(chapter.val("locks")))
 	chapter.set_value(key,value)
 	refresh_circuit()
 func start_circuit() -> void:
 	if display.running:return
 	var result := Circuit.evaluate(chapter.val("locks"),chapter.circuit_routes(),chapter.circuit_coils())
-	if result.used>Circuit.budget(chapter.val("locks")):feedback.text=result.message;return
+	if result.used>Circuit.budget(chapter.val("locks")) or chapter.circuit_coils().any(func(value):return value>Circuit.coil_limit(chapter.val("locks"))):feedback.text=result.message;return
 	display.result=result;display.elapsed=0;display.running=true
 	run_button.disabled=true
 	feedback.text="电流已出发，观察小球每一拍的位置。"
