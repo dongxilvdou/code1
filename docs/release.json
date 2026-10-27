@@ -1,0 +1,18 @@
+{
+  "repository": "dongxilvdou/code1",
+  "game": {
+    "status": "published",
+    "filename": "cat.zip",
+    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-10-27/cat.zip",
+    "label": "Windows 64位 · ZIP",
+    "bytes": 185362338,
+    "sha256": "864043caaefc09e9cae6cea4fc37fae05a6aec6ca55cf1babf5139aa830712ab",
+    "release_tag": "windows-2026-10-27"
+  },
+  "soundtrack": {
+    "status": "pending",
+    "filename": "Hajimi-OST.zip",
+    "url": null,
+    "label": "完整原声集 · 即将开放"
+  }
+}
