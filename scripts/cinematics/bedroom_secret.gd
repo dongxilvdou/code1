@@ -222,14 +222,16 @@ func _make_ui() -> void:
 	var root := Control.new();ui.add_child(root);root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	warning = Control.new();root.add_child(warning);warning.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	warning.theme=ThemeArt.resource()
 	var shade := ColorRect.new();shade.color = Color(0,0,0,.45);shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	warning.add_child(shade);shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center := CenterContainer.new();warning.add_child(center);center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var card := PanelContainer.new();card.add_theme_stylebox_override("panel",ThemeArt.panel(24));center.add_child(card)
+	ThemeArt.decorate_dialogue(card)
 	var column := VBoxContainer.new();column.add_theme_constant_override("separation",20);card.add_child(column)
 	var font := SystemFont.new();font.font_names = PackedStringArray(["Microsoft YaHei UI","Microsoft YaHei","SimHei"])
 	var label := Label.new();label.text = "可能有精神污染，请勿随意触摸";column.add_child(label)
-	label.add_theme_font_override("font",font);label.add_theme_font_size_override("font_size",23)
+	label.add_theme_font_override("font",font);label.add_theme_font_size_override("font_size",15)
 	label.add_theme_color_override("font_color",ThemeArt.BRASS)
 	confirm_button = Button.new();confirm_button.text = "再次按下  ·  E";confirm_button.pressed.connect(confirm)
 	cancel_button = Button.new();cancel_button.text = "不碰了  ·  Esc";cancel_button.pressed.connect(func():finish(true))

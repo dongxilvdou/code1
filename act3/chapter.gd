@@ -94,7 +94,7 @@ func begin_day(number: int) -> void:
 	player.reset_position()
 	day.restore_world()
 	restore()
-	story("第六天 / 守在楼梯上的朋友\n\n先给阿嚼带一份饭，再和它聊聊。\n茶几上也留下了今天的小纸条。" if number==6 else "第七天 / 断开的电路\n\n整栋楼都断电了，厨房的给予器也不工作。\n去二楼走廊看看配电板。")
+	refresh_hud()
 
 func _physics_process(delta: float) -> void:
 	if not day.initialized:return
@@ -139,7 +139,7 @@ func restore() -> void:
 	second.restore_world()
 	day.world.items.note.visible = not (today()==7 and flag("a7_complete"))
 	for i in range(world.SNACKS.size()):world.items["snack%d"%i].visible = today()==6 and not (val("snack_mask") & (1<<i))
-	world.items.clues.visible = true
+	previous.update_clues_visibility()
 	for id in ["circuit","seat","computer","computer_note","weight_book","weight_plant"]:
 		world.items[id].visible = today()==7
 	if today()==7:
@@ -191,7 +191,7 @@ func build_meter() -> void:
 
 func update_meter() -> void:
 	var pos: Vector3 = world.pad.global_position+Vector3(.30,.40,0)
-	meter.visible = today()==7 and not flag("a7_complete") and player.camera.global_position.distance_to(pos)<3.3 and not player.camera.is_position_behind(pos) and day.active_play()
+	meter.visible = today()==7 and flag("a7_power") and not flag("a7_complete") and game.room_at(player.global_position)=="二层 · 电脑房" and player.camera.global_position.distance_to(pos)<3.3 and not player.camera.is_position_behind(pos) and day.active_play()
 	if not meter.visible:return
 	var screen: Vector2 = player.camera.unproject_position(pos)
 	var bounds := get_viewport().get_visible_rect().size
@@ -340,9 +340,15 @@ func interact_item(id: String) -> void:
 	restore()
 
 func show_clues() -> void:
-	story("客厅线索册 / 收好的照片\n\n白大褂实验人员，身旁蹲着我。右下角印着一个编号。\n照片背面：C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
+	if not previous.photo_collected():
+		var entries: String=("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else "")
+		story("客厅线索册\n\n"+(entries if not entries.is_empty() else "册页还空着。找到值得记住的照片和线索后，可以收在这里。"))
+		panel.title.text="客厅线索册"
+		return
+	story("客厅线索册 / 收好的照片\n\n主人穿着白大褂，身旁蹲着我。背后是家中的房间。\n照片背面：C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
+	panel.title.text="客厅线索册"
 	var image := TextureRect.new()
-	image.texture = load("res://act2/memory_photo.svg")
+	image.texture = load("res://act2/memory_photo.png")
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.custom_minimum_size = Vector2(540,270)
@@ -396,6 +402,7 @@ func day_complete() -> bool:
 	return day.Notes.read(day) and ((flag("a6_feed") and flag("a6_permission") and flag("a6_snacks")) if today()==6 else flag("a7_power") and flag("a7_computer_power") and flag("a7_login"))
 
 func guidance() -> String:
+	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==6:
 		if not flag("a6_feed"):return "先给阿嚼喂饭\n叼狗盘到厨房给予器盛粮，再送到楼梯平台。"
 		if not flag("a6_permission"):return "和楼梯上的阿嚼聊聊。它似乎愿意告诉你一些事情。"
@@ -407,10 +414,10 @@ func guidance() -> String:
 			return "寻找二楼的小鱼干  %d / 8\n待寻找：%s\n靠近小鱼干，按 E 吃掉。"%[snack_count(),"、".join(remaining)]
 		return "二楼的小鱼干都吃完了。\n阿嚼和窝留在厨房。回客厅猫窝休息，进入第七天。"
 	if not day.Notes.read(day):return day.Notes.guidance(7)
-	if not flag("a7_power"):return "01 恢复供电\n二楼走廊、电脑房门外的配电板：按开关切换自己和上下左右的灯，让十六盏同时点亮。"
-	if not flag("a7_computer_power"):return "02 启动电脑\n把现有书桌上的厚书、花盆叼到办公椅感应垫上，再跳上座椅。重量达到 8.0 kg 后，电脑会保持开启。"
+	if not flag("a7_power"):return "01 恢复供电\n检查二楼走廊的配电板。"
+	if not flag("a7_computer_power"):return "02 启动电脑\n看看电脑房里的座椅感应垫和桌旁物品。"
 	if not flag("a7_login"):return "03 输入密码\n电脑桌上的便签写着：密码是你的名字呀。\n照片收在一楼客厅桌上的线索册里。回到电脑屏幕，按 E 或鼠标左键输入。"
-	return "电脑已登录。\n桌面目前只能查看。按 Esc 离开电脑，回猫窝可结束今天。"
+	return "今天的事情已完成。\n离开电脑后，回猫窝休息。"
 
 func refresh_hud() -> void:
 	if not active():return

@@ -94,16 +94,28 @@ func begin_day(number: int) -> void:
 	player.spawn = Vector3(-4.45,.03,4.80)
 	player.reset_position()
 	restore()
-	story({3:"第三天 / 被观察的日常\n\n书都掉在客厅北侧地上了。按颜色放回原有书架，再检查厨房水槽、给花浇水。\n别忘了给大狗嚼喂饭。\n\n轻点空格短跳，按住空格长跳。",4:"第四天 / 只剩一条鱼\n\n茶几上有新的任务纸条。读完后，跳上冰箱旁边的柜台，研究侧面的猫爪机关。",5:"第五天 / 记得你的名字\n\n今天的任务清单不见了。\n先跳上客厅茶几，看看原来放纸条的地方。"}[number])
+	refresh_hud()
 
 func set_world_enabled(enabled: bool) -> void:
 	visible = enabled
-	world.items.clues.visible = today()>=6 or (today()>=3 and flag("a3_photo"))
+	update_clues_visibility()
 	for body in find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if enabled else 0
 	# The furnished bookcase and its collisions are permanent, including on days 1–2.
 
+func clues_unlocked() -> bool:
+	return photo_collected() or flag("a3_pipes") or flag("yarn_solved")
+
+func photo_collected() -> bool:
+	return flag("a3_photo") or (day.manager!=null and day.manager.get_status(&"a3_photo")==CalicoQuestManager.State.COMPLETED)
+
+func update_clues_visibility() -> void:
+	world.items.clues.visible=clues_unlocked()
+	world.items.clues.get_node("CollectedPhotograph").visible=photo_collected()
+	world.items.clues.get_node("PhotoIdentifier").visible=photo_collected()
+
 func _physics_process(delta: float) -> void:
 	if not day.initialized:return
+	update_clues_visibility()
 	if not active():
 		if active_number!=0:reset_runtime()
 		return
@@ -182,7 +194,7 @@ func restore() -> void:
 	world.items.bone.visible = flag("yarn_solved") and not flag("a4_toy") and holding!=7
 	world.items.medicine.visible = today()==5 and not flag("medicine_taken") and not flag("a5_medicine")
 	world.medicine_selection(flag("medicine_taken"))
-	world.items.clues.visible = flag("a3_photo")
+	update_clues_visibility()
 	day.world.items.note.visible = today()<5
 	day.world.items.ruler.visible = false
 	World.Props.apply(world.items,today())
@@ -401,7 +413,7 @@ func interact_item(id: String) -> void:
 			return
 		else:story("今天还有事情没有做完。\n\n"+guidance())
 
-	elif id=="clues":story("已经收好的线索\n\n照片：主人穿着白大褂，身旁是我。C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
+	elif id=="clues":get_parent().get_node("ActThree").show_clues()
 	restore()
 
 func interact_dog() -> void:
@@ -506,10 +518,10 @@ func guidance() -> String:
 		return "01 没有清单的一天\n打开入户门，摇晃门外偏西的高信箱三次，再拾起掉落的信。" if flag("a5_bell") else day.Notes.guidance(5)
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==3:
-		if not flag("a3_books"):return "01 整理书架\n客厅北侧地上的三本书，按红、蓝、黄放回原木书架的抽拉层板。轻点空格短跳，按住长跳。"
+		if not flag("a3_books"):return "01 整理书架\n把地上的三本书放回对应书列。"
 		if not flag("a3_photo"):return "书里掉出了一张照片。回书架旁的地上看看。"
 		if not flag("a3_pipes"):return "02 修理水管\n到厨房水槽下面，打开柜门，接通水管。"
-		if not flag("a3_water"):return "03 浇花\n沿沙发跳上西侧窗台，取满水壶后走下窗台；去一楼淋浴间倒掉一半，再跳上沙发给花浇水。"
+		if not flag("a3_water"):return "03 浇花\n取来窗台上的水壶，照顾沙发旁的花。"
 		if not flag("a3_feed"):return "今天还没喂大狗嚼。叼狗盘到厨房给予器盛粮，再送回楼梯平台。"
 	elif today()==4:
 		if not flag("a4_fridge"):return "01 猫用冰箱\n跳上冰箱西侧柜台，解开侧面的八数码机关。"
@@ -517,9 +529,9 @@ func guidance() -> String:
 		if not flag("a4_share"):return "厨房还有半条鱼。大狗嚼也许会想尝一尝。"
 		if not flag("a4_toy"):return "和大狗嚼聊聊。它的玩具可能藏在客厅沙发旁的毛线球里。"
 	else:
-		if not flag("a5_medicine"):return "02 喂药\n七只药瓶不能开盖。摇晃听响度和音色，选出药片最少的三瓶。直接喂被拒后，把药混进狗盘，再盛粮喂它。"
+		if not flag("a5_medicine"):return "02 照顾阿嚼\n按信上的要求听一听药瓶，再去找它。"
 		if not flag("a5_name"):return "今天的照护任务完成了，可以回窝。\n也可以再和大狗嚼聊聊，它似乎还有心事。"
-	return "今天的事情都完成了。回南窗边的猫窝休息。" if today()<5 else "第二幕已完成。阿嚼记起了名字。桌边的线索册可以回看照片与编号。"
+	return "今天的事情都完成了。回南窗边的猫窝休息。"
 
 func refresh_hud() -> void:
 	if not active():return

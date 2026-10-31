@@ -2,7 +2,8 @@ extends RefCounted
 const NAMES := ["把路走齐", "中途汇流", "快慢球按序"]
 const COLORS := [Color("e19b89"),Color("80c4df"),Color("afd097")]
 static func count_(level: int) -> int:return 3 if level==2 else 2
-static func budget(level: int) -> int:return 3 if level==2 else 4
+static func coil_limit(level: int) -> int:return 3 if level==2 else 4
+static func budget(level: int) -> int:return 9 if level==2 else 4
 static func length_(level: int, lane: int, route: int) -> int:
 	if level==2:return [8,4,12][lane]+([0,8,20][route] if lane==1 else route*2)
 	return [7,3][lane]+route*2
@@ -18,15 +19,18 @@ static func arrival(level: int, lane: int, route: int, coils: int) -> int:
 static func evaluate(level: int, routes: Array, coils: Array, limit := -1) -> Dictionary:
 	var times: Array[int] = []
 	var used := 0
+	var lanes_valid:=true
 	for i in range(count_(level)):
 		used += coils[i]
+		lanes_valid=lanes_valid and coils[i]>=0 and coils[i]<=coil_limit(level)
 		times.append(arrival(level,i,routes[i],coils[i]))
 	var cap := budget(level) if limit<0 else limit
-	var ok: bool = used<=cap
+	var ok: bool = lanes_valid and used<=cap
 	if level<2:ok = ok and times[0]==times[1]
 	else:ok = ok and times[1]==times[0]+2 and times[2]==times[1]+2
 	var text := ""
-	if used>cap:text = "线圈超过预算：%d / %d。转动转向器，用绕路增加路程。"%[used,cap]
+	if not lanes_valid:text="每条线路最多 %d 个线圈。"%coil_limit(level)
+	elif used>cap:text = "线圈超过预算：%d / %d。转动转向器，用绕路增加路程。"%[used,cap]
 	elif level==1 and times[0]!=times[1]:text = "先到的小球停在汇流门等待区，另一球晚到；门已卡死。必须同一拍到门。"
 	elif not ok:text = "小球没有踩准时刻。"+("让两球同时点亮终点灯。" if level==0 else "红 → 蓝 → 绿，每次间隔 2 拍。")
 	else:text = "同步成功，两球共同前进两格。" if level==1 else "灯泡按要求点亮。"

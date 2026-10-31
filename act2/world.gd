@@ -71,9 +71,9 @@ func build(parent: Node3D, game: Node) -> void:
 		var transform := original_bookcase.global_transform*Transform3D(Basis(Vector3.RIGHT,PI/2),Vector3(x,height+.125,.02))
 		book_returns.append(transform)
 	var photo := target("photo",Vector3(-2.25,.025,.40),"从书里掉下的照片",[3])
-	var photo_mesh := box(photo,"Photograph",Vector3.ZERO,Vector3(.26,.004,.17),Color.WHITE)
+	var photo_mesh := box(photo,"Photograph",Vector3.ZERO,Vector3(.26,.004,.13),Color.WHITE)
 	var photo_material := mat(Color.WHITE)
-	photo_material.albedo_texture = load("res://act2/memory_photo.svg")
+	photo_material.albedo_texture = load("res://act2/memory_photo.png")
 	photo_mesh.material_override = photo_material
 	var sink: Node3D = game.get_node("DayTwo").world.sink_cabinet
 	# Correct pivots at the true door edges; the old full-width front collider is removed.
@@ -217,7 +217,7 @@ func build(parent: Node3D, game: Node) -> void:
 	for i in range(7):
 		var visual := Props.model(medicines,"medicine_%d"%i,Vector3((i%4)*.10-.15,0,(i/4)*.13))
 		medicine_models.append(visual)
-	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索册 · 照片与编号",[3,4,5,6,7])
+	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索册 · 照片与编号",[1,2,3,4,5,6,7,8,9,10,11])
 	clues.set_meta("title","翻阅线索册 · 照片与编号")
 	Props.model(clues,"clues")
 	var album_photo := MeshInstance3D.new()
@@ -226,11 +226,12 @@ func build(parent: Node3D, game: Node) -> void:
 	paper.size = Vector2(.19,.095)
 	album_photo.mesh = paper
 	var ink := mat(Color.WHITE)
-	ink.albedo_texture = load("res://act2/memory_photo.svg")
+	ink.albedo_texture = load("res://act2/memory_photo.png")
 	album_photo.material_override = ink
 	clues.add_child(album_photo)
 	album_photo.position = Vector3(0,.011,-.065)
 	var serial := sign_at(clues,"C-031",Vector3(.055,.012,.002),20)
+	serial.name="PhotoIdentifier"
 	serial.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	serial.rotation.x = -PI/2
 	serial.pixel_size = .00035

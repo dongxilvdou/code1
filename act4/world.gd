@@ -5,6 +5,7 @@ const Spray = preload("res://act4/shower_spray.gd")
 var mouse_actor
 var mole_actor
 var valve_wheel: Node3D
+var pressure_wheel: Node3D
 var bed: Node3D
 var wardrobe: Node3D
 var shower: Node3D
@@ -80,6 +81,22 @@ func build(parent: Node3D, game: Node) -> void:
 	Props.bind(mattress,bed)
 	var valve := target4("valve",shower.to_global(Vector3(.12,.94,-.31)),"淋浴旋钮 · 调整水温",[8])
 	Props.bind(valve,shower)
+	var chrome:=Art.material("shower_chrome",Color("b6c2c3"),.2,.85)
+	Art.rod(shower,"MixerSupplyConnection",Vector3(0,.94,-.39),Vector3(0,.94,-.30),.026,chrome)
+	Art.rod(shower,"MixerValveBar",Vector3(-.12,.94,-.31),Vector3(.12,.94,-.31),.022,chrome)
+	for side in [-1,1]:
+		Art.rod(shower,"SupplyCollar",Vector3(side*.12,.94,-.39),Vector3(side*.12,.94,-.31),.028,chrome)
+	pressure_wheel=Node3D.new();pressure_wheel.name="WaterFlowHandle";shower.add_child(pressure_wheel)
+	pressure_wheel.position=Vector3(-.12,.94,-.285)
+	var flow_knob:=cylinder(pressure_wheel,Vector3.ZERO,.034,.03,Color("a6b6b7"));flow_knob.rotation.x=PI/2;flow_knob.material_override=chrome
+	Art.rod(pressure_wheel,"FlowHandlePointer",Vector3(0,.012,.018),Vector3(0,.032,.018),.0025,Art.material("flow_pointer",Color("3f595b")))
+	for i in range(7):
+		var a:=deg_to_rad(-120+i*40)
+		Art.rod(shower,"FlowScaleTick",Vector3(-.12+sin(a)*.044,.94+cos(a)*.044,-.267),Vector3(-.12+sin(a)*.049,.94+cos(a)*.049,-.267),.001,chrome)
+	for i in range(5):
+		for j in range(5):Art.ellipsoid(shower,"RainHeadNozzle",Vector3((i-2)*.031,1.955,-.12+(j-2)*.031),Vector3(.007,.004,.007),Art.material("nozzle_rubber",Color("374b4b"),.9))
+	for i in range(5):
+		Art.rod(shower,"DrainGrille",Vector3(.232+i*.009,.055,.232),Vector3(.232+i*.009,.055,.268),.0014,Art.material("drain_dark",Color("3c4d4b")))
 	valve.set_meta("hidden_temperature_scale",true)
 	var wheel := cylinder(valve,Vector3.ZERO,.045,.018,Color("b6bcb4"))
 	wheel.rotation.x = PI/2
@@ -91,15 +108,20 @@ func build(parent: Node3D, game: Node) -> void:
 		if i%2==0:Art.ellipsoid(valve,"OpaqueCalcium",Vector3(sin(a)*.060,cos(a)*.060,.017),Vector3(.022,.013,.003),grain("chalk_limescale",Color("d0c6aa")))
 	var wash := target4("wash",shower.to_global(Vector3(0,.057,.12)),"淋浴底盘 · E 试水并洗澡",[8])
 	Props.bind(wash,shower)
-	var limescale := target4("limescale",shower.to_global(Vector3(0,1.15,-.372)),"水垢 · 温度数字被遮住了",[8])
-	for i in range(4):
-		var ring := cylinder(limescale,Vector3(0,(i-1)*.035,0),.016,.002,Color("e1d6b5") if i==1 else Color("a5aba2"))
+	var limescale := target4("limescale",shower.to_global(Vector3(0,.55,-.56)),"旧贴纸与水垢 · 先试温，再调出水",[8])
+	limescale.global_rotation=shower.global_rotation
+	root.get_tree().physics_frame.connect(mount_shower_sticker.bind(limescale),CONNECT_ONE_SHOT)
+	box(limescale,"WornInstructionSticker",Vector3.ZERO,Vector3(.18,.115,.002),Color("d4c9a9")).material_override=grain("aged_shower_sticker",Color("d4c9a9"))
+	var instructions:=sign_at(limescale,"先小水试温\n再慢慢加水",Vector3(0,0,.0035),32)
+	instructions.billboard=BaseMaterial3D.BILLBOARD_DISABLED;instructions.pixel_size=.00075;instructions.outline_size=0;instructions.modulate=Color("16231b")
+	(instructions.font as SystemFont).font_weight=600
+	for i in range(6):Art.ellipsoid(limescale,"MineralStickerEdge",Vector3(-.083+i*.031,.052,.002),Vector3(.015,.006,.002),grain("sticker_mineral",Color("e0d6bc")))
 	var water := Spray.new()
 	water.name = "ShowerSpray"
 	root.add_child(water)
 	water.global_transform = shower.global_transform
 	items["water"] = water
-	var clock := target4("clock",Vector3(-5.86,4.50,2.65),"书房时钟 · 三根指针",[8,9,10,11])
+	var clock := target4("clock",Vector3(-5.86,4.50,2.65),"二楼书房时钟 · 三根指针",[8,9,10,11])
 	clock.rotation.y = PI/2
 	var rim := cylinder(clock,Vector3.ZERO,.22,.055,Color("a68a50"))
 	rim.rotation.x = PI/2
@@ -251,7 +273,7 @@ func build_door() -> void:
 	gate.leaf_width = width
 	gate.open_angle = 100
 	gate.door_title = "实验室密码门"
-	Props.days(gate,[8,9,10,11],[11])
+	Props.days(gate,[1,2,3,4,5,6,7,8,9,10,11],[1,2,3,4,5,6,7,8,9,10,11])
 	gate.set_meta("title","实验室密码门 · 三组电流锁")
 	items["basement"] = gate
 	# The gate origin is its hinge. The slab occupies the actual 1.3m portal,
@@ -290,7 +312,8 @@ func build_door() -> void:
 			bolts.append(lamp)
 	Art.rod(leaf,"SteelPullHandle",Vector3(width-.17,.88,.10),Vector3(width-.17,1.12,.10),.013,Art.material("door_hardware",Color("b7b7a5"),.3,.7))
 	root.add_child(gate)
-	gate.apply_lock_state(false,false)
+	gate.reparent(root.get_parent().get_node("Apartment"),true)
+	gate.apply_lock_state(false,true)
 func arrange(order: Array, active_: bool) -> void:
 	for slot in range(3):
 		var i: int = order[slot]
@@ -306,6 +329,16 @@ func update_jigsaw(order: Array) -> void:
 		tiles[i].material_override.albedo_texture = load("res://act4/textures/laboratory_cats.png")
 		tiles[i].material_override.uv1_scale = Vector3(1.0/3,1.0/3,1)
 		tiles[i].material_override.uv1_offset = Vector3((order[i]%3)/3.0,(order[i]/3)/3.0,0)
+func mount_shower_sticker(sticker: Node3D) -> void:
+	if not is_instance_valid(sticker):return
+	var front:=shower.global_basis.z.normalized()
+	var from:=shower.to_global(Vector3(0,.55,-.31))
+	var query:=PhysicsRayQueryParameters3D.create(from,from-front*.80,1)
+	var hit:=root.get_world_3d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty() and hit.normal.dot(front)>.95:
+		# Sit a few millimetres off the actual wall, clear of the glass and mixer.
+		sticker.global_position=hit.position+hit.normal*.003
+
 func clock_pose(seconds: float) -> void:
 	var angles := [seconds/43200.0*TAU,seconds/3600.0*TAU,seconds/60.0*TAU]
 	for i in range(3):hands[i].rotation.z = -angles[i]

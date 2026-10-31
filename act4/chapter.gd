@@ -7,10 +7,10 @@ const DESTINATIONS := ["门厅","一楼书房","一楼客厅","二楼走廊","�
 const ROUTES := [
 	[Vector3(.05,.02,2.1),Vector3(1.54,.02,2.62),Vector3(1.54,.02,3.18),Vector3(3.4,.02,4.55)],
 	[Vector3(1.54,.02,3.18),Vector3(1.54,.02,2.55),Vector3(.0,.02,2.3),Vector3(.0,.02,4.78),Vector3(-1.15,.02,4.78),Vector3(-3.15,.02,3.15)],
-	[Vector3(-1.10,.02,4.78),Vector3(.05,.02,4.78),Vector3(.05,.02,2.2),Vector3(4.0,.02,2.05),Vector3(4.0,1.52,-1.65),Vector3(5.2,1.52,-1.65),Vector3(5.2,3.02,2.05),Vector3(.05,3.02,2.2)],
+	[Vector3(-1.10,.02,4.78),Vector3(.05,.02,4.78),Vector3(.05,.02,2.2),Vector3(4.0,.02,2.05),Vector3(4.0,1.52,-1.02),Vector3(5.2,1.52,-1.02),Vector3(5.2,3.02,2.05),Vector3(.05,3.02,2.2)],
 	[Vector3(1.54,3.02,2.6),Vector3(1.54,3.02,3.18),Vector3(3.40,3.02,4.65)],
 	[Vector3(1.54,3.02,3.18),Vector3(1.54,3.02,2.5),Vector3(.05,3.02,2.2),Vector3(.05,3.02,-1.53),Vector3(-1.15,3.02,-1.53),Vector3(-2.30,3.02,-1.05)],
-	[Vector3(-1.15,3.02,-1.53),Vector3(.05,3.02,-1.53),Vector3(.05,3.02,2.2),Vector3(5.2,3.02,2.05),Vector3(5.2,1.52,-1.65),Vector3(4.0,1.52,-1.65),Vector3(4.0,.02,2.05),Vector3(.05,.02,2.05),Vector3(.05,.02,-2.75),Vector3(1.50,.02,-3.55)]
+	[Vector3(-1.15,3.02,-1.53),Vector3(.05,3.02,-1.53),Vector3(.05,3.02,2.2),Vector3(5.2,3.02,2.05),Vector3(5.2,1.52,-1.02),Vector3(4.0,1.52,-1.02),Vector3(4.0,.02,2.05),Vector3(.05,.02,2.05),Vector3(.05,.02,-2.75),Vector3(1.50,.02,-3.55)]
 ]
 var game
 var day
@@ -31,14 +31,17 @@ var clock_tick := 0.0
 var hud_time := 0.0
 var held_mouse: Node3D
 const CLOCK_CLUES := {"clock_clue":"hour","clock_minute_clue":"minute","clock_second_clue":"second"}
-const WARM_MIN := 45
-const WARM_MAX := 62
+const WARM_MIN := 48
+const WARM_MAX := 56
 
 func valve_setting() -> int:
 	# Preserve the old successful detent on pre-update saves.
 	return val("valve_setting",[18,55,85,30][clampi(val("valve"),0,3)])
 
-func warm_water() -> bool:return valve_setting()>=WARM_MIN and valve_setting()<=WARM_MAX
+func pressure_setting() -> int:return val("pressure_setting",82)
+func water_temperature() -> float:return valve_setting()+(pressure_setting()-50)*.2
+func warm_water() -> bool:return water_temperature()>=WARM_MIN and water_temperature()<=WARM_MAX
+func steady_water() -> bool:return pressure_setting()>=40 and pressure_setting()<=65
 
 func clock_clue_count() -> int:
 	var count := 0
@@ -84,7 +87,7 @@ func begin_day(number: int) -> void:
 	active_number=number;wash_time=0;bathing=false;pounce_time=0;chase_path.clear()
 	player.spawn=Vector3(-4.45,.03,4.8);player.reset_position()
 	day.restore_world();restore()
-	story("第 %d 天\n\n%s"%[number,{8:"主卧柜顶留下了一小袋新猫粮。先去客厅茶几读今天的小纸条。",9:"露台的花盆、花园的洞口，以及书房里被打乱的照片。",10:"主人留下了新的命令。客厅茶几上的纸条说，家里进了一只老鼠。",11:"今天的纸条只有四个字：来地下室。"}[number]])
+	refresh_hud()
 func plant_order() -> Array:return [val("pot0",2),val("pot1",0),val("pot2",1)]
 func jigsaw_order() -> Array:
 	var result: Array=[]
@@ -104,7 +107,7 @@ func circuit_routes() -> Array:
 	return result
 func circuit_coils() -> Array:
 	var result: Array=[]
-	for i in range(Circuit.count_(val("locks"))):result.append(val("a11_coil_%d_%d"%[val("locks"),i]))
+	for i in range(Circuit.count_(val("locks"))):result.append(clampi(val("a11_coil_%d_%d"%[val("locks"),i]),0,Circuit.coil_limit(val("locks"))))
 	return result
 func reset_circuit() -> void:
 	for i in range(3):
@@ -132,6 +135,8 @@ func restore() -> void:
 	world.items.food.visible=today()==8 and not flag("a8_food")
 	for id in ["bed","tracks","valve","wash","limescale","clock_clue","clock_minute_clue","clock_second_clue"]:world.items[id].visible=today()==8 and not flag("a8_complete")
 	world.valve_wheel.rotation.z = -deg_to_rad(lerpf(-140,140,valve_setting()/100.0))
+	world.pressure_wheel.rotation.z=-deg_to_rad(lerpf(-120,120,pressure_setting()/100.0))
+	world.items.water.flow=pressure_setting()/100.0
 	if today()!=8:world.items.water.stop()
 	world.arrange(plant_order(),today()==9 and not flag("a9_complete"))
 	for i in range(3):world.items["plant%d"%i].visible=today()==9 and not flag("a9_complete")
@@ -142,7 +147,7 @@ func restore() -> void:
 	world.items.mouse.visible=today()==10 and not flag("a10_catch")
 	if chase_path.is_empty():world.items.mouse.position=Vector3(.05,.02,2.1) if val("mouse_stage")==0 else ROUTES[clampi(val("mouse_stage")-1,0,5)][-1]
 	world.items.escape_note.visible=(today()==10 and flag("a10_eat")) or (today()==11 and not flag("a11_enter"))
-	world.items.basement.set_meta("interaction_days",[11])
+	world.items.basement.set_meta("interaction_days",[1,2,3,4,5,6,7,8,9,10,11])
 	world.door_state(val("locks")>=3,val("locks"),true)
 	World.Props.apply(world.items,today())
 	day.world.items.note.visible=not flag("a11_enter")
@@ -174,10 +179,10 @@ func _physics_process(delta: float) -> void:
 		elif player.is_on_floor() and not on_bed() and player.position.y<world.bed.global_position.y+.35 and val("bed_jumps")>0:set_value("bed_jumps",0)
 	was_on_bed=on_bed()
 	if bathing:
-		if player.global_position.distance_to(world.items.wash.global_position)<.62:wash_time+=delta
+		if warm_water() and steady_water() and player.global_position.distance_to(world.items.wash.global_position)<.62:wash_time+=delta
 		else:wash_time=0;bathing=false;world.items.water.stop()
 		if wash_time>=4:
-			bathing=false;mark("a8_wash");world.items.water.stop();story("水温正合适，水流轻轻冲过毛发。\n被水垢盖住的温度数字仍然看不清，但我记住了旋钮上这段舒适的位置。")
+			bathing=false;mark("a8_wash");world.items.water.stop();story("水温和水流终于都稳定了。\n调小出水、试温，再缓缓加到舒适的流量。水垢下的数字仍然看不清，但我记住了两个旋钮的位置。\n\n接下来，前往二楼书房，寻找时间纸条并调整墙上的时钟。")
 	if flag("a8_clock"):
 		clock_tick+=delta
 		if clock_tick>=1:
@@ -238,15 +243,38 @@ func chase_mouse() -> void:
 	game.ui.toast("差一点就抓住了！老鼠跑向%s。"%DESTINATIONS[stage+1],4)
 func advance_mouse(delta: float) -> void:
 	var mouse: Node3D=world.items.mouse
-	var destination: Vector3=chase_path[chase_point]
-	var motion:=destination-mouse.global_position
-	var step:=minf(delta*2.5,motion.length())
-	if motion.length()>.01:
-		mouse.global_position+=motion.normalized()*step
-		if Vector2(motion.x,motion.z).length()>.001:mouse.rotation.y=atan2(-motion.x,-motion.z)
-	if mouse.global_position.distance_to(destination)<.025:
+	var remaining:=maxf(delta,0)
+	while remaining>0 and not chase_path.is_empty():
+		var destination: Vector3=chase_path[chase_point]
+		var source: Vector3=chase_path[maxi(0,chase_point-1)]
+		var stair_leg:=absf(source.x-destination.x)<.01 and absf(source.y-destination.y)>1.0 and (absf(source.x-4.0)<.01 or absf(source.x-5.2)<.01)
+		var motion:=destination-mouse.global_position
+		if stair_leg:motion.y=0
+		var distance_:=motion.length()
+		var speed:=1.05 if stair_leg else 2.5
+		var travel:=minf(remaining*speed,distance_)
+		if distance_>.0001:
+			mouse.global_position+=motion/distance_*travel
+			if Vector2(motion.x,motion.z).length()>.001:mouse.rotation.y=atan2(-motion.x,-motion.z)
+		if stair_leg:mouse.global_position.y=mouse_stair_height(mouse.global_position,destination.y>source.y)
+		remaining=maxf(0,remaining-travel/speed)
+		if distance_-travel>.0001:break
 		chase_point+=1
 		if chase_point>=chase_path.size():chase_path.clear();restore()
+
+func mouse_stair_height(position_: Vector3, ascending: bool) -> float:
+	# Nine 1/6 m risers on each 2 m flight, matching the existing tread colliders.
+	# Lift before the nose reaches a riser; descend only after the long tail clears it.
+	var lower:=absf(position_.x-4.0)<.01
+	var along:=1.5-position_.z if lower else position_.z+.5
+	var support:=along+(.17 if ascending else .31)
+	var height:=.02 if lower else 1.52
+	for i in range(9):
+		var edge:=i*2.0/9.0
+		var t:=clampf((support-edge+.14)/.14,0,1)
+		height+=smoothstep(0,1,t)/6.0
+		if ascending:height+=sin(t*PI)*.018
+	return height
 func eat_mouse() -> void:
 	if not flag("a10_catch") or flag("a10_eat"):return
 	mark("a10_eat");restore()
@@ -301,7 +329,7 @@ func interact_item(id: String) -> void:
 	if not day.Notes.read(day):game.ui.toast(day.Notes.guidance(today()),3);return
 	if id=="clues":
 		story("客厅线索册\n\nC-031 / 阶段 II。\n"+("地下室逃跑计划。" if flag("a10_note") else "照片上，主人穿着白大褂。"))
-		panel.picture("res://act2/memory_photo.svg",panel.detail);return
+		panel.picture("res://act2/memory_photo.png",panel.detail);return
 	if id=="computer":open_panel("story");panel.close();game.cinematic_active=true;player.set_control(false);third.computer.open();return
 	if id=="dog":
 		if today()==10 and flag("a10_catch") and not flag("a10_eat"):open_panel("eat")
@@ -318,22 +346,26 @@ func interact_item(id: String) -> void:
 	elif id in ["valve","wash","limescale"]:
 		if not flag("a8_food"):game.ui.toast("先拿到并吃掉柜顶的猫粮。",3);return
 		if id=="valve":open_panel("valve")
-		elif id=="limescale":story("白色水垢盖住了水温数字，只露出一些短刻线。\n旋钮底座靠中间有一小段被经常转动留下的磨痕。\n\n先转到附近，再站进底盘试水；太冷就往热水转一点，太热就往冷水转一点。")
-		elif flag("a8_wash"):story("毛已经洗干净了。关好水，去书房看看时钟吧。")
+		elif id=="limescale":story("水温数字被水垢遮住了。旁边还有一个出水旋钮。\n底座上，两段常用位置都磨得发亮。\n\n旧贴纸写着：先用小水试温，再慢慢加水。水开大时，热水也会来得更快；别一下拧到底。")
+		elif flag("a8_wash"):story("毛已经洗干净了。关好水，去二楼书房看看墙上的时钟吧。")
+		elif not steady_water():
+			world.items.water.flow=pressure_setting()/100.0
+			world.items.water.start(1.6)
+			game.ui.toast("水流断断续续，先把出水旋钮开大一些，再检查水温。" if pressure_setting()<40 else "水冲得太急了！先收小出水旋钮，再重新试温。",4)
 		elif not warm_water():
 			world.items.water.start(1.6)
 			var away: Vector3=Vector3(-1,0,-.3).normalized()
 			player.velocity=away*1.7+Vector3.UP*2.2
-			game.ui.toast("好冷……把旋钮往热水方向转一点，再试试。" if valve_setting()<WARM_MIN else "太烫了！把旋钮往冷水方向退一点，再试试。",4)
+			game.ui.toast("好冷……把温度旋钮往热水方向转一点，再试试。" if water_temperature()<WARM_MIN else "太烫了！把温度旋钮往冷水方向退一点，再试试。",4)
 		else:bathing=true;wash_time=0;world.items.water.start();game.ui.toast("温温的，正合适。留在淋浴底盘里，洗澡中……",4)
 	elif CLOCK_CLUES.has(id):
 		var part: String = CLOCK_CLUES[id]
 		mark("a8_clue_"+part)
-		story({"hour":"时针纸条\n\n时针：03。\n这张只写了小时，另外两张在哪里？","minute":"分针纸条\n\n分针：42。\n把这个数字记在分针的位置。","second":"秒针纸条\n\n秒针：00。\n它要对准最上面的刻线。"}[part]+"\n\n已经找到 %d / 3 张时间纸条。"%clock_clue_count())
+		story({"hour":"时针纸条\n\n时针：03。\n这张只写了小时，另外两张在哪里？","minute":"分针纸条\n\n分针：42。\n把这个数字记在分针的位置。","second":"秒针纸条\n\n秒针：00。\n它要对准最上面的刻线。"}[part]+"\n\n三张纸条都在二楼书房。已经找到 %d / 3。"%clock_clue_count())
 	elif id=="clock":
 		if flag("a8_clock"):story("时钟还在走。\n可是它在倒着走。还剩下三天。")
 		elif not flag("a8_wash"):game.ui.toast("先去淋浴间洗澡，再调整时钟。",3)
-		elif clock_clue_count()<3:game.ui.toast("还缺时间纸条：已找到 %d / 3。书桌、书柜脚边和阅读小桌各有一张。"%clock_clue_count(),4)
+		elif clock_clue_count()<3:game.ui.toast("还缺时间纸条：已找到 %d / 3。二楼书房的书桌、书柜脚边和阅读小桌各有一张。"%clock_clue_count(),4)
 		else:open_panel("clock")
 	elif id=="painting" or id.begins_with("plant"):
 		if flag("a9_plants"):story("三盆植物已经按照墙画排列好了。")
@@ -368,9 +400,9 @@ func guidance() -> String:
 	if today()==11 and flag("a11_enter"):return game.get_node("Ending").guidance()
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==8:
-		if not flag("a8_food"):return "01 柜顶的猫粮\n在二楼主卧原床垫上连续跳三次，第三次跃向衣柜顶。蓄力 %d / 3。"%val("bed_jumps")
-		if not flag("a8_wash"):return "02 洗个澡\n水垢盖住了温度数字。转动旋钮后，到底盘按 E 试水，找到不冷不烫的范围。"
-		if not flag("a8_clock"):return "03 沉默的时钟\n找到 %d / 3 张纸条：时、分、秒。二楼书房的书桌、书柜脚边和阅读小桌各有一张。"%clock_clue_count()
+		if not flag("a8_food"):return "01 柜顶的猫粮\n留意主卧的床垫，想办法够到柜顶。蓄力 %d / 3。"%val("bed_jumps")
+		if not flag("a8_wash"):return "02 洗个澡\n观察淋浴间的旧贴纸，调整温度和出水旋钮，再到底盘试水。"
+		if not flag("a8_clock"):return "03 沉默的时钟\n前往二楼书房，在书桌、书柜脚边和阅读小桌找齐纸条，再调整墙上时钟。已找到 %d / 3。"%clock_clue_count()
 	elif today()==9:
 		if not flag("a9_plants"):return "01 露台花盆\n按照旁边墙画中三种植物的顺序交换现有盆栽。"
 		if not flag("a9_mole"):return "02 花园捕猎\n北花园九个地鼠洞。看准露头的地鼠，靠近按 E 猫扑。已抓住 %d / 2。"%val("mole_catches")
@@ -396,7 +428,7 @@ func reset_runtime() -> void:
 	world.mouse_actor.set_active(false)
 	world.mole_actor.set_active(false)
 	world.arrange([0,1,2],false)
-	world.door_state(false,0,false)
+	world.door_state(val("locks")>=3,val("locks"),true)
 	visible=false
 	panel.mode="";panel.shell.hide()
 	if is_instance_valid(panel.display):panel.display.running=false

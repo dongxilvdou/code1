@@ -35,9 +35,14 @@ func _connect_game() -> void:
 	manager = CalicoQuestManager.new()
 	manager.name = "Manager"
 	add_child(manager)
+	var demo: Dictionary=get_tree().root.get_meta("calico_demo_session",{})
+	if not demo.is_empty():
+		save_file=demo.get("normal_save_file",save_file)
+		save_enabled=false if demo.get("active",false) else bool(demo.get("normal_save_enabled",save_enabled))
 	manager.save_path = save_file
 	# 验证和截图使用独立、无存档模式，绝不改玩家任务进度。
 	manager.autosave = save_enabled and not "--quest-test" in OS.get_cmdline_user_args()
+	if not demo.is_empty():manager.autosave=false
 	if not manager.configure(catalog):
 		push_error("QuestSystem 配置错误：" + "；".join(manager.validation_errors))
 		return

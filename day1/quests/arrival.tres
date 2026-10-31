@@ -1,55 +1,9 @@
-[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://d3k52xluiqvht"]
 
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-
-[sub_resource type="Resource" id="walk"]
-script = ExtResource("goal")
-id = &"walk"
-text = "试着走一走"
-kind = 3
-target_id = &"walk"
-target_count = 1
-
-[sub_resource type="Resource" id="run"]
-script = ExtResource("goal")
-id = &"run"
-text = "按住 Shift 跑一小段"
-kind = 3
-target_id = &"run"
-target_count = 1
-
-[sub_resource type="Resource" id="open_living"]
-script = ExtResource("goal")
-id = &"open_living"
-text = "打开客厅门"
-kind = 3
-target_id = &"open_living"
-target_count = 1
-
-[sub_resource type="Resource" id="stool"]
-script = ExtResource("goal")
-id = &"stool"
-text = "跳上单人沙发"
-kind = 3
-target_id = &"stool"
-target_count = 1
-
-[sub_resource type="Resource" id="table"]
-script = ExtResource("goal")
-id = &"table"
-text = "跳上客厅茶几"
-kind = 3
-target_id = &"table"
-target_count = 1
-
-[sub_resource type="Resource" id="cup_moved"]
-script = ExtResource("goal")
-id = &"cup_moved"
-text = "将水杯叼到杯垫上"
-kind = 3
-target_id = &"cup_moved"
-target_count = 1
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_3ffij"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_gf1dt"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
 
 [sub_resource type="Resource" id="note_read"]
 script = ExtResource("goal")
@@ -57,7 +11,48 @@ id = &"note_read"
 text = "阅读纸条"
 kind = 3
 target_id = &"note_read"
-target_count = 1
+
+[sub_resource type="Resource" id="walk"]
+script = ExtResource("goal")
+id = &"walk"
+text = "试着走一走"
+kind = 3
+target_id = &"walk"
+
+[sub_resource type="Resource" id="run"]
+script = ExtResource("goal")
+id = &"run"
+text = "按住 Shift 跑一小段"
+kind = 3
+target_id = &"run"
+
+[sub_resource type="Resource" id="open_living"]
+script = ExtResource("goal")
+id = &"open_living"
+text = "打开客厅门"
+kind = 3
+target_id = &"open_living"
+
+[sub_resource type="Resource" id="stool"]
+script = ExtResource("goal")
+id = &"stool"
+text = "跳上单人沙发"
+kind = 3
+target_id = &"stool"
+
+[sub_resource type="Resource" id="table"]
+script = ExtResource("goal")
+id = &"table"
+text = "跳上客厅茶几"
+kind = 3
+target_id = &"table"
+
+[sub_resource type="Resource" id="cup_moved"]
+script = ExtResource("goal")
+id = &"cup_moved"
+text = "将水杯叼到杯垫上"
+kind = 3
+target_id = &"cup_moved"
 
 [resource]
 script = ExtResource("quest")

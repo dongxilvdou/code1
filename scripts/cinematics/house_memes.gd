@@ -3,6 +3,7 @@ extends Node3D
 const KeyShader = preload("res://shaders/house_meme_key.gdshader")
 const BananaScene = preload("res://furniture_pack/scenes/easter_banana.tscn")
 const SwitchScene = preload("res://furniture_pack/scenes/tv_power_switch.tscn")
+const CurtainStandee = preload("res://scripts/cinematics/curtain_standee.gd")
 @export var television: Node3D
 @export var kitchen_counter: Node3D
 @export var play_seconds := 5.0
@@ -15,6 +16,7 @@ var screen: MeshInstance3D
 var original_screen: Material
 var original_art: Array = []
 var indicator: StandardMaterial3D
+var curtain_secret: Node3D
 
 func _ready() -> void:
 	game = get_parent();player = game.get_node("Miso")
@@ -33,6 +35,8 @@ func _ready() -> void:
 	banana.position = Vector3(0,.900,.25);banana.rotation.y = -.24
 	_create_clip("tv","fresh_cat.ogv",television,Vector3(0,.43,.055),Vector2(1.07,.602),tv_switch)
 	_create_clip("banana","banana_cat.ogv",kitchen_counter,Vector3(0,1.00,.25),Vector2(.42,.252),banana)
+	curtain_secret=CurtainStandee.new();curtain_secret.name="CurtainStandee"
+	add_child(curtain_secret);curtain_secret.setup(game)
 	set_process(false)
 
 func _create_clip(id: String, file: String, parent_: Node3D, position_: Vector3, size_: Vector2, target: Node3D) -> void:
@@ -68,12 +72,15 @@ func target_id() -> String:
 	return ""
 
 func target_hint() -> String:
+	var curtain_hint: String=curtain_secret.target_hint()
+	if not curtain_hint.is_empty():return curtain_hint
 	match target_id():
 		"tv":return "[ E ]  "+("关闭电视" if entries.tv.playing else "打开电视")
 		"banana":return "[ E ]  看看这根香蕉"
 	return ""
 
 func try_interact() -> bool:
+	if curtain_secret.try_interact():return true
 	var id := target_id()
 	if id.is_empty():return false
 	if entries[id].playing:finish(id)

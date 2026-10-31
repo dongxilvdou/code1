@@ -1,29 +1,34 @@
-[gd_resource type="Resource" script_class="CalicoQuest" format=3]
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://ceg7wbfd03o83"]
+
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_j5yi7"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
 [sub_resource type="Resource" id="day"]
 script = ExtResource("condition")
 kind = 1
 key = &"current_day"
 required_value = 11
+
 [sub_resource type="Resource" id="prior"]
 script = ExtResource("condition")
 key = &"a11_memory"
+
 [sub_resource type="Resource" id="a11_cage"]
 script = ExtResource("goal")
 id = &"a11_cage"
 text = "观察笼里的猫毛、旧抓痕和离开的路径。"
 kind = 3
 target_id = &"a11_cage"
-target_count = 1
+
 [sub_resource type="Resource" id="a11_vent"]
 script = ExtResource("goal")
 id = &"a11_vent"
 text = "找到监控底下的通风口。"
 kind = 3
 target_id = &"a11_vent"
-target_count = 1
+
 [resource]
 script = ExtResource("quest")
 id = &"a11_traces"

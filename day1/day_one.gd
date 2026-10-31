@@ -10,7 +10,7 @@ const INTRO := [
 	"我想起来了，我有一个主人。\n她会轻轻摸我的头，也会给我留一块暖和的地方。",
 	"我最喜欢她了。只要听到她回家的声音，我就会跑过去。",
 	"可是主人生病了。现在，应该换我照顾她。\n我记得……这里能让我学会照顾主人。",
-	"总之，先读读入户门内地垫旁的小纸条。\n读完后，再走一走、跑一跑，打开客厅的门吧。"
+	"总之，先读读入户门内地垫旁的小纸条。"
 ]
 var game
 var player
@@ -366,7 +366,26 @@ func nearest_item() -> String:
 			if hit.is_empty():found = "sofa_gap"
 	return found
 
+func persistent_target() -> String:
+	if not active_play():return ""
+	var targets := {"clues":get_parent().get_node("ActTwo").world.items.clues}
+	if value("current_day",1)<11:targets["basement"]=get_parent().get_node("ActFour").world.items.basement
+	var eye: Vector3=player.camera.global_position
+	var forward: Vector3=-player.camera.global_basis.z
+	for id in targets:
+		var n: Node3D=targets[id]
+		if not n.is_visible_in_tree():continue
+		var point: Vector3=n.interaction_position() if id=="basement" else n.global_position+Vector3(0,.015,0)
+		var delta:=point-eye
+		if delta.length()>1.35 or forward.dot(delta.normalized())<.72:continue
+		var hit:=get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(eye,point,1))
+		if hit.is_empty() or hit.position.distance_to(point)<.2:return id
+	return ""
+
 func target_hint() -> String:
+	var persistent:=persistent_target()
+	if persistent=="clues":return "E 翻阅客厅线索册"
+	if persistent=="basement":return "E 轻推地下室的门"
 	if value("current_day",1)==11 and flag("a11_enter"):return get_parent().get_node("Ending").target_hint()
 	if value("current_day",1)>=8:return get_parent().get_node("ActFour").target_hint()
 	if value("current_day",1)>=6:return get_parent().get_node("ActThree").target_hint()
@@ -389,6 +408,13 @@ func target_hint() -> String:
 	return ""
 
 func try_interact() -> bool:
+	var persistent:=persistent_target()
+	if persistent=="clues":
+		get_parent().get_node("ActThree").show_clues()
+		return true
+	if persistent=="basement":
+		game.ui.toast("门纹丝不动",3)
+		return true
 	if value("current_day",1)==11 and flag("a11_enter"):return get_parent().get_node("Ending").try_interact()
 	if value("current_day",1)>=8:return get_parent().get_node("ActFour").try_interact()
 	if value("current_day",1)>=6:return get_parent().get_node("ActThree").try_interact()

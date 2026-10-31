@@ -83,6 +83,12 @@ func draw_valve() -> void:
 	draw_line(c-Vector2(6,0),c+Vector2(6,0),Color("d2d3c3"),2,true)
 	draw_circle(c+Vector2(-127,66),8,Color("74a6ba"))
 	draw_circle(c+Vector2(127,66),8,Color("b8765e"))
+	var flow_center:=Vector2(62,c.y)
+	draw_circle(flow_center,29,Color("6a7771"))
+	draw_circle(flow_center,24,Color("bac2b5"))
+	var flow_angle:=deg_to_rad(lerpf(-120,120,chapter.pressure_setting()/100.0))
+	draw_line(flow_center,flow_center+Vector2(sin(flow_angle),-cos(flow_angle))*20,Color("365c64"),4,true)
+	draw_string(get_theme_default_font(),flow_center+Vector2(-16,47),"出水",HORIZONTAL_ALIGNMENT_LEFT,-1,13,Color("344b48"))
 func draw_circuit() -> void:
 	draw_style_box(chapter.panel.QuestTheme.panel(8),Rect2(Vector2.ZERO,size))
 	for lane in range(Circuit.count_(level)):
@@ -93,7 +99,8 @@ func draw_circuit() -> void:
 		draw_polyline(wire,Circuit.COLORS[lane].darkened(.25),3,true)
 		for p in wire:draw_circle(p,3,Color("b9ad83"))
 		var coil_point: Vector2 = wire[Circuit.speed_(level,lane,0)]
-		for j in range(coils[lane]):draw_arc(coil_point+Vector2(j*7-12,0),10,-PI/2,PI*1.5,24,Color("d4b978"),2,true)
+		for j in range(Circuit.coil_limit(level)):draw_arc(coil_point+Vector2(j*16-16,0),7,-PI/2,PI*1.5,24,Color("53635b"),1,true)
+		for j in range(coils[lane]):draw_arc(coil_point+Vector2(j*16-16,0),7,-PI/2,PI*1.5,24,Color("d4b978"),2,true)
 		var junction: Vector2 = wire[2]
 		draw_colored_polygon(PackedVector2Array([junction+Vector2(-6,-7),junction+Vector2(8,0),junction+Vector2(-6,7)]),Color("c9b079"))
 		if level==2 and lane==1:

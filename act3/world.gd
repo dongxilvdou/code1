@@ -44,10 +44,19 @@ func build(parent: Node3D, game: Node) -> void:
 	dog_actor = game.get_node("Apartment/Staircase/DogNest")
 	dog_home_transform = dog_actor.global_transform
 	original_plate_home = game.get_node("DayTwo").world.dog_home
-	# A story gate occupies the upper-flight entrance while the companion is guarding.
-	stair_guard = collision(root,Vector3(5.20,2.45,-1.13),Vector3(1.15,1.90,.16))
+	# Cover the entire upper flight, including side jumps from the lower flight.
+	# The half landing, feeding lane and basement stairs remain outside this volume.
+	stair_guard = collision(root,Vector3(5.20,3.73,.56),Vector3(1.28,4.50,2.22))
 	stair_guard.name = "CompanionStairGuard"
 	stair_guard.set_meta("quest_gate",true)
+	# Close the stairwell above the lower handrail so it cannot become a jump shortcut.
+	var ceiling:=CollisionShape3D.new()
+	ceiling.name="StairwellJumpGuard"
+	var ceiling_shape:=BoxShape3D.new()
+	ceiling_shape.size=Vector3(2.50,.20,4.10)
+	ceiling.shape=ceiling_shape
+	stair_guard.add_child(ceiling)
+	ceiling.position=Vector3(4.6,2.70,-.3)-stair_guard.position
 	for i in range(SNACKS.size()):
 		var data: Array = SNACKS[i]
 		var furniture_ := upstairs_furniture(game,data[2],data[0])
@@ -110,7 +119,7 @@ func build(parent: Node3D, game: Node) -> void:
 				var material_: Material = mesh.get_active_material(i)
 				if material_ is StandardMaterial3D and material_.resource_name in ["screen","cyan"]:screens.append([mesh,i,material_])
 	root.visible = false
-	stair_guard.collision_layer = 0
+	stair_guard.collision_layer = 1
 
 func upstairs_furniture(game: Node, id: String, room: String) -> Node3D:
 	for n in game.get_tree().get_nodes_in_group("placed_furniture"):

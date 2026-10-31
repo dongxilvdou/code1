@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c2204lou1nbev"
-path="res://.godot/imported/examination_table_Image_0.png-2311db6991ac40d1618692df9289a89f.ctex"
+path.s3tc="res://.godot/imported/examination_table_Image_0.png-2311db6991ac40d1618692df9289a89f.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "862debc95d5dedb480b453ae834b241f"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://furniture_pack/basement/models/examination_table_Image_0.png"
-dest_files=["res://.godot/imported/examination_table_Image_0.png-2311db6991ac40d1618692df9289a89f.ctex"]
+dest_files=["res://.godot/imported/examination_table_Image_0.png-2311db6991ac40d1618692df9289a89f.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://b6npnvl62ktit"]
 
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Resource" path="res://day1/quests/arrival.tres" id="pre"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_c13h6"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_1yhaa"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" uid="uid://d3k52xluiqvht" path="res://day1/quests/arrival.tres" id="pre"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
 
 [sub_resource type="Resource" id="light_off"]
 script = ExtResource("goal")
@@ -10,7 +12,6 @@ id = &"light_off"
 text = "碰到开关，关闭客厅灯"
 kind = 3
 target_id = &"light_off"
-target_count = 1
 
 [resource]
 script = ExtResource("quest")

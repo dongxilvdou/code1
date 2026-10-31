@@ -14,4 +14,4 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1")
-minimap_size = Vector2(200, 200)
+minimap_size = Vector2(124, 124)

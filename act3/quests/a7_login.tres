@@ -1,22 +1,27 @@
-[gd_resource type="Resource" script_class="CalicoQuest" format=3]
-[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
-[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
-[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://dr3bbc1eg6fxp"]
+
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_dbpk1"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
 [sub_resource type="Resource" id="day"]
 script = ExtResource("condition")
 kind = 1
 key = &"current_day"
 required_value = 7
+
 [sub_resource type="Resource" id="prior0"]
 script = ExtResource("condition")
 key = &"a7_computer_power"
+
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a7_login"
 text = "参考电脑便签和一楼客厅线索册里的照片，输入电脑密码。"
 kind = 3
 target_id = &"a7_login"
-target_count = 1
+
 [resource]
 script = ExtResource("quest")
 id = &"a7_login"
