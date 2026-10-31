@@ -14,7 +14,7 @@ required_value = 11
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a11_locks"
-text = "使用转向器、延迟线圈、汇流门和变速带解开三组锁。"
+text = "依次解开同步灯、分时窄桥、变速时钟窗口三组锁。"
 kind = 3
 target_id = &"a11_lock"
 target_count = 3
@@ -23,7 +23,7 @@ target_count = 3
 script = ExtResource("quest")
 id = &"a11_locks"
 title = "01 · 三组电流锁"
-description = "第11天 · 使用转向器、延迟线圈、汇流门和变速带解开三组锁。"
+description = "第11天 · 依次解开同步灯、分时窄桥、变速时钟窗口三组锁。"
 priority = 110
 extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

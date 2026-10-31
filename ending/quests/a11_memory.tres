@@ -18,15 +18,15 @@ key = &"a11_enter"
 [sub_resource type="Resource" id="a11_memory"]
 script = ExtResource("goal")
 id = &"a11_memory"
-text = "回想纸条，选择到处看看。"
+text = "回想昨天的逃跑计划，主动调查地下室。"
 kind = 3
 target_id = &"a11_memory"
 
 [resource]
 script = ExtResource("quest")
 id = &"a11_memory"
-title = "03 · 转化装置"
-description = "结局篇 · 走近原有检查台上的转化装置，回想起昨天的纸条。"
+title = "03 · 昨天的逃跑计划"
+description = "结局篇 · 进入地下室后回想纸条，调查观察笼与监控下方，寻找出口。"
 priority = 112
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("a11_memory")])

@@ -38,7 +38,7 @@ func enter_laboratory() -> void:
 	# Older saves used a11_complete for crossing the threshold. The ending has its own flag.
 	world.restore(true,flag("a11_vent"))
 	day.world.items.note.hide()
-	show_panel("story","地下室 / 留观区","一排排观察笼。空的。\n\n笼门上留下了编号。更里面，那张检查台连着一组弧形玻璃和电缆。\n\n那是……转化装置？",[["close","走近转化装置"]])
+	show_panel("arrival","地下室 / 留观区","一排排观察笼。空的。\n\n笼门上留下了编号。更里面，那张检查台连着一组弧形玻璃和电缆。\n\n昨天的纸条上写着：监控底下，沿着旧抓痕走。\n我得先找到能出去的路。",[["recall","回想昨天的纸条"]])
 
 func restore() -> void:
 	needs_restore=false
@@ -49,7 +49,7 @@ func restore() -> void:
 	if flag("a11_escape"):
 		if film==null:make_film();film.play(flag("a11_finished"))
 		return
-	if flag("a11_choice") and not flag("a11_memory"):
+	if not flag("a11_memory") and ui.mode.is_empty():
 		memory()
 	refresh_hud()
 
@@ -67,8 +67,6 @@ func _physics_process(delta: float) -> void:
 		needs_restore=true
 	if needs_restore:restore()
 	if not day.active_play():return
-	if not flag("a11_choice") and player.global_position.distance_to(world.items.device.global_position)<1.05:
-		interact_item("device");return
 	hud_clock+=delta
 	if hud_clock>.15:hud_clock=0;refresh_hud()
 
@@ -111,13 +109,13 @@ func interact_item(id: String) -> void:
 		elif not flag("a11_memory"):memory()
 		else:show_panel("story","我应该到处看看","昨天老鼠叼着的纸条……写着地下室逃跑计划。\n\n先看看笼子和监控底下。",[["close","继续寻找"]])
 	elif id=="cage":
-		if not flag("a11_memory"):show_panel("story","空的观察笼","托盘上有一些旧痕迹。\n转化装置还在实验室里面。",[["close","继续"]]);return
+		if not flag("a11_memory"):memory();return
 		mark("a11_cage")
 		show_panel("cage","前代实验猫","这里有一道旧抓痕。有猫……来过这里。\n\n笼角卡着几根灰白色的猫毛，托盘上是反复抓挠留下的凹痕。\n一串沾灰的爪印从笼门边延伸出去，朝着西侧墙角。\n\n纸条上说：监控底下。",[["close","沿着爪印寻找"]])
 	elif id=="camera":show_panel("camera","监控底下","黑色镜头朝着观察笼。镜头下方靠近地面的位置，有一道松动的金属格栅。",[["close","检查下方的通风口"]])
 	elif id=="vent":
 		if not flag("a11_memory"):
-			show_panel("locked_vent","松动的格栅","格栅后面很黑。先看看实验室里的转化装置。",[["close","继续"]]);return
+			memory();return
 		if not flag("a11_cage"):
 			show_panel("locked_vent","监控底下的通风口","边框上有猫毛和旧抓痕。\n这些痕迹是从哪里来的？先检查那只敞开的观察笼。",[["close","回头检查笼舍"]]);return
 		mark("a11_vent");world.restore(true,true)
@@ -128,14 +126,17 @@ func show_panel(kind: String, title: String, text_: String, options: Array) -> v
 	ui.show_panel(kind,title,text_,options)
 
 func memory() -> void:
-	show_panel("memory","昨天的纸条","等等……\n昨天，那只老鼠嘴里叼着一张潮湿的小纸条。\n\n「地下室逃跑计划」\n「监控底下。沿着旧抓痕走。」\n\n我还没有好好看过这里。",[["look","我应该到处看看"]])
+	show_panel("memory","昨天的纸条","昨天，我明明想离开，身体却还是执行了命令。\n但那张纸条上的内容，我记住了。\n\n「地下室逃跑计划」\n「监控底下。沿着旧抓痕走。」\n\n这里也许有答案，也许有能出去的路。",[["look","我应该到处看看"]])
 
 func on_action(id: String) -> void:
 	if not active():return
-	if id.begins_with("choice"):
+	if id=="recall" and ui.mode=="arrival":memory()
+	elif id.begins_with("choice"):
 		if ui.mode!="device" or flag("a11_choice"):return
 		day.manager.set_value(&"ending_choice",int(id.right(1)))
-		mark("a11_choice");memory()
+		mark("a11_choice")
+		if not flag("a11_memory"):memory()
+		else:show_panel("story","我应该继续寻找","装置仍然在这里。\n但我还记得昨天的纸条：监控底下，沿着旧抓痕走。",[["close","继续寻找出口"]])
 	elif id=="look":
 		if ui.mode!="memory":return
 		mark("a11_memory");close_panel()
@@ -163,7 +164,7 @@ func finish_ending() -> void:
 func guidance() -> String:
 	if flag("a11_finished"):return "实验失败。全剧终。"
 	if flag("a11_escape"):return "沿着旧抓痕，穿过通风管道。"
-	if not flag("a11_memory"):return "03 转化装置\n走近实验室原有检查台上的装置。"
+	if not flag("a11_memory"):return "03 昨天的逃跑计划\n回想纸条，寻找观察笼与监控下方的痕迹。"
 	if not flag("a11_cage"):return "04 前代实验猫\n检查敞开的 01 号观察笼，寻找猫毛、旧抓痕与离开的路径。"
 	return "05 监控底下\n沿着地上的旧爪印，检查西侧监控下方的通风格栅。"
 

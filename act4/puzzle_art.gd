@@ -89,38 +89,53 @@ func draw_valve() -> void:
 	var flow_angle:=deg_to_rad(lerpf(-120,120,chapter.pressure_setting()/100.0))
 	draw_line(flow_center,flow_center+Vector2(sin(flow_angle),-cos(flow_angle))*20,Color("365c64"),4,true)
 	draw_string(get_theme_default_font(),flow_center+Vector2(-16,47),"出水",HORIZONTAL_ALIGNMENT_LEFT,-1,13,Color("344b48"))
+func circuit_point(p: Vector2) -> Vector2:return Vector2(24+p.x*56,44+p.y*40)
+
 func draw_circuit() -> void:
 	draw_style_box(chapter.panel.QuestTheme.panel(8),Rect2(Vector2.ZERO,size))
+	var font: Font=chapter.panel.font
+	var ink: Color=chapter.panel.QuestTheme.TEXT
+	var has_run:=not result.is_empty()
+	draw_string(font,Vector2(14,19),"起点 0拍  ·  每枚线圈停1拍  ·  当前 %.1f拍"%elapsed,HORIZONTAL_ALIGNMENT_LEFT,-1,13,ink)
+	if level==1:
+		var entry:=circuit_point(Vector2(6,1.5))
+		var exit:=circuit_point(Vector2(8,1.5))
+		draw_rect(Rect2(entry-Vector2(10,17),Vector2(exit.x-entry.x+20,34)),Color("d9c39c"))
+		draw_line(entry,exit,Color("8e7553"),13,true)
+		draw_string(font,entry+Vector2(-18,-27),"窄桥：4拍红 / 7拍蓝",HORIZONTAL_ALIGNMENT_LEFT,-1,12,ink)
+		draw_string(font,entry+Vector2(-5,40),"过桥2拍 + 散热1拍",HORIZONTAL_ALIGNMENT_LEFT,-1,11,ink)
 	for lane in range(Circuit.count_(level)):
-		var path := Circuit.path(level,lane,routes[lane])
-		var wire := PackedVector2Array()
-		for p in path:wire.append(Vector2(30+p.x*58,32+p.y*42))
-		draw_polyline(wire,Color("303b38"),10,true)
-		draw_polyline(wire,Circuit.COLORS[lane].darkened(.25),3,true)
-		for p in wire:draw_circle(p,3,Color("b9ad83"))
-		var coil_point: Vector2 = wire[Circuit.speed_(level,lane,0)]
-		for j in range(Circuit.coil_limit(level)):draw_arc(coil_point+Vector2(j*16-16,0),7,-PI/2,PI*1.5,24,Color("53635b"),1,true)
-		for j in range(coils[lane]):draw_arc(coil_point+Vector2(j*16-16,0),7,-PI/2,PI*1.5,24,Color("d4b978"),2,true)
-		var junction: Vector2 = wire[2]
-		draw_colored_polygon(PackedVector2Array([junction+Vector2(-6,-7),junction+Vector2(8,0),junction+Vector2(-6,7)]),Color("c9b079"))
+		var path:=Circuit.path(level,lane,routes[lane])
+		var wire:=PackedVector2Array()
+		for p in path:wire.append(circuit_point(p))
+		draw_polyline(wire,Color("8c9689"),8,true)
+		draw_polyline(wire,Circuit.COLORS[lane].darkened(.32),3,true)
+		for p in wire:
+			draw_circle(p,3,Color("f5efdf"));draw_arc(p,3,0,TAU,12,Color("746b54"),1,true)
+		var coil_point: Vector2=wire[Circuit.speed_(level,lane,0)]+Vector2(0,14)
+		for j in range(Circuit.coil_limit(level)):
+			var center:=coil_point+Vector2((j-(Circuit.coil_limit(level)-1)*.5)*16,0)
+			draw_arc(center,7,-PI/2,PI*1.5,20,Color("bcb4a1"),1,true)
+			if j<coils[lane]:draw_arc(center,7,-PI/2,PI*1.5,20,Color("8d622d"),3,true)
+		var junction: Vector2=wire[2]
+		draw_colored_polygon(PackedVector2Array([junction+Vector2(-5,-7),junction+Vector2(7,0),junction+Vector2(-5,7)]),Color("876f42"))
 		if level==2 and lane==1:
-			for j in range(3):draw_line(wire[2]+Vector2(j*5,-9),wire[2]+Vector2(j*5+5,9),Color("f0e1ad"),2,true)
-		var end: Vector2 = wire[-1]+Vector2(26,0)
-		var lit: bool = running and elapsed>=result.times[lane]+(2 if level==1 else 0) and (level!=1 or result.ok)
-		draw_circle(end,12,Circuit.COLORS[lane] if lit else Color("293c35"))
-		draw_arc(end,15,0,TAU,32,Color("a18e60"),2,true)
+			for j in range(3):draw_line(wire[2]+Vector2(j*5,-12),wire[2]+Vector2(j*5+5,-3),Color("85553e"),2,true)
+			draw_string(font,wire[2]+Vector2(-12,-19),"2 → 4",HORIZONTAL_ALIGNMENT_LEFT,-1,11,ink)
+		var end: Vector2=wire[-1]+Vector2(25,0)
+		var blocked: bool=level==1 and has_run and result.blocked_lanes[lane]
+		var lit: bool=has_run and elapsed>=result.times[lane] and not blocked
+		draw_circle(end,11,Circuit.COLORS[lane].darkened(.1) if lit else Color("ccc6b6"))
+		draw_arc(end,14,0,TAU,24,Color("78654a"),2,true)
+		if level==2:draw_string(font,end+Vector2(-15,-21),"%d拍"%Circuit.CLOCK_WINDOWS[lane],HORIZONTAL_ALIGNMENT_LEFT,-1,12,ink)
 		if level==1:
-			draw_rect(Rect2(wire[-1]-Vector2(10,14),Vector2(20,28)),Color("a88e65"),false,3)
-			if result.get("ok",false):draw_line(wire[-1],wire[-1]+Vector2(35,-lane*126+60),Color("c6b27f"),3,true)
-		if running:
-			var first := Circuit.speed_(level,lane,0)
-			var distance_ := minf(1,elapsed)*first
-			var time := maxf(0.0,elapsed-1-coils[lane])
-			for beat in range(int(time)):distance_ += Circuit.speed_(level,lane,int(distance_))
-			distance_ += (time-floorf(time))*Circuit.speed_(level,lane,int(distance_))
-			var d := minf(distance_,wire.size()-1.001)
-			var pos: Vector2 = wire[int(d)].lerp(wire[mini(int(d)+1,wire.size()-1)],fposmod(d,1))
-			if level==1 and result.ok and elapsed>=result.times[lane]:pos=wire[-1].lerp(wire[-1]+Vector2(35,-lane*126+60),clampf((elapsed-result.times[lane])/2.0,0,1))
-			draw_circle(pos,13,Color(Circuit.COLORS[lane],.18))
-			draw_circle(pos,6,Circuit.COLORS[lane])
+			var gate:=wire[Circuit.approach_length(lane,routes[lane])]
+			draw_line(gate+Vector2(-5,-12),gate+Vector2(-5,12),Color("85553e") if blocked else Color("9b8a66"),3,true)
+		if has_run:
+			var distance_:=Circuit.distance_at(level,lane,routes[lane],coils[lane],elapsed)
+			if blocked:distance_=minf(distance_,Circuit.approach_length(lane,routes[lane]))
+			var d:=minf(distance_,wire.size()-1.001)
+			var pos: Vector2=wire[int(d)].lerp(wire[mini(int(d)+1,wire.size()-1)],fposmod(d,1))
+			draw_circle(pos,12,Color(Circuit.COLORS[lane],.25))
+			draw_circle(pos,6,Circuit.COLORS[lane].darkened(.18))
 			draw_circle(pos-Vector2(2,2),2,Color.WHITE)

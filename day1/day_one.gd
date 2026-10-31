@@ -269,7 +269,10 @@ func render_page() -> void:
 	match dialog:
 		"intro":hud.show_page("醒来  ·  %d / %d" % [page+1,INTRO.size()],INTRO[page],page==INTRO.size()-1)
 		"note":
-			hud.show_page("第 %d 天的小纸条"%note_day,Notes.CONTENT[note_day]+"\n\n读完后按下方按钮开始今天任务；Esc 暂时收起。",true)
+			var note_text: String=Notes.CONTENT[note_day]
+			if note_day==11:
+				note_text+="\n\n我：又是没有署名的命令。\n昨天那张逃跑计划，也指向地下室。\n那里也许有答案，也许有能出去的路。"
+			hud.show_page("第 %d 天的小纸条"%note_day,note_text+"\n\n读完后按下方按钮开始今天任务；Esc 暂时收起。",true)
 			hud.next_button.text = "我读完了，开始今天任务  ·  E / 空格"
 		"ending":hud.show_page("不是我的毛……","毛线球上缠着几根灰白色的猫毛。\n可我的毛不是这样的。\n\n在我来之前，还有别的猫住过这里吗？\n毛线球已经送回窝了。接下来，把大狗嚼的盘子洗干净吧。",true)
 		"rest":hud.show_page("第一天结束","今天，我学会了关灯、整理房间，也喂饱了自己和大狗嚼。给予器上的猫爪印……是谁留下的？\n\n蜷进窝里，好好睡一觉吧。\n醒来就是第二天，桌上会有新的小纸条。",true)

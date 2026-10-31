@@ -1,5 +1,5 @@
 extends "res://tools/playtest_map_stairs.gd"
-## Isolated save-free integration checks for the day 8–10 revisions.
+## Isolated save-free integration checks for the day 8–11 revisions.
 var checks := 0
 var day
 var fourth
@@ -40,9 +40,17 @@ func photo(name_: String, eye: Vector3, target: Vector3) -> void:
 	game.player.set_physics_process(true)
 	game.set_process(true)
 
+func mouse_photo(name_: String) -> void:
+	if not "--mouse-capture" in OS.get_cmdline_user_args():return
+	if name_=="rest":await create_timer(.85).timeout
+	await process_frame
+	await process_frame
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://.godot/day10_"+name_+".png")
+
 func run_tests() -> void:
 	capture="--capture" in OS.get_cmdline_user_args()
-	DirAccess.make_dir_recursive_absolute("res://logs/act4_polish")
+	if capture:DirAccess.make_dir_recursive_absolute("res://logs/act4_polish")
 	game=load("res://scenes/main.tscn").instantiate()
 	game.get_node("QuestSystem").save_enabled=false
 	root.add_child(game);current_scene=game
@@ -99,14 +107,15 @@ func run_tests() -> void:
 	verify(fourth.valve_setting()>start,"Dragging the dial clockwise did not increase the setting")
 	await key(KEY_ESCAPE)
 	verify(game.player.active and not fourth.panel.shell.visible,"Esc did not restore control after adjusting the dial")
-	for value in [0,44,63,100]:
+	fourth.set_value("pressure_setting",50)
+	for value in [0,47,57,100]:
 		fourth.set_value("valve_setting",value)
 		fourth.interact_item("wash")
 		verify(not fourth.bathing and not fourth.flag("a8_wash"),"Cold/hot water incorrectly passed: "+str(value))
 	verify(fourth.world.items.water.running,"Trial water did not produce the new spray")
 	await ticks(100)
 	verify(not fourth.world.items.water.running,"Trial spray did not stop automatically")
-	for value in [45,54,62]:
+	for value in [48,54,56]:
 		fourth.set_value("valve_setting",value)
 		verify(fourth.warm_water(),"Warm band boundary incorrectly rejected: "+str(value))
 	game.player.global_position=fourth.world.items.wash.global_position+Vector3(0,.025,0)
@@ -188,14 +197,87 @@ func run_tests() -> void:
 		while not fourth.chase_path.is_empty() and limit<250:
 			fourth.advance_mouse(.25);limit+=1
 		verify(limit<250 and fourth.val("mouse_stage")==stage+1,"Mouse chase route broken at stage "+str(stage))
+	game.player.global_position=Vector3(1.1,.03,-3.25)
+	game.player.yaw=-.93;game.player.rotation.y=-.93
+	game.player.pitch=-.08;game.player.head.rotation.x=-.08
 	fourth.interact_item("mouse")
 	verify(fourth.flag("a10_catch") and not mouse.visible,"Catching did not hide mouse")
-	dismiss4()
+	verify(fourth.panel.mode=="mouse_warning" and fourth.world.items.escape_note.visible,"Paper must be available before eating")
+	verify(fourth.held_mouse.visible,"Caught mouse has no held visual")
+	var caught_save: Dictionary=day.manager.make_save_data()
+	fourth.question_mouse()
+	fourth.refuse_mouse();fourth.eat_mouse()
+	verify(not fourth.flag("a10_asked") and not fourth.flag("a10_eat") and not fourth.mouse_control.running,"Investigation order can be bypassed")
+	fourth.open_mouse_note()
+	await mouse_photo("paper")
+	verify(not fourth.flag("a10_note"),"Opening the paper incorrectly acknowledges reading")
+	await key(KEY_ESCAPE)
+	verify(not fourth.flag("a10_note") and game.player.active,"Cancelling reading advanced the story or trapped control")
 	await ticks(2)
 	verify(not actor.enabled and not actor.sound.playing,"Caught mouse kept squeaking")
-	fourth.eat_mouse();dismiss4()
+	fourth.interact_item("escape_note")
+	await key(KEY_E)
+	verify(fourth.flag("a10_note") and fourth.panel.mode=="mouse_question","Reading did not unlock asking the dog")
+	verify(day.manager.get_status(&"a10_note")==CalicoQuestManager.State.COMPLETED,"Reading quest was lost after reordering")
+	var note_save: Dictionary=day.manager.make_save_data()
+	fourth.interact_item("dog")
+	await mouse_photo("question")
+	await key(KEY_E)
+	await key(KEY_ESCAPE)
+	verify(not fourth.flag("a10_asked"),"Incomplete dog conversation incorrectly counted as complete")
+	verify(day.manager.restore_save_data(note_save),"Reading checkpoint cannot reload")
+	fourth.restore();fourth.open_mouse_story()
+	verify(fourth.panel.mode=="mouse_question","Read checkpoint resumed at the wrong stage")
+	await key(KEY_E)
+	for i in range(fourth.panel.MOUSE_DIALOGUE.size()-1):await key(KEY_E)
+	fourth.refuse_mouse()
+	verify(not fourth.flag("a10_refused"),"Refusal appeared before the final dog page")
+	await key(KEY_E)
+	verify(fourth.flag("a10_asked") and fourth.panel.mode=="mouse_refusal","Full dog conversation did not unlock refusal")
+	await mouse_photo("refusal")
+	verify(day.manager.get_status(&"a10_asked")==CalicoQuestManager.State.COMPLETED,"Dog quest did not complete")
+	fourth.open_mouse_note();await key(KEY_E)
+	verify(fourth.panel.mode=="mouse_refusal","Re-reading reset the completed investigation")
+	await key(KEY_E)
+	verify(fourth.mouse_control.running and fourth.flag("a10_refused") and not fourth.flag("a10_eat"),"Refusal did not begin the involuntary action")
+	var refused_save: Dictionary=day.manager.make_save_data()
+	fourth.mouse_control.cancel();dismiss4()
+	verify(day.manager.restore_save_data(refused_save),"Refusal checkpoint cannot reload")
+	fourth.restore();await ticks(2)
+	verify(fourth.mouse_control.running,"Interrupted involuntary action did not resume")
+	fourth.mouse_control.set_physics_process(false)
+	fourth.eat_mouse()
+	verify(not fourth.flag("a10_eat"),"Eating committed before the action completed")
+	fourth.mouse_control.advance(.9)
+	var look_attempt:=InputEventMouseMotion.new();look_attempt.relative=Vector2(65,-30)
+	root.push_input(look_attempt)
+	verify(fourth.mouse_control.resistance.length()>.01,"Trying to look away produces no resistance response")
+	await mouse_photo("command")
+	verify(fourth.mouse_control.voice_played and fourth.mouse_control.voice.stream.get_length()>.3,"Spoken command is missing")
+	await key(KEY_ESCAPE)
+	var frozen_time: float=fourth.mouse_control.elapsed
+	var frozen_position: Vector3=game.player.position
+	fourth.mouse_control.advance(2.0)
+	verify(fourth.mouse_control.paused and fourth.mouse_control.voice.stream_paused and game.rain_audio.stream_paused,"Pause did not suspend scene audio")
+	verify(fourth.mouse_control.elapsed==frozen_time and game.player.position==frozen_position,"Scene moved while paused")
+	await key(KEY_J)
+	verify(not day.quests.tracker.journal_visible(),"Paused control scene leaked input to the journal")
+	await key(KEY_ESCAPE)
+	fourth.mouse_control.advance(1.2)
+	await mouse_photo("resistance")
+	verify(not fourth.mouse_control.paused and not game.player.active,"Pause leaked normal movement into the controlled action")
+	fourth.mouse_control.advance(fourth.mouse_control.DURATION)
+	verify(fourth.flag("a10_eat") and not fourth.mouse_control.running and not fourth.held_mouse.visible,"Automatic swallowing did not finish exactly once")
+	verify(not game.player.get_meta("holding_mouse",true),"Swallowing left the held-paw pose active")
+	verify(game.player.is_physics_processing() and game.player.is_processing_unhandled_input(),"Scene failed to restore player processing")
+	verify(game.rain_audio.is_processing(),"Scene failed to restore the current ambience controller")
+	await key(KEY_E)
+	verify(game.player.active and not game.cinematic_active,"Aftermath dialogue trapped movement")
+	var completed_save: Dictionary=day.manager.make_save_data()
+	fourth.eat_mouse()
+	verify(not fourth.mouse_control.running,"Completed swallowing replayed")
 	var paper: Node3D=fourth.world.items.escape_note
-	verify(paper.visible,"Escape note was not dropped")
+	verify(paper.visible,"Escape note vanished after swallowing")
 	var floor_top: float=-INF
 	for mesh in game.get_node("Apartment/GroundFloor").get_children():
 		if mesh is MeshInstance3D and str(mesh.name).begins_with("KitchenFinish"):floor_top=maxf(floor_top,(mesh.global_transform*mesh.get_aabb()).end.y)
@@ -204,10 +286,71 @@ func run_tests() -> void:
 	for p in surface.mesh.get_faces():paper_clear=paper_clear and surface.to_global(p).y>floor_top+.003
 	verify(paper_clear,"Escape note intersects the visible floor finish")
 	await photo("06_escape_note_floor",paper.global_position+Vector3(.25,.22,.30),paper.global_position)
-	fourth.interact_item("escape_note");dismiss4()
 	verify(fourth.flag("a10_note") and fourth.day_complete(),"Dropped note/mandatory day-ten tasks cannot finish")
-	fourth.interact_item("nest");dismiss4()
+	# A pre-update save can already have eaten without having read the paper.
+	var legacy: Dictionary=caught_save.duplicate(true)
+	legacy.flags["a10_eat"]=true
+	legacy.quests["a10_eat"].status=CalicoQuestManager.State.COMPLETED
+	legacy.quests["a10_eat"].progress["a10_eat"]=1
+	legacy.quests.erase("a10_asked")
+	verify(day.manager.restore_save_data(legacy),"Old eaten save cannot reload")
+	fourth.restore()
+	verify(fourth.flag("a10_asked") and not fourth.mouse_control.running and not fourth.day_complete(),"Old save replayed eating or lost the unread paper")
+	fourth.interact_item("escape_note");await key(KEY_E);dismiss4()
+	verify(fourth.day_complete() and day.manager.get_status(&"a10_asked")==CalicoQuestManager.State.COMPLETED,"Old-save quest migration cannot finish")
+	verify(day.manager.restore_save_data(completed_save),"Completed save cannot reload")
+	fourth.restore()
+	game.player.global_position=Vector3(-4.45,.03,4.8)
+	fourth.interact_item("nest")
+	await mouse_photo("rest")
+	verify(fourth.today()==10 and fourth.panel.mode=="mouse_rest","Rest skipped the closing monologue")
+	verify(fourth.panel.description.text=="我今天到底怎么了，为什么身体不受控制，为什么一定要吃了它，主人......到底是谁？","Closing monologue differs from requested text")
+	await key(KEY_E);dismiss4()
 	verify(fourth.today()==11,"Day-ten completion cannot advance")
+	await read_note()
+	for level in range(3):
+		fourth.complete_lock()
+		verify(fourth.val("locks")==level,"Invalid circuit configuration unlocked a door stage")
+		fourth.interact_item("basement")
+		verify(fourth.panel.mode=="circuit" and fourth.panel.description.text==fourth.Circuit.rules(level),"Door panel does not show the current rules")
+		fourth.panel.start_circuit()
+		var failed_board=fourth.panel.display
+		failed_board.set_process(false)
+		failed_board._process((failed_board.result.finish+.8)*.55)
+		failed_board.set_process(true)
+		await ticks(3)
+		verify(fourth.val("locks")==level and not fourth.panel.feedback.text.is_empty(),"Failed animation advanced the lock or omitted feedback")
+		verify(fourth.panel.paper_scroll.get_global_rect().encloses(fourth.panel.feedback.get_global_rect()),"Circuit failure feedback is outside the visible scroll area")
+		var answer: Dictionary=fourth.Circuit.solution(level)
+		for i in range(fourth.Circuit.count_(level)):
+			fourth.set_value("a11_route_%d_%d"%[level,i],answer.routes[i])
+			fourth.set_value("a11_coil_%d_%d"%[level,i],answer.coils[i])
+		fourth.panel.refresh_circuit()
+		fourth.panel.paper_scroll.scroll_vertical=0
+		await mouse_photo("lock_%d"%(level+1))
+		fourth.panel.start_circuit()
+		var board=fourth.panel.display
+		verify(board.running,"Valid circuit cannot begin animation")
+		board.set_process(false)
+		board._process((board.result.finish+.8)*.55)
+		verify(fourth.val("locks")==level+1,"Finished valid animation did not unlock one stage")
+		dismiss4()
+	verify(fourth.flag("a11_locks") and fourth.flag("a11_high_score") and fourth.val("delay_total")==5,"Three-stage completion or high-score target failed")
+	fourth.mark("a11_enter")
+	var ending=game.get_node("Ending")
+	ending.enter_laboratory()
+	verify(ending.ui.mode=="arrival" and not ending.flag("a11_choice"),"Laboratory entry still requires a device choice")
+	ending.on_action("recall");ending.on_action("look")
+	verify(ending.flag("a11_memory") and not ending.flag("a11_choice"),"Escape memory requires the transformation device")
+	ending.interact_item("cage");ending.on_action("close")
+	ending.interact_item("vent")
+	verify(ending.flag("a11_cage") and ending.flag("a11_vent") and ending.ui.mode=="escape","Active investigation cannot reach the exit")
+	ending.reset_runtime();dismiss4()
+	game._seed_demo_day(10)
+	verify(fourth.today()==10 and not fourth.flag("a10_catch") and not fourth.flag("a10_asked"),"Demo day ten skipped its investigation")
+	game._seed_demo_day(11)
+	verify(fourth.today()==11 and fourth.flag("a10_note") and fourth.flag("a10_asked") and fourth.flag("a10_refused") and fourth.flag("a10_eat"),"Demo day eleven did not seed the revised day-ten story")
+	verify(fourth.val("locks")==0 and not fourth.flag("a11_locks"),"Demo day eleven bypassed the door puzzles")
 	verify(not day.manager.autosave,"Test must never write the user's save")
 	print("ACT4_POLISH_TEST ",JSON.stringify({"checks":checks,"failures":failures}))
 	game.stop_audio();game.queue_free();await ticks(3)
