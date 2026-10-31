@@ -13,21 +13,21 @@ required_value = 10
 
 [sub_resource type="Resource" id="prior"]
 script = ExtResource("condition")
-key = &"a10_catch"
+key = &"a10_asked"
 
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a10_eat"
-text = "听完阿嚼的话，遵从命令吃掉老鼠。"
+text = "我不想吃掉它。我想离开这里。"
 kind = 3
 target_id = &"a10_eat"
 
 [resource]
 script = ExtResource("quest")
 id = &"a10_eat"
-title = "02 · 主人的命令"
-description = "第10天 · 听完阿嚼的话，遵从命令吃掉老鼠。"
-priority = 101
+title = "04 · 尝试拒绝命令"
+description = "第10天 · 看过逃跑计划，也听完了阿嚼的话。试着做出自己的决定。"
+priority = 103
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])
-result_text = "进度已保存。"
+result_text = "我试着停下来，身体却完成了命令。"

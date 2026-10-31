@@ -132,13 +132,16 @@ func _physics_process(delta: float) -> void:
 	camera.rotation.z = lerpf(camera.rotation.z,-axis.x*.012,delta*8)
 	camera.fov = lerpf(camera.fov,77.0 if move_speed>2 and flat_speed>1.5 else 73.0,delta*3)
 	jumping_timer -= delta
+	var holding_mouse: bool=get_meta("holding_mouse",false)
 	for paw in paws:
-		paw.visible = (not is_on_floor() and jumping_timer>0) or pitch<-.95
+		paw.visible = holding_mouse or (not is_on_floor() and jumping_timer>0) or pitch<-.95
+		paw.rotation.x = deg_to_rad(112 if holding_mouse else 70)
 		paw.set("airborne",not is_on_floor())
 		paw.set("vertical_speed",velocity.y)
 		paw.set("jump_takeoff_speed",jump_speed)
 		paw.set("speed",0.0)
-		paw.position.y = lerpf(paw.position.y,(-.31 if not is_on_floor() else -.37)*cat_scale,delta*12)
+		paw.position.y = lerpf(paw.position.y,-.16 if holding_mouse else (-.31 if not is_on_floor() else -.37)*cat_scale,delta*12)
+		paw.position.z = lerpf(paw.position.z,-.17 if holding_mouse else -.28*cat_scale,delta*12)
 	if is_on_floor() and flat_speed>.25:
 		step_clock += delta*flat_speed
 		if step_clock>.40:

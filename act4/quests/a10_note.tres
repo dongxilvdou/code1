@@ -13,21 +13,21 @@ required_value = 10
 
 [sub_resource type="Resource" id="prior"]
 script = ExtResource("condition")
-key = &"a10_eat"
+key = &"a10_catch"
 
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a10_note"
-text = "查看厨房地面掉下的纸条。"
+text = "读完老鼠带来的纸条，记住逃跑线索。"
 kind = 3
 target_id = &"a10_note"
 
 [resource]
 script = ExtResource("quest")
 id = &"a10_note"
-title = "03 · 逃跑计划"
-description = "第10天 · 查看厨房地面掉下的纸条。"
-priority = 102
+title = "02 · 查看纸条"
+description = "第10天 · 老鼠带来了一张纸条。先看看上面写着什么。"
+priority = 101
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])
-result_text = "进度已保存。"
+result_text = "地下室逃跑计划。监控底下。沿着旧抓痕走。"

@@ -9,7 +9,17 @@ var route_labels: Array = []
 var coil_labels: Array = []
 var run_button: Button
 var challenge := false
+var mouse_page := 0
+var rest_fade: Tween
+const MOUSE_DIALOGUE := [
+	"我：阿嚼，它带着一张逃跑计划。\n\n阿嚼：……逃跑？\n\n我：你刚才说，它的味道很熟悉。你认识它吗？",
+	"阿嚼：我说不清。我只是觉得……不应该吃掉它。\n\n我：可纸条让我抓住它，再吃掉它。",
+	"阿嚼：你自己想这么做吗？\n\n我：……",
+	"我：如果是主人留下的，为什么要让我吃掉一个想逃走的家伙？\n\n阿嚼：我不知道。\n\n阿嚼：先别急着照做。"
+]
 func open4(kind: String, value := "") -> void:
+	if is_instance_valid(rest_fade):rest_fade.kill()
+	shell.modulate=Color.WHITE
 	super.open("story",value)
 	title.text = "第四幕 / 第 %d 天"%chapter.today()
 	if kind=="story":return
@@ -23,10 +33,62 @@ func open4(kind: String, value := "") -> void:
 	elif kind=="plants":open_plants()
 	elif kind=="jigsaw":open_jigsaw()
 	elif kind=="circuit":open_circuit()
-	elif kind=="eat":
-		title.text = "厨房 / 阿嚼闻到了熟悉的味道"
-		description.text = "阿嚼：我不想你吃了它，它的味道好熟悉。\n\n我：但是，这是主人的命令。\n\n老鼠嘴边，还夹着一张折起来的纸条。"
-		button("遵从命令，吞下老鼠",detail,func():close();chapter.eat_mouse())
+	elif kind.begins_with("mouse_"):open_mouse_scene(kind)
+
+func open_mouse_scene(kind: String) -> void:
+	title.text = "厨房 / 主人的命令"
+	if kind=="mouse_warning":
+		description.text = "老鼠嘴边的小纸条滑落到脚边。\n\n阿嚼：等等……先别吃。\n阿嚼：它的味道，我好像在哪里闻到过。\n\n我：可是，今天的纸条上写着……\n\n阿嚼：先看看它带来的东西。"
+		button("查看纸条",detail,chapter.open_mouse_note).grab_focus()
+	elif kind=="mouse_note":
+		title.text = "老鼠带来的纸条 / 逃跑计划"
+		description.text = "地下室逃跑计划。\n监控底下。沿着旧抓痕走。\n\n我：逃跑计划？它想离开这里？\n可今天留下的任务，却是让我吃掉它……"
+		picture("res://act4/textures/escape_note.svg",detail,Vector2(430,220))
+		button("记住纸条上的内容",detail,chapter.confirm_mouse_note).grab_focus()
+	elif kind=="mouse_question":
+		description.text = "逃跑计划已经记下来了。\n\n阿嚼似乎认出了它的味道。\n我得问问它，为什么要阻止我。"
+		button("向阿嚼求证",detail,chapter.question_mouse).grab_focus()
+		button("重看纸条",detail,chapter.open_mouse_note)
+	elif kind=="mouse_dialogue":
+		title.text = "向阿嚼求证 / %d · %d"%[mouse_page+1,MOUSE_DIALOGUE.size()]
+		description.text = MOUSE_DIALOGUE[mouse_page]
+		button("继续听阿嚼说" if mouse_page<MOUSE_DIALOGUE.size()-1 else "听完阿嚼的话",detail,advance_mouse_dialogue).grab_focus()
+	elif kind=="mouse_refusal":
+		description.text = "它想逃出去。\n阿嚼也在阻止我。\n\n我不想吃掉它。"
+		button("我不吃，离开这里。",detail,chapter.refuse_mouse).grab_focus()
+		button("重看纸条",detail,chapter.open_mouse_note)
+		button("回想阿嚼的话",detail,chapter.question_mouse)
+	elif kind=="mouse_rest":
+		title.text = "第十天 / 猫窝"
+		description.text = "我今天到底怎么了，为什么身体不受控制，为什么一定要吃了它，主人......到底是谁？"
+		button("闭上眼睛",detail,chapter.finish_day_ten).grab_focus()
+		shell.modulate.a = 0
+		rest_fade = create_tween()
+		rest_fade.tween_property(shell,"modulate:a",1.0,.8)
+
+func advance_mouse_dialogue() -> void:
+	if mode!="mouse_dialogue":return
+	if mouse_page<MOUSE_DIALOGUE.size()-1:
+		mouse_page+=1
+		open4("mouse_dialogue")
+	else:chapter.confirm_mouse_question()
+
+func _input(event: InputEvent) -> void:
+	if mode.begins_with("mouse_") and event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode==KEY_ESCAPE:
+			close()
+		elif event.keycode in [KEY_E,KEY_SPACE,KEY_ENTER]:
+			if detail.get_child_count()>0 and detail.get_child(0) is Button:
+				(detail.get_child(0) as Button).pressed.emit()
+			elif mode=="mouse_note":chapter.confirm_mouse_note()
+		else:return
+		get_viewport().set_input_as_handled()
+		return
+	super._input(event)
+func _process(delta: float) -> void:
+	super._process(delta)
+	if mode=="mouse_rest":dimmer.color.a=.72
+
 func picture(path: String, parent: Node, dims := Vector2(550,280)) -> TextureRect:
 	var image := TextureRect.new()
 	image.texture = load(path)
@@ -146,8 +208,8 @@ func open_circuit() -> void:
 	var level: int = chapter.val("locks")
 	if level>=3:close();return
 	title.text = "电流锁 %d / 3 · %s"%[level+1,Circuit.NAMES[level]]
-	description.text = ["两球每拍走一格。让终点灯同时点亮。短路可放四枚线圈，每枚停一拍。", "两路必须同一拍到达汇流门，随后共同走两格。早到会卡死，晚到也打不开门。", "红、绿球每拍一格；蓝球每拍两格，经过齿形变速带后每拍四格。红→蓝→绿，每灯间隔两拍。每条线路最多3个线圈。"][level]
-	var board := art("circuit",350 if level==2 else 205)
+	description.text = Circuit.rules(level)
+	var board := art("circuit",[220,255,360][level])
 	board.level = level
 	board.routes = chapter.circuit_routes()
 	board.coils = chapter.circuit_coils()
@@ -171,41 +233,60 @@ func open_circuit() -> void:
 	button("复位",controls,func():chapter.reset_circuit();open4("circuit"))
 	refresh_circuit()
 func refresh_circuit() -> void:
-	var routes: Array = chapter.circuit_routes()
-	var coils: Array = chapter.circuit_coils()
+	var level: int=chapter.val("locks")
+	var routes: Array=chapter.circuit_routes()
+	var coils: Array=chapter.circuit_coils()
 	for i in range(route_labels.size()):
-		route_labels[i].text = "转向器：%s / %d 格"%[["直行","短绕路","长绕路"][routes[i]],Circuit.length_(chapter.val("locks"),i,routes[i])]
-		coil_labels[i].text = str(coils[i])
-	display.routes=routes;display.coils=coils
-	feedback.text="红路 %d / 3 · 蓝路 %d / 3 · 绿路 %d / 3 · 每条线路最多3个线圈。"%coils if chapter.val("locks")==2 else "本关线圈 %d / %d。"%[coils.reduce(func(a,b):return a+b,0),Circuit.budget(chapter.val("locks"))]
+		var length_: int=Circuit.approach_length(i,routes[i]) if level==1 else Circuit.length_(level,i,routes[i])
+		route_labels[i].text="%s / %d节点%s"%[["直行","短绕路","长绕路"][routes[i]],length_,"到桥" if level==1 else ""]
+		coil_labels[i].text=str(coils[i])
+	display.routes=routes;display.coils=coils;display.result={};display.elapsed=0
+	feedback.text="本关线圈 %d / %d · 每路上限 %d · 高分：三关累计≤%d枚，已用%d枚。"%[coils.reduce(func(a,b):return a+b,0),Circuit.budget(level),Circuit.coil_limit(level),Circuit.HIGH_SCORE_COILS,chapter.val("delay_total")]
+
 func adjust_circuit(lane: int, route: bool, delta: int) -> void:
-	if display.running:return
-	var key := "a11_%s_%d_%d"%["route" if route else "coil",chapter.val("locks"),lane]
-	var value: int = chapter.val(key)
-	value = (value+1)%3 if route else clampi(value+delta,0,Circuit.coil_limit(chapter.val("locks")))
+	if mode!="circuit" or display.running:return
+	var level: int=chapter.val("locks")
+	var key:="a11_%s_%d_%d"%["route" if route else "coil",level,lane]
+	var value: int=clampi(chapter.val(key),0,2 if route else Circuit.coil_limit(level))
+	value=(value+1)%3 if route else clampi(value+delta,0,Circuit.coil_limit(level))
 	chapter.set_value(key,value)
 	refresh_circuit()
+
 func start_circuit() -> void:
-	if display.running:return
-	var result := Circuit.evaluate(chapter.val("locks"),chapter.circuit_routes(),chapter.circuit_coils())
-	if result.used>Circuit.budget(chapter.val("locks")) or chapter.circuit_coils().any(func(value):return value>Circuit.coil_limit(chapter.val("locks"))):feedback.text=result.message;return
+	if mode!="circuit" or display.running:return
+	var result:=Circuit.evaluate(chapter.val("locks"),chapter.circuit_routes(),chapter.circuit_coils())
+	if not result.valid_input or result.used>Circuit.budget(chapter.val("locks")):
+		show_circuit_feedback(result.message);return
 	display.result=result;display.elapsed=0;display.running=true
 	run_button.disabled=true
 	feedback.text="电流已出发，观察小球每一拍的位置。"
+	paper_scroll.set_deferred("scroll_vertical",0)
+
 func finish_circuit(result: Dictionary) -> void:
 	if mode!="circuit":return
-	feedback.text=result.message+" 到达拍数："+str(result.times)
+	show_circuit_feedback(result.message+" 终点拍数："+str(result.times))
 	run_button.disabled=false
 	if result.ok:
+		var previous: int=chapter.val("locks")
 		chapter.complete_lock()
+		if chapter.val("locks")==previous:
+			show_circuit_feedback("线路已变化，请重新运行当前配置。");return
 		close()
-		chapter.story("第 %d 组电流锁已解开。\n%s"%[chapter.val("locks"),("三道锁都亮了，推门进入实验室吧。\n全程使用 %d 枚线圈。%s"%[chapter.val("delay_total"),"高分挑战达成。" if chapter.flag("a11_high_score") else "高分目标为累计不超过 3 枚。"] ) if chapter.val("locks")==3 else "锁扣松开了。继续检查门上的下一组导线。"])
+		var summary:="锁扣松开了。继续检查门上的下一组导线。"
+		if chapter.val("locks")==3:
+			summary="三道锁都亮了，推门进入实验室吧。\n全程使用 %d 枚线圈。%s"%[chapter.val("delay_total"),"高分挑战达成。" if chapter.flag("a11_high_score") else "高分目标为累计不超过 %d 枚。"%Circuit.HIGH_SCORE_COILS]
+		chapter.story("第 %d 组电流锁已解开。\n%s"%[chapter.val("locks"),summary])
+
+func show_circuit_feedback(message: String) -> void:
+	feedback.text=message
+	paper_scroll.call_deferred("ensure_control_visible",feedback)
+
 func circuit_hint() -> void:
 	var solution := Circuit.solution(chapter.val("locks"))
 	for i in range(Circuit.count_(chapter.val("locks"))):
-		if chapter.circuit_routes()[i]!=solution.routes[i]:feedback.text="观察%s球：转向器试试%s，让空间换取时间。"%[["红","蓝","绿"][i],["直行","短绕路","长绕路"][solution.routes[i]]];return
-		if chapter.circuit_coils()[i]!=solution.coils[i]:feedback.text="%s球这条路试试 %d 枚线圈。"%[["红","蓝","绿"][i],solution.coils[i]];return
-	feedback.text="当前摆法已满足要求，接通电流验证。"
+		if chapter.circuit_routes()[i]!=solution.routes[i]:show_circuit_feedback("观察%s球：转向器试试%s，让空间换取时间。"%[["红","蓝","绿"][i],["直行","短绕路","长绕路"][solution.routes[i]]]);return
+		if chapter.circuit_coils()[i]!=solution.coils[i]:show_circuit_feedback("%s球这条路试试 %d 枚线圈。"%[["红","蓝","绿"][i],solution.coils[i]]);return
+	show_circuit_feedback("当前摆法已满足要求，接通电流验证。")
 func close() -> void:
 	if is_instance_valid(display) and display.get("running")!=null:display.running=false
 	super.close()

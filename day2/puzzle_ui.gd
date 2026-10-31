@@ -213,7 +213,7 @@ func _process(_delta: float) -> void:
 	if not shell.visible:return
 	feedback.visible=not feedback.text.is_empty()
 	var viewport:=get_viewport().get_visible_rect().size
-	var story_only:=mode=="story"
+	var story_only:=mode=="story" or mode.begins_with("mouse_")
 	for child in detail.get_children():
 		if not child is Button:story_only=false
 	dialogue_frame.ornaments=story_only
