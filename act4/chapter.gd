@@ -4,15 +4,13 @@ const Panels = preload("res://act4/panels.gd")
 const Circuit = preload("res://act4/circuit.gd")
 const MouseControl = preload("res://act4/mouse_control.gd")
 const GOALS := {8:["a8_food","a8_wash","a8_clock"],9:["a9_plants","a9_mole","a9_jigsaw"],10:["a10_catch","a10_note","a10_asked","a10_eat"],11:["a11_locks","a11_enter"]}
-const DESTINATIONS := ["门厅","一楼书房","一楼客厅","二楼走廊","二楼电脑房","二楼主卧","一楼厨房"]
+const DESTINATIONS := ["一楼过道","二楼过道","二楼主卧","一楼厨房"]
 const ROUTES := [
-	[Vector3(.05,.02,2.1),Vector3(1.54,.02,2.62),Vector3(1.54,.02,3.18),Vector3(3.4,.02,4.55)],
-	[Vector3(1.54,.02,3.18),Vector3(1.54,.02,2.55),Vector3(.0,.02,2.3),Vector3(.0,.02,4.78),Vector3(-1.15,.02,4.78),Vector3(-3.15,.02,3.15)],
-	[Vector3(-1.10,.02,4.78),Vector3(.05,.02,4.78),Vector3(.05,.02,2.2),Vector3(4.0,.02,2.05),Vector3(4.0,1.52,-1.02),Vector3(5.2,1.52,-1.02),Vector3(5.2,3.02,2.05),Vector3(.05,3.02,2.2)],
-	[Vector3(1.54,3.02,2.6),Vector3(1.54,3.02,3.18),Vector3(3.40,3.02,4.65)],
-	[Vector3(1.54,3.02,3.18),Vector3(1.54,3.02,2.5),Vector3(.05,3.02,2.2),Vector3(.05,3.02,-1.53),Vector3(-1.15,3.02,-1.53),Vector3(-2.30,3.02,-1.05)],
+	[Vector3(.05,.02,2.1),Vector3(4.0,.02,2.05),Vector3(4.0,1.52,-1.02),Vector3(5.2,1.52,-1.02),Vector3(5.2,3.02,2.05),Vector3(.05,3.02,2.2)],
+	[Vector3(.05,3.02,2.2),Vector3(.05,3.02,-1.53),Vector3(-1.15,3.02,-1.53),Vector3(-2.30,3.02,-1.05)],
 	[Vector3(-1.15,3.02,-1.53),Vector3(.05,3.02,-1.53),Vector3(.05,3.02,2.2),Vector3(5.2,3.02,2.05),Vector3(5.2,1.52,-1.02),Vector3(4.0,1.52,-1.02),Vector3(4.0,.02,2.05),Vector3(.05,.02,2.05),Vector3(.05,.02,-2.75),Vector3(1.50,.02,-3.55)]
 ]
+
 var game
 var day
 var second
@@ -131,6 +129,7 @@ func complete_lock() -> void:
 	restore()
 func restore() -> void:
 	if not active():return
+	migrate_mouse_chase()
 	reconcile_mouse_progress()
 	visible=true;player.variable_jump=true
 	third.world.move_companion(true,second);second.restore_world()
@@ -151,7 +150,7 @@ func restore() -> void:
 	world.items.mole.visible=today()==9 and flag("a9_plants") and not flag("a9_mole") and pounce_time<=0
 	world.items.mole.global_position=world.holes[val("mole_hole")%9]
 	world.items.mouse.visible=today()==10 and not flag("a10_catch")
-	if chase_path.is_empty():world.items.mouse.position=Vector3(.05,.02,2.1) if val("mouse_stage")==0 else ROUTES[clampi(val("mouse_stage")-1,0,5)][-1]
+	if chase_path.is_empty():world.items.mouse.position=Vector3(.05,.02,2.1) if val("mouse_stage")==0 else ROUTES[clampi(val("mouse_stage")-1,0,ROUTES.size()-1)][-1]
 	world.items.escape_note.visible=(today()==10 and flag("a10_catch")) or (today()==11 and not flag("a11_enter"))
 	update_held_mouse()
 	world.items.basement.set_meta("interaction_days",[1,2,3,4,5,6,7,8,9,10,11])
@@ -248,7 +247,7 @@ func chase_mouse() -> void:
 		return
 	if not chase_path.is_empty():game.ui.toast("它还在跑，跟上去。",2);return
 	var stage:=val("mouse_stage")
-	if stage>=6:
+	if stage>=ROUTES.size():
 		game.ui.toast_time=0
 		mark("a10_catch");restore();open_mouse_story();return
 	chase_path=ROUTES[stage].duplicate();chase_point=0
@@ -416,8 +415,7 @@ func interact_item(id: String) -> void:
 		return
 	if not day.Notes.read(day):game.ui.toast(day.Notes.guidance(today()),3);return
 	if id=="clues":
-		story("客厅线索册\n\nC-031 / 阶段 II。\n"+("地下室逃跑计划。\n监控底下。沿着旧抓痕走。" if flag("a10_note") else "照片上，主人穿着白大褂。"))
-		panel.picture("res://act2/memory_photo.png",panel.detail);return
+		day.reader.open_album();return
 	if id=="computer":open_panel("story");panel.close();game.cinematic_active=true;player.set_control(false);third.computer.open();return
 	if id=="dog":
 		if today()==10 and flag("a10_catch") and not flag("a10_eat"):
@@ -500,7 +498,7 @@ func guidance() -> String:
 		if not flag("a9_mole"):return "02 花园捕猎\n北花园九个地鼠洞。看准露头的地鼠，靠近按 E 猫扑。已抓住 %d / 2。"%val("mole_catches")
 		if not flag("a9_jigsaw"):return "03 书桌拼图\n跳上二楼书房原书桌，交换纸板拼成完整照片。"
 	elif today()==10:
-		if not flag("a10_catch"):return "01 追逐老鼠\n老鼠在%s。靠近按 E 抓取，跟上它跑过的房间。"%DESTINATIONS[clampi(val("mouse_stage"),0,6)]
+		if not flag("a10_catch"):return "01 追逐老鼠\n老鼠在%s。靠近按 E 抓取，跟上它跑过的房间。"%DESTINATIONS[clampi(val("mouse_stage"),0,ROUTES.size())]
 		if not flag("a10_note"):return "02 查看纸条\n老鼠带来了一张纸条。先看看上面写着什么。纸条落在厨房地面，也可以找阿嚼继续这段对话。"
 		if not flag("a10_asked"):return "03 向阿嚼求证\n阿嚼似乎认出了它的味道。问问阿嚼。"
 		if not flag("a10_eat"):return "04 尝试拒绝命令\n我不想吃掉它。我想离开这里。找阿嚼继续，或者重看纸条后做出决定。"
@@ -529,3 +527,9 @@ func reset_runtime() -> void:
 	visible=false
 	panel.mode="";panel.shell.hide()
 	if is_instance_valid(panel.display):panel.display.running=false
+
+func migrate_mouse_chase() -> void:
+	if today()!=10 or val("mouse_chase_version")>=2:return
+	var old=clampi(val("mouse_stage"),0,6)
+	set_value("mouse_stage",[0,0,0,1,1,2,3][old])
+	set_value("mouse_chase_version",2)

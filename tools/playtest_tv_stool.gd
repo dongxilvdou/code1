@@ -15,7 +15,7 @@ func run_tests() -> void:
 	for flag in ["walk","run","open_living","stool","table","cup_moved","note_read"]:day.manager.set_flag(StringName(flag),true)
 	day.reconcile_progress()
 	day.restore_world()
-	var shelf := day.get_node("TVSideShelf") as MeshInstance3D
+	var shelf := day.find_child("TVSideShelf",true,false) as MeshInstance3D
 	var shelf_bounds: AABB = shelf.global_transform*shelf.get_aabb()
 	var first := true
 	for prop in get_nodes_in_group("placed_furniture"):
@@ -29,7 +29,7 @@ func run_tests() -> void:
 	var clearance := cabinet_bounds.position.x-shelf_bounds.end.x
 	expect(clearance>.08,"insufficient visible clearance")
 	var leg_count := 0
-	for node in day.get_children():
+	for node in day.find_children("ShelfLeg*","MeshInstance3D",true,false):
 		if node is MeshInstance3D and str(node.name).begins_with("ShelfLeg"):leg_count += 1
 	expect(leg_count==4,"stool must have four supported legs: "+str(leg_count))
 	day.set_physics_process(false)

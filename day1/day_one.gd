@@ -3,6 +3,12 @@ extends Node3D
 const Notes = preload("res://day1/daily_notes.gd")
 const World = preload("res://day1/world.gd")
 const Hud = preload("res://day1/hud.gd")
+const BalanceModel=preload("res://day1/balance_model.gd")
+var balance_model
+var balance_paused:=false
+var balance_paws: Array=[]
+var reader
+var ruler_interaction
 const SPAWN := Vector3(-.04,.03,5.45)
 const INTRO := [
 	"……这是哪里？我怎么会在一扇陌生的门前？",
@@ -51,6 +57,8 @@ func _ready() -> void:
 	hud = Hud.new()
 	add_child(hud)
 	hud.continued.connect(advance_dialog)
+	reader=preload("res://ui/note_reader.gd").new();reader.day=self;add_child(reader)
+	ruler_interaction=preload("res://day1/ruler_interaction.gd").new();ruler_interaction.day=self;add_child(ruler_interaction)
 	for light in game.get_node("Apartment/Lighting").get_children():
 		if light is OmniLight3D and light.position.distance_to(Vector3(-3.4,2.54,1.8))<.15:room_light = light
 	for child in game.get_node("Apartment/GroundFloor").get_children():
@@ -143,17 +151,25 @@ func note_target() -> Vector3:
 
 func _process(delta: float) -> void:
 	if not initialized:return
-	hud.card.visible = active_play()
+	hud.card.visible=active_play()
 	if balancing:
-		balance_phase += delta/.95
-		if balance_phase>=1:
-			if not balance_pressed:balance_misses += 1
-			balance_phase = fmod(balance_phase,1.0)
-			balance_pressed = false
-		if world.items.has("television"):
-			world.items.television.rotation.z = tv_rotation.z+sin(Time.get_ticks_msec()*.012)*.035
-		hud.update_balance(balance_phase,balance_hits,balance_misses)
-		if balance_misses>=3:finish_balance(false)
+		balance_model.advance(delta,0.0 if balance_paused else balance_axis())
+		player.camera.rotation.z=balance_model.position*.045
+		for entry in balance_paws:
+			entry[0].position=Vector3(-balance_model.position*.025,-.15,-.26)
+			entry[0].rotation=Vector3(deg_to_rad(112),0,-balance_model.position*.12)
+		hud.update_balance(balance_model,balance_paused)
+		if balance_model.status!=0:finish_balance(balance_model.status==1)
+func balance_axis() -> float:
+	var axis=Input.get_axis("move_left","move_right")
+	if Input.is_physical_key_pressed(KEY_LEFT):axis-=1
+	if Input.is_physical_key_pressed(KEY_RIGHT):axis+=1
+	return clampf(axis,-1,1)
+func toggle_balance_pause() -> void:
+	if not balancing:return
+	balance_paused=not balance_paused;balance_model.paused=balance_paused
+	hud.balance_pause.visible=balance_paused
+	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if balance_paused else Input.MOUSE_MODE_CAPTURED
 
 func reset_spawn() -> void:
 	player.spawn = SPAWN
@@ -195,7 +211,8 @@ func restore_world() -> void:
 		# Current cushion top is .106 m; the yarn extends .0923 m below its origin.
 		# Settle slightly into the fabric and leave room for the loose thread inside the rim.
 		world.items.yarn.global_position = world.items.nest.to_global(Vector3(-.06,.190,-.025))
-	else:world.items.yarn.position = Vector3(-4.56,.10,2.15) if flag("yarn_freed") else anchor_positions.yarn
+	else:world.items.yarn.position = Vector3(-4.56,.10,2.15) if flag("yarn_freed") else Vector3(value("ruler_ball_x",-5180)/1000.0,.10,value("ruler_ball_z",2150)/1000.0)
+	if ruler_interaction.running:world.items.yarn.hide()
 	for id in ["mess_cup","mess_pot"]:
 		world.items[id].position = anchor_positions[id]+Vector3(.20,-.38 if id=="mess_cup" else .14,.12) if flag(id) else anchor_positions[id]
 		world.items[id].rotation.z = PI/2 if flag(id) else 0.0
@@ -258,7 +275,8 @@ func update_held_visual() -> void:
 
 func show_dialog(kind: String) -> void:
 	if kind=="note" and value("current_day",1)==5:return
-	if kind=="note":note_day = value("current_day",1)
+	if kind=="note":
+		note_day=value("current_day",1);dialog="note";page=0;reader.open_daily(note_day);return
 	dialog = kind
 	page = 0
 	game.cinematic_active = true
@@ -279,6 +297,7 @@ func render_page() -> void:
 
 func advance_dialog() -> void:
 	if dialog.is_empty():return
+	if dialog=="note" and reader.mode=="daily":reader.close()
 	if dialog=="intro" and page<INTRO.size()-1:
 		page += 1
 		render_page()
@@ -319,8 +338,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if balancing:
-		if event.keycode==KEY_ESCAPE:finish_balance(false)
-		elif event.keycode==KEY_E:balance_press()
+		if event.keycode==KEY_ESCAPE:toggle_balance_pause()
 		get_viewport().set_input_as_handled()
 		return
 	if not active_play():return
@@ -413,7 +431,7 @@ func target_hint() -> String:
 func try_interact() -> bool:
 	var persistent:=persistent_target()
 	if persistent=="clues":
-		get_parent().get_node("ActThree").show_clues()
+		reader.open_album()
 		return true
 	if persistent=="basement":
 		game.ui.toast("门纹丝不动",3)
@@ -452,8 +470,8 @@ func perform_interaction(id: String) -> void:
 			mark("ruler_found")
 		"sofa_gap":
 			if not yarn_available() or value("holding")!=2 or value("ruler_vertical")!=1:return
-			mark("yarn_freed")
-			game.ui.toast("够到了！毛线球滚出了沙发。",3)
+			ruler_interaction.begin()
+			return
 		"yarn":
 			if not yarn_available() or not flag("yarn_freed") or flag("yarn_home") or value("holding") not in [0,2]:return
 			manager.set_value(&"holding",3)
@@ -472,6 +490,7 @@ func perform_interaction(id: String) -> void:
 			mark(id)
 			manager.report_event(CalicoQuestObjective.Kind.CUSTOM,&"collect_paper",1,id)
 			if paper_count()==World.PAPER_SPOTS.size():mark("papers_done")
+			reader.open_sheet("paper%d"%preload("res://ui/notes_catalog.gd").PAPER_KEYS.find(id.trim_prefix("paper_")))
 	restore_world()
 
 func paper_count() -> int:
@@ -482,10 +501,10 @@ func paper_count() -> int:
 
 func start_balance() -> void:
 	balancing = true
-	balance_phase = 0
-	balance_hits = 0
-	balance_misses = 0
-	balance_pressed = false
+	balance_paws.clear()
+	for paw in player.paws:balance_paws.append([paw,paw.transform,paw.visible]);paw.show()
+	balance_model=BalanceModel.new();balance_paused=false
+	hud.balance_art.model=balance_model;hud.balance_pause.hide()
 	game.cinematic_active = true
 	player.set_control(false)
 	player.velocity = Vector3.ZERO
@@ -499,15 +518,16 @@ func start_balance() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func balance_press() -> void:
-	if balance_pressed:return
-	balance_pressed = true
-	if balance_phase>=.36 and balance_phase<=.66:balance_hits += 1
-	else:balance_misses += 1
-	if balance_hits>=3:finish_balance(true)
-	elif balance_misses>=3:finish_balance(false)
+	# Balance now requires sustained directional input; E cannot auto-complete it.
+	pass
 
 func finish_balance(success: bool) -> void:
 	balancing = false
+	for entry in balance_paws:
+		if is_instance_valid(entry[0]):entry[0].transform=entry[1];entry[0].visible=entry[2]
+	balance_paws.clear()
+	balance_paused=false;player.camera.rotation.z=0
+	Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
 	tv_stable = success
 	balance_cooldown = 1.5
 	if world.items.has("television"):world.items.television.rotation = tv_rotation
@@ -551,13 +571,13 @@ func refresh_hud() -> void:
 	elif not flag("table"):text = "再跳上客厅茶几，整理一下茶几上的水杯。"
 	elif not flag("cup_moved"):text = "看向水杯按 E 叼起，再看向左侧杯垫按 E 放下。"
 	elif not flag("note_read"):text = "现在能看清纸条了。看向纸条按 E。"
-	elif not flag("light_off"):text = "01  关灯\n先跳上电视柜，再跳到电视顶端。绿色区按 E，成功三次后起跳碰开关。"
+	elif not flag("light_off"):text = "01  关灯\n先跳上电视柜，再跳到电视顶端。A / D 保持重心，站稳后起跳碰开关。"
 	elif not flag("papers_done"):
 		var missing := PackedStringArray()
 		for data in World.PAPER_SPOTS:
 			if not flag("paper_"+data[0]):missing.append(data[1])
 		text = "整理纸片   %d / %d\n一楼 · 靠近纸片按 E\n待寻找：%s" % [paper_count(),World.PAPER_SPOTS.size(),"、".join(missing)]
-	elif not feeding_done():text = "两份晚饭\n去厨房东侧，数三列猫爪印解锁给予器。叼猫碗盛粮回原位吃，再叼狗盘盛粮送到楼梯平台的大狗嚼身边。"
+	elif not feeding_done():text = "两份晚饭\n去厨房东侧，对照线索册里的纸片辨认脚印、排列图案，解开给予器。叼猫碗盛粮回原位吃，再叼狗盘盛粮送到楼梯平台的大狗嚼身边。"
 	else:text = "今日三件事都做完了。\n可以自由探索，也可以回猫窝按 E 休息。\n给予器上的猫爪印……是谁留下的？"
 	hud.guidance.text = text
 	hud.set_paper_progress(paper_count(),World.PAPER_SPOTS.size(),flag("light_off") and not flag("papers_done"))
@@ -567,6 +587,9 @@ func refresh_hud() -> void:
 	if second_day() and second_day().val("d2_holding")!=0:hud.carry.text = second_day().carry_text()
 
 func restart_day() -> void:
+	if balancing:finish_balance(false)
+	if ruler_interaction.running:ruler_interaction.stop(false)
+	reader.close()
 	initialized = true
 	manager = quests.manager
 	dialog = ""

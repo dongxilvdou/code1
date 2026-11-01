@@ -43,7 +43,8 @@ func open_mouse_scene(kind: String) -> void:
 	elif kind=="mouse_note":
 		title.text = "老鼠带来的纸条 / 逃跑计划"
 		description.text = "地下室逃跑计划。\n监控底下。沿着旧抓痕走。\n\n我：逃跑计划？它想离开这里？\n可今天留下的任务，却是让我吃掉它……"
-		picture("res://act4/textures/escape_note.svg",detail,Vector2(430,220))
+		picture("res://assets/notes/escape.png",detail,Vector2(430,300))
+		button("放大纸条",detail,func():chapter.day.reader.open_sheet("escape"))
 		button("记住纸条上的内容",detail,chapter.confirm_mouse_note).grab_focus()
 	elif kind=="mouse_question":
 		description.text = "逃跑计划已经记下来了。\n\n阿嚼似乎认出了它的味道。\n我得问问它，为什么要阻止我。"
@@ -74,6 +75,7 @@ func advance_mouse_dialogue() -> void:
 	else:chapter.confirm_mouse_question()
 
 func _input(event: InputEvent) -> void:
+	if reader_is_open():return
 	if mode.begins_with("mouse_") and event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_ESCAPE:
 			close()

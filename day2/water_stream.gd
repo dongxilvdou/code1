@@ -78,3 +78,10 @@ func _process(delta: float) -> void:
 		var phase := fposmod(elapsed*1.8+i/3.0,1)
 		rings[i].scale = Vector3.ONE*lerpf(.20,1.6,phase)
 		(rings[i].material_override as StandardMaterial3D).albedo_color.a = (1-phase)*.45
+
+func set_surface_height(surface_y: float) -> void:
+	impact.y=surface_y-global_position.y
+	var height=maxf(.04,-impact.y)
+	(jet.mesh as CylinderMesh).height=height;jet.position.y=-height*.5
+	for ring in rings:ring.position=impact+Vector3.UP*.003
+	droplets.position=impact+Vector3.UP*.006
