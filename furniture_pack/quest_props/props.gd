@@ -64,7 +64,7 @@ static func memo_day(n: Node3D, today: int) -> void:
 			var original: Material = mesh.mesh.surface_get_material(surface_index)
 			if original is StandardMaterial3D and original.resource_name=="memo":
 				var material := original.duplicate() as StandardMaterial3D
-				material.albedo_texture = load("res://act4/textures/day%d_note.svg"%today if today>=8 else "res://act3/textures/day%d_note.png"%today if today>=6 else PATH+("lunch_memo.png" if today==4 else "memo.png" if today==1 else "memo%d.png"%today))
+				material.albedo_texture = preload("res://ui/notes_catalog.gd").texture("day%d"%today)
 				mesh.set_surface_override_material(surface_index,material)
 	n.set_meta("memo_day",today)
 

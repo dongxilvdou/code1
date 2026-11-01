@@ -191,7 +191,7 @@ func run_tests() -> void:
 	verify(actor.squeak_count==counter and not actor.enabled,"Mouse sound did not pause for story UI")
 	dismiss4()
 	await photo("05_house_mouse",mouse.global_position+Vector3(.24,.17,-.31),mouse.global_position+Vector3(0,.06,-.045))
-	for stage in range(6):
+	for stage in range(fourth.ROUTES.size()):
 		fourth.interact_item("mouse")
 		var limit:=0
 		while not fourth.chase_path.is_empty() and limit<250:

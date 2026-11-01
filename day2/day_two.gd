@@ -14,8 +14,8 @@ var anchors := {}
 var hunger_clock := 0.0
 var wash_clock := 0.0
 var clock := 0.0
-@export_range(1,8,.25) var dish_rinse_seconds := 4.0
 var dish_clock := 0.0
+var rinse
 
 func _ready() -> void:
 	game = get_parent()
@@ -24,7 +24,8 @@ func _ready() -> void:
 	world = World.new()
 	world.build(self,game)
 	for id in world.items:anchors[id] = world.items[id].position
-	puzzle = PuzzleUI.new()
+	puzzle = PuzzleUI.new();puzzle.owner_chapter=self
+	rinse=preload("res://day2/rinse_interaction.gd").new();rinse.chapter=self;add_child(rinse)
 	add_child(puzzle)
 	puzzle.dismissed.connect(close_puzzle)
 	puzzle.solved.connect(solve_puzzle)
@@ -108,15 +109,6 @@ func advance_time(delta: float) -> void:
 			reconcile()
 			restore_world()
 			show_story("洗好了。旋钮最后的声音，和记忆里一模一样。\n\n接下来去一楼工作书房找尺子，取回沙发底下的毛线球。")
-	if val("dish_stage")==1:
-		dish_clock += delta
-		var remaining := 1.0-clampf(dish_clock/dish_rinse_seconds,0,1)
-		for i in range(world.stains.get_child_count()):world.stains.get_child(i).visible = float(i)/7.0 < remaining
-		if dish_clock>=dish_rinse_seconds:
-			set_value("dish_stage",8)
-			dish_clock = 0
-			restore_world()
-			game.ui.toast("盘子洗干净了。叼起来，送回大狗旁的餐位吧。",4)
 
 func loaded_count() -> int:
 	var count := 0
@@ -126,11 +118,11 @@ func loaded_count() -> int:
 
 func reconcile() -> void:
 	# Preserve finished tasks and any carried plate from the former nine-step flow.
-	if val("dish_flow_version")<2:
+	if val("dish_flow_version")<3:
 		var old_stage := val("dish_stage")
 		if old_stage in [1,2,3,4,5,6]:set_value("dish_stage",1)
 		elif old_stage==7:set_value("dish_stage",8)
-		set_value("dish_flow_version",2)
+		set_value("dish_flow_version",3)
 	if val("dish_stage")==9:set_flag("d2_dishes_done",true)
 	day.reconcile_progress()
 
@@ -162,7 +154,8 @@ func restore_world() -> void:
 	world.stains.visible = flag("d2_dog_fed") and stage not in [8,9] and not flag("dog_portion")
 	if stage!=1:
 		for stain in world.stains.get_children():stain.show()
-	world.stream.set_running(active_day() and stage==1)
+	world.stream.set_running(active_day() and stage==1 and rinse.running and not rinse.paused)
+	world.items.dog_bowl.get_node("OldWashMarks").visible=stage in [8,9]
 	World.Props.apply(world.items,val("current_day",1))
 	update_held()
 	refresh_hud()
@@ -208,9 +201,10 @@ func solve_puzzle(kind: String) -> void:
 	elif kind=="code":
 		mark("d2_unlocked")
 		world.play_feeder_sound("unlock")
+		set_flag("feeder_cat_trace",true)
 	puzzle.close()
 	restore_world()
-	game.ui.toast("洗衣机开始转动了。" if kind=="wash" else "咔哒，解锁了。叼着对应的碗，再按 E 盛粮。",4)
+	game.ui.toast("洗衣机开始转动了。" if kind=="wash" else "咔哒，解锁了。这些猫脚印……我不记得自己来过这里。叼碗来盛粮吧。",5)
 
 func nearest_item() -> String:
 	if not runtime_available() or not day.active_play():return ""
@@ -284,8 +278,8 @@ func target_hint() -> String:
 
 func dish_hint() -> String:
 	match val("dish_stage"):
-		1:return "正在冲洗  %d%% · 完成后自动关水" % roundi(clampf(dish_clock/dish_rinse_seconds,0,1)*100)
-		8:return "把干净盘子送回大狗旁" if val("d2_holding")==5 else "E 叼起干净盘子"
+		1:return "E 继续拖动盘子冲洗（保留已有进度）"
+		8:return "把干净盘子送回大狗旁" if val("d2_holding")==5 else "E 叼起干净盘子 · F 观察盘底旧痕迹"
 	return ""
 
 func try_interact() -> bool:
@@ -382,13 +376,16 @@ func interact_item(id: String) -> void:
 		if val("current_day",1)==1 and flag("d2_dog_fed"):
 			game.ui.toast("盘子先留在阿嚼身边，明天再收拾。",3)
 			return
+		if val("dish_stage")==1:rinse.begin();return
 		if val("dish_stage") in [0,8,9]:set_value("d2_holding",5)
 	elif id=="tap":
+		if dishes_available() and val("dish_stage")==1:rinse.begin();return
 		if not dishes_available() or holding!=5 or not day.feeding_done() or flag("dog_portion") or val("dish_stage")!=0:return
 		set_value("d2_holding",0)
 		set_value("dish_stage",1)
 		dish_clock = 0
 		set_flag("d2_no_dishes",true)
+		reconcile();restore_world();rinse.begin();return
 	elif id=="nest" and flag("d2_dishes_done"):
 		mark("d2_complete")
 		get_parent().get_node("ActTwo").begin_day(3)
@@ -404,10 +401,17 @@ func place_dog_bowl() -> void:
 	if clean:
 		set_value("dish_stage",9)
 		mark("d2_dishes_done")
-		if first_completion:show_story("盘子洗干净了，也送回了大狗旁。\n\n今天的三件事都完成了。\n没有气味的衣服、毛线球上的陌生猫毛，还有这个没有人用餐的厨房……\n这里到底是什么地方？")
+		if first_completion:
+			world.items.dog.get_meta("actor").react_to_care()
+			var plate=world.items.dog_bowl
+			var nudge=create_tween();nudge.tween_property(plate,"position",world.dog_home+Vector3(.03,0,0),.25);nudge.tween_property(plate,"position",world.dog_home,.35)
+			show_story("阿嚼用鼻子推正盘子，轻轻摇了摇尾巴。\n阿嚼：谢谢你。饭味没了……那股味道还在。\n我：可是我只用了清水。\n\n今天的三件事都完成了。\n没有气味的衣服、毛线球上的陌生猫毛，还有这个没有人用餐的厨房……\n这里到底是什么地方？")
 
 func _input(event: InputEvent) -> void:
 	if not runtime_available() or not day.active_play() or not event is InputEventKey or not event.pressed or event.echo:return
+	if event.keycode==KEY_F and val("dish_stage")==8 and val("d2_holding")==0 and nearest_item()=="dog_bowl":
+		show_story("盘底留下了很多细细的旧痕迹。\n像是同一个地方，被反复擦洗过。\n\n我明明只用了清水。")
+		get_viewport().set_input_as_handled();return
 	if event.keycode==KEY_G and val("d2_holding")!=0:
 		set_value("d2_holding",0)
 		restore_world()
@@ -426,10 +430,10 @@ func refresh_hud() -> void:
 		text = "01  洗衣服  %d / 3\n收齐三件衣服，送到洗衣间。" % loaded_count()
 		if flag("d2_washing"):text = "洗衣机正在运转……\n洗好后去工作书房找尺子。"
 	elif not flag("ruler_found"):text = "02  沙发底下的秘密\n到一楼东南角工作书房，跳上书桌叼起尺子。"
-	elif not flag("yarn_freed"):text = "02  取回毛线球\n叼尺子回客厅沙发前，R 改为竖叼，低头按 E 够出毛线球。"
+	elif not flag("yarn_freed"):text = "02  取回毛线球\n叼尺子回客厅沙发前，R 改为竖叼，低头按 E 操作尺子，从侧面伸到球后，再向外拨。"
 	elif not flag("yarn_home"):text = "02  取回毛线球\n叼起滚出来的毛线球，送到客厅南窗边的猫窝。"
 	elif not flag("d2_dishes_done"):
-		text = "03  洗狗盘\n从大狗旁叼起脏盘，对厨房水龙头按 E 冲洗，再叼回大狗旁的餐位。\n"+dish_hint()
+		text = "03  洗狗盘\n从大狗旁叼起脏盘，对厨房水龙头按 E 放好，拖动盘子把三块残渣冲净，再叼回大狗旁的餐位。\n"+dish_hint()
 	else:text = "今天的事情完成了。\n回猫窝休息吧。"
 	day.hud.guidance.text = text
 	day.hud.carry.text = carry_text()
@@ -440,6 +444,7 @@ func carry_text() -> String:
 	return "" if holding==0 else "叼着：%s\nG 松口并放回安全位置" % (["","沙发上的衣服","单人沙发上的衣服","玄关的衣服","自己的猫碗","大狗嚼的盘子"][holding])
 
 func reset_runtime() -> void:
+	if rinse.running:rinse.stop(false)
 	ready_state = false
 	hunger_clock = 0
 	wash_clock = 0

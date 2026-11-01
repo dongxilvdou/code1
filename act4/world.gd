@@ -178,7 +178,7 @@ func build(parent: Node3D, game: Node) -> void:
 	mole_actor = Rodent.new();mole.add_child(mole_actor);mole_actor.build(true)
 	var mouse := target4("mouse",Vector3(.05,.02,2.1),"老鼠 · 靠近按 E 抓取",[10])
 	mouse_actor = Rodent.new();mouse.add_child(mouse_actor);mouse_actor.build(false)
-	var carried_note := textured(mouse_actor.visual,"CarriedNote",Vector3(0,.042,-.159),Vector2(.035,.018),"res://act4/textures/escape_note.svg")
+	var carried_note := textured(mouse_actor.visual,"CarriedNote",Vector3(0,.042,-.159),Vector2(.035,.018),"res://assets/notes/escape.png")
 	carried_note.rotation.x = .18
 	var plan := target4("escape_note",Vector3(1.60,.010,-3.52),"老鼠掉下的纸条",[10,11])
 	# Keep the actual folded surface above the non-colliding kitchen finish.
@@ -194,7 +194,7 @@ func build(parent: Node3D, game: Node) -> void:
 				paper_mesh.set_uv(uv)
 				paper_mesh.add_vertex(Vector3((uv.x-.5)*.18,.001+pow(absf(uv.x-.5)*2,5)*.003,(uv.y-.5)*.12))
 	paper_mesh.generate_normals()
-	var paper_mat := mat(Color.WHITE);paper_mat.albedo_texture = load("res://act4/textures/escape_note.svg")
+	var paper_mat := mat(Color.WHITE);paper_mat.albedo_texture = load("res://assets/notes/escape.png")
 	paper_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	Art.mesh_node(plan,"DampFoldedPaper",paper_mesh.commit(),paper_mat)
 	build_door()

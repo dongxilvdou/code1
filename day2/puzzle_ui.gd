@@ -24,7 +24,10 @@ var story_style: StyleBoxFlat
 var puzzle_style: StyleBoxFlat
 const NOTES := ["低音","中音","高音"]
 const MELODY := [1,3,2]
+const FeederMarks=preload("res://ui/feeder_marks.gd")
 const PASSWORD := "241"
+var owner_chapter
+var code_hint_stage:=0
 
 func _ready() -> void:
 	layer = 30
@@ -138,23 +141,13 @@ func open(kind: String, text := "") -> void:
 		knob.grab_focus()
 		replay()
 	elif kind=="code":
-		title.text = "留下来的猫爪印"
-		description.text = "面板上有别的猫留下的脚印。\n从左到右，数每一列完整的爪印，得到三位密码。"
-		var clues := HBoxContainer.new()
-		clues.alignment = BoxContainer.ALIGNMENT_CENTER
-		clues.add_theme_constant_override("separation",70)
-		detail.add_child(clues)
-		for count in [2,4,1]:
-			var col := VBoxContainer.new()
-			col.add_theme_constant_override("separation",5)
-			clues.add_child(col)
-			for i in range(count):
-				var paw := Control.new()
-				paw.custom_minimum_size = Vector2(48,30)
-				col.add_child(paw)
-				paw.draw.connect(func():
-					paw.draw_circle(Vector2(24,21),8,QuestTheme.ACCENT)
-					for x in [12,24,36]:paw.draw_circle(Vector2(x,7),4,QuestTheme.ACCENT))
+		title.text="上一只猫留下的开锁暗号"
+		description.text="鱼骨、月亮、太阳……纸片上的图案，机器上也有。先辨认完整脚印，再确定图案顺序。"
+		var marks=FeederMarks.new();marks.custom_minimum_size=Vector2(598,300);detail.add_child(marks)
+		var tools=HBoxContainer.new();detail.add_child(tools)
+		button("翻看已收集的纸片",tools,func():if owner_chapter:owner_chapter.day.reader.open_album())
+		button("请阿嚼辨认脚印",tools,func():feedback.text="阿嚼：那个大大的、带爪尖的脚印，是我以前蹭上去的。")
+		button("给一点提示",tools,code_hint)
 		code = LineEdit.new()
 		code.max_length = 3
 		code.placeholder_text = "三位数字"
@@ -196,9 +189,9 @@ func submit_note() -> void:
 
 func submit_code() -> void:
 	if mode!="code":return
-	if code.text==PASSWORD:solved.emit("code")
+	if code.text==FeederMarks.password():solved.emit("code")
 	else:
-		feedback.text = "密码不对。按从左到右的顺序再数一遍。"
+		feedback.text = "还没有打开。纸片上的图案，机器上也有；试着把四张纸片放在一起看。"
 		code.select_all()
 		code.grab_focus()
 
@@ -238,8 +231,14 @@ func _process(_delta: float) -> void:
 	paper_panel.position=Vector2((viewport.x-width)*.5,viewport.y-height-30 if story_only else maxf(20,(viewport.y-height)*.5))
 	dimmer.color.a=.08 if story_only else .16
 
+func reader_is_open() -> bool:
+	var day=get_node_or_null("../../DayOne")
+	return day!=null and is_instance_valid(day.reader) and not day.reader.mode.is_empty()
+
 func _input(event: InputEvent) -> void:
 	if mode.is_empty() or not event is InputEventKey or not event.pressed or event.echo:return
+	# CanvasLayer draw order does not determine _input delivery order.
+	if reader_is_open():return
 	if event.keycode==KEY_ESCAPE:close()
 	elif mode=="wash":
 		if event.keycode==KEY_R:replay()
@@ -249,3 +248,7 @@ func _input(event: InputEvent) -> void:
 	elif mode=="story" and event.keycode in [KEY_E,KEY_SPACE,KEY_ENTER]:close()
 	else:return
 	get_viewport().set_input_as_handled()
+
+func code_hint() -> void:
+	code_hint_stage+=1
+	feedback.text="先找纸片与面板上相同的图案。" if code_hint_stage==1 else "先确定图案顺序；完整的猫脚印才计数，半个脚印和阿嚼的大脚印不算。"

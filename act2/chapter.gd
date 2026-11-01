@@ -103,13 +103,13 @@ func set_world_enabled(enabled: bool) -> void:
 	# The furnished bookcase and its collisions are permanent, including on days 1–2.
 
 func clues_unlocked() -> bool:
-	return photo_collected() or flag("a3_pipes") or flag("yarn_solved")
+	return today()>=2 and (day.flag("note_read") or day.paper_count()>0 or photo_collected() or flag("a3_pipes") or flag("yarn_solved"))
 
 func photo_collected() -> bool:
 	return flag("a3_photo") or (day.manager!=null and day.manager.get_status(&"a3_photo")==CalicoQuestManager.State.COMPLETED)
 
 func update_clues_visibility() -> void:
-	world.items.clues.visible=clues_unlocked()
+	World.Props.activate(world.items.clues,clues_unlocked())
 	world.items.clues.get_node("CollectedPhotograph").visible=photo_collected()
 	world.items.clues.get_node("PhotoIdentifier").visible=photo_collected()
 
@@ -356,7 +356,7 @@ func interact_item(id: String) -> void:
 	elif id=="letter":
 		if not flag("letter_dropped"):return
 		mark("a5_letter")
-		story("信上写着：\n\n大狗嚼今天需要吃药。\n七只药瓶无法开盖，只能摇晃听声音。药片越多，碰撞声越响、越密。\n请从药片最少的三瓶里取药，照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。")
+		day.reader.open_sheet("letter")
 	elif id=="fridge_lock":
 		if today()<4:
 			set_flag("empty_fridge_open",not flag("empty_fridge_open"))

@@ -267,7 +267,7 @@ func _seed_demo_day(number: int) -> void:
 		for i in range(3):data.values["pot%d"%i]=i
 		for i in range(9):data.values["piece%d"%i]=i
 		data.values["mole_catches"]=2
-	if number>10:data.values["mouse_stage"]=6
+	if number>10:data.values["mouse_stage"]=3;data.values["mouse_chase_version"]=2
 	var early_days: Dictionary={"day1_arrival":1,"day1_lights":1,"day1_papers":1,"day2_feed":1,"day2_note":2,"day2_laundry":2,"day1_yarn":2,"day2_dishes":2}
 	for id in manager.definitions:
 		var definition: CalicoQuest=manager.definitions[id]

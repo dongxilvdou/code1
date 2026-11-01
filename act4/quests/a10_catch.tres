@@ -14,7 +14,7 @@ required_value = 10
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a10_catch"
-text = "追过指定房间，在厨房抓住老鼠。"
+text = "从一楼过道追到二楼过道、二楼主卧，最后在一楼厨房抓住老鼠。"
 kind = 3
 target_id = &"a10_catch"
 
@@ -22,7 +22,7 @@ target_id = &"a10_catch"
 script = ExtResource("quest")
 id = &"a10_catch"
 title = "01 · 差一点抓住"
-description = "第10天 · 追过指定房间，在厨房抓住老鼠。"
+description = "第10天 · 从一楼过道追到二楼过道、二楼主卧，最后在一楼厨房抓住老鼠。"
 priority = 100
 extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

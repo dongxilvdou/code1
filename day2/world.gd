@@ -45,6 +45,10 @@ func bowl(id: String, pos: Vector3, color: Color) -> void:
 	ceramic.position = Vector3.ZERO
 	ceramic.scale = Vector3(1.65,1.65,1.65)
 	Props.bind(n,ceramic)
+	if id=="dog_bowl":
+		# Close the imported bowl's central opening at the visible washing surface.
+		var floor=MeshInstance3D.new();floor.name="InteriorGlaze";var disk=CylinderMesh.new();disk.top_radius=.105;disk.bottom_radius=.105;disk.height=.004;disk.radial_segments=64;floor.mesh=disk
+		var glaze=mat(Color("d6d6d0"));glaze.roughness=.32;floor.material_override=glaze;floor.position.y=.068;n.add_child(floor)
 	var kibble := Node3D.new()
 	n.add_child(kibble)
 	for i in range(14):
@@ -117,6 +121,8 @@ func build(parent: Node3D, game: Node) -> void:
 	# Face the central kitchen aisle, like the adjacent preparation cabinets.
 	dispenser.rotation.y = PI
 	Props.model(dispenser,"feeder")
+	var marks=MeshInstance3D.new();marks.name="PreviousCatPawPanel";var plane=QuadMesh.new();plane.size=Vector2(.50,.25);marks.mesh=plane
+	var ink=mat(Color.WHITE);ink.albedo_texture=preload("res://ui/notes_catalog.gd").load_image("res://assets/notes/feeder_marks.png");marks.material_override=ink;dispenser.add_child(marks);marks.position=Vector3(0,.54,.232)
 	collision(dispenser,Vector3(0,.37,0),Vector3(.63,.74,.44))
 	sign_at(dispenser,"食物给予器",Vector3(0,1.18,0),28)
 	feeder_audio=AudioStreamPlayer3D.new();feeder_audio.name="FeederSound"
@@ -133,7 +139,17 @@ func build(parent: Node3D, game: Node) -> void:
 	sign_at(home,"大狗嚼的餐位",Vector3(0,.22,0),22)
 	stains = Node3D.new()
 	items.dog_bowl.add_child(stains)
-	for i in range(7):ball(stains,Vector3(sin(i*2.1)*.08,.069,cos(i*2.1)*.08),Vector3(.025,.004,.017),Color("78543b"))
+	for i in range(3):
+		var patch=Node3D.new();patch.name="FoodResidue%d"%i;stains.add_child(patch)
+		var offset: Vector2=preload("res://day2/rinse_interaction.gd").OFFSETS[i]
+		patch.position=Vector3(offset.x,.070,offset.y)
+		for j in range(3):ball(patch,Vector3((j-1)*.012,.001,sin(j*3.2)*.008),Vector3(.026+i*.006,.004,.024+i*.003),Color("78543b"))
+	var scratches=Node3D.new();scratches.name="OldWashMarks";items.dog_bowl.add_child(scratches)
+	for i in range(4):
+		var ring=TorusMesh.new();ring.inner_radius=.040+i*.009;ring.outer_radius=ring.inner_radius+.0012
+		var mark=MeshInstance3D.new();mark.mesh=ring;mark.material_override=mat(Color("9d9b8b"));mark.position.y=.071;mark.scale.z=.8;scratches.add_child(mark)
+	scratches.hide()
+
 	# Keep the existing feeding quest ID, referring to the real landing companion.
 	# The proxy has no duplicate visual/collider; the dog remains present on day 1.
 	var dog := item("dog",actor.global_position)

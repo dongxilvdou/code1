@@ -199,6 +199,12 @@ func build(parent: Node3D, game: Node) -> void:
 		var paper := item("paper_"+data[0],data[2])
 		var visual := Props.model(paper,"memo")
 		visual.scale = Vector3(.62,1,.43)
+		var paper_id="paper%d"%PAPER_SPOTS.find(data)
+		for mesh in visual.find_children("*","MeshInstance3D",true,false):
+			for index in range(mesh.mesh.get_surface_count()):
+				var source=mesh.mesh.surface_get_material(index)
+				if source is StandardMaterial3D and source.resource_name=="memo":
+					var ink=source.duplicate();ink.albedo_texture=preload("res://ui/notes_catalog.gd").texture(paper_id);mesh.set_surface_override_material(index,ink)
 		paper.rotation.y = float(items.size())*.74
 		Props.days(paper,[1])
 		sign_at(paper,"纸片",Vector3(0,.15,0),18)

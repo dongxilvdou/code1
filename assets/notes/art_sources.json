@@ -1,0 +1,20 @@
+{
+  "generation_mode": "built-in image_gen",
+  "paper_surface.png": {
+    "prompt": "Use case: stylized-concept. Asset type: a full-bleed paper surface texture for a Godot first-person cat mystery game, used behind readable handwritten notes. Generate one single rectangular warm ivory off-white paper sheet surface, front-on orthographic, portrait 3:4 orientation. The entire image is the paper texture itself, no surrounding desk, no perspective, no drop shadow. Quiet realistic fine paper fibers, extremely subtle age discoloration near outer edges, a few delicate fold creases, soft uneven warm corners. The central 85 percent must be very pale, smooth and low contrast for black Chinese text to be overlaid later. Handcrafted domestic mystery atmosphere, believable physical stationery, high quality detailed material. Absolutely no letters, words, symbols, handwriting, paws, illustrations, logos or watermarks. Opaque background.",
+    "use": "Base for checked Chinese note text, composited by Godot tools/bake_v1_notes.gd."
+  },
+  "album_surface.png": {
+    "prompt": "Use case: stylized-concept. Asset type: open clue scrapbook background for a Godot first-person cat mystery game. Single open blank cream paper scrapbook, straight-on overhead orthographic, wide landscape 3:2. Two nearly white ivory pages with a subtle central spine, worn brown cloth binding only at outer rim, lightly rounded worn corners and faint age wear. Blank flat page interiors, plenty of pale empty space for clue images and readable Chinese labels to be overlaid by the game. Warm restrained domestic mystery art, realistic fine paper fibers, soft neutral lighting without hard shadows, no desk or scene around the open book. Absolutely no text, letters, marks, page numbers, paw prints, photos, objects, logos, watermarks or decorations on the pages. Opaque background.",
+    "use": "Background for the clue album; game crops to the pages."
+  },
+  "note_images": {
+    "source": "ui/notes_catalog.gd",
+    "renderer": "ui/note_sheet.gd",
+    "baker": "tools/bake_v1_notes.gd"
+  },
+  "feeder_marks.png": {
+    "source": "ui/feeder_marks.gd",
+    "method": "Deterministic native drawing so paw counts, partial prints and the password cannot drift."
+  }
+}

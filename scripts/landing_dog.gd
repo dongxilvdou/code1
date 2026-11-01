@@ -5,6 +5,7 @@ var clock := 0.0
 var player: AnimationPlayer
 var skeleton: Skeleton3D
 var fed_time := 0.0
+var care_time:=0.0
 var current_pose := "sleep"
 var stand_pose: Array[Transform3D] = []
 var lying_pose: Array[Transform3D] = []
@@ -94,6 +95,7 @@ func set_pose(value: String, immediate := false) -> void:
 	apply_pose(0.0)
 
 func apply_pose(delta: float) -> void:
+	care_time=maxf(0,care_time-delta)
 	transition_time = minf(1.0,transition_time+delta/1.2)
 	var blend := smoothstep(0.0,1.0,transition_time)
 	var target := stand_pose if current_pose=="stand" else kitchen_pose if kitchen_pose_active else lying_pose
@@ -106,6 +108,8 @@ func apply_pose(delta: float) -> void:
 	# Small rigid joint turns are reapplied from the pose, never accumulated each frame.
 	if neck>=0 and current_pose!="sleep":
 		skeleton.set_bone_pose_rotation(neck,skeleton.get_bone_pose_rotation(neck)*Quaternion(Vector3.UP,sin(clock*.65)*.055*blend))
+	if neck>=0 and care_time>0:
+		skeleton.set_bone_pose_rotation(neck,skeleton.get_bone_pose_rotation(neck)*Quaternion(Vector3.RIGHT,sin((1.2-care_time)/1.2*PI)*.13))
 	if tail>=0 and fed_time>0:
 		skeleton.set_bone_pose_rotation(tail,skeleton.get_bone_pose_rotation(tail)*Quaternion(Vector3.UP,sin(clock*5)*.13*blend))
 	for entry in eyes:
@@ -139,3 +143,6 @@ func _process(delta: float) -> void:
 	apply_pose(delta)
 
 func react_to_food() -> void:fed_time = 8.0
+
+func react_to_care() -> void:
+	care_time=1.2;fed_time=3.0

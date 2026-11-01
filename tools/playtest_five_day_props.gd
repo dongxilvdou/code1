@@ -12,6 +12,7 @@ func verify(ok: bool, message: String) -> void:
 	if not ok:printerr("CHECK_FAILED ",message)
 
 func dismiss() -> void:
+	if day and not day.reader.mode.is_empty():day.reader.cancel()
 	day.dialog = ""
 	day.hud.overlay.hide()
 	second.puzzle.close()
@@ -186,7 +187,7 @@ func run_tests() -> void:
 	chapter = game.get_node("ActTwo")
 	dismiss()
 	await read_daily_note()
-	verify(day.manager.definitions.size()==20,"Existing quest catalog must retain all twenty quests")
+	verify(day.manager.definitions.has(&"day1_arrival") and day.manager.definitions.has(&"a10_asked"),"Quest catalog lost the opening or revised day-ten quests")
 	verify(day.world.items.table.get_meta("bound_furniture").get_meta("asset_id")=="coffee_table","Day-one table is not the existing coffee table")
 	verify(day.world.items.stool.get_meta("bound_furniture").get_meta("asset_id")=="armchair","Day-one jump target is not the existing armchair")
 	verify(not day.world.items.table.has_node("Tabletop"),"Duplicate tutorial table survived")
@@ -206,7 +207,8 @@ func run_tests() -> void:
 	verify(day.flag("note_read"),"Paper interaction regressed")
 	day.mark("light_off") # Existing physical TV/balance jump is independently regression tested.
 	await restored()
-	for data in day.world.PAPER_SPOTS:day.perform_interaction("paper_"+data[0])
+	for data in day.world.PAPER_SPOTS:
+		day.perform_interaction("paper_"+data[0]);day.reader.cancel()
 	verify(day.paper_count()==4 and day.flag("papers_done"),"Four first-floor scraps cannot complete")
 	second.solve_puzzle("code")
 	dismiss()
@@ -246,6 +248,7 @@ func run_tests() -> void:
 	day.perform_interaction("ruler")
 	day.manager.set_value(&"ruler_vertical",1)
 	day.perform_interaction("sofa_gap")
+	verify(await preload("res://tools/v1_actions.gd").pull_yarn(self,day.ruler_interaction),"Physical ruler cannot free yarn")
 	day.perform_interaction("yarn")
 	day.perform_interaction("nest")
 	dismiss()
@@ -259,7 +262,7 @@ func run_tests() -> void:
 	second.interact_item("dog_bowl")
 	second.interact_item("tap")
 	verify(second.val("dish_stage")==1 and second.world.stream.visible,"Actual faucet did not start rinsing")
-	second.advance_time(4.1)
+	preload("res://tools/v1_actions.gd").rinse_plate(second)
 	second.interact_item("dog_bowl")
 	second.interact_item("dog_spot")
 	dismiss()

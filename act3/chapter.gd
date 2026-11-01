@@ -340,21 +340,7 @@ func interact_item(id: String) -> void:
 	restore()
 
 func show_clues() -> void:
-	if not previous.photo_collected():
-		var entries: String=("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else "")
-		story("客厅线索册\n\n"+(entries if not entries.is_empty() else "册页还空着。找到值得记住的照片和线索后，可以收在这里。"))
-		panel.title.text="客厅线索册"
-		return
-	story("客厅线索册 / 收好的照片\n\n主人穿着白大褂，身旁蹲着我。背后是家中的房间。\n照片背面：C-031 / 阶段 II。\n"+("柜门镜头：红点正对修水管的位置。\n" if flag("a3_pipes") else "")+("骨头：D-017 / 阿嚼。→ 短，↘ 长。" if flag("yarn_solved") else ""))
-	panel.title.text="客厅线索册"
-	var image := TextureRect.new()
-	image.texture = load("res://act2/memory_photo.png")
-	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	image.custom_minimum_size = Vector2(540,270)
-	panel.detail.add_child(image)
-	var serial: Label = panel.label("C-031",20,panel.detail)
-	serial.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	day.reader.open_album()
 
 func restore_power() -> void:
 	mark("a7_power")

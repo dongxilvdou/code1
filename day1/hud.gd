@@ -11,7 +11,8 @@ var body: Label
 var next_button: Button
 var balance_panel: PanelContainer
 var balance_text: Label
-var cursor: ColorRect
+var balance_art: Control
+var balance_pause: HBoxContainer
 var font: SystemFont
 var day_title: Label
 var dialog_panel: PanelContainer
@@ -53,7 +54,7 @@ func _ready() -> void:
 	var footer:=HBoxContainer.new();column.add_child(footer)
 	status = label("",11,footer,QuestTheme.MUTED)
 	status.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	var journal_key:=label("J 手记",11,footer,QuestTheme.MUTED)
+	var journal_key:=label("J 手记 · C 线索册",11,footer,QuestTheme.MUTED)
 	journal_key.autowrap_mode=TextServer.AUTOWRAP_OFF
 	carry_panel=PanelContainer.new();carry_panel.name="CarriedItemNote";canvas.add_child(carry_panel);QuestTheme.glass(carry_panel,10)
 	var carry_row:=HBoxContainer.new();carry_row.add_theme_constant_override("separation",10);carry_panel.add_child(carry_row)
@@ -111,23 +112,12 @@ func _ready() -> void:
 	balance_column.add_theme_constant_override("separation",12)
 	balance_panel.add_child(balance_column)
 	balance_text = label("",18,balance_column)
-	var bar := Control.new()
-	bar.custom_minimum_size = Vector2(530,30)
-	balance_column.add_child(bar)
-	var back := ColorRect.new()
-	back.color = Color("59665d")
-	back.size = Vector2(530,24)
-	bar.add_child(back)
-	var green := ColorRect.new()
-	green.color = Color("9bc393")
-	green.position = Vector2(530*.36,0)
-	green.size = Vector2(530*.30,24)
-	bar.add_child(green)
-	cursor = ColorRect.new()
-	cursor.color = Color("ffe0a5")
-	cursor.size = Vector2(5,30)
-	bar.add_child(cursor)
-	label("指针进入绿色区域时按 E · Esc 放弃并回到柜子",14,balance_column)
+	balance_art=preload("res://day1/balance_art.gd").new();balance_art.custom_minimum_size=Vector2(530,60);balance_column.add_child(balance_art)
+	label("A / D 或方向键修正重心 · 安全区逐渐收窄 · Esc 暂停",14,balance_column)
+	balance_pause=HBoxContainer.new();balance_column.add_child(balance_pause)
+	for item in [["继续",get_parent().toggle_balance_pause],["退出并重试",func():get_parent().finish_balance(false)]]:
+		var action=Button.new();action.text=item[0];balance_pause.add_child(action);QuestTheme.button(action);action.pressed.connect(item[1])
+	balance_pause.hide()
 	balance_panel.hide()
 	card.hide()
 
@@ -175,6 +165,7 @@ func show_page(title: String, text: String, last := false) -> void:
 	overlay.show()
 	next_button.grab_focus()
 
-func update_balance(phase: float, hits: int, misses: int) -> void:
-	cursor.position.x = phase*525
-	balance_text.text = "保持平衡  %d / 3     失误 %d / 3" % [hits,misses]
+func update_balance(model,paused: bool=false) -> void:
+	balance_art.model=model
+	balance_text.text=("已暂停 · " if paused else "保持重心 · ")+"站稳 %d%%"%roundi(model.progress*100)
+	balance_art.queue_redraw()

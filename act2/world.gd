@@ -217,7 +217,9 @@ func build(parent: Node3D, game: Node) -> void:
 	for i in range(7):
 		var visual := Props.model(medicines,"medicine_%d"%i,Vector3((i%4)*.10-.15,0,(i/4)*.13))
 		medicine_models.append(visual)
-	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索册 · 照片与编号",[1,2,3,4,5,6,7,8,9,10,11])
+	var clues := target("clues",table.position+Vector3(-.29,.454,0),"线索册 · 照片与编号",[2,3,4,5,6,7,8,9,10,11])
+	# Keep the day-one coaster clear; collected papers remain accessible with C.
+	clues.hide()
 	clues.set_meta("title","翻阅线索册 · 照片与编号")
 	Props.model(clues,"clues")
 	var album_photo := MeshInstance3D.new()
