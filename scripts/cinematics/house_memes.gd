@@ -71,11 +71,15 @@ func target_id() -> String:
 		return id
 	return ""
 
+func television_powered() -> bool:
+	var day=game.get_node_or_null("DayOne")
+	return day==null or day.value("current_day",1)!=7 or day.flag("a7_power")
+
 func target_hint() -> String:
 	var curtain_hint: String=curtain_secret.target_hint()
 	if not curtain_hint.is_empty():return curtain_hint
 	match target_id():
-		"tv":return "[ E ]  "+("关闭电视" if entries.tv.playing else "打开电视")
+		"tv":return "[ E ]  电视没有电" if not television_powered() else "[ E ]  "+("关闭电视" if entries.tv.playing else "打开电视")
 		"banana":return "[ E ]  看看这根香蕉"
 	return ""
 
@@ -83,11 +87,13 @@ func try_interact() -> bool:
 	if curtain_secret.try_interact():return true
 	var id := target_id()
 	if id.is_empty():return false
+	if id=="tv" and not television_powered():game.ui.toast("停电了，电视没有反应。",3);return true
 	if entries[id].playing:finish(id)
 	else:start(id)
 	return true
 
 func start(id: String) -> bool:
+	if id=="tv" and not television_powered():return false
 	if not entries.has(id) or not _gameplay_available():return false
 	var entry: Dictionary = entries[id]
 	if entry.playing or entry.video.stream==null:return false
@@ -112,6 +118,7 @@ func finish(id: String) -> void:
 	set_process(any_playing)
 
 func _process(delta: float) -> void:
+	if not television_powered():finish("tv")
 	if not _gameplay_available():
 		for id in entries:finish(id)
 		return

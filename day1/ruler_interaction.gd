@@ -42,7 +42,7 @@ func begin() -> bool:
  day.game.cinematic_active=true;player.set_control(false);player.velocity=Vector3.ZERO;player.set_physics_process(false);player.set_process_unhandled_input(false)
  player.camera.global_position=Vector3(-4.02,.27,2.25);player.camera.look_at(Vector3(-4.96,.10,2.15));player.camera.fov=60
  Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
- ui.show_hint("沙发底下的毛线球","按住左键拖动尺子：从侧面伸到球后，再向外拨。鼠标上下伸收，左右调整。Esc 暂停。")
+ ui.show_hint("沙发底下的毛线球","按住左键拖动尺子：从侧面伸到球后，再向外拨。鼠标与画面同向：左右调整，上推伸入、下拉收回。Esc 暂停。")
  update_visual();set_physics_process(true);return true
 func update_visual() -> void:
  var mouth=day.player.camera.global_position+day.player.camera.global_basis*Vector3(-.045,-.07,-.12)
@@ -102,5 +102,10 @@ func _input(event: InputEvent) -> void:
   dragging=event.pressed
   if not dragging:goal=tip
  elif not paused and dragging and event is InputEventMouseMotion:
-  goal.x=clampf(goal.x+event.relative.y*.0028,-5.35,-4.48);goal.z=clampf(goal.z+event.relative.x*.0028,1.95,2.35)
+  # Project mouse movement onto the floor in the current camera's screen directions.
+  var camera=day.player.camera
+  var right=Vector3(camera.global_basis.x.x,0,camera.global_basis.x.z).normalized()
+  var forward=Vector3(-camera.global_basis.z.x,0,-camera.global_basis.z.z).normalized()
+  var movement=(right*event.relative.x-forward*event.relative.y)*.0028
+  goal.x=clampf(goal.x+movement.x,-5.35,-4.48);goal.z=clampf(goal.z+movement.z,1.95,2.35)
  if not paused or event is InputEventKey:get_viewport().set_input_as_handled()

@@ -142,8 +142,8 @@ func build(parent: Node3D, game: Node) -> void:
 	for i in range(3):
 		var patch=Node3D.new();patch.name="FoodResidue%d"%i;stains.add_child(patch)
 		var offset: Vector2=preload("res://day2/rinse_interaction.gd").OFFSETS[i]
-		patch.position=Vector3(offset.x,.070,offset.y)
-		for j in range(3):ball(patch,Vector3((j-1)*.012,.001,sin(j*3.2)*.008),Vector3(.026+i*.006,.004,.024+i*.003),Color("78543b"))
+		patch.position=Vector3(offset.x,.073,offset.y)
+		for j in range(3):ball(patch,Vector3((j-1)*.012,.001,sin(j*3.2)*.008),Vector3(.032,.004,.030),Color("78543b"))
 	var scratches=Node3D.new();scratches.name="OldWashMarks";items.dog_bowl.add_child(scratches)
 	for i in range(4):
 		var ring=TorusMesh.new();ring.inner_radius=.040+i*.009;ring.outer_radius=ring.inner_radius+.0012

@@ -5,6 +5,7 @@ func bake() -> void:
  var ids=Catalog.all_ids()+["feeder_marks"]
  for arg in OS.get_cmdline_user_args():
   if arg.begins_with("--note="):ids=[arg.trim_prefix("--note=")]
+  elif arg.begins_with("--notes="):ids=Array(arg.trim_prefix("--notes=").split(","))
  for id in ids:
   var viewport=SubViewport.new();viewport.size=Vector2i(900,1200) if id!="feeder_marks" else Vector2i(600,300)
   viewport.transparent_bg=false;viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS;root.add_child(viewport)

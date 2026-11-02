@@ -105,6 +105,8 @@ func _physics_process(delta: float) -> void:
 	if active_number!=today():
 		active_number = today()
 		restore()
+	if today()==7 and not flag("a7_power") and not flag("a7_emergency_seen") and player.global_position.distance_to(Vector3(3.80,-2.45,-2.80))<1.8 and day.active_play():
+		mark("a7_emergency_seen");game.ui.toast("其他地方都停电了……为什么只有这扇门前的灯还亮着？",6)
 	if not day.active_play():
 		meter.hide()
 		return
@@ -129,7 +131,24 @@ func _physics_process(delta: float) -> void:
 			if child is Label3D and child.billboard==BaseMaterial3D.BILLBOARD_ENABLED:
 				child.visible = World.Props.interactable(item,today()) and player.global_position.distance_to(child.global_position)<3
 
+func evidence_count() -> int:
+	var count=0
+	for key in preload("res://act3/investigation_data.gd").KEYS:
+		if flag("a7_read_"+key):count+=1
+	return count
+func record_evidence(key: String) -> void:
+	if not flag("a7_login") or key not in preload("res://act3/investigation_data.gd").KEYS:return
+	mark("a7_read_"+key)
+	if evidence_count()==4 and not flag("a7_investigate"):
+		mark("a7_investigate");game.ui.toast("四条资料已经记下。主人和这间实验室……有什么关系？",5)
+	refresh_hud()
+func migrate_investigation() -> void:
+	if day.manager==null or val("investigation_v2_version")>=2:return
+	# Existing completed logins remain valid; new evidence is still available to discover.
+	if flag("a7_login") or flag("a7_complete") or today()>7:mark("a7_investigate")
+	set_value("investigation_v2_version",2)
 func restore() -> void:
+	migrate_investigation()
 	if _restoring or not active():return
 	_restoring = true
 	visible = true
@@ -241,6 +260,7 @@ func target_hint() -> String:
 	var id := nearest_item()
 	if id.is_empty():return ""
 	if id=="note":return "E 阅读今天的小纸条"
+	if id=="dog" and today()==6 and not day.Notes.read(day):return "先读完客厅茶几上的今日纸条"
 	if id=="dog":return "E 与阿嚼说话 / 交出狗盘"
 	if id=="nest":return "E 回窝休息，进入第七天" if today()==6 and day_complete() else "E 回窝休息" if day_complete() else "E 查看未完成的事情"
 	if id in ["feeder","dog_bowl","dog_spot","cat_bowl","cat_spot"]:
@@ -261,6 +281,9 @@ func interact_item(id: String) -> void:
 	if not active():return
 	if id=="note":
 		day.show_dialog("note")
+		return
+	if today()==6 and id=="dog" and not day.Notes.read(day):
+		game.ui.toast(day.Notes.guidance(6),4)
 		return
 	if world.items.has(id) and not World.Props.interactable(world.items[id],today()):return
 	if id in ["feeder","dog_bowl","dog_spot","cat_bowl","cat_spot"]:
@@ -298,7 +321,7 @@ func interact_item(id: String) -> void:
 			set_flag("weight_book_placed",false)
 			set_flag("weight_plant_placed",false)
 			restore()
-			story("第三幕当前任务完成\n\n电路恢复了，电脑也认出了照片上的 C-031。\n阿嚼留在厨房等你。\n\n再次回窝休息，将进入第八天。也可以继续探索或查看电脑桌面。")
+			story("第三幕当前任务完成\n\n电路恢复了，电脑里还留着关于实验室的资料。\n阿嚼留在厨房等你。\n\n再次回窝休息，将进入第八天。也可以继续探索或查看电脑桌面。")
 	elif not day.Notes.read(day):game.ui.toast(day.Notes.guidance(today()),4)
 	elif id.begins_with("snack"):
 		if not flag("a6_permission"):return
@@ -385,7 +408,7 @@ func close_panel() -> void:
 	refresh_hud()
 
 func day_complete() -> bool:
-	return day.Notes.read(day) and ((flag("a6_feed") and flag("a6_permission") and flag("a6_snacks")) if today()==6 else flag("a7_power") and flag("a7_computer_power") and flag("a7_login"))
+	return day.Notes.read(day) and ((flag("a6_feed") and flag("a6_permission") and flag("a6_snacks")) if today()==6 else flag("a7_power") and flag("a7_computer_power") and flag("a7_login") and flag("a7_investigate"))
 
 func guidance() -> String:
 	if not day.Notes.read(day):return day.Notes.guidance(today())
@@ -403,6 +426,7 @@ func guidance() -> String:
 	if not flag("a7_power"):return "01 恢复供电\n检查二楼走廊的配电板。"
 	if not flag("a7_computer_power"):return "02 启动电脑\n看看电脑房里的座椅感应垫和桌旁物品。"
 	if not flag("a7_login"):return "03 输入密码\n电脑桌上的便签写着：密码是你的名字呀。\n照片收在一楼客厅桌上的线索册里。回到电脑屏幕，按 E 或鼠标左键输入。"
+	if not flag("a7_investigate"):return "04 调查电脑资料  %d / 4\n查看回收站的照片、实验室官网、聊天记录和新闻报道。"%evidence_count()
 	return "今天的事情已完成。\n离开电脑后，回猫窝休息。"
 
 func refresh_hud() -> void:
@@ -429,6 +453,7 @@ func reset_runtime() -> void:
 	meter.hide()
 	panel.mode = ""
 	panel.shell.hide()
+	computer.apps.close_all()
 	computer.shell.hide()
 	world.reset_power()
 	world.move_companion(false,second)

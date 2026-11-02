@@ -14,15 +14,15 @@ required_value = 3
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a3_books"
-text = "将三本书按颜色放回不同高度的书格。"
+text = "将地上的三本书放到第一层，与原有四本合在一起，把七本书按高度递减排序。"
 kind = 3
 target_id = &"a3_books"
 
 [resource]
 script = ExtResource("quest")
 id = &"a3_books"
-title = "01 · 颜色与高度"
-description = "第3天 · 将三本书按颜色放回不同高度的书格。"
+title = "01 · 书架第一层"
+description = "第3天 · 将地上的三本书放到第一层，与原有四本合在一起，把七本书按高度递减排序。"
 priority = 77
 extra_conditions = Array[ExtResource("condition")]([SubResource("day")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])

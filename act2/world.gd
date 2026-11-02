@@ -1,5 +1,6 @@
 extends "res://day2/world.gd"
 ## Quest adapters bind to the furnished villa. Only missing portable props are created.
+const Rules=preload("res://act2/puzzle_rules_v2.gd")
 var cabinet_hinges: Array = []
 var fridge_hinge: Node3D
 var oven_hinge: Node3D
@@ -7,7 +8,9 @@ var oven_glow: OmniLight3D
 var camera_led: MeshInstance3D
 var water_surface: MeshInstance3D
 var books: Array = []
+var extra_shelf_books: Array[Node3D]=[]
 var original_bookcase: Node3D
+var reading_ledge: Node3D
 var colors := [Color("be6c59"),Color("6f9daa"),Color("d4b163")]
 var shelves: Array[Vector3] = []
 var book_returns: Array[Transform3D] = []
@@ -33,6 +36,7 @@ func build(parent: Node3D, game: Node) -> void:
 	for child in original_bookcase.get_children():
 		if str(child.name).begins_with("Book") or str(child.name).begins_with("Spine_band"):child.hide()
 	for row in range(4):
+		if row==1:continue # Reserve the first shelf for the seven sortable books.
 		var height: float = [.146,.495,.925,1.355][row]
 		for col in range(8 if row==0 else 6):
 			var book := Props.model(original_bookcase,["book_red","book_blue","book_gold"][(row+col)%3 if row==0 else row-1])
@@ -41,35 +45,26 @@ func build(parent: Node3D, game: Node) -> void:
 			book.position = Vector3(x,height+.123*(.9+float(col%3)*.07)+.002,.02)
 			book.basis = Basis(Vector3.UP,PI/2)*Basis(Vector3.RIGHT,-PI/2)
 			book.scale = Vector3(.9,.9,.9+float(col%3)*.07)
-	# Shallow pull-out reading ledges are PARTS of this bookcase, not a second bookcase.
+	# One reachable receiving ledge, with all three books at the same shelf receiving_height.
+	var ledge=Node3D.new();ledge.name="ReadingLedge0";original_bookcase.add_child(ledge)
+	reading_ledge=ledge
+	var receiving_height=.495
+	var board=box(ledge,"OakTray",Vector3(-.03,receiving_height-.018,.49),Vector3(.66,.036,.64),Color("937755"),true)
+	Props.fit_mesh(board,Props.furniture(game,"coffee_table","Living").get_node("Rounded_tabletop").mesh,Vector3(.66,.036,.64))
+	board.material_override=load("res://furniture_pack/materials/oak.tres")
+	for side in [-1,1]:box(ledge,"SlideRail",Vector3(side*.30,receiving_height-.041,.49),Vector3(.012,.018,.64),Color("899490"))
+	var shelf=target("shelf0",original_bookcase.to_global(Vector3(-.20,.65,.57)),"第一层 · 放书 / 排序",[3]);Props.bind(shelf,original_bookcase)
 	for i in range(3):
-		var height: float = [.495,.925,1.355][i]
-		var x: float = [-.30,.30,-.30][i]
-		var depth: float = [.64,.56,.24][i]
-		var center_z := .17+depth*.5
-		var stand_z: float = [.69,.61,.32][i]
-		var ledge := Node3D.new()
-		ledge.name = "ReadingLedge%d"%i
-		original_bookcase.add_child(ledge)
-		var board := box(ledge,"OakTray",Vector3(x,height-.018,center_z),Vector3(.30,.036,depth),Color("937755"),true)
-		Props.fit_mesh(board,Props.furniture(game,"coffee_table","Living").get_node("Rounded_tabletop").mesh,Vector3(.30,.036,depth))
-		board.material_override = load("res://furniture_pack/materials/oak.tres")
-		for side in [-1,1]:
-			box(ledge,"SlideRail",Vector3(x+side*.12,height-.041,center_z),Vector3(.012,.018,depth-.04),Color("899490"))
-		var anchor := original_bookcase.to_global(Vector3(x,height,stand_z))
-		shelves.append(anchor)
-		var shelf := target("shelf%d"%i,anchor,["第一层 · 红色书列","第二层 · 蓝色书列","第三层 · 黄色书列"][i],[3])
-		for label in shelf.get_children():
-			if label is Label3D:label.position = original_bookcase.to_global(Vector3(x,height+.30,.19))-anchor
-		Props.bind(shelf,original_bookcase)
-		var marker := box(shelf,"ClothBookmark",Vector3(0,-.006,.09),Vector3(.08,.003,.10),colors[i])
-		marker.rotation.y = original_bookcase.rotation.y
-		var book := target("book%d"%i,Vector3(-2.5+i*.47,.023,.15),["红色园艺书","蓝色日记","金色植物图鉴"][i])
-		Props.model(book,["book_red","book_blue","book_gold"][i])
-		book.set_meta("interaction_days",[3])
-		books.append(book)
-		var transform := original_bookcase.global_transform*Transform3D(Basis(Vector3.RIGHT,PI/2),Vector3(x,height+.125,.02))
-		book_returns.append(transform)
+		var anchor=original_bookcase.to_global(Vector3(Rules.book_x(i),receiving_height,.69));shelves.append(anchor)
+		var book=target("book%d"%i,Vector3(-2.5+i*.47,.023,.15),["红色园艺书","蓝色日记","金色植物图鉴"][i])
+		var visual=Props.model(book,["book_red","book_blue","book_gold"][i]);visual.scale.z=Rules.BOOK_SCALES[i]
+		book.set_meta("interaction_days",[3]);books.append(book)
+		book_returns.append(original_bookcase.global_transform*Transform3D(Basis(Vector3.UP,PI/2)*Basis(Vector3.RIGHT,-PI/2),Vector3(Rules.book_x(i),receiving_height+.123*Rules.BOOK_SCALES[i]+.002,.02)))
+	for i in range(3,Rules.BOOK_COUNT):
+		var book=Node3D.new();book.name="SortableShelfBook%d"%i;original_bookcase.add_child(book)
+		var visual=Props.model(book,["book_red","book_blue","book_gold"][i%3]);visual.scale.z=Rules.BOOK_SCALES[i]
+		extra_shelf_books.append(book)
+	place_stored_books()
 	var photo := target("photo",Vector3(-2.25,.025,.40),"从书里掉下的照片",[3])
 	var photo_mesh := box(photo,"Photograph",Vector3.ZERO,Vector3(.26,.004,.13),Color.WHITE)
 	var photo_material := mat(Color.WHITE)
@@ -244,8 +239,19 @@ func build(parent: Node3D, game: Node) -> void:
 	clues.reparent(table,true)
 
 func place_book(index: int, returned: bool) -> void:
-	var book: Node3D = items["book%d"%index]
-	book.global_transform = book_returns[index] if returned else Transform3D(Basis(Vector3.UP,index*.38),Vector3(-2.5+index*.47,.023,.15))
+	var book: Node3D=items["book%d"%index]
+	if not returned:
+		book.global_transform=Transform3D(Basis(Vector3.UP,index*.38),Vector3(-2.5+index*.47,.023,.15));return
+	place_shelf_book(book,index)
+func place_shelf_book(book: Node3D,index: int) -> void:
+	var slot=index
+	for i in range(Rules.BOOK_COUNT):
+		if root.val("book_slot_%d"%i,Rules.BOOK_INITIAL[i])==index:slot=i
+	book.global_transform=original_bookcase.global_transform*Transform3D(Basis(Vector3.UP,PI/2)*Basis(Vector3.RIGHT,-PI/2),Vector3(Rules.book_x(slot),.497+.123*Rules.BOOK_SCALES[index],.02))
+func place_stored_books() -> void:
+	for i in range(3):
+		if root.flag("book%d"%i):place_book(i,true)
+	for i in range(extra_shelf_books.size()):place_shelf_book(extra_shelf_books[i],i+3)
 
 func medicine_selection(taken: bool) -> void:
 	# Keep only the selected three bottles in the mouth. Unselected bottles are put away.

@@ -299,7 +299,7 @@ func make_pause() -> void:
 	button("设置",column,open_settings)
 	button("返回客厅",column,func(): reset_requested.emit(); pause_panel.hide(); resumed.emit())
 	button("退出游戏",column,func(): get_tree().quit())
-	text("WASD 移动   鼠标 环顾   空格 跳跃\nShift 奔跑   Ctrl 低伏   E 开关门\nQ 喵叫   V 看猫   M 地图   B 总览",14,MUTED,column)
+	text("WASD 移动   鼠标 环顾   空格 跳跃\nShift 奔跑   Ctrl 低伏   E 开关门\nQ 喵叫   V 看猫   M 地图   B 总览\nC 打开线索册（查看已收集纸片）",14,MUTED,column)
 	pause_panel.hide()
 
 func make_settings() -> void:
