@@ -137,6 +137,8 @@ func text(value: String, size_: int, parent: Node) -> Label:
 	return label
 
 func open() -> void:
+	chapter.reconcile_investigation()
+	chapter.refresh_hud()
 	shell.show()
 	login.visible = not chapter.flag("a7_login")
 	desktop.visible = chapter.flag("a7_login")

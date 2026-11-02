@@ -3,6 +3,7 @@ const World = preload("res://act3/world.gd")
 const Panels = preload("res://act3/panels.gd")
 const Computer = preload("res://act3/computer_ui.gd")
 const Circuit = preload("res://act3/lights_out.gd")
+const Investigation = preload("res://act3/investigation_data.gd")
 const CAT_KG := 3.0
 const REQUIRED_KG := 8.0
 var game
@@ -133,15 +134,29 @@ func _physics_process(delta: float) -> void:
 
 func evidence_count() -> int:
 	var count=0
-	for key in preload("res://act3/investigation_data.gd").KEYS:
+	for key in Investigation.KEYS:
 		if flag("a7_read_"+key):count+=1
 	return count
 func record_evidence(key: String) -> void:
-	if not flag("a7_login") or key not in preload("res://act3/investigation_data.gd").KEYS:return
+	if not flag("a7_login") or key not in Investigation.KEYS:return
 	mark("a7_read_"+key)
-	if evidence_count()==4 and not flag("a7_investigate"):
-		mark("a7_investigate");game.ui.toast("四条资料已经记下。主人和这间实验室……有什么关系？",5)
+	reconcile_investigation(true)
 	refresh_hud()
+func reconcile_investigation(notify := false) -> void:
+	if day.manager==null or today()!=7:return
+	# Restoring this file also opens it; retain that evidence if its read flag was not saved.
+	if flag("lab_photo_restored") and not flag("a7_read_photo"):mark("a7_read_photo")
+	if not flag("a7_login"):return
+	var has_all := evidence_count()==Investigation.KEYS.size()
+	var completed: bool = flag("a7_complete") or day.manager.get_status(&"a7_investigate")==CalicoQuestManager.State.COMPLETED
+	var newly_completed: bool = not flag("a7_investigate") and (has_all or completed)
+	if newly_completed:mark("a7_investigate")
+	# Saved facts are authoritative even if the original one-shot event was already consumed.
+	# Only an active objective is reported, so repeated reconciliation cannot finish it twice.
+	if flag("a7_investigate") and day.manager.get_status(&"a7_investigate")==CalicoQuestManager.State.ACTIVE:
+		day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,&"a7_investigate")
+	if notify and newly_completed and has_all:
+		game.ui.toast("四条资料已经记下。主人和这间实验室……有什么关系？",5)
 func migrate_investigation() -> void:
 	if day.manager==null or val("investigation_v2_version")>=2:return
 	# Existing completed logins remain valid; new evidence is still available to discover.
@@ -149,6 +164,7 @@ func migrate_investigation() -> void:
 	set_value("investigation_v2_version",2)
 func restore() -> void:
 	migrate_investigation()
+	reconcile_investigation()
 	if _restoring or not active():return
 	_restoring = true
 	visible = true
@@ -374,6 +390,7 @@ func restore_power() -> void:
 func complete_login() -> void:
 	if not flag("a7_power") or not flag("a7_computer_power"):return
 	mark("a7_login")
+	reconcile_investigation(true)
 	refresh_hud()
 
 func update_held() -> void:
