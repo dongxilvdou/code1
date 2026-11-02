@@ -152,8 +152,7 @@ func restore_world() -> void:
 	world.food.cat_bowl.visible = flag("cat_portion")
 	world.food.dog_bowl.visible = flag("dog_portion")
 	world.stains.visible = flag("d2_dog_fed") and stage not in [8,9] and not flag("dog_portion")
-	if stage!=1:
-		for stain in world.stains.get_children():stain.show()
+	rinse.update_residue_visuals()
 	world.stream.set_running(active_day() and stage==1 and rinse.running and not rinse.paused)
 	world.items.dog_bowl.get_node("OldWashMarks").visible=stage in [8,9]
 	World.Props.apply(world.items,val("current_day",1))

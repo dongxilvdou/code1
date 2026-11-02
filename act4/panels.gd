@@ -107,8 +107,8 @@ func art(kind: String, height: int) -> Control:
 	detail.add_child(display)
 	return display
 func open_valve() -> void:
-	title.text = "水垢下的温度"
-	description.text = "水温数字被水垢遮住了。温度和出水量会一起影响体感。\n先观察两个旋钮的磨痕，用小水试温，再逐步增加出水。回到底盘按 E 检查。"
+	title.text = "淋浴旋钮 / 逐一试温"
+	description.text = "刻度和指针清晰可见。温度和出水量会一起影响实际体感。\n先调一个旋钮，回到底盘按 E 试水，再根据冷暖和水流继续调整。"
 	art("valve",245)
 	var row := HBoxContainer.new()
 	detail.add_child(row)
@@ -119,7 +119,7 @@ func open_valve() -> void:
 	for direction in [-1,1]:
 		var b:=button("− 收小出水量" if direction<0 else "＋ 增大出水量",flow_row,adjust_pressure.bind(direction*6))
 		b.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-	feedback.text = "数字看不清。左侧小旋钮管出水，右侧旋钮调冷热；浅色磨痕是常用位置。"
+	feedback.text = "左侧小旋钮管出水，右侧旋钮调冷热。没有标出合适位置，需要亲自试水。"
 
 func adjust_pressure(amount: int) -> void:
 	chapter.set_value("pressure_setting",clampi(chapter.pressure_setting()+amount,0,100))

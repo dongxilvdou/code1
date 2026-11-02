@@ -100,6 +100,8 @@ func set_world_enabled(enabled: bool) -> void:
 	visible = enabled
 	update_clues_visibility()
 	for body in find_children("*","StaticBody3D",true,false):body.collision_layer = 1 if enabled else 0
+	# Only the third-day book task uses the cat ledge; retire its collider with its visuals.
+	World.Props.activate(world.reading_ledge,enabled and today()==3)
 	# The furnished bookcase and its collisions are permanent, including on days 1–2.
 
 func clues_unlocked() -> bool:
@@ -160,7 +162,15 @@ func _physics_process(delta: float) -> void:
 		for child in n.get_children():
 			if child is Label3D:child.visible = World.Props.interactable(n,today()) and n.global_position.distance_to(player.global_position)<3.0 and not (n==world.items.fish and val("cook_state")>0)
 
+func migrate_books() -> void:
+	if val("books_v2_version")>=3:return
+	var order=World.Rules.BOOK_GOAL if flag("a3_books") else World.Rules.BOOK_INITIAL
+	for i in range(World.Rules.BOOK_COUNT):set_value("book_slot_%d"%i,order[i])
+	if flag("book1") and not flag("a3_photo"):set_flag("photo_dropped")
+	set_value("books_v2_version",3)
+func all_books_stored() -> bool:return flag("book0") and flag("book1") and flag("book2")
 func restore() -> void:
+	migrate_books()
 	if active():migrate_schedule()
 	set_world_enabled(active())
 	if not active():return
@@ -173,6 +183,7 @@ func restore() -> void:
 		world.items["book%d"%i].visible = holding!=i+1
 		world.items["book%d"%i].set_meta("interaction_complete",flag("book%d"%i))
 		world.place_book(i,flag("book%d"%i))
+	world.place_stored_books()
 	world.items.photo.visible = flag("photo_dropped") and not flag("a3_photo")
 	world.items.pipes.visible = flag("cabinet_open")
 	world.items.camera.visible = flag("cabinet_open")
@@ -231,7 +242,7 @@ func target_position(id: String) -> Vector3:
 	if id=="note":return day.note_target()
 	if id in ["feeder","dog","dog_bowl","dog_spot","cat_bowl","cat_spot"]:return second.target_position(id)
 	if id=="mailbox":return world.items.mailbox.global_position+Vector3(0,.40,.20)
-	if id.begins_with("shelf"):return world.book_returns[int(id.right(1))].origin+world.original_bookcase.global_basis.z*.04
+	if id.begins_with("shelf"):return world.items.shelf0.global_position
 	if id=="can":return world.items.can.global_position+Vector3(0,.17,0)
 	if id=="plant":return world.items.plant.global_position+Vector3(0,.65,0)
 	if id=="cabinet" and flag("cabinet_open"):return world.items.cabinet.global_position+Vector3(-.50,0,.12)
@@ -306,15 +317,16 @@ func interact_item(id: String) -> void:
 		var i := int(id.right(1))
 		if flag(id) or not can_pickup():return
 		set_value("a_holding",i+1)
-		if i==1:set_flag("photo_dropped")
+		if i==1 and not flag("photo_dropped"):
+			set_flag("photo_dropped");game.ui.toast("啪嗒，一张照片从书页里掉到了地上。",5)
 	elif id.begins_with("shelf"):
-		var i := int(id.right(1))
-		if holding!=i+1:game.ui.toast("把相同颜色的书叼到这个书格。",3)
-		elif absf(player.global_position.y-world.shelves[i].y)>.20 or not player.is_on_floor():game.ui.toast("先跳到对应高度的书格上，再把书放好。",3)
-		else:
-			set_flag("book%d"%i)
-			set_value("a_holding",0)
-			if flag("book0") and flag("book1") and flag("book2"):mark("a3_books")
+		if holding in [1,2,3]:
+			set_flag("book%d"%(holding-1));set_value("a_holding",0)
+			if all_books_stored() and not flag("a3_books"):open_panel("books")
+		elif all_books_stored():
+			if flag("a3_books"):game.ui.toast("七本书已经从高到低排好了。",3)
+			else:open_panel("books")
+		else:game.ui.toast("先把地上的三本书叼到第一层，再一起排序。",3)
 	elif id=="photo":
 		if not flag("photo_dropped"):return
 		mark("a3_photo")
@@ -322,9 +334,9 @@ func interact_item(id: String) -> void:
 	elif id=="cabinet":set_flag("cabinet_open",not flag("cabinet_open"))
 	elif id=="pipes":
 		if not flag("cabinet_open"):return
-		if flag("a3_pipes"):story("水管已经接好了。红点却还在闪。\n它对准的不是水槽，是刚才修水管的我。")
+		if flag("a3_pipes"):story("水管已经接好了。那个红点却还在闪。\n它是在监视谁呢？")
 		else:open_panel("pipes")
-	elif id=="camera":story("那不是电源灯，是一枚很小的镜头。\n\n它一直在记录我如何修理水管。\n这个家里……也许还有别的镜头。")
+	elif id=="camera":story("那不是电源灯，是一个很小的摄像头。\n\n它藏在这里，是在监视谁呢？")
 	elif id=="can":
 		if flag("a3_water"):game.ui.toast("花已经浇好了。",3)
 		elif player.global_position.y<.69:game.ui.toast("先跳上沙发，再到西窗的窗台边叼起水壶。",4)
@@ -443,7 +455,7 @@ func interact_dog() -> void:
 				if not flag("a4_toy"):set_flag("toy_requested")
 				story("大狗嚼："+toy_dialogue())
 			elif flag("a5_medicine"):
-				if flag("a5_name"):story("阿嚼：原来我叫阿嚼。\n\n我想起来了……你以前也这样叫过我。\n谢谢你没有忘记。")
+				if flag("a5_name"):story("阿嚼：我好像是叫阿嚼……\n印象里，之前好像有人这么叫过我。\n听见你这样叫，我觉得很熟悉。可再往前的事，就想不起来了。")
 				else:
 					if not flag("a4_toy"):set_flag("toy_requested")
 					open_panel("voice")
@@ -483,9 +495,11 @@ func solved(kind: String) -> void:
 	if not day.Notes.read(day):return
 	puzzle.close()
 	match kind:
+		"books":
+			mark("a3_books");story("七本书从高到低站在同一层。\n"+("刚才掉落的照片，还在书架旁的地上。" if not flag("a3_photo") else "那张照片已经收好了。接下来检查水管。"))
 		"pipes":
 			mark("a3_pipes")
-			story("水顺着管道流向出口。修好了。\n\n门内那个闪烁的红点，是监控镜头。\n它在观察我解开水管，而不是观察漏水。")
+			story("水管接好了……\n\n可这里怎么会有一个摄像头？它是在监视谁呢？")
 		"slide":
 			mark("a4_fridge")
 			story("咔哒。冰箱门打开了。\n\n里面只有一条鱼。叼出来，放进灶台下方的烤箱，再关门。")
@@ -499,7 +513,7 @@ func solved(kind: String) -> void:
 		"voice":
 			mark("a5_name")
 			dog_react()
-			story("“喵——喵。”\n\n大狗的尾巴摇了起来。\n“阿嚼……对，我叫阿嚼。我想起来了。”\n\n它靠近你，像认出了一个很久以前的朋友。\n\n第二幕完。回猫窝可以再次查看结语。")
+			story("“喵——喵。”\n\n大狗的尾巴摇了起来。\n“我好像是叫阿嚼……印象里，之前好像有人这么叫过我。”\n\n“听见你这样叫，我觉得很熟悉。可再往前的事，就想不起来了。”\n\n第二幕完。回猫窝可以再次查看结语。")
 		"aim":
 			mark("a3_water")
 			set_value("a_holding",0)
@@ -518,7 +532,7 @@ func guidance() -> String:
 		return "01 没有清单的一天\n打开入户门，摇晃门外偏西的高信箱三次，再拾起掉落的信。" if flag("a5_bell") else day.Notes.guidance(5)
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==3:
-		if not flag("a3_books"):return "01 整理书架\n把地上的三本书放回对应书列。"
+		if not flag("a3_books"):return "01 整理书架\n三本书都放到第一层后，按从左到右、高到低排列。"
 		if not flag("a3_photo"):return "书里掉出了一张照片。回书架旁的地上看看。"
 		if not flag("a3_pipes"):return "02 修理水管\n到厨房水槽下面，打开柜门，接通水管。"
 		if not flag("a3_water"):return "03 浇花\n取来窗台上的水壶，照顾沙发旁的花。"

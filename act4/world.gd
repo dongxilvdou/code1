@@ -97,25 +97,23 @@ func build(parent: Node3D, game: Node) -> void:
 		for j in range(5):Art.ellipsoid(shower,"RainHeadNozzle",Vector3((i-2)*.031,1.955,-.12+(j-2)*.031),Vector3(.007,.004,.007),Art.material("nozzle_rubber",Color("374b4b"),.9))
 	for i in range(5):
 		Art.rod(shower,"DrainGrille",Vector3(.232+i*.009,.055,.232),Vector3(.232+i*.009,.055,.268),.0014,Art.material("drain_dark",Color("3c4d4b")))
-	valve.set_meta("hidden_temperature_scale",true)
+	valve.set_meta("normal_temperature_scale",true)
 	var wheel := cylinder(valve,Vector3.ZERO,.045,.018,Color("b6bcb4"))
-	wheel.rotation.x = PI/2
+	wheel.rotation.x = PI/2;wheel.material_override=chrome
 	valve_wheel = Node3D.new();valve.add_child(valve_wheel)
 	Art.rod(valve_wheel,"TemperaturePointer",Vector3(0,.018,.016),Vector3(0,.041,.016),.0022,Art.material("pointer",Color("3c544c"),.4))
 	for i in range(23):
 		var a := deg_to_rad(-140+i*280.0/22)
-		Art.rod(valve,"CoveredTick",Vector3(sin(a)*.052,cos(a)*.052,.015),Vector3(sin(a)*.058,cos(a)*.058,.015),.0008,Art.material("covered_ticks",Color("69726a"),.8))
-		if i%2==0:Art.ellipsoid(valve,"OpaqueCalcium",Vector3(sin(a)*.060,cos(a)*.060,.017),Vector3(.022,.013,.003),grain("chalk_limescale",Color("d0c6aa")))
+		Art.rod(valve,"TemperatureScaleTick",Vector3(sin(a)*.052,cos(a)*.052,.015),Vector3(sin(a)*.058,cos(a)*.058,.015),.0008,Art.material("temperature_ticks",Color("69726a"),.8))
 	var wash := target4("wash",shower.to_global(Vector3(0,.057,.12)),"淋浴底盘 · E 试水并洗澡",[8])
 	Props.bind(wash,shower)
-	var limescale := target4("limescale",shower.to_global(Vector3(0,.55,-.56)),"旧贴纸与水垢 · 先试温，再调出水",[8])
+	var limescale := target4("limescale",shower.to_global(Vector3(0,.55,-.56)),"淋浴使用说明 · 先试温，再调出水",[8])
 	limescale.global_rotation=shower.global_rotation
 	root.get_tree().physics_frame.connect(mount_shower_sticker.bind(limescale),CONNECT_ONE_SHOT)
-	box(limescale,"WornInstructionSticker",Vector3.ZERO,Vector3(.18,.115,.002),Color("d4c9a9")).material_override=grain("aged_shower_sticker",Color("d4c9a9"))
+	box(limescale,"ShowerInstructionPlaque",Vector3.ZERO,Vector3(.18,.115,.002),Color("e7eef0")).material_override=Art.material("shower_instructions",Color("e7eef0"),.45)
 	var instructions:=sign_at(limescale,"先小水试温\n再慢慢加水",Vector3(0,0,.0035),32)
 	instructions.billboard=BaseMaterial3D.BILLBOARD_DISABLED;instructions.pixel_size=.00075;instructions.outline_size=0;instructions.modulate=Color("16231b")
 	(instructions.font as SystemFont).font_weight=600
-	for i in range(6):Art.ellipsoid(limescale,"MineralStickerEdge",Vector3(-.083+i*.031,.052,.002),Vector3(.015,.006,.002),grain("sticker_mineral",Color("e0d6bc")))
 	var water := Spray.new()
 	water.name = "ShowerSpray"
 	root.add_child(water)

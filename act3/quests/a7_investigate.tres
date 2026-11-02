@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_dbpk1"]
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 7
+
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"a7_login"
+
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"a7_investigate"
+text = "查看实验室照片、官网介绍、聊天记录和新闻报道。"
+kind = 3
+target_id = &"a7_investigate"
+
+[resource]
+script = ExtResource("quest")
+id = &"a7_investigate"
+title = "04 · 电脑里的旧记录"
+description = "第7天 · 查看实验室照片、官网介绍、聊天记录和新闻报道。"
+priority = 72
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior0")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "进度已保存。"

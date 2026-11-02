@@ -30,6 +30,9 @@ var panel_leds: Array[MeshInstance3D] = []
 var pad: Node3D
 var light_sources: Array = []
 var emissive_surfaces: Array = []
+var emergency_lamp: Node3D
+var emergency_light: OmniLight3D
+var emergency_material: StandardMaterial3D
 var previous_power_mode := -1
 
 func target(id: String, pos: Vector3, label_: String, days_: Array) -> Node3D:
@@ -104,8 +107,13 @@ func build(parent: Node3D, game: Node) -> void:
 	var panel := target("circuit",Vector3(3.05,3.80,2.80),"走廊配电板 · E 检查",[7])
 	panel.rotation.y = PI
 	build_panel(panel,game)
+	emergency_lamp=Node3D.new();emergency_lamp.name="BasementEmergencyLamp";game.get_node("Apartment").add_child(emergency_lamp);emergency_lamp.global_position=Vector3(3.80,-.355,-2.80)
+	box(emergency_lamp,"BatteryHousing",Vector3.ZERO,Vector3(.34,.05,.18),Color("39463f"))
+	var diffuser=box(emergency_lamp,"EmergencyDiffuser",Vector3(0,-.031,0),Vector3(.28,.014,.13),Color("e8dab0"))
+	emergency_material=Details.material("emergency_diffuser",Color("e8dab0"),.45);emergency_material.emission_enabled=false;emergency_material.emission=Color("f0d99c");diffuser.material_override=emergency_material
+	emergency_light=OmniLight3D.new();emergency_light.name="BackupLight";emergency_lamp.add_child(emergency_light);emergency_light.position.y=-.12;emergency_light.light_color=Color("f0d99c");emergency_light.omni_range=3.6;emergency_light.light_energy=0
 	for n in game.get_node("Apartment").find_children("*","Light3D",true,false):
-		if not n is DirectionalLight3D:light_sources.append([n,n.light_energy])
+		if not n is DirectionalLight3D and n!=emergency_light:light_sources.append([n,n.light_energy])
 	for mesh in game.get_node("Apartment").find_children("*","MeshInstance3D",true,false):
 		for i in range(mesh.mesh.get_surface_count()):
 			var material_: Material = mesh.get_active_material(i)
@@ -175,6 +183,9 @@ func set_power(blackout: bool, booted: bool) -> void:
 	var mode := 0 if blackout else 2 if booted else 1
 	if mode==previous_power_mode:return
 	previous_power_mode = mode
+	emergency_light.light_energy=1.6 if blackout else 0.0
+	emergency_material.emission_enabled=blackout
+	emergency_material.emission_energy_multiplier=.8 if blackout else 0.0
 	for entry in light_sources:
 		entry[0].light_energy = 0.0 if blackout else entry[1]
 	for entry in emissive_surfaces:
@@ -198,6 +209,7 @@ func set_power(blackout: bool, booted: bool) -> void:
 			entry[0].set_surface_override_material(entry[1],screen)
 
 func reset_power() -> void:
+	emergency_light.light_energy=0;emergency_material.emission_enabled=false
 	previous_power_mode = -1
 	for entry in light_sources:entry[0].light_energy = entry[1]
 	for entry in emissive_surfaces:

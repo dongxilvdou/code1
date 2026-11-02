@@ -1,5 +1,10 @@
 extends "res://day2/puzzle_ui.gd"
 ## Puzzle state lives in the quest manager; closing a panel never discards it.
+const Rules=preload("res://act2/puzzle_rules_v2.gd")
+var book_order: Array=[]
+var book_selected=-1
+const YarnPuzzle=preload("res://act2/yarn_puzzle.gd")
+var yarn_puzzle: PanelContainer
 const WateringPreview = preload("res://act2/watering_preview.gd")
 var watering: SubViewportContainer
 var chapter
@@ -11,12 +16,13 @@ var selected: Array = []
 var sequence: Array = []
 var voice_tween: Tween
 var slide_hint_tile := -1
-const PIPE_BASE := [[3,1],[3,1],[3,2],[1,2],[3,1],[0,3],[0,1],[3,1],[3,1]]
 const DIRECTIONS := [Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0)]
 const MED_COUNTS := [8,2,7,1,9,3,8]
 const SLIDE_GOAL := [1,2,3,8,0,4,7,6,5]
 
 func open(kind: String, text := "") -> void:
+	if is_instance_valid(yarn_puzzle):yarn_puzzle.suspend()
+	paper_panel.show()
 	if is_instance_valid(watering):watering.set_flow(false)
 	watering = null
 	super.open("story",text)
@@ -25,13 +31,25 @@ func open(kind: String, text := "") -> void:
 		detail.remove_child(n)
 		n.queue_free()
 	match kind:
+		"books":
+			title.text="书架第一层 / 从高到低"
+			description.text="地上的三本书和原有的四本书放在了一起。点击两个书脊交换位置，把七本书从左到右按高度由高到低排列。"
+			book_order.clear();book_selected=-1
+			for i in range(Rules.BOOK_COUNT):book_order.append(chapter.val("book_slot_%d"%i,Rules.BOOK_INITIAL[i]))
+			make_board(Vector2(630,310))
+			button("检查书序",detail,check_books)
 		"pipes":
-			title.text = "水槽之下 / 接回水路"
-			description.text = "点击管道旋转，让水从左上方入口流到右下方出口。\n亮蓝色表示已经接通的管段。柜门内的红点仍在闪烁。"
+			title.text="水槽之下 / 接回水路"
+			description.text="4 行 × 5 列。点击旋转管道，经过 A、B 两处检修点，接到右下出口。\n有螺栓的管道不能转动，通水部分不能漏水。"
 			rotations.clear()
-			for i in range(9):rotations.append(chapter.val("pipe_%d"%i,(i+1)%4))
-			make_board(Vector2(420,300))
-			button("检查水路",detail,check_pipes)
+			var initial=Rules.initial_pipes()
+			if chapter.val("pipes_v2_version")<2:
+				save_array("pipe_v2",initial)
+				chapter.set_value("pipes_v2_version",2)
+			for i in range(20):rotations.append(0 if i in Rules.FIXED else chapter.val("pipe_v2_%d"%i,initial[i])%4)
+			make_board(Vector2(580,400))
+			var actions=HBoxContainer.new();detail.add_child(actions)
+			button("检查水路",actions,check_pipes);button("重新开始",actions,reset_pipes)
 		"slide":
 			title.text = "猫用冰箱 / 八数码锁"
 			description.text = "点击空格相邻的数字块移动。目标按顺时针排列，空格在中央：\n1  2  3    /    8  □  4    /    7  6  5"
@@ -46,11 +64,11 @@ func open(kind: String, text := "") -> void:
 			button("提示下一步（根据当前排列）",detail,show_slide_hint)
 			button("重新打乱（始终可解）",detail,shuffle_tiles)
 		"yarn":
-			title.text = "毛线里的秘密 / 顺着线头"
-			description.text = "点击线头，让它沿箭头方向抽出。前方有其他线头就会卡住。\n全部解开，才能看见藏在里面的东西。"
-			arrows.clear()
-			for i in range(16):arrows.append(chapter.val("yarn_%d"%i,1 if i%3==0 else 0))
-			make_board(Vector2(400,300))
+			paper_panel.hide()
+			if not is_instance_valid(yarn_puzzle):
+				yarn_puzzle=YarnPuzzle.new();shell.add_child(yarn_puzzle)
+				yarn_puzzle.completed.connect(func():solved.emit("yarn"))
+			yarn_puzzle.open_puzzle(chapter);board=yarn_puzzle.board
 		"medicine":
 			title.text = "七只密封药瓶 / 听声音"
 			description.text = "瓶盖无法打开，也看不见里面。点击瓶子，听三次摇晃。\n药少时是分开的轻响，药多时碰撞更密、更响。可反复试听，选出药片最少的三瓶。"
@@ -111,15 +129,22 @@ func cell_rect(i: int, columns: int, rows: int) -> Rect2:
 func draw_board() -> void:
 	var gold := QuestTheme.ACCENT
 	var sage := QuestTheme.SUCCESS
-	if mode=="pipes":
-		var wet := connected_pipes()
-		for i in range(9):
-			var r := cell_rect(i,3,3)
+	if mode=="books":draw_books()
+	elif mode=="pipes":
+		var water=Rules.water(rotations)
+		for i in range(20):
+			var r=cell_rect(i,5,4)
 			board.draw_style_box(QuestTheme.panel(8),r)
-			for d in pipe_ends(i):board.draw_line(r.get_center(),r.get_center()+Vector2(DIRECTIONS[d])*Vector2(board.size.x/6,board.size.y/6),Color("347e83") if wet.has(i) else gold,13,true)
-			board.draw_circle(r.get_center(),9,sage if wet.has(i) else gold)
+			var ink=Color("c66b54") if i in water.leaks else Color("347e83") if i in water.wet else gold
+			for d in pipe_ends(i):board.draw_line(r.get_center(),r.get_center()+Vector2(DIRECTIONS[d])*board.size/Vector2(10,8),ink,10,true)
+			board.draw_circle(r.get_center(),7,ink)
+			if i in Rules.FIXED:
+				for offset in [Vector2(9,9),Vector2(r.size.x-9,r.size.y-9)]:
+					board.draw_circle(r.position+offset,4,QuestTheme.MUTED)
+					board.draw_line(r.position+offset-Vector2(2,0),r.position+offset+Vector2(2,0),QuestTheme.TEXT,1)
+			if i in Rules.CHECKPOINTS:board.draw_string(font,r.position+Vector2(8,22),"A" if i==7 else "B",HORIZONTAL_ALIGNMENT_LEFT,-1,18,QuestTheme.TEXT)
 		board.draw_string(font,Vector2(0,18),"入",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
-		board.draw_string(font,board.size-Vector2(20,8),"出",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
+		board.draw_string(font,board.size-Vector2(22,8),"出",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
 	elif mode=="slide":
 		for i in range(9):
 			var r := cell_rect(i,3,3)
@@ -127,15 +152,6 @@ func draw_board() -> void:
 			board.draw_style_box(QuestTheme.panel(10),r)
 			if tiles[i]==slide_hint_tile:board.draw_rect(r.grow(-3),QuestTheme.ACCENT,false,3)
 			board.draw_string(font,r.get_center()+Vector2(-9,10),str(tiles[i]),HORIZONTAL_ALIGNMENT_LEFT,-1,30,gold)
-	elif mode=="yarn":
-		for i in range(16):
-			if arrows[i]<0:continue
-			var r := cell_rect(i,4,4)
-			var direction := Vector2(DIRECTIONS[arrows[i]])
-			var end := r.get_center()+direction*24
-			board.draw_line(r.get_center()-direction*24,end,gold,5,true)
-			board.draw_line(end,end-direction.rotated(.65)*13,sage,4,true)
-			board.draw_line(end,end-direction.rotated(-.65)*13,sage,4,true)
 	elif mode=="medicine":
 		for i in range(7):
 			var r := cell_rect(i,7,1)
@@ -153,27 +169,38 @@ func draw_board() -> void:
 			board.draw_string(font,r.position+Vector2(10,165),"已听" if chapter.val("med_heard_mask") & (1<<i) else "摇一摇",HORIZONTAL_ALIGNMENT_LEFT,-1,14,sage if selected.has(i) else gold)
 	elif mode=="aim":pass # The live viewport renders the actual models and water volume.
 
-func pipe_ends(i: int) -> Array:
-	return [(PIPE_BASE[i][0]+rotations[i])%4,(PIPE_BASE[i][1]+rotations[i])%4]
-
-func connected_pipes() -> Array:
-	var wet: Array = []
-	if not pipe_ends(0).has(3):return wet
-	var pending: Array = [0]
-	while not pending.is_empty():
-		var i: int = pending.pop_front()
-		if wet.has(i):continue
-		wet.append(i)
-		for d in pipe_ends(i):
-			var p: Vector2i = Vector2i(i%3,i/3)+DIRECTIONS[d]
-			if p.x<0 or p.x>2 or p.y<0 or p.y>2:continue
-			var j: int = p.y*3+p.x
-			if pipe_ends(j).has((d+2)%4) and not wet.has(j):pending.append(j)
-	return wet
-
+func pipe_ends(i: int) -> Array:return Rules.pipe_ends(i,rotations)
+func connected_pipes() -> Array:return Rules.water(rotations).wet
 func check_pipes() -> void:
-	if connected_pipes().has(8) and pipe_ends(8).has(1):solved.emit("pipes")
-	else:feedback.text = "水还没到出口。看看蓝色水路在哪里断开了。"
+	var water=Rules.water(rotations)
+	if water.passed:solved.emit("pipes")
+	else:feedback.text="还没有接通。检查红色漏水口，并让水流经过 A、B 两处检修点。"
+func reset_pipes() -> void:
+	rotations=Rules.initial_pipes();save_array("pipe_v2",rotations);feedback.text="已恢复初始水路。";board.queue_redraw()
+func rotate_pipe(i: int) -> void:
+	if i in Rules.FIXED:feedback.text="这段管道被螺栓固定住了。";return
+	rotations[i]=(rotations[i]+1)%4;save_array("pipe_v2",rotations);feedback.text="";board.queue_redraw()
+func draw_books() -> void:
+	for slot in range(Rules.BOOK_COUNT):
+		var id: int=book_order[slot];var height=185*Rules.BOOK_SCALES[id]
+		var r=Rect2(slot*90+19,275-height,52,height)
+		var style=QuestTheme.panel(4);style.bg_color=Rules.BOOK_COLORS[id];style.shadow_size=2
+		if slot==book_selected:style.border_color=QuestTheme.ACCENT;style.set_border_width_all(4)
+		board.draw_style_box(style,r)
+		board.draw_line(r.position+Vector2(6,7),r.position+Vector2(6,r.size.y-7),style.bg_color.lightened(.22),2,true)
+		for y in [16.0,height-17]:board.draw_line(r.position+Vector2(10,y),r.position+Vector2(43,y),Color("dcc694"),2,true)
+		var name_: String=Rules.BOOK_NAMES[id]
+		for j in range(name_.length()):board.draw_string(font,r.position+Vector2(19,42+j*21),name_[j],HORIZONTAL_ALIGNMENT_LEFT,-1,16,Color("f7efdb"))
+	board.draw_line(Vector2(5,277),Vector2(625,277),QuestTheme.MUTED,4)
+func select_book(slot: int) -> void:
+	if book_selected<0:book_selected=slot
+	else:
+		var book=book_order[slot];book_order[slot]=book_order[book_selected];book_order[book_selected]=book;book_selected=-1
+		save_array("book_slot",book_order);chapter.world.place_stored_books()
+	board.queue_redraw()
+func check_books() -> void:
+	if book_order==Rules.BOOK_GOAL:solved.emit("books")
+	else:feedback.text="还没有排好。从左到右，最高的书在最左边，最矮的在最右边。"
 
 func shuffle_tiles() -> void:
 	slide_hint_tile=-1
@@ -283,19 +310,6 @@ func slide_reachable(values: Array) -> bool:
 			if values[i]!=0 and values[j]!=0 and values[i]>values[j]:inversions += 1
 	return inversions%2==1
 
-func pull_thread(i: int) -> void:
-	if arrows[i]<0:return
-	var p: Vector2i = Vector2i(i%4,i/4)+DIRECTIONS[arrows[i]]
-	while p.x>=0 and p.x<4 and p.y>=0 and p.y<4:
-		if arrows[p.y*4+p.x]>=0:
-			feedback.text = "线头卡住了，先抽掉箭头前面的线。"
-			return
-		p += DIRECTIONS[arrows[i]]
-	arrows[i] = -1
-	save_array("yarn",arrows)
-	feedback.text = "解开了 %d / 16 个线头" % arrows.count(-1)
-	if arrows.count(-1)==16:solved.emit("yarn")
-
 func check_medicine() -> void:
 	selected.sort()
 	for i in selected:
@@ -366,25 +380,30 @@ func play_voice(tone: int, long_note: bool) -> void:
 	voice_tween.tween_callback(audio.stop)
 
 func save_array(prefix: String, values: Array) -> void:
-	for i in range(values.size()):chapter.set_value("%s_%d"%[prefix,i],values[i])
+	# Publish one complete board state, with at most one autosave per action.
+	var dirty=false
+	for i in range(values.size()):
+		var key="%s_%d"%[prefix,i]
+		if chapter.val(key,-999)!=int(values[i]):chapter.day.manager.values[key]=int(values[i]);dirty=true
+	if dirty and not values.is_empty():chapter.set_value("%s_0"%prefix,int(values[0]))
 
 func board_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton or not event.pressed or event.button_index!=MOUSE_BUTTON_LEFT:return
-	var columns := 7 if mode=="medicine" else 4 if mode=="yarn" else 3
-	var rows := 1 if mode=="medicine" else 4 if mode=="yarn" else 3
-	var p: Vector2 = event.position/board.size*Vector2(columns,rows)
-	var i := int(p.y)*columns+int(p.x)
+	if not Rect2(Vector2.ZERO,board.size).has_point(event.position):return
+	var columns=7 if mode in ["medicine","books"] else 5 if mode=="pipes" else 3
+	var rows=1 if mode in ["medicine","books"] else 4 if mode=="pipes" else 3
+	var p=event.position/board.size*Vector2(columns,rows)
+	var i=int(p.y)*columns+int(p.x)
 	match mode:
-		"pipes":
-			rotations[i] = (rotations[i]+1)%4
-			save_array("pipe",rotations)
+		"books":select_book(int(p.x))
+		"pipes":rotate_pipe(i)
 		"slide":move_tile(i)
-		"yarn":pull_thread(i)
 		"medicine":
 			if i in range(7):shake_medicine(i)
 	board.queue_redraw()
 
 func close() -> void:
+	if is_instance_valid(yarn_puzzle):yarn_puzzle.suspend()
 	if is_instance_valid(watering):watering.set_flow(false)
 	super.close()
 
@@ -398,6 +417,7 @@ func pour_at(mouse: Vector2, pressed: bool, delta: float) -> void:
 	if chapter.aim_progress>=2.5:solved.emit("aim")
 
 func _process(delta: float) -> void:
+	if mode=="yarn" and shell.visible:return
 	super._process(delta)
 	if mode!="aim" or not shell.visible or not is_instance_valid(watering):return
 	pour_at(watering.get_local_mouse_position(),Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT),delta)

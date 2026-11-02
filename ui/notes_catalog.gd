@@ -1,4 +1,5 @@
 extends RefCounted
+const Investigation=preload("res://act3/investigation_data.gd")
 const Daily=preload("res://day1/daily_notes.gd")
 const PAPER_KEYS=["living","dining","kitchen","study1"]
 const PAPERS=[
@@ -18,7 +19,11 @@ static func data(id: String) -> Dictionary:
   "escape":return {"title":"被折过的小纸条","text":"地下室逃跑计划。\n\n监控底下。\n沿着旧抓痕走。\n\nD-017 / C-031"}
   "letter":return {"title":"今天的照料清单","text":"大狗嚼今天需要吃药。\n七只药瓶无法开盖，只能摇晃听声音。\n药片越多，碰撞声越响、越密。\n请从药片最少的三瓶里取药，\n照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。"}
   "photo":return {"title":"收好的照片","text":"主人穿着白大褂，身旁蹲着我。\n照片背面：C-031 / 阶段 II。"}
-  "pipes":return {"title":"柜门里的镜头","text":"红点正对着我修水管的位置。\n它一直在看着这里吗？"}
+  "pipes":return {"title":"柜门里的镜头","text":"水槽柜里藏着一个摄像头。\n它是在监视谁呢？"}
+  "lab_photo":return {"title":"被删除的实验室照片","text":"是照片里的那个人……原来，那里不是家里。"}
+  "lab_site":return {"title":"XX生物实验室官网","text":Investigation.SITE}
+  "lab_chat":return {"title":"X主任的聊天记录","text":Investigation.CHAT}
+  "lab_news":return {"title":"关于实验室的负面报道","text":Investigation.news_summary()}
   "bone":return {"title":"阿嚼的玩具骨头","text":"骨头上刻着：D-017。\n\n→ 短，↘ 长。\n这是阿嚼留下的线索。"}
  return {"title":"线索册","text":"找到值得记住的纸片和照片后，可以收在这里。"}
 static func load_image(path: String) -> Texture2D:
@@ -31,6 +36,7 @@ static func load_image(path: String) -> Texture2D:
  if image==null or image.is_empty():return null
  var texture=ImageTexture.create_from_image(image);textures[path]=texture;return texture
 static func texture(id: String) -> Texture2D:
+ if id=="lab_photo":return load_image("res://act3/textures/lab_photo.png")
  return load_image("res://act2/memory_photo.png" if id=="photo" else "res://assets/notes/%s.png"%id)
 static func collected(day: Node) -> Array[String]:
  var result: Array[String]=[]
@@ -40,9 +46,11 @@ static func collected(day: Node) -> Array[String]:
   if day.flag("paper_"+PAPER_KEYS[i]) or day.flag("papers_done"):result.append("paper%d"%i)
  for entry in [["a3_photo","photo"],["a3_pipes","pipes"],["yarn_solved","bone"],["a5_letter","letter"],["a10_note","escape"]]:
   if day.flag(entry[0]):result.append(entry[1])
+ for key in Investigation.KEYS:
+  if day.flag("a7_read_"+key):result.append("lab_"+key if key!="site" else "lab_site")
  return result
 static func all_ids() -> Array[String]:
  var ids: Array[String]=[]
  for number in range(1,12):ids.append("day%d"%number)
- ids.append_array(["paper0","paper1","paper2","paper3","escape","letter","pipes","bone"])
+ ids.append_array(["paper0","paper1","paper2","paper3","escape","letter","pipes","bone","lab_site","lab_chat","lab_news"])
  return ids

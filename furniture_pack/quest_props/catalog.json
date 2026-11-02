@@ -72,8 +72,8 @@
   {
     "id": "feeder",
     "name": "双仓宠物自动喂食器",
-    "triangles": 21148,
-    "materials": 7,
+    "triangles": 6364,
+    "materials": 6,
     "units": "metres"
   },
   {

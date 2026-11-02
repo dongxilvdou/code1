@@ -2,7 +2,7 @@ extends CanvasLayer
 signal dismissed
 const Wallpaper = preload("res://act3/desktop_art.gd")
 const DesktopIcon = preload("res://act3/desktop_icon.gd")
-const PaperTheme = preload("res://quest_system/quest_theme.gd")
+const PaperTheme = preload("res://act3/computer_theme.gd")
 var chapter
 var shell: Control
 var login: PanelContainer
@@ -11,6 +11,7 @@ var password: LineEdit
 var hint: Label
 var error: Label
 var font: SystemFont
+var apps
 var logged_name: Label
 
 func _ready() -> void:
@@ -29,16 +30,17 @@ func _ready() -> void:
 	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shell.add_child(tint)
 	tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var header := text("MISO HOME  /  PERSONAL COMPUTER",18,shell)
+	var header := text("",18,shell)
 	header.position = Vector2(34,26)
 	var close := Button.new()
 	close.text = "退出电脑  ·  Esc"
-	PaperTheme.button(close)
+	close.add_theme_stylebox_override("normal",PaperTheme.box(Color(.08,.12,.19,.58)))
+	close.add_theme_color_override("font_color",Color.WHITE)
 	close.add_theme_font_override("font",font)
 	shell.add_child(close)
 	close.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	close.offset_left = -214
-	close.offset_top = 20
+	close.offset_top = 18
 	close.offset_right = -29
 	close.offset_bottom = 58
 	close.pressed.connect(close_computer)
@@ -48,10 +50,9 @@ func _ready() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	login = PanelContainer.new()
 	login.custom_minimum_size.x = 430
-	var card := PaperTheme.panel(30)
+	var card := PaperTheme.box(Color(.96,.97,.98,.97),Color(.7,.75,.8,.5),30,10)
 	login.add_theme_stylebox_override("panel",card)
 	center.add_child(login)
-	PaperTheme.glass(login,24)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation",17)
 	login.add_child(col)
@@ -82,47 +83,47 @@ func _ready() -> void:
 	hint.add_theme_color_override("font_color",PaperTheme.MUTED)
 	var enter := Button.new()
 	enter.text = "登 录"
-	PaperTheme.button(enter,true)
+	enter.add_theme_stylebox_override("normal",PaperTheme.box(PaperTheme.BLUE,Color.TRANSPARENT,10))
+	enter.add_theme_color_override("font_color",Color.WHITE)
 	enter.custom_minimum_size.y = 46
 	enter.add_theme_font_override("font",font)
 	col.add_child(enter)
 	enter.pressed.connect(submit_password)
 	error = text("",15,col)
-	error.add_theme_color_override("font_color",PaperTheme.ACCENT)
+	error.add_theme_color_override("font_color",Color("b3261e"))
 	desktop = Control.new()
 	shell.add_child(desktop)
 	desktop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	desktop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var icons := VBoxContainer.new()
-	desktop.add_child(icons)
-	icons.position = Vector2(45,100)
-	icons.add_theme_constant_override("separation",26)
-	for i in range(4):
-		var item := VBoxContainer.new()
+	var icons=GridContainer.new();icons.columns=1;desktop.add_child(icons);icons.position=Vector2(20,28)
+	icons.add_theme_constant_override("h_separation",12);icons.add_theme_constant_override("v_separation",8)
+	for i in range(6):
+		var id=["computer","documents","photos","recycle","browser","chat"][i]
+		var item=Button.new();item.custom_minimum_size=Vector2(102,91)
+		item.add_theme_stylebox_override("normal",PaperTheme.box(Color.TRANSPARENT))
+		item.add_theme_stylebox_override("hover",PaperTheme.box(Color(1,1,1,.12),Color(1,1,1,.2)))
+		item.add_theme_stylebox_override("focus",PaperTheme.box(Color(.35,.65,.94,.25),Color(.7,.85,1,.6)))
 		icons.add_child(item)
-		var center_icon := CenterContainer.new()
-		item.add_child(center_icon)
-		var icon := DesktopIcon.new()
-		icon.kind = i
-		icon.custom_minimum_size = Vector2(52,52)
-		center_icon.add_child(icon)
-		text(["此电脑","文档","照片","回收站"][i],17,item).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		item.name=id.to_pascal_case()+"Icon";item.pressed.connect(func():apps.open_app(id))
+		var column=VBoxContainer.new();item.add_child(column);column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);column.mouse_filter=Control.MOUSE_FILTER_IGNORE
+		var center_icon=CenterContainer.new();column.add_child(center_icon);center_icon.mouse_filter=Control.MOUSE_FILTER_IGNORE
+		var icon=DesktopIcon.new();icon.kind=i;icon.custom_minimum_size=Vector2(52,52);icon.mouse_filter=Control.MOUSE_FILTER_IGNORE;center_icon.add_child(icon)
+		var caption=text(["此电脑","文档","照片","回收站","浏览器","微信"][i],15,column);caption.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;caption.mouse_filter=Control.MOUSE_FILTER_IGNORE;caption.add_theme_color_override("font_color",Color.WHITE);caption.add_theme_color_override("font_shadow_color",Color(.0,.0,.0,.7));caption.add_theme_constant_override("shadow_offset_y",1)
 	var taskbar := ColorRect.new()
-	taskbar.color = Color(.05,.11,.16,.89)
+	taskbar.color = Color(.94,.96,.98,.96)
 	desktop.add_child(taskbar)
 	taskbar.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	taskbar.offset_top = -54
 	taskbar.offset_bottom = 0
-	var start := text("▦     ⌕     ▰",22,taskbar)
-	start.position = Vector2(30,13)
-	logged_name = text("C-031   ·   已登录         09:31",16,taskbar)
+	var launchers=HBoxContainer.new();taskbar.add_child(launchers);launchers.position=Vector2(32,8)
+	for entry in [["▦", "computer"],["文件", "documents"],["浏览器", "browser"],["微信", "chat"]]:
+		var launcher=Button.new();launcher.text=entry[0];launcher.custom_minimum_size=Vector2(58,38);launchers.add_child(launcher)
+		launcher.pressed.connect(func():apps.open_app(entry[1]))
+	logged_name = text("简  中    ◉  ♫      09:31\n                         本地账户 C-031",13,taskbar)
+	logged_name.add_theme_color_override("font_color",PaperTheme.INK)
 	logged_name.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	logged_name.offset_left = -305
-	logged_name.offset_top = 16
-	logged_name.offset_right = -15
-	logged_name.offset_bottom = 46
-	# Desktop icons and the taskbar are deliberately display-only.
-	for c in desktop.find_children("*","Control",true,false):c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	logged_name.offset_left = -260;logged_name.offset_top = 8;logged_name.offset_right = -20;logged_name.offset_bottom = 49
+	apps=preload("res://act3/desktop_apps.gd").new();apps.computer=self;desktop.add_child(apps)
 	shell.move_child(close,-1)
 	shell.hide()
 
@@ -131,7 +132,7 @@ func text(value: String, size_: int, parent: Node) -> Label:
 	label.text = value
 	label.add_theme_font_override("font",font)
 	label.add_theme_font_size_override("font_size",size_)
-	label.add_theme_color_override("font_color",PaperTheme.TEXT if is_instance_valid(login) and login.is_ancestor_of(parent) else Color("f0f3eb"))
+	label.add_theme_color_override("font_color",PaperTheme.INK if is_instance_valid(login) and login.is_ancestor_of(parent) else Color("f0f3eb"))
 	parent.add_child(label)
 	return label
 
@@ -157,10 +158,12 @@ func submit_password() -> void:
 	desktop.show()
 
 func close_computer() -> void:
+	apps.close_all()
 	shell.hide()
 	dismissed.emit()
 
 func _input(event: InputEvent) -> void:
-	if shell.visible and event is InputEventKey and event.pressed and event.keycode==KEY_ESCAPE:
-		close_computer()
+	if not shell.visible or not chapter.day.reader.mode.is_empty():return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_ESCAPE:
+		if not apps.back():close_computer()
 		get_viewport().set_input_as_handled()

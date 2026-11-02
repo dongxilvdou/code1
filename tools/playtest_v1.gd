@@ -70,6 +70,20 @@ func check_feeder_reader() -> void:
  await key(KEY_C);await key(KEY_ESCAPE)
  verify(day.active_play() and day.reader.mode.is_empty(),"Standalone album cannot close after returning from feeder")
  second.open_puzzle("code")
+func check_ruler_mouse_direction() -> void:
+ var ruler=day.ruler_interaction
+ var camera: Camera3D=game.player.camera
+ for motion in [Vector2(12,0),Vector2(-12,0),Vector2(0,-12),Vector2(0,12)]:
+  var before: Vector2=camera.unproject_position(ruler.tip)
+  var button_=InputEventMouseButton.new();button_.button_index=MOUSE_BUTTON_LEFT;button_.pressed=true;button_.position=root.get_visible_rect().size*.5;button_.button_mask=MOUSE_BUTTON_MASK_LEFT
+  root.push_input(button_,true)
+  var event=InputEventMouseMotion.new();event.relative=motion;event.position=button_.position;event.button_mask=MOUSE_BUTTON_MASK_LEFT
+  root.push_input(event,true);await ticks(6)
+  button_.pressed=false;button_.button_mask=0;root.push_input(button_,true)
+  var displacement: Vector2=camera.unproject_position(ruler.tip)-before
+  verify(displacement.dot(motion)>1,"Ruler moves opposite to mouse on screen: "+str(motion)+" -> "+str(displacement))
+  if motion.x!=0:verify(absf(displacement.y)<absf(displacement.x)*.1,"Horizontal ruler drag should follow screen left/right: "+str(displacement))
+ print("RULER_MOUSE_DIRECTIONS verified left/right/up/down through viewport input")
 func run_tests() -> void:
  game=load("res://scenes/main.tscn").instantiate();game.get_node("QuestSystem").save_enabled=false;root.add_child(game);current_scene=game
  game.start_game();await ticks(8)
@@ -130,6 +144,7 @@ func run_tests() -> void:
  var ruler=day.ruler_interaction
  verify(ruler.begin(),"Vertical ruler cannot begin physical interaction")
  await ticks(3);await photo_("ruler")
+ await check_ruler_mouse_direction()
  await key(KEY_ESCAPE);var frozen: Vector3=ruler.body.global_position;await ticks(8)
  verify(ruler.paused and ruler.body.global_position.distance_to(frozen)<.001,"Paused rigid yarn kept moving")
  await key(KEY_ESCAPE)

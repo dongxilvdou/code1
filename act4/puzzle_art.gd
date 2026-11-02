@@ -61,20 +61,11 @@ func draw_valve() -> void:
 		var a := deg_to_rad(-140+i*10)
 		var v := Vector2(sin(a),-cos(a))
 		draw_line(c+v*(r+4),c+v*(r+15),Color("5b6256"),2,true)
-	# Opaque mineral deposits cover the numeric temperature scale, not the pointer.
-	for span in [Vector2(-145,-24),Vector2(40,145)]:
-		var patch := PackedVector2Array()
-		for j in range(25):
-			var a := deg_to_rad(lerpf(span.x,span.y,j/24.0))
-			patch.append(c+Vector2(sin(a),-cos(a))*(r+22+sin(j*2.3)*2))
-		for j in range(24,-1,-1):
-			var a := deg_to_rad(lerpf(span.x,span.y,j/24.0))
-			patch.append(c+Vector2(sin(a),-cos(a))*(r+2+sin(j*1.8)*3))
-		draw_colored_polygon(patch,Color("c9bea2"))
-		for j in range(40):
-			var a := deg_to_rad(lerpf(span.x,span.y,fposmod(j*.618,1)))
-			draw_circle(c+Vector2(sin(a),-cos(a))*(r+5+fposmod(j*3.17,16)),.6+fposmod(j*.7,1.2),Color("e0d6bb"))
-	draw_arc(c,r+4,deg_to_rad(-104),deg_to_rad(-56),32,Color(.92,.86,.67,.65),5,true)
+	for nominal in [20,30,40,50]:
+		var value=(nominal-18.0)/.36
+		var angle=deg_to_rad(lerpf(-140,140,value/100.0))
+		var point=c+Vector2(sin(angle),-cos(angle))*(r+37)
+		draw_string(get_theme_default_font(),point+Vector2(-9,5),str(nominal),HORIZONTAL_ALIGNMENT_LEFT,-1,14,Color("344b48"))
 	for i in range(12):draw_circle(c,r-i*.7,Color("a7afa6").lerp(Color("d0d3c7"),i/16.0))
 	var a := deg_to_rad(lerpf(-140,140,chapter.valve_setting()/100.0))
 	var v := Vector2(sin(a),-cos(a))

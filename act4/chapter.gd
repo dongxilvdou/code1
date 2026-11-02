@@ -192,7 +192,7 @@ func _physics_process(delta: float) -> void:
 		if warm_water() and steady_water() and player.global_position.distance_to(world.items.wash.global_position)<.62:wash_time+=delta
 		else:wash_time=0;bathing=false;world.items.water.stop()
 		if wash_time>=4:
-			bathing=false;mark("a8_wash");world.items.water.stop();story("水温和水流终于都稳定了。\n调小出水、试温，再缓缓加到舒适的流量。水垢下的数字仍然看不清，但我记住了两个旋钮的位置。\n\n接下来，前往二楼书房，寻找时间纸条并调整墙上的时钟。")
+			bathing=false;mark("a8_wash");world.items.water.stop();story("水温和水流终于都稳定了。\n调小出水、试温，再缓缓加到舒适的流量。我试过不同的冷热和出水位置，现在记住了舒适的手感。\n\n接下来，前往二楼书房，寻找时间纸条并调整墙上的时钟。")
 	if flag("a8_clock"):
 		clock_tick+=delta
 		if clock_tick>=1:
@@ -265,7 +265,7 @@ func advance_mouse(delta: float) -> void:
 		var motion:=destination-mouse.global_position
 		if stair_leg:motion.y=0
 		var distance_:=motion.length()
-		var speed:=1.05 if stair_leg else 2.5
+		var speed:=1.70 if stair_leg else 4.0
 		var travel:=minf(remaining*speed,distance_)
 		if distance_>.0001:
 			mouse.global_position+=motion/distance_*travel
@@ -435,7 +435,7 @@ func interact_item(id: String) -> void:
 	elif id in ["valve","wash","limescale"]:
 		if not flag("a8_food"):game.ui.toast("先拿到并吃掉柜顶的猫粮。",3);return
 		if id=="valve":open_panel("valve")
-		elif id=="limescale":story("水温数字被水垢遮住了。旁边还有一个出水旋钮。\n底座上，两段常用位置都磨得发亮。\n\n旧贴纸写着：先用小水试温，再慢慢加水。水开大时，热水也会来得更快；别一下拧到底。")
+		elif id=="limescale":story("右侧旋钮调冷热，左侧小旋钮调出水。刻度和指针都清楚可见。\n\n说明写着：先用小水试温，再慢慢加水。每次只转动一点，试过以后，再根据冷暖和水流继续调整。")
 		elif flag("a8_wash"):story("毛已经洗干净了。关好水，去二楼书房看看墙上的时钟吧。")
 		elif not steady_water():
 			world.items.water.flow=pressure_setting()/100.0
@@ -491,7 +491,7 @@ func guidance() -> String:
 	if not day.Notes.read(day):return day.Notes.guidance(today())
 	if today()==8:
 		if not flag("a8_food"):return "01 柜顶的猫粮\n留意主卧的床垫，想办法够到柜顶。蓄力 %d / 3。"%val("bed_jumps")
-		if not flag("a8_wash"):return "02 洗个澡\n观察淋浴间的旧贴纸，调整温度和出水旋钮，再到底盘试水。"
+		if not flag("a8_wash"):return "02 洗个澡\n查看淋浴使用说明，逐一试调温度和出水旋钮，再到底盘试水。"
 		if not flag("a8_clock"):return "03 沉默的时钟\n前往二楼书房，在书桌、书柜脚边和阅读小桌找齐纸条，再调整墙上时钟。已找到 %d / 3。"%clock_clue_count()
 	elif today()==9:
 		if not flag("a9_plants"):return "01 露台花盆\n按照旁边墙画中三种植物的顺序交换现有盆栽。"
