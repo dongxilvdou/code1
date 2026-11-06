@@ -187,8 +187,8 @@ func render_explorer() -> void:
   if entry[1]==app:nav_button.add_theme_stylebox_override("normal",DeskTheme.box(Color("e3edf7")))
  var content=inset(split,20)
  if page in ["photo","lab_photo"]:
-  paragraph("实验室工作照.jpg",19,content);show_photo(content,"res://act3/textures/lab_photo.png")
-  paragraph("是照片里的那个人……原来，那里不是家里。",16,content);record("photo");status.text="实验室工作照.jpg  ·  图片查看器"
+  paragraph("实验室工作照.jpg",19,content);show_photo(content,"res://story_branches/art/clues/lab_photo.png")
+  paragraph(preload("res://story_branches/data.gd").LAB_PHOTO+"\n是照片里的那个人……原来，那里不是家里。",16,content);record("photo");status.text="实验室工作照.jpg  ·  图片查看器"
  elif app=="recycle":
   var commands=HBoxContainer.new();content.add_child(commands)
   var restore_=button("还原选定项目",commands,restore_photo);restore_.disabled=computer.chapter.flag("lab_photo_restored")
@@ -205,9 +205,14 @@ func render_explorer() -> void:
  elif app=="photos":
   paragraph("图片",24,content)
   if computer.chapter.flag("lab_photo_restored"):button("实验室工作照.jpg",content,show_page.bind("lab_photo"))
-  show_photo(content,"res://act2/memory_photo.png");status.text="图片  ·  已收藏的合照"
+  show_photo(content,"res://story_branches/art/clues/memory_photo.png");status.text="图片  ·  已收藏的合照"
  elif app=="documents":
-  paragraph("文档",23,content);paragraph("此文件夹为空。",17,content,DeskTheme.MUTED);status.text="0 个项目"
+  paragraph("文档",23,content)
+  if computer.chapter.flag("a7_login") and computer.chapter.evidence_count()==Data.KEYS.size():
+   paragraph("原始记录",22,content);paragraph(preload("res://story_branches/data.gd").RECORD_INDEX,19,content)
+   paragraph(preload("res://story_branches/data.gd").SYNC_STATUS,17,content,DeskTheme.MUTED);status.text="原始记录 · 本地索引"
+  else:
+   paragraph("完成四项资料调查后，可查看原始记录索引。",17,content,DeskTheme.MUTED);status.text="原始记录 · 尚未解锁"
  else:
   paragraph("文件夹",23,content)
   for entry in [["文档","documents"],["图片","photos"],["回收站","recycle"]]:

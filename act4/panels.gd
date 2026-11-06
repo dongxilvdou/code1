@@ -203,8 +203,12 @@ func choose_piece(index: int) -> void:
 		return
 	chapter.swap_pieces(selection,index)
 	if chapter.jigsaw_order()==range(9):
-		close();chapter.mark("a9_jigsaw");chapter.restore();chapter.story("照片终于拼好了。\n\n三只猫，三扇实验室的笼门。中间那只灰猫的眼神，为什么如此熟悉？")
-		picture("res://act4/textures/laboratory_cats.png",detail)
+		close();chapter.mark("a9_jigsaw");chapter.restore()
+		var memory:=preload("res://story_branches/memory_player.gd").new();chapter.add_child(memory)
+		memory.finished.connect(func():
+			chapter.story("照片终于拼好了。\n\n三只猫，三扇实验室的笼门。\n刚才那双手……曾经给米酥盖上毯子。")
+			picture("res://act4/textures/laboratory_cats.png",detail))
+		memory.play(chapter.game)
 	else:open4("jigsaw")
 func open_circuit() -> void:
 	var level: int = chapter.val("locks")

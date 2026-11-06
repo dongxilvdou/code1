@@ -65,6 +65,11 @@ func show_panel(kind: String, title: String, text_: String, options: Array) -> v
 func close() -> void:
 	mode="";shell.hide()
 
+func add_inspection_action() -> void:
+	var button:=Button.new();button.text="查看观察终端 / 模型预览";button.custom_minimum_size.y=36
+	PaperTheme.button(button);actions.add_child(button)
+	button.pressed.connect(func():action.emit("inspect"))
+
 func shade_lids(amount: float) -> void:
 	var viewport:=get_viewport().get_visible_rect().size
 	var height:=viewport.y*clampf(amount,0,.47)
@@ -74,8 +79,9 @@ func shade_lids(amount: float) -> void:
 func _process(_delta: float) -> void:
 	if not shell.visible:return
 	var viewport:=get_viewport().get_visible_rect().size
-	var narrative:=mode in ["story","cage","camera","locked_vent","memory"]
+	var narrative:=mode in ["story","cage","camera","locked_vent","memory","report"]
 	var width:=minf(minf(1000,viewport.x*.74) if narrative else 650,viewport.x-64)
+	body.add_theme_font_size_override("font_size",22 if mode=="report" else 15)
 	paper_panel.custom_minimum_size.x=width
 	body.size.x=width-48
 	reading.custom_minimum_size.y=clampf(body.get_minimum_size().y,60,viewport.y*(.40 if narrative else .43))
@@ -88,7 +94,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_ESCAPE:
 			# A recollection and the unlocked escape both have exactly one answer.
-			if mode in ["story","cage","camera","locked_vent"]:action.emit("close")
+			if mode in ["story","cage","camera","locked_vent","report"]:action.emit("close")
 			get_viewport().set_input_as_handled()
 		elif event.keycode in [KEY_1,KEY_2,KEY_3] and mode=="device":
 			action.emit("choice%d"%(event.keycode-KEY_0));get_viewport().set_input_as_handled()

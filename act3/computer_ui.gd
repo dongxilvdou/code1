@@ -79,7 +79,7 @@ func _ready() -> void:
 	col.add_child(password)
 	password.text_submitted.connect(func(_value: String):submit_password())
 	password.focus_entered.connect(reveal_hint)
-	hint = text("在最近的照片上。照片收在一楼客厅桌上的线索册里。",16,col)
+	hint = text(preload("res://story_branches/data.gd").PASSWORD_NOTE+"。照片收在一楼客厅桌上的线索册里。",16,col)
 	hint.add_theme_color_override("font_color",PaperTheme.MUTED)
 	var enter := Button.new()
 	enter.text = "登 录"
@@ -151,7 +151,7 @@ func reveal_hint() -> void:hint.show()
 
 func submit_password() -> void:
 	var entered := password.text.strip_edges().to_upper().replace("-","").replace(" ","").replace("－","")
-	if entered!="C031":
+	if entered not in ["C031","米酥"]:
 		error.text = "密码不正确，再想想照片上的名字。"
 		password.select_all()
 		return

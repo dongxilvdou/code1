@@ -12,6 +12,7 @@ var film
 var initialized := false
 var needs_restore := true
 var hud_clock := 0.0
+var model_inspection: CanvasLayer
 
 func _ready() -> void:
 	game=get_parent();day=game.get_node("DayOne");player=game.get_node("Miso");fourth=game.get_node("ActFour")
@@ -89,6 +90,12 @@ func nearest_item() -> String:
 		if not hit.is_empty() and hit.position.distance_to(pos)>.20:continue
 		var score:=1-forward.dot(delta.normalized())+delta.length()*.08
 		if score<best:best=score;found=id
+	# Horizontal aiming at the cage latch should operate its door. Looking down
+	# at the tray selects the evidence, so the optional clue cannot trap the cat.
+	if found=="cage":
+		var latch_delta: Vector3=world.cage.interaction_position()-eye
+		var clue_delta: Vector3=target_position("cage")-eye
+		if latch_delta.length()<1.4 and forward.dot(latch_delta.normalized())>forward.dot(clue_delta.normalized())+.015:return ""
 	return found
 
 func target_hint() -> String:
@@ -106,8 +113,11 @@ func interact_item(id: String) -> void:
 	if id=="device":
 		if not flag("a11_choice"):
 			show_panel("device","转化装置","透明的器皿安在那张检查台上。\n\n进去，就能变成人吗？装置外面还有一颗红色按钮。",[["choice1","1  进去，变成人"],["choice2","2  拒绝，按下装置外面的红色按钮"],["choice3","3  给我一点时间想想"]])
+			ui.add_inspection_action()
 		elif not flag("a11_memory"):memory()
-		else:show_panel("story","我应该到处看看","昨天老鼠叼着的纸条……写着地下室逃跑计划。\n\n先看看笼子和监控底下。",[["close","继续寻找"]])
+		else:show_panel("story","我应该到处看看","昨天老鼠叼着的纸条……写着地下室逃跑计划。\n\n先看看笼子和监控底下。",[["inspect","查看观察终端 / 模型预览"],["close","继续寻找"]])
+	elif id=="report":
+		show_panel("report",World.Copy.REPORT_TITLE,World.Copy.REPORT,[["close","放回原处"]])
 	elif id=="cage":
 		if not flag("a11_memory"):memory();return
 		mark("a11_cage")
@@ -130,7 +140,8 @@ func memory() -> void:
 
 func on_action(id: String) -> void:
 	if not active():return
-	if id=="recall" and ui.mode=="arrival":memory()
+	if id=="inspect":open_model_inspection()
+	elif id=="recall" and ui.mode=="arrival":memory()
 	elif id.begins_with("choice"):
 		if ui.mode!="device" or flag("a11_choice"):return
 		day.manager.set_value(&"ending_choice",int(id.right(1)))
@@ -148,7 +159,14 @@ func on_action(id: String) -> void:
 	elif id=="menu":
 		if ui.mode!="final":return
 		game.get_tree().reload_current_scene()
-	elif id=="close" and ui.mode in ["story","cage","camera","locked_vent"]:close_panel()
+	elif id=="close" and ui.mode in ["story","cage","camera","locked_vent","report"]:close_panel()
+
+func open_model_inspection() -> void:
+	ui.close()
+	if not is_instance_valid(model_inspection):
+		model_inspection=preload("res://story_branches/inspection.gd").new();add_child(model_inspection)
+		model_inspection.closed.connect(close_panel)
+	model_inspection.open(game,world)
 
 func close_panel() -> void:
 	ui.close();game.cinematic_active=false;player.set_control(true);refresh_hud()
@@ -175,6 +193,7 @@ func refresh_hud() -> void:
 	day.hud.carry.text=""
 
 func reset_runtime() -> void:
+	if is_instance_valid(model_inspection) and model_inspection.opened:model_inspection.close()
 	initialized=false;needs_restore=true
-	ui.close();world.hide()
+	ui.close();world.restore(false,false)
 	if film!=null:film.reset();film.queue_free();film=null

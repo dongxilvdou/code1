@@ -116,12 +116,15 @@ Windows 默认存档位置为 `%APPDATA%\Calico_DayOne\day_one_v1.json`。存档
 | `quest_system/`、`villa_maps/` | 任务管理、存档、日志与地图 |
 | `assets/` | 角色、正式漫画、音视频等游戏资源 |
 | `furniture_pack/` | 家具、任务道具、地下室资产、材质及建模源文件 |
+| `story_branches/` | 地下室增补设备、独立片场、视觉快照接口与分支模型预览 |
 | `tools/` | 可复用的生成、截图与验证工具 |
 | `docs/`、`previews/showcase/` | 当前开发说明、分镜与本 README 的实机图片 |
 
 地图调整可能同时涉及场景、脚本、模型、材质和任务资源，协作时应提交本次修改的完整依赖。`.godot/` 是各电脑生成的本地缓存，不上传；`.uid` 和资源旁的 `.import` 保存资源标识、导入设置，需要一起保留。
 
 开发入口、资源维护方式、验证命令和已知检查限制见 [开发与目录说明](docs/DEVELOPMENT.md)。漫画内容见 [开场分镜](docs/OPENING_STORYBOARD.md)，本次整理范围见 [清理记录](docs/CLEANUP.md)。
+
+地下室设备、楼上线索和护理闪回的本轮变更见 [地下室文档评估与验收](docs/BASEMENT_GUIDE_REVIEW.md)。新增分支状态系统尚未接线，相关模型演示可用根目录「预览地下室改造.cmd」查看，不写正式存档。
 
 ## 项目小组
 

@@ -68,7 +68,7 @@ func build(parent: Node3D, game: Node) -> void:
 	var photo := target("photo",Vector3(-2.25,.025,.40),"从书里掉下的照片",[3])
 	var photo_mesh := box(photo,"Photograph",Vector3.ZERO,Vector3(.26,.004,.13),Color.WHITE)
 	var photo_material := mat(Color.WHITE)
-	photo_material.albedo_texture = load("res://act2/memory_photo.png")
+	photo_material.albedo_texture = load("res://story_branches/art/clues/memory_photo.png")
 	photo_mesh.material_override = photo_material
 	var sink: Node3D = game.get_node("DayTwo").world.sink_cabinet
 	# Correct pivots at the true door edges; the old full-width front collider is removed.
@@ -223,11 +223,11 @@ func build(parent: Node3D, game: Node) -> void:
 	paper.size = Vector2(.19,.095)
 	album_photo.mesh = paper
 	var ink := mat(Color.WHITE)
-	ink.albedo_texture = load("res://act2/memory_photo.png")
+	ink.albedo_texture = load("res://story_branches/art/clues/memory_photo.png")
 	album_photo.material_override = ink
 	clues.add_child(album_photo)
 	album_photo.position = Vector3(0,.011,-.065)
-	var serial := sign_at(clues,"C-031",Vector3(.055,.012,.002),20)
+	var serial := sign_at(clues,preload("res://story_branches/data.gd").PHOTO_NAME,Vector3(.055,.012,.002),20)
 	serial.name="PhotoIdentifier"
 	serial.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	serial.rotation.x = -PI/2

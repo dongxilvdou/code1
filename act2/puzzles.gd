@@ -101,9 +101,9 @@ func open(kind: String, text := "") -> void:
 			watering.use_plant(chapter.world.items.plant.get_meta("bound_furniture"))
 		"photo":
 			title.text = "书页里掉落的合照"
-			description.text = "主人穿着白大褂，背后是家中的房间，旁边蹲着我。\n照片上的编号：观察对象 C-031 · 照护训练 · 阶段 II。"
+			description.text = "照片里，男性研究员穿着白大褂，旁边蹲着米酥。\n\n照片背面：\n"+preload("res://story_branches/data.gd").PHOTO_BACK
 			var picture := TextureRect.new()
-			picture.texture = load("res://act2/memory_photo.png")
+			picture.texture = load("res://story_branches/art/clues/memory_photo.png")
 			picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			picture.custom_minimum_size = Vector2(540,270)
