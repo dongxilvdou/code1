@@ -18,9 +18,9 @@ static func data(id: String) -> Dictionary:
  match id:
   "escape":return {"title":"被折过的小纸条","text":"地下室逃跑计划。\n\n监控底下。\n沿着旧抓痕走。\n\nD-017 / C-031"}
   "letter":return {"title":"今天的照料清单","text":"大狗嚼今天需要吃药。\n七只药瓶无法开盖，只能摇晃听声音。\n药片越多，碰撞声越响、越密。\n请从药片最少的三瓶里取药，\n照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。"}
-  "photo":return {"title":"收好的照片","text":"主人穿着白大褂，身旁蹲着我。\n照片背面：C-031 / 阶段 II。"}
+  "photo":return {"title":"收好的照片 / 米酥","text":preload("res://story_branches/data.gd").PHOTO_NAME+"\n照片背面：\n"+preload("res://story_branches/data.gd").PHOTO_BACK}
   "pipes":return {"title":"柜门里的镜头","text":"水槽柜里藏着一个摄像头。\n它是在监视谁呢？"}
-  "lab_photo":return {"title":"被删除的实验室照片","text":"是照片里的那个人……原来，那里不是家里。"}
+  "lab_photo":return {"title":"被删除的实验室照片","text":preload("res://story_branches/data.gd").LAB_PHOTO+"\n是照片里的那个人……原来，那里不是家里。"}
   "lab_site":return {"title":"XX生物实验室官网","text":Investigation.SITE}
   "lab_chat":return {"title":"X主任的聊天记录","text":Investigation.CHAT}
   "lab_news":return {"title":"关于实验室的负面报道","text":Investigation.news_summary()}
@@ -36,8 +36,8 @@ static func load_image(path: String) -> Texture2D:
  if image==null or image.is_empty():return null
  var texture=ImageTexture.create_from_image(image);textures[path]=texture;return texture
 static func texture(id: String) -> Texture2D:
- if id=="lab_photo":return load_image("res://act3/textures/lab_photo.png")
- return load_image("res://act2/memory_photo.png" if id=="photo" else "res://assets/notes/%s.png"%id)
+ if id=="lab_photo":return load_image("res://story_branches/art/clues/lab_photo.png")
+ return load_image("res://story_branches/art/clues/memory_photo.png" if id=="photo" else "res://assets/notes/%s.png"%id)
 static func collected(day: Node) -> Array[String]:
  var result: Array[String]=[]
  for number in range(1,12):

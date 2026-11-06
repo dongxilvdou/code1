@@ -190,6 +190,7 @@ func build() -> Node3D:
 		cage.set("door_title","%02d 号观察笼门"%(i+1))
 		cage.set("starts_open",i==0)
 		cage.set("specimen_number",31+i)
+		cage.set("door_sign_override",["F-01\n失踪","F-02\n终止","F-03\nC-031"][i])
 		attach(cage)
 		cage.set_meta("asset_id","observation_cage");cage.add_to_group("placed_furniture",true)
 		text3("F-0%d"%(i+1),Vector3(cage.position.x,.13,-.68),PI,24,.0018)

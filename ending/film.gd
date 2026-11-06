@@ -40,6 +40,9 @@ func build(owner_: Node) -> void:
 	geometry.block(duct,"DuctFloor",Vector3(0,-.025,-10),Vector3(.90,.05,22),metal)
 	geometry.block(duct,"DuctCeiling",Vector3(0,.68,-10),Vector3(.90,.04,22),metal)
 	for x in [-.45,.45]:geometry.block(duct,"DuctWall",Vector3(x,.32,-10),Vector3(.03,.70,22),metal)
+	build_entry_adapter(metal)
+	for entry in [["MouseStopNear",Vector3(.20,.02,-2.7)],["MouseStopFar",Vector3(-.14,.02,-9.0)],["MouseExit",Vector3(.13,.02,-20.45)]]:
+		var mark:=Marker3D.new();mark.name=entry[0];mark.position=entry[1];duct.add_child(mark)
 	for i in range(19):
 		var z: float=-i*1.1
 		for x in [-.432,.432]:
@@ -58,6 +61,17 @@ func build(owner_: Node) -> void:
 	for mesh in duct.find_children("*","MeshInstance3D",true,false):mesh.layers=64
 	for mesh in home.find_children("*","MeshInstance3D",true,false):mesh.layers=32
 	duct.hide();home.hide();set_process(false);set_process_input(false)
+
+func build_entry_adapter(m: Material) -> void:
+	var near_: Array[Vector3]=[Vector3(-.34,0,1.55),Vector3(.34,0,1.55),Vector3(.34,.46,1.55),Vector3(-.34,.46,1.55)]
+	var far_: Array[Vector3]=[Vector3(-.435,0,1.00),Vector3(.435,0,1.00),Vector3(.435,.66,1.00),Vector3(-.435,.66,1.00)]
+	var st:=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in range(4):
+		var j: int=(i+1)%4
+		for v in [near_[i],far_[j],far_[i],near_[i],near_[j],far_[j]]:st.add_vertex(v)
+	st.generate_normals()
+	var lining:=m.duplicate() as StandardMaterial3D;lining.cull_mode=BaseMaterial3D.CULL_DISABLED
+	Art.mesh_node(duct,"DuctEntryAdapter",st.commit(),lining)
 
 func build_home() -> void:
 	home=Node3D.new();home.name="OriginalHome";add_child(home);home.position=HOME_ORIGIN

@@ -368,7 +368,7 @@ func interact_item(id: String) -> void:
 			set_flag("weight_book_placed" if held==1 else "weight_plant_placed")
 			set_value("a3_holding",0)
 		else:story("感应垫需要至少 %.1f kg。\n\n猫重 %.1f kg，桌上的厚书重 2.0 kg，花盆重 3.2 kg。\n把物品叼到垫子上，再自己站上去。\n\n电脑启动后会保持开启。"%[REQUIRED_KG,CAT_KG])
-	elif id=="computer_note":story("电脑桌上的便签\n\n“密码是你的名字呀。”")
+	elif id=="computer_note":story("最爱的小猫\n\n“"+preload("res://story_branches/data.gd").PASSWORD_NOTE+"”")
 	elif id=="clues":show_clues()
 	elif id=="computer":
 		if not flag("a7_power"):game.ui.toast("房子还没有恢复供电。",3)
@@ -442,7 +442,7 @@ func guidance() -> String:
 	if not day.Notes.read(day):return day.Notes.guidance(7)
 	if not flag("a7_power"):return "01 恢复供电\n检查二楼走廊的配电板。"
 	if not flag("a7_computer_power"):return "02 启动电脑\n看看电脑房里的座椅感应垫和桌旁物品。"
-	if not flag("a7_login"):return "03 输入密码\n电脑桌上的便签写着：密码是你的名字呀。\n照片收在一楼客厅桌上的线索册里。回到电脑屏幕，按 E 或鼠标左键输入。"
+	if not flag("a7_login"):return "03 输入密码\n电脑桌上的便签写着："+preload("res://story_branches/data.gd").PASSWORD_NOTE+"。\n照片收在一楼客厅桌上的线索册里。回到电脑屏幕，按 E 或鼠标左键输入。"
 	if not flag("a7_investigate"):return "04 调查电脑资料  %d / 4\n查看回收站的照片、实验室官网、聊天记录和新闻报道。"%evidence_count()
 	return "今天的事情已完成。\n离开电脑后，回猫窝休息。"
 

@@ -3,6 +3,7 @@ extends Node3D
 @export var door_title := "观察笼门"
 @export var starts_open := false
 @export var specimen_number := 31
+@export var door_sign_override := ""
 @export_range(65,120,1) var open_angle := 105.0
 var is_open := false
 var moving := false
@@ -14,7 +15,7 @@ var target_angle := 0.0
 
 func _ready() -> void:
 	add_to_group("lab_cages")
-	$Leaf/Sign.text = "OBSERVATION\nFELIS / %03d"%specimen_number
+	$Leaf/Sign.text = door_sign_override if not door_sign_override.is_empty() else "OBSERVATION\nFELIS / %03d"%specimen_number
 	leaf.sync_to_physics = false
 	set_open(starts_open,true)
 

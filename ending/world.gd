@@ -1,12 +1,17 @@
 extends Node3D
 const Art = preload("res://furniture_pack/quest_props/refined_props.gd")
 const Props = preload("res://furniture_pack/quest_props/props.gd")
+const Copy = preload("res://story_branches/data.gd")
 var items := {}
 var equipment: Node3D
 var cage: Node3D
 var grille: Node3D
 var path: Node3D
 var chamber: Node3D
+var retrofit: Node3D
+var vent_service: Node3D
+var report_source: MeshInstance3D
+var report_evidence: Node3D
 
 func material(key: String, tint: Color, metal := 0.0) -> StandardMaterial3D:
 	return Art.material("ending_"+key,tint,.58,metal)
@@ -58,15 +63,10 @@ func build(game: Node) -> void:
 	surface.generate_normals();Art.mesh_node(chamber,"CurvedGlassShield",surface.commit(),glass)
 	for x in [-.24,.24]:
 		for y in [1.02,1.41]:cylinder(chamber,"SpineFastener",Vector3(x,y,-.23),.026,.018,steel)
-	block(chamber,"ControlHousing",Vector3(.40,.45,.23),Vector3(.20,.24,.10),dark)
-	var button:=cylinder(chamber,"EmergencyRedButton",Vector3(.40,.47,.296),.045,.025,material("red_button",Color("b94032"),.1))
-	button.rotation.x=PI/2
-	var bezel:=TorusMesh.new();bezel.inner_radius=.043;bezel.outer_radius=.054
-	var collar:=Art.mesh_node(chamber,"ButtonBezel",bezel,steel,Vector3(.40,.47,.297));collar.rotation.x=PI/2
-	for i in range(3):block(chamber,"ReadoutBar",Vector3(.36+i*.036,.53,.287),Vector3(.022,.008,.004),material("readout",Color("85ad9e")))
-	Art.line(chamber,"ControlCable",[Vector3(.43,.35,.20),Vector3(.44,.14,.2),Vector3(.06,.08,.2)],.012,dark)
+	retrofit=preload("res://story_branches/scenes/conversion_retrofit.tscn").instantiate()
+	chamber.add_child(retrofit)
 	sign_(chamber,"CONVERSION / C-031",Vector3(0,1.51,.30),20)
-	sign_(chamber,"转化装置",Vector3(0,.71,.59),25)
+	sign_(chamber,"转化装置",Vector3(-.22,.88,.595),25)
 	target("device",equipment.to_global(Vector3(.35,.40,.46)),"检查转化装置",equipment)
 	var traces:=target("cage",cage.to_global(Vector3(.02,.062,-.55)),"观察笼里的旧抓痕与猫毛",cage)
 	fur(traces,Vector3(-.12,.004,.04),22)
@@ -78,18 +78,8 @@ func build(game: Node) -> void:
 		paw(path,pos+Vector3(.028 if i%2==0 else -.028,0,0))
 	var vent:=target("vent",Vector3(-5.255,-2.43,-1.73),"监控底下的通风口")
 	vent.rotation.y=PI/2
-	block(vent,"VentRecess",Vector3(0,0,-.026),Vector3(.68,.46,.035),material("vent_shadow",Color("101c1d")))
-	for x in [-.36,.36]:block(vent,"VentSideFrame",Vector3(x,0,0),Vector3(.04,.52,.07),steel)
-	for y in [-.25,.25]:block(vent,"VentFrame",Vector3(0,y,0),Vector3(.76,.04,.07),steel)
-	grille=Node3D.new();grille.name="LooseVentGrille";vent.add_child(grille);grille.position=Vector3(-.34,0,.045)
-	for i in range(8):
-		var slat:=block(grille,"Louver",Vector3(.34,-.195+i*.055,0),Vector3(.65,.025,.026),steel)
-		slat.rotation.x=-.35
-	for x in [0,.68]:block(grille,"LouverRail",Vector3(x,0,0),Vector3(.018,.43,.028),steel)
-	for x in [-.32,.32]:
-		for y in [-.215,.215]:
-			var screw:=cylinder(vent,"SlottedScrew",Vector3(x,y,.045),.009,.005,steel);screw.rotation.x=PI/2
-			Art.rod(vent,"ScrewSlot",Vector3(x-.005,y,.049),Vector3(x+.005,y,.049),.001,dark)
+	vent_service=preload("res://story_branches/scenes/vent_service.tscn").instantiate()
+	vent.add_child(vent_service);grille=vent_service.get_node("GrillePivot")
 	fur(vent,Vector3(.23,-.23,.047),18,true)
 	for i in range(3):Art.rod(vent,"VentClawMark",Vector3(-.17+i*.026,-.20,.047),Vector3(-.13+i*.026,-.09,.047),.002,material("scratch",Color("514d3f")))
 	var camera:=target("camera",Vector3(-5.23,-.92,-1.73),"监控摄像头")
@@ -102,7 +92,26 @@ func build(game: Node) -> void:
 	Art.ellipsoid(camera,"LensReflection",Vector3(-.011,-.065,.418),Vector3(.010,.007,.003),material("lens_glint",Color("a0c0bc")))
 	Art.ellipsoid(camera,"RecordingLED",Vector3(.058,-.08,.359),Vector3(.012,.012,.012),material("recording_led",Color("b4593d")))
 	for i in range(4):block(camera,"CoolingFin",Vector3(.071,-.08+i*.015,.24),Vector3(.004,.004,.09),dark)
+	build_report(game)
 	hide()
+
+func build_report(game: Node) -> void:
+	var lab: Node3D=equipment.get_parent()
+	# Use the saved scene's actual top folder; the other files/clipboard stay put.
+	for mesh in lab.find_children("*","MeshInstance3D",true,false):
+		if mesh.position.distance_to(Vector3(-2.57,.94,-4.68))<.002:
+			report_source=mesh;break
+	report_evidence=Node3D.new();report_evidence.name="ReportEvidence";add_child(report_evidence)
+	report_evidence.global_transform=lab.global_transform
+	var bag:=block(report_evidence,"SealedReportEnvelope",Vector3(-2.57,.94,-4.68),Vector3(.21,.022,.27),material("report_paper",Color("b9a682")))
+	block(report_evidence,"EnvelopeFold",Vector3(-2.57,.952,-4.77),Vector3(.204,.002,.05),material("fold",Color("a18e6d")))
+	var name_:=sign_(report_evidence,Copy.REPORT_TITLE,Vector3(-2.57,.953,-4.64),24);name_.rotation.x=-PI/2;name_.pixel_size=.00057;name_.modulate=Color("36443b")
+	block(report_evidence,"RecipientBlank",Vector3(-2.57,.952,-4.70),Vector3(.13,.002,.022),material("recipient",Color("d0c8ae")))
+	block(report_evidence,"ReportTab",Vector3(-2.73,.50,-3.72),Vector3(.18,.08,.006),material("tab",Color("d0c8ae")))
+	var tag:=sign_(report_evidence,"档案",Vector3(-2.73,.50,-3.714),32);tag.pixel_size=.0011;tag.modulate=Color("30473d")
+	var clip:=block(report_evidence,"ReportTabClip",Vector3(-2.73,.69,-3.745),Vector3(.012,.304,.006),material("clip",Color("899b97"),.75));clip.rotation.x=deg_to_rad(-9.5)
+	target("report",lab.to_global(Vector3(-2.73,.50,-3.65)),Copy.REPORT_TITLE,bag)
+	var marker:=Marker3D.new();marker.name="ReportReadCam";report_evidence.add_child(marker);marker.position=Vector3(-2.75,1.35,-3.58);marker.look_at(lab.to_global(Vector3(-2.72,.93,-4.49)))
 
 func paw(parent: Node3D, pos: Vector3) -> void:
 	var m:=material("dusty_pawprint",Color("696955"))
@@ -121,5 +130,18 @@ func fur(parent: Node3D, pos: Vector3, count: int, vertical := false) -> void:
 func restore(enabled: bool, discovered: bool) -> void:
 	visible=enabled
 	for n in items.values():Props.activate(n,enabled)
-	grille.rotation.y=-1.05 if discovered else -.12
+	retrofit.apply_visual_state(visual_snapshot())
+	vent_service.apply_visual_state({"a11_vent":discovered})
+	if report_source:report_source.visible=not enabled
 	path.visible=enabled
+
+func visual_snapshot() -> Dictionary:
+	var day=get_parent().get("day")
+	if day==null or day.manager==null:return {}
+	var state:={}
+	for key in ["br_auto_stopped","br_power_safe","br_module","br_routing"]:state[key]=day.flag(key)
+	state.br_auto_stopped=state.br_auto_stopped or day.value("ending_choice",0)==2
+	return state
+
+func _exit_tree() -> void:
+	if is_instance_valid(report_source):report_source.show()
