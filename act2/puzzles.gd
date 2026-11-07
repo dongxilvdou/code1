@@ -101,7 +101,7 @@ func open(kind: String, text := "") -> void:
 			watering.use_plant(chapter.world.items.plant.get_meta("bound_furniture"))
 		"photo":
 			title.text = "书页里掉落的合照"
-			description.text = "照片里，男性研究员穿着白大褂，旁边蹲着米酥。\n\n照片背面：\n"+preload("res://story_branches/data.gd").PHOTO_BACK
+			description.text = "照片里，男性研究员穿着白大褂，旁边蹲着米酥。\n\n照片背面：\n"+preload("res://story_branches/data.gd").PHOTO_BACK+"\n\n"+preload("res://story_branches/data.gd").PHOTO_ASIDE
 			var picture := TextureRect.new()
 			picture.texture = load("res://story_branches/art/clues/memory_photo.png")
 			picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

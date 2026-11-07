@@ -49,11 +49,15 @@ func _ready() -> void:
 	pause_card=CenterContainer.new();screen.add_child(pause_card)
 	pause_card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	pause_card.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	resume_button=Button.new();pause_card.add_child(resume_button)
+	var pause_column:=VBoxContainer.new();pause_card.add_child(pause_column)
+	resume_button=Button.new();pause_column.add_child(resume_button)
 	resume_button.text="已暂停 · 继续";resume_button.custom_minimum_size=Vector2(260,64)
 	resume_button.add_theme_font_override("font",font)
 	resume_button.add_theme_font_size_override("font_size",23)
 	resume_button.pressed.connect(toggle_pause)
+	var extra:=VBoxContainer.new();pause_column.add_child(extra)
+	var skip:=Button.new();skip.text="跳过演出";extra.add_child(skip);skip.pressed.connect(func():elapsed=DURATION;chapter.eat_mouse())
+	var menu:=Button.new();menu.text="返回主菜单";extra.add_child(menu);menu.pressed.connect(func():chapter.game.get_node("StoryBranches").return_menu())
 	voice=AudioStreamPlayer.new();add_child(voice)
 	voice.stream=load("res://act4/audio/eat_command.wav");voice.volume_db=-5
 	swallow=AudioStreamPlayer.new();add_child(swallow)
@@ -61,7 +65,7 @@ func _ready() -> void:
 	ui.hide();pause_card.hide()
 
 func begin() -> bool:
-	if running or chapter.today()!=10 or chapter.flag("a10_eat"):return false
+	if running or chapter.today()!=10 or chapter.val("br_mouse")!=0 or chapter.val("br_mouse_intent")!=1:return false
 	for key in ["a10_catch","a10_note","a10_asked","a10_refused"]:
 		if not chapter.flag(key):return false
 	var player=chapter.player
@@ -101,6 +105,8 @@ func _input(event: InputEvent) -> void:
 	if not running:return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_ESCAPE:
 		toggle_pause();get_viewport().set_input_as_handled();return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_SPACE:
+		elapsed=DURATION;chapter.eat_mouse();get_viewport().set_input_as_handled();return
 	if paused:return
 	if event is InputEventMouseMotion:
 		resistance.x=clampf(resistance.x-event.relative.x*.0021,-.20,.20)
@@ -211,3 +217,6 @@ func cancel() -> void:
 
 func _exit_tree() -> void:
 	cancel()
+
+func _notification(what: int) -> void:
+	if what==NOTIFICATION_APPLICATION_FOCUS_OUT and running and not paused:toggle_pause()

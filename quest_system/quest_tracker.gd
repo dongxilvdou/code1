@@ -152,6 +152,10 @@ func refresh() -> void:
 
 func relevant_today(quest: CalicoQuest) -> bool:
 	var today := int(manager.values.get("current_day",1))
+	if str(quest.id).begins_with("br_"):
+		if manager.flags.get("a11_finished",false):return false
+		if str(quest.id)=="br_k2_ready":return today in [7,8,9,10] and int(manager.values.get("br_mouse",0))==0
+		return today>=7 and (str(quest.id) in ["br_index","br_k2_ready"] or (today==11 and manager.flags.get("a11_enter",false)))
 	if today>=6 and not str(quest.id).begins_with("a%d_"%today):return false
 	return true
 
@@ -201,8 +205,15 @@ func _refresh_journal() -> void:
 	journal_summary.text = "探索积分：%d    ·    任务进度自动保存" % int(manager.values.get("exploration_points", 0))
 	if not manager.autosave: journal_summary.text = "探索积分：%d    ·    当前未启用自动保存" % int(manager.values.get("exploration_points", 0))
 	if not manager.last_save_error.is_empty(): journal_summary.text += "\n" + manager.last_save_error
+	var branches=system.game.get_node_or_null("StoryBranches")
+	if branches:
+		if manager.flags.get("br_k2_owned",false):_button("装备 / K-2 便携校准器",journal_list,branches.open_equipment)
+		if manager.flags.get("a9_jigsaw",false):_button("回忆 / 笼外的视线",journal_list,branches.play_care_memory)
+		if manager.flags.get("br_index",false):_button("线索 / 原始记录索引",journal_list,func():system.close_journal();branches.open_panel("index"))
+		if manager.flags.get("br_memory",false):_button("回忆 / 研究员经历",journal_list,func():system.close_journal();branches.play_memory())
 	for state in [CalicoQuestManager.State.ACTIVE,CalicoQuestManager.State.AVAILABLE,CalicoQuestManager.State.LOCKED,CalicoQuestManager.State.COMPLETED,CalicoQuestManager.State.FAILED]:
 		for quest in manager.sorted_quests():
+			if manager.flags.get("a11_finished",false) and not quest.main_quest and state!=CalicoQuestManager.State.COMPLETED:continue
 			if manager.get_status(quest.id) == state:_card(quest, journal_list, true)
 
 func journal_visible() -> bool:

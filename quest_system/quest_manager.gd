@@ -82,6 +82,7 @@ func _reset_state() -> void:
 func start_new_game() -> void:
 	if _busy: return
 	_reset_state()
+	values["br_schema"] = 1
 	_refresh_available()
 	_commit()
 
@@ -205,7 +206,7 @@ func _commit() -> void:
 func make_save_data() -> Dictionary:
 	return {"version": SAVE_VERSION, "paper_layout": 2, "quests": states.duplicate(true), "flags": flags.duplicate(), "values": values.duplicate(), "seen_events": _seen_events.duplicate()}
 
-func restore_save_data(data: Dictionary) -> bool:
+func restore_save_data(data: Dictionary, notify_changed := true) -> bool:
 	# 先验证完整数据，再修改当前游戏；坏存档不会污染正在运行的状态。
 	if data.get("version") != SAVE_VERSION: return false
 	for key in ["quests", "flags", "values"]:
@@ -252,7 +253,7 @@ func restore_save_data(data: Dictionary) -> bool:
 		states[id].status = int(entry.status)
 		for goal in definitions[id].objectives: states[id].progress[str(goal.id)] = int(entry.progress.get(str(goal.id), 0))
 	_refresh_available()
-	changed.emit()
+	if notify_changed:changed.emit()
 	return true
 
 func _whole_number(value: Variant) -> bool:
@@ -278,9 +279,43 @@ func _save_error(message: String) -> bool:
 	last_save_error = message
 	return false
 
-func load_game() -> bool:
+func load_game(notify_changed := true) -> bool:
 	if not FileAccess.file_exists(save_path): return false
 	var parser := JSON.new()
 	if parser.parse(FileAccess.get_file_as_string(save_path)) != OK:return false
 	var parsed: Variant = parser.data
-	return parsed is Dictionary and restore_save_data(parsed)
+	return parsed is Dictionary and restore_save_data(parsed,notify_changed)
+
+func apply_story_patch(flag_patch: Dictionary, value_patch: Dictionary, require_save: bool, notify_changed := true) -> bool:
+	if _busy:return _save_error("另一个操作正在保存，请稍后重试。")
+	var normalized_flags: Dictionary={}
+	var normalized_values: Dictionary={}
+	for key in flag_patch:
+		if not (key is String or key is StringName) or not flag_patch[key] is bool:return _save_error("剧情标记格式无效。")
+		normalized_flags[str(key)]=flag_patch[key]
+	for key in value_patch:
+		if not (key is String or key is StringName) or not value_patch[key] is int:return _save_error("剧情数值格式无效。")
+		normalized_values[str(key)]=value_patch[key]
+	var before_flags := flags.duplicate(true)
+	var before_values := values.duplicate(true)
+	var before_states := states.duplicate(true)
+	var before_events := _seen_events.duplicate(true)
+	_busy = true
+	flags.merge(normalized_flags,true)
+	values.merge(normalized_values,true)
+	_refresh_available()
+	if require_save and not save_game():
+		flags=before_flags;values=before_values;states=before_states;_seen_events=before_events
+		_busy=false
+		return false
+	_busy=false
+	if notify_changed:changed.emit()
+	return true
+
+func restore_story_snapshot(snapshot: Dictionary) -> void:
+	# Only a previously captured in-memory snapshot is used here. Loading a disk
+	# save still uses restore_save_data validation and prerequisite normalization.
+	flags=snapshot.flags.duplicate(true)
+	values=snapshot.values.duplicate(true)
+	states=snapshot.quests.duplicate(true)
+	_seen_events=snapshot.seen_events.duplicate(true)

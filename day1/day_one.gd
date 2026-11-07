@@ -13,9 +13,9 @@ const SPAWN := Vector3(-.04,.03,5.45)
 const INTRO := [
 	"……这是哪里？我怎么会在一扇陌生的门前？",
 	"这双爪子……还有尾巴？原来，我是一只猫。\n先看看四周吧。这里安静得有些奇怪。",
-	"我想起来了，我有一个主人。\n她会轻轻摸我的头，也会给我留一块暖和的地方。",
-	"我最喜欢她了。只要听到她回家的声音，我就会跑过去。",
-	"可是主人生病了。现在，应该换我照顾她。\n我记得……这里能让我学会照顾主人。",
+	"我想起来了，我有一个主人。\n他会轻轻摸我的头，也会给我留一块暖和的地方。",
+	"我最喜欢他了。只要听到他回家的声音，我就会跑过去。",
+	"可是主人生病了。现在，应该换我照顾他。\n我记得……这里能让我学会照顾主人。",
 	"总之，先读读入户门内地垫旁的小纸条。"
 ]
 var game
@@ -404,6 +404,10 @@ func persistent_target() -> String:
 	return ""
 
 func target_hint() -> String:
+	var branches=game.get_node_or_null("StoryBranches")
+	if branches:
+		var hint: String=branches.target_hint()
+		if not hint.is_empty():return hint
 	var persistent:=persistent_target()
 	if persistent=="clues":return "E 翻阅客厅线索册"
 	if persistent=="basement":return "E 轻推地下室的门"
@@ -429,6 +433,8 @@ func target_hint() -> String:
 	return ""
 
 func try_interact() -> bool:
+	var branches=game.get_node_or_null("StoryBranches")
+	if branches and branches.try_interact():return true
 	var persistent:=persistent_target()
 	if persistent=="clues":
 		reader.open_album()
@@ -587,6 +593,7 @@ func refresh_hud() -> void:
 	if second_day() and second_day().val("d2_holding")!=0:hud.carry.text = second_day().carry_text()
 
 func restart_day() -> void:
+	if game.has_node("StoryBranches"):game.get_node("StoryBranches").cancel_runtime()
 	if balancing:finish_balance(false)
 	if ruler_interaction.running:ruler_interaction.stop(false)
 	reader.close()

@@ -31,7 +31,7 @@ def main():
     memo.save(memo_path)
     # New copies replace captions only. Original photos stay untouched.
     for source, target, caption, y_ratio in [
-        ('act2/memory_photo.png', 'memory_photo.png', '米酥 / C-031\nC-031 · 转移前观察', .831),
+        ('act2/memory_photo.png', 'memory_photo.png', copy('PHOTO_NAME')+'\n'+copy('PHOTO_BACK').split('\n')[-1], .831),
         ('act3/textures/lab_photo.png', 'lab_photo.png', copy('LAB_PHOTO'), .91),
     ]:
         image = Image.open(ROOT / source).convert('RGB')
@@ -41,17 +41,18 @@ def main():
             d = ImageDraw.Draw(image)
             d.rectangle((35, y, width-36, height-22), fill='#eee5d3')
             centered(d, copy('PHOTO_NAME'), y+6, 45, width)
-            centered(d, 'C-031 · 转移前观察', y+69, 31, width)
+            centered(d, copy('PHOTO_BACK').split('\n')[-1], y+69, 31, width)
         else:
             d = ImageDraw.Draw(image)
             centered(d, caption, y+7, 35, width)
         image.save(OUT / target)
+    footer = copy('TIME_FOOTER')
     for name in ['hour', 'minute', 'second']:
         path = ROOT / f'furniture_pack/quest_props/clock_{name}_note.svg'
         svg = path.read_text(encoding='utf-8')
-        svg = svg.replace('时间纸条 · 只记录一根指针', '最后一次操作')
-        if '最后一次操作' not in svg:
-            svg = svg.replace('</svg>', '<text x="256" y="330" font-family="Microsoft YaHei, sans-serif" font-size="18" text-anchor="middle" fill="#746953">最后一次操作</text>\n</svg>')
+        svg = svg.replace('时间纸条 · 只记录一根指针', footer)
+        if footer not in svg:
+            svg = svg.replace('</svg>', f'<text x="256" y="330" font-family="Microsoft YaHei, sans-serif" font-size="18" text-anchor="middle" fill="#746953">{footer}</text>\n</svg>')
         path.write_text(svg, encoding='utf-8')
 
 if __name__ == '__main__':

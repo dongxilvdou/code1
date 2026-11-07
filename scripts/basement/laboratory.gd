@@ -24,20 +24,27 @@ func _ready() -> void:
 	basement_environment.glow_enabled = false
 
 func _process(_delta: float) -> void:
+	# Inspection/ending cameras are short lived. Object keys outlive freed
+	# cameras and must never be used to restore an environment during teardown.
+	for id in camera_overrides.keys():
+		if camera_overrides[id].camera.get_ref()==null:camera_overrides.erase(id)
 	var camera := get_viewport().get_camera_3d()
 	if not is_instance_valid(camera):return
 	var p := camera.global_position
 	var underground := p.y<-.38 and Rect2(-5.6,-5.5,11.65,7.2).has_point(Vector2(p.x,p.z))
 	if underground:
-		if not camera_overrides.has(camera):camera_overrides[camera] = camera.environment
+		if not camera_overrides.has(camera.get_instance_id()):camera_overrides[camera.get_instance_id()] = {"camera":weakref(camera),"environment":camera.environment}
 		camera.environment = basement_environment
 	else:_restore(camera)
 
 func _restore(camera: Camera3D) -> void:
-	if camera_overrides.has(camera):
-		camera.environment = camera_overrides[camera]
-		camera_overrides.erase(camera)
+	var id:=camera.get_instance_id()
+	if camera_overrides.has(id):
+		camera.environment=camera_overrides[id].environment
+		camera_overrides.erase(id)
 
 func _exit_tree() -> void:
-	for camera in camera_overrides:
-		if is_instance_valid(camera):camera.environment = camera_overrides[camera]
+	for entry in camera_overrides.values():
+		var camera=entry.camera.get_ref()
+		if is_instance_valid(camera):camera.environment=entry.environment
+	camera_overrides.clear()

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"br_body_seen"
+
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"br_power_safe"
+text = "保持维持供电。"
+kind = 3
+target_id = &"br_power_safe"
+
+[resource]
+script = ExtResource("quest")
+id = &"br_power_safe"
+title = "保持维持供电"
+description = "可选调查 · 保持维持供电，完成确认后保存。"
+main_quest = false
+priority = 113
+extra_conditions = Array[ExtResource("condition")]([SubResource("prior0")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "调查进度已记录。"

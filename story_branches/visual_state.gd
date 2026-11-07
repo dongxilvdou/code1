@@ -51,6 +51,8 @@ func apply_visual_state(state: Dictionary) -> void:
 		"box":
 			$BoxDoorPivot.rotation.y=deg_to_rad(-105) if state.get("box_open",false) or state.get("br_k2_owned",false) else 0.0
 			$K2InBox.visible=not state.get("br_k2_owned",false)
+			var code: String=str(state.get("box_digits","031" if state.get("br_k2_owned",false) else "000")).pad_zeros(3).right(3)
+			for i in range(3):get_node("BoxDoorPivot/Digit%d"%(i+1)).text=code[i]
 		"k2":
 			var enabled: bool = state.get("br_k2_owned",true)
 			visible=enabled

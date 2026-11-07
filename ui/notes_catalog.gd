@@ -1,4 +1,5 @@
 extends RefCounted
+const BranchCopy=preload("res://story_branches/data.gd")
 const Investigation=preload("res://act3/investigation_data.gd")
 const Daily=preload("res://day1/daily_notes.gd")
 const PAPER_KEYS=["living","dining","kitchen","study1"]
@@ -10,6 +11,11 @@ const PAPERS=[
 ]
 static var textures: Dictionary={}
 static func data(id: String) -> Dictionary:
+ if id=="clock_record":return {"title":"最后一次操作 / 03:42:00","text":BranchCopy.TIME_RECORD}
+ if id=="branch_index":return {"title":"原始记录索引","text":BranchCopy.RECORD_INDEX}
+ if id=="branch_records":return {"title":"身份、护理与转化日志","text":"\n\n".join(BranchCopy.RECORDS)}
+ if id=="branch_memory":return {"title":"恢复的研究员记忆","text":"\n\n".join(BranchCopy.MEMORY_CAPTIONS)}
+ if id=="branch_body":return {"title":"H-031 原身体","text":"\n".join(BranchCopy.BODY_FIELDS)}
  if id.begins_with("day"):
   var number=clampi(int(id.trim_prefix("day")),1,11)
   return {"title":"第 %d 天的小纸条"%number,"text":Daily.CONTENT[number]+("\n\n我：又是没有署名的命令。\n昨天的逃跑计划也指向地下室。\n那里也许有答案，也许有能出去的路。" if number==11 else "")}
@@ -36,6 +42,7 @@ static func load_image(path: String) -> Texture2D:
  if image==null or image.is_empty():return null
  var texture=ImageTexture.create_from_image(image);textures[path]=texture;return texture
 static func texture(id: String) -> Texture2D:
+ if id.begins_with("branch_") or id=="clock_record":return null
  if id=="lab_photo":return load_image("res://story_branches/art/clues/lab_photo.png")
  return load_image("res://story_branches/art/clues/memory_photo.png" if id=="photo" else "res://assets/notes/%s.png"%id)
 static func collected(day: Node) -> Array[String]:
@@ -48,6 +55,9 @@ static func collected(day: Node) -> Array[String]:
   if day.flag(entry[0]):result.append(entry[1])
  for key in Investigation.KEYS:
   if day.flag("a7_read_"+key):result.append("lab_"+key if key!="site" else "lab_site")
+ if day.flag("a8_clock"):result.append("clock_record")
+ for item in [["br_index","branch_index"],["br_body_seen","branch_body"],["br_records","branch_records"],["br_memory","branch_memory"]]:
+  if day.flag(item[0]):result.append(item[1])
  return result
 static func all_ids() -> Array[String]:
  var ids: Array[String]=[]
