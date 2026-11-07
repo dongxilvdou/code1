@@ -1,6 +1,7 @@
 extends "res://day2/puzzle_ui.gd"
 const Art = preload("res://act4/puzzle_art.gd")
 const Circuit = preload("res://act4/circuit.gd")
+const BranchCopy=preload("res://story_branches/data.gd")
 var chapter
 var display: Control
 var tile_buttons: Array = []
@@ -55,14 +56,20 @@ func open_mouse_scene(kind: String) -> void:
 		description.text = MOUSE_DIALOGUE[mouse_page]
 		button("继续听阿嚼说" if mouse_page<MOUSE_DIALOGUE.size()-1 else "听完阿嚼的话",detail,advance_mouse_dialogue).grab_focus()
 	elif kind=="mouse_refusal":
-		description.text = "它想逃出去。\n阿嚼也在阻止我。\n\n我不想吃掉它。"
-		button("我不吃，离开这里。",detail,chapter.refuse_mouse).grab_focus()
+		description.text="它想逃出去。阿嚼也在阻止我。\n我不想吃掉它。\n\n"+BranchCopy.MOUSE_HINT
+		var branches=chapter.game.get_node("StoryBranches")
+		if chapter.flag("br_k2_ready") and not chapter.flag("br_k2_spent"):
+			button("启动校准器，放它走",detail,chapter.prepare_mouse_decision.bind(true)).grab_focus()
+		elif chapter.flag("br_k2_owned"):button("先去校准",detail,branches.open_equipment)
+		else:button("去找维修盒",detail,func():chapter.close_panel();chapter.game.ui.toast("二楼电脑房，书桌下朝通道的一面。老鼠会留在你手边。",5))
+		button("普通拒绝",detail,chapter.refuse_mouse)
 		button("重看纸条",detail,chapter.open_mouse_note)
 		button("回想阿嚼的话",detail,chapter.question_mouse)
+		button("再想想",detail,chapter.close_panel)
 	elif kind=="mouse_rest":
 		title.text = "第十天 / 猫窝"
-		description.text = "我今天到底怎么了，为什么身体不受控制，为什么一定要吃了它，主人......到底是谁？"
-		button("闭上眼睛",detail,chapter.finish_day_ten).grab_focus()
+		description.text = BranchCopy.REST_SAVED if chapter.val("br_mouse")==2 else BranchCopy.REST_LOST
+		button("休息到明天",detail,chapter.finish_day_ten).grab_focus()
 		shell.modulate.a = 0
 		rest_fade = create_tween()
 		rest_fade.tween_property(shell,"modulate:a",1.0,.8)
@@ -80,7 +87,10 @@ func _input(event: InputEvent) -> void:
 		if event.keycode==KEY_ESCAPE:
 			close()
 		elif event.keycode in [KEY_E,KEY_SPACE,KEY_ENTER]:
-			if detail.get_child_count()>0 and detail.get_child(0) is Button:
+			var focused=get_viewport().gui_get_focus_owner()
+			if focused is Button and detail.is_ancestor_of(focused):
+				if not focused.disabled:focused.pressed.emit()
+			elif detail.get_child_count()>0 and detail.get_child(0) is Button:
 				(detail.get_child(0) as Button).pressed.emit()
 			elif mode=="mouse_note":chapter.confirm_mouse_note()
 		else:return
@@ -206,7 +216,7 @@ func choose_piece(index: int) -> void:
 		close();chapter.mark("a9_jigsaw");chapter.restore()
 		var memory:=preload("res://story_branches/memory_player.gd").new();chapter.add_child(memory)
 		memory.finished.connect(func():
-			chapter.story("照片终于拼好了。\n\n三只猫，三扇实验室的笼门。\n刚才那双手……曾经给米酥盖上毯子。")
+			chapter.story("照片终于拼好了。\n\n三只猫，三扇实验室的笼门。\n刚才，我好像站在笼子外面。")
 			picture("res://act4/textures/laboratory_cats.png",detail))
 		memory.play(chapter.game)
 	else:open4("jigsaw")

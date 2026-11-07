@@ -18,16 +18,16 @@ key = &"a10_asked"
 [sub_resource type="Resource" id="goal"]
 script = ExtResource("goal")
 id = &"a10_eat"
-text = "我不想吃掉它。我想离开这里。"
+text = "确认命令冲突的结果。"
 kind = 3
-target_id = &"a10_eat"
+target_id = &"br_mouse_resolved"
 
 [resource]
 script = ExtResource("quest")
 id = &"a10_eat"
-title = "04 · 尝试拒绝命令"
+title = "04 · 作出自己的决定"
 description = "第10天 · 看过逃跑计划，也听完了阿嚼的话。试着做出自己的决定。"
 priority = 103
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("goal")])
-result_text = "我试着停下来，身体却完成了命令。"
+result_text = "命令冲突已有结果。"

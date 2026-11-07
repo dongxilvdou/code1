@@ -3,7 +3,8 @@ const World = preload("res://act4/world.gd")
 const Panels = preload("res://act4/panels.gd")
 const Circuit = preload("res://act4/circuit.gd")
 const MouseControl = preload("res://act4/mouse_control.gd")
-const GOALS := {8:["a8_food","a8_wash","a8_clock"],9:["a9_plants","a9_mole","a9_jigsaw"],10:["a10_catch","a10_note","a10_asked","a10_eat"],11:["a11_locks","a11_enter"]}
+const BranchCopy=preload("res://story_branches/data.gd")
+const GOALS := {8:["a8_food","a8_wash","a8_clock"],9:["a9_plants","a9_mole","a9_jigsaw"],10:["a10_catch","a10_note","a10_asked","br_mouse_resolved"],11:["a11_locks","a11_enter"]}
 const DESTINATIONS := ["一楼过道","二楼过道","二楼主卧","一楼厨房"]
 const ROUTES := [
 	[Vector3(.05,.02,2.1),Vector3(4.0,.02,2.05),Vector3(4.0,1.52,-1.02),Vector3(5.2,1.52,-1.02),Vector3(5.2,3.02,2.05),Vector3(.05,3.02,2.2)],
@@ -169,10 +170,7 @@ func _physics_process(delta: float) -> void:
 		if active_number!=0:reset_runtime()
 		return
 	if active_number!=today():active_number=today();restore()
-	# Resume a refused command interrupted by leaving the game.
-	if today()==10 and flag("a10_refused") and not flag("a10_eat") and not mouse_control.running and day.active_play():
-		mouse_control.begin()
-		return
+	# StoryBranches resumes saved intent after restoring the whole session.
 	if today()==11 and flag("a11_enter"):return
 	if not day.active_play():return
 	if today()==8 and not flag("a8_food"):
@@ -290,15 +288,11 @@ func mouse_stair_height(position_: Vector3, ascending: bool) -> float:
 		if ascending:height+=sin(t*PI)*.018
 	return height
 func reconcile_mouse_progress() -> void:
-	# Older saves have already eaten; preserve that action without replaying control.
-	if flag("a10_eat") and not flag("a10_asked"):mark("a10_asked")
-	# Reconcile newly added/reordered quests only when their conditions are active.
-	for key in ["a10_catch","a10_note","a10_asked","a10_eat"]:
-		if flag(key) and day.manager.get_status(StringName(key))==CalicoQuestManager.State.ACTIVE:
-			day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName(key),1,"act4:mouse_restore:"+key)
+	var branches=game.get_node_or_null("StoryBranches")
+	if branches and branches.ensure_bound():branches.state.reconcile_progress()
 
 func update_held_mouse() -> void:
-	var holding := today()==10 and flag("a10_catch") and not flag("a10_eat")
+	var holding := today()==10 and flag("a10_catch") and val("br_mouse")==0
 	player.set_meta("holding_mouse",holding)
 	if holding and not is_instance_valid(held_mouse):
 		held_mouse=Node3D.new();held_mouse.name="CaughtMouse"
@@ -317,8 +311,8 @@ func update_held_mouse() -> void:
 
 func open_mouse_story() -> void:
 	if today()!=10 or not flag("a10_catch") or mouse_control.running:return
-	if flag("a10_eat"):
-		story("我：我明明想走。可刚才……我停不下来。\n\n阿嚼：我看见了。\n阿嚼：你刚才已经转身了。")
+	if val("br_mouse") in [1,2]:
+		story((BranchCopy.MOUSE_SAVED if val("br_mouse")==2 else BranchCopy.MOUSE_LOST)+"\n\n"+BranchCopy.SEEK_TERMINAL)
 	elif not flag("a10_note"):open_panel("mouse_warning")
 	elif not flag("a10_asked"):open_panel("mouse_question")
 	else:open_panel("mouse_refusal")
@@ -330,7 +324,7 @@ func open_mouse_note() -> void:
 func confirm_mouse_note() -> void:
 	if panel.mode!="mouse_note" or today()!=10 or not flag("a10_catch") or mouse_control.running:return
 	mark("a10_note");restore()
-	if flag("a10_eat"):story("逃跑计划已经记在了线索册里。\n身体终于停下来了。先回猫窝。")
+	if val("br_mouse")!=0:story("逃跑计划已经记在了线索册里。\n先回猫窝，明天去地下室看看。")
 	else:open_mouse_story()
 
 func question_mouse() -> void:
@@ -345,24 +339,30 @@ func confirm_mouse_question() -> void:
 	mark("a10_asked");restore();open_mouse_story()
 
 func refuse_mouse() -> void:
-	if today()!=10 or panel.mode!="mouse_refusal" or not flag("a10_note") or not flag("a10_asked") or flag("a10_eat") or mouse_control.running:return
-	panel.close()
-	mark("a10_refused")
-	mouse_control.begin()
+	prepare_mouse_decision(false)
+
+func prepare_mouse_decision(rescue: bool) -> void:
+	if today()!=10 or panel.mode!="mouse_refusal" or mouse_control.running:return
+	panel.close();close_panel()
+	game.get_node("StoryBranches").open_panel("mouse_rescue_confirm" if rescue else "mouse_refuse_confirm")
 
 func eat_mouse() -> void:
-	# Only the completed involuntary action can commit eating, never a dialogue button.
 	if today()!=10 or not mouse_control.running or mouse_control.elapsed<mouse_control.DURATION:return
-	if not flag("a10_catch") or not flag("a10_note") or not flag("a10_asked") or not flag("a10_refused") or flag("a10_eat"):return
-	mark("a10_eat")
-	mouse_control.finish()
-	restore()
-	open_mouse_story()
+	var branches=game.get_node("StoryBranches")
+	if val("br_mouse_intent")!=1:return
+	if not branches.state.resolve_mouse(1):
+		if not mouse_control.paused:mouse_control.toggle_pause()
+		mouse_control.caption.text="保存结果失败："+branches.state.last_error
+		mouse_control.resume_button.text="重试保存结果"
+		return
+	mouse_control.finish();branches.mouse_finished()
 
 func finish_day_ten() -> void:
 	if today()!=10 or panel.mode!="mouse_rest" or not day_complete():return
-	mark("a10_complete")
+	if not game.get_node("StoryBranches").state.patch({"a10_complete":true},{"current_day":11}):
+		game.ui.toast("保存失败，请重试休息。",4);return
 	begin_day(11)
+
 func target_position(id: String) -> Vector3:
 	if id=="note":return day.note_target()
 	if id=="nest":return day.world.items.nest.global_position+Vector3(0,.12,0)
@@ -409,6 +409,9 @@ func interact_item(id: String) -> void:
 	if id=="nest":
 		if not day_complete():story(guidance());return
 		if today()==10:open_panel("mouse_rest");return
+		if today() in [8,9] and flag("br_k2_owned") and not flag("br_k2_ready") and not flag("br_k2_reminder_%d"%today()):
+			game.get_node("StoryBranches").state.patch({"br_k2_reminder_%d"%today():true},{})
+			game.ui.toast("那只小装置还没有调好。可以从 J 手记的装备页查看。",5)
 		mark("a%d_complete"%today())
 		if today()<11:begin_day(today()+1)
 		else:story("第四幕当前任务已完成。地下室门已打开，可以继续探索。")
@@ -418,10 +421,10 @@ func interact_item(id: String) -> void:
 		day.reader.open_album();return
 	if id=="computer":open_panel("story");panel.close();game.cinematic_active=true;player.set_control(false);third.computer.open();return
 	if id=="dog":
-		if today()==10 and flag("a10_catch") and not flag("a10_eat"):
+		if today()==10 and flag("a10_catch") and val("br_mouse")==0:
 			if flag("a10_note") and not flag("a10_asked"):question_mouse()
 			else:open_mouse_story()
-		elif today()==10 and flag("a10_eat"):story("阿嚼：先休息吧。我在这里。")
+		elif today()==10 and flag("br_mouse_resolved"):story("阿嚼：先休息吧。我在这里。")
 		else:
 			story("阿嚼："+("它的味道……我好像认识它。" if today()>=10 else "我在这里。你今天的任务，还是写在那张纸条上吗？"))
 			game.get_node("DogSecret").queue_after_chat(panel)
@@ -450,7 +453,7 @@ func interact_item(id: String) -> void:
 	elif CLOCK_CLUES.has(id):
 		var part: String = CLOCK_CLUES[id]
 		mark("a8_clue_"+part)
-		story({"hour":"时针纸条\n\n时针：03。\n这张只写了小时，另外两张在哪里？","minute":"分针纸条\n\n分针：42。\n把这个数字记在分针的位置。","second":"秒针纸条\n\n秒针：00。\n它要对准最上面的刻线。"}[part]+"\n\n三张纸条都在二楼书房。已经找到 %d / 3。"%clock_clue_count())
+		story({"hour":"时针纸条\n\n时针：03。\n这张只写了小时，另外两张在哪里？","minute":"分针纸条\n\n分针：42。\n把这个数字记在分针的位置。","second":"秒针纸条\n\n秒针：00。\n它要对准最上面的刻线。"}[part]+"\n\n最后一次操作。\n三张纸条都在二楼书房。已经找到 %d / 3。"%clock_clue_count())
 	elif id=="clock":
 		if flag("a8_clock"):story("时钟还在走。\n可是它在倒着走。还剩下三天。")
 		elif not flag("a8_wash"):game.ui.toast("先去淋浴间洗澡，再调整时钟。",3)
@@ -501,7 +504,7 @@ func guidance() -> String:
 		if not flag("a10_catch"):return "01 追逐老鼠\n老鼠在%s。靠近按 E 抓取，跟上它跑过的房间。"%DESTINATIONS[clampi(val("mouse_stage"),0,ROUTES.size())]
 		if not flag("a10_note"):return "02 查看纸条\n老鼠带来了一张纸条。先看看上面写着什么。纸条落在厨房地面，也可以找阿嚼继续这段对话。"
 		if not flag("a10_asked"):return "03 向阿嚼求证\n阿嚼似乎认出了它的味道。问问阿嚼。"
-		if not flag("a10_eat"):return "04 尝试拒绝命令\n我不想吃掉它。我想离开这里。找阿嚼继续，或者重看纸条后做出决定。"
+		if not flag("br_mouse_resolved"):return "04 作出自己的决定\n我不想吃掉它。我想离开这里。找阿嚼继续，或者重看纸条后做出决定。"
 		return "身体终于停下来了。\n先回客厅猫窝休息。"
 	else:
 		if val("locks")<3:return "01 实验室密码门\n沿一楼楼梯下到地下平台，左转检查门上的三组电流锁。%d / 3\n依次解开同步灯、分时窄桥、变速时钟窗口。规则写在每关面板上。"%val("locks")
@@ -512,7 +515,7 @@ func refresh_hud() -> void:
 	day.hud.day_title.text="第 %d 天 / %s"%[today(),{8:"倒走的时间",9:"身体的记忆",10:"主人的命令",11:"来地下室"}[today()]]
 	day.hud.guidance.text=guidance()
 	day.hud.status.text="饱食度：%d/100"%val("cat_hunger",65)
-	day.hud.carry.text="抓着老鼠" if today()==10 and flag("a10_catch") and not flag("a10_eat") else ""
+	day.hud.carry.text="抓着老鼠" if today()==10 and flag("a10_catch") and val("br_mouse")==0 else ""
 	day.hud.set_paper_progress(0,4,false)
 func reset_runtime() -> void:
 	mouse_control.cancel()

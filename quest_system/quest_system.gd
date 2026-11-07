@@ -79,30 +79,38 @@ func inspect_save() -> Dictionary:
 	probe.free()
 	return info
 
+func persistence_allowed() -> bool:
+	return save_enabled and not "--quest-test" in OS.get_cmdline_user_args() and not game.demo_mode
+
 func prepare_session(new_game: bool) -> bool:
 	menu_error = ""
 	if not initialized or session_started:
 		menu_error = "游戏尚未准备好，请稍后重试。"
 		return false
+	var before:=manager.make_save_data()
+	var old_autosave:=manager.autosave
+	manager.autosave=false
+	var branches=game.get_node_or_null("StoryBranches")
 	if not new_game:
-		if not save_enabled or not manager.load_game():
-			menu_error = "无法读取存档，原文件已保留。"
-			return false
+		if not save_enabled or not manager.load_game(false):
+			menu_error="无法读取存档，原文件已保留。";manager.autosave=old_autosave;return false
 	else:
-		# Back up before any reset or autosave can replace the user's existing file.
-		if save_enabled and FileAccess.file_exists(manager.save_path):
-			var path := ProjectSettings.globalize_path(manager.save_path)
-			var error := DirAccess.copy_absolute(path,path+".bak")
-			if error != OK:
-				menu_error = "无法备份原存档，新游戏未开始："+error_string(error)
-				return false
-		manager.autosave = false
+		if persistence_allowed() and FileAccess.file_exists(manager.save_path):
+			var path:=ProjectSettings.globalize_path(manager.save_path)
+			if DirAccess.copy_absolute(path,path+".bak")!=OK:
+				menu_error="无法备份原存档，新游戏未开始。";manager.autosave=old_autosave;return false
 		manager.start_new_game()
-		if save_enabled and not manager.save_game():
-			menu_error = manager.last_save_error
-			return false
-	manager.autosave = save_enabled and not "--quest-test" in OS.get_cmdline_user_args()
-	session_prepared = true
+	if branches and not branches.prepare_session(new_game):
+		menu_error=branches.state.last_error
+		manager.restore_story_snapshot(before);manager.autosave=old_autosave
+		return false
+	if new_game and persistence_allowed() and not manager.save_game():
+		menu_error=manager.last_save_error
+		manager.restore_story_snapshot(before);manager.autosave=old_autosave
+		return false
+	manager.autosave=persistence_allowed()
+	session_prepared=true
+	manager.changed.emit()
 	return true
 
 func save_current_progress() -> bool:
@@ -123,15 +131,13 @@ func exploration_active() -> bool:
 func _physics_process(delta: float) -> void:
 	if not initialized: return
 	if game.started and not session_started:
-		session_started = true
-		var exists := FileAccess.file_exists(manager.save_path)
-		if not session_prepared and (not manager.autosave or not manager.load_game()):
-			if manager.autosave and exists:
-				# 保留坏文件供排查，停用自动覆盖；用户可以从日志主动重置。
-				manager.autosave = false
-				manager.last_save_error = "任务存档格式不兼容或损坏。已保留原文件；可在任务日志重置。"
-				_messages.append(manager.last_save_error)
-			manager.start_new_game()
+		if not session_prepared:
+			var continue_existing: bool=save_enabled and FileAccess.file_exists(manager.save_path)
+			if not prepare_session(not continue_existing):
+				game.started=false;game.player.set_control(false);game.ui.welcome.show()
+				game.ui.save_summary.text=menu_error
+				return
+		session_started=true
 	if not exploration_active(): return
 	_message_time -= delta
 	if _message_time <= 0.0 and not _messages.is_empty():
@@ -182,7 +188,9 @@ func close_journal() -> void:
 		game.resume_game()
 
 func restart_quests() -> void:
-	manager.autosave = save_enabled and not "--quest-test" in OS.get_cmdline_user_args()
+	var branches=game.get_node_or_null("StoryBranches")
+	if branches:branches.cancel_runtime()
+	manager.autosave = persistence_allowed()
 	manager.last_save_error = ""
 	manager.start_new_game()
 	_last_room = ""

@@ -208,9 +208,15 @@ func render_explorer() -> void:
   show_photo(content,"res://story_branches/art/clues/memory_photo.png");status.text="图片  ·  已收藏的合照"
  elif app=="documents":
   paragraph("文档",23,content)
+  button("维护附件 / K-2",content,func():computer.chapter.game.get_node("StoryBranches").open_equipment())
   if computer.chapter.flag("a7_login") and computer.chapter.evidence_count()==Data.KEYS.size():
    paragraph("原始记录",22,content);paragraph(preload("res://story_branches/data.gd").RECORD_INDEX,19,content)
    paragraph(preload("res://story_branches/data.gd").SYNC_STATUS,17,content,DeskTheme.MUTED);status.text="原始记录 · 本地索引"
+   var branches=computer.chapter.game.get_node("StoryBranches")
+   var keep=button("索引已保留" if branches.flag("br_index") else "保留索引",content,func():
+    if branches.step("index"):render()
+    else:computer.chapter.game.ui.toast(branches.state.last_error,4))
+   keep.disabled=branches.flag("br_index")
   else:
    paragraph("完成四项资料调查后，可查看原始记录索引。",17,content,DeskTheme.MUTED);status.text="原始记录 · 尚未解锁"
  else:

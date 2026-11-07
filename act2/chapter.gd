@@ -330,6 +330,7 @@ func interact_item(id: String) -> void:
 	elif id=="photo":
 		if not flag("photo_dropped"):return
 		mark("a3_photo")
+		game.ui.toast(preload("res://story_branches/data.gd").PHOTO_ASIDE,5)
 		open_panel("photo")
 	elif id=="cabinet":set_flag("cabinet_open",not flag("cabinet_open"))
 	elif id=="pipes":

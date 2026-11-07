@@ -35,6 +35,7 @@ id = &"a11_traces"
 title = "04 · 前代实验猫"
 description = "结局篇 · 检查观察笼里的旧抓痕与猫毛，沿爪印找到监控下方的通风口。"
 priority = 113
+main_quest = false
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("a11_cage"), SubResource("a11_vent")])
 result_text = "线索已记入手记。"

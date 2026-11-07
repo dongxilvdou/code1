@@ -18,6 +18,8 @@
 [ext_resource type="Script" path="res://scripts/cinematics/bedroom_secret.gd" id="15_bedroom_secret"]
 [ext_resource type="Script" path="res://scripts/cinematics/house_memes.gd" id="16_house_memes"]
 
+[ext_resource type="Script" path="res://story_branches/chapter.gd" id="17_branches"]
+
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")
 
@@ -69,3 +71,6 @@ room_door = NodePath("../Apartment/UpperFloor/Door_15")
 script = ExtResource("16_house_memes")
 television = NodePath("../Apartment/GroundFloor/Furnishings/Living/DecorTelevision_003")
 kitchen_counter = NodePath("../Apartment/GroundFloor/Furnishings/Kitchen/KitchenCabinet_034")
+
+[node name="StoryBranches" type="Node" parent="."]
+script = ExtResource("17_branches")

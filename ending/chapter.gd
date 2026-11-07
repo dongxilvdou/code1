@@ -2,6 +2,7 @@ extends Node3D
 const World = preload("res://ending/world.gd")
 const Panels = preload("res://ending/panels.gd")
 const Film = preload("res://ending/film.gd")
+const BranchCopy=preload("res://story_branches/data.gd")
 var game
 var day
 var player
@@ -47,9 +48,7 @@ func restore() -> void:
 	if not active():return
 	day.world.items.note.hide()
 	World.Props.activate(fourth.world.items.escape_note,false)
-	if flag("a11_escape"):
-		if film==null:make_film();film.play(flag("a11_finished"))
-		return
+	if day.value("br_phase",0)>0:return
 	if not flag("a11_memory") and ui.mode.is_empty():
 		memory()
 	refresh_hud()
@@ -110,12 +109,7 @@ func try_interact() -> bool:
 
 func interact_item(id: String) -> void:
 	if not active() or flag("a11_escape"):return
-	if id=="device":
-		if not flag("a11_choice"):
-			show_panel("device","转化装置","透明的器皿安在那张检查台上。\n\n进去，就能变成人吗？装置外面还有一颗红色按钮。",[["choice1","1  进去，变成人"],["choice2","2  拒绝，按下装置外面的红色按钮"],["choice3","3  给我一点时间想想"]])
-			ui.add_inspection_action()
-		elif not flag("a11_memory"):memory()
-		else:show_panel("story","我应该到处看看","昨天老鼠叼着的纸条……写着地下室逃跑计划。\n\n先看看笼子和监控底下。",[["inspect","查看观察终端 / 模型预览"],["close","继续寻找"]])
+	if id=="device":game.get_node("StoryBranches").open_terminal()
 	elif id=="report":
 		show_panel("report",World.Copy.REPORT_TITLE,World.Copy.REPORT,[["close","放回原处"]])
 	elif id=="cage":
@@ -123,39 +117,25 @@ func interact_item(id: String) -> void:
 		mark("a11_cage")
 		show_panel("cage","前代实验猫","这里有一道旧抓痕。有猫……来过这里。\n\n笼角卡着几根灰白色的猫毛，托盘上是反复抓挠留下的凹痕。\n一串沾灰的爪印从笼门边延伸出去，朝着西侧墙角。\n\n纸条上说：监控底下。",[["close","沿着爪印寻找"]])
 	elif id=="camera":show_panel("camera","监控底下","黑色镜头朝着观察笼。镜头下方靠近地面的位置，有一道松动的金属格栅。",[["close","检查下方的通风口"]])
-	elif id=="vent":
-		if not flag("a11_memory"):
-			memory();return
-		if not flag("a11_cage"):
-			show_panel("locked_vent","监控底下的通风口","边框上有猫毛和旧抓痕。\n这些痕迹是从哪里来的？先检查那只敞开的观察笼。",[["close","回头检查笼舍"]]);return
-		mark("a11_vent");world.restore(true,true)
-		show_panel("escape","通往外面的路","格栅松开了。边框上的猫毛，与观察笼里的颜色一样。\n旧抓痕一直延伸进黑暗的通风管道。\n\n前面的猫从这里离开了。现在，我也只能沿着它的路走。",[["escape","逃跑"]])
+	elif id=="vent":game.get_node("StoryBranches").open_panel("vent")
 
 func show_panel(kind: String, title: String, text_: String, options: Array) -> void:
 	game.cinematic_active=true;player.set_control(false)
 	ui.show_panel(kind,title,text_,options)
 
 func memory() -> void:
-	show_panel("memory","昨天的纸条","昨天，我明明想离开，身体却还是执行了命令。\n但那张纸条上的内容，我记住了。\n\n「地下室逃跑计划」\n「监控底下。沿着旧抓痕走。」\n\n这里也许有答案，也许有能出去的路。",[["look","我应该到处看看"]])
+	show_panel("memory","昨天的纸条",BranchCopy.paper_memory(day.value("br_mouse",0)),[["look","我应该到处看看"]])
 
 func on_action(id: String) -> void:
 	if not active():return
 	if id=="inspect":open_model_inspection()
 	elif id=="recall" and ui.mode=="arrival":memory()
-	elif id.begins_with("choice"):
-		if ui.mode!="device" or flag("a11_choice"):return
-		day.manager.set_value(&"ending_choice",int(id.right(1)))
-		mark("a11_choice")
-		if not flag("a11_memory"):memory()
-		else:show_panel("story","我应该继续寻找","装置仍然在这里。\n但我还记得昨天的纸条：监控底下，沿着旧抓痕走。",[["close","继续寻找出口"]])
+	elif id.begins_with("choice"):game.get_node("StoryBranches").open_terminal()
 	elif id=="look":
 		if ui.mode!="memory":return
 		mark("a11_memory");close_panel()
-	elif id=="escape":
-		if ui.mode!="escape" or not flag("a11_memory") or not flag("a11_cage") or not flag("a11_vent"):return
-		mark("a11_escape");make_film();film.play()
-	elif id=="replay":
-		if ui.mode=="final":film.play()
+	elif id=="escape":game.get_node("StoryBranches").open_panel("cat_confirm")
+	elif id=="replay":game.get_node("StoryBranches").start_ending_film(true)
 	elif id=="menu":
 		if ui.mode!="final":return
 		game.get_tree().reload_current_scene()
@@ -176,15 +156,14 @@ func make_film() -> void:
 	film=Film.new();add_child(film);film.build(self)
 
 func finish_ending() -> void:
-	mark("a11_finished");mark("a11_complete")
-	show_panel("final","实验失败。","回到了原来的家。\n另一只猫向我跑来，大狗还守在熟悉的位置。\n\n全剧终",[["replay","重看逃脱与归家"],["menu","返回主菜单"]])
+	game.get_node("StoryBranches").show_final()
 
 func guidance() -> String:
-	if flag("a11_finished"):return "实验失败。全剧终。"
+	if flag("a11_finished"):return "这一段经历已经结束。"
 	if flag("a11_escape"):return "沿着旧抓痕，穿过通风管道。"
 	if not flag("a11_memory"):return "03 昨天的逃跑计划\n回想纸条，寻找观察笼与监控下方的痕迹。"
 	if not flag("a11_cage"):return "04 前代实验猫\n检查敞开的 01 号观察笼，寻找猫毛、旧抓痕与离开的路径。"
-	return "05 监控底下\n沿着地上的旧爪印，检查西侧监控下方的通风格栅。"
+	return "05 决定如何离开\n可以沿监控下方的通风口寻找出口，也可以核对转化装置与原身体。"
 
 func refresh_hud() -> void:
 	if not active():return

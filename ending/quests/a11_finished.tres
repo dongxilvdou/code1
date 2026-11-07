@@ -13,21 +13,21 @@ required_value = 11
 
 [sub_resource type="Resource" id="prior"]
 script = ExtResource("condition")
-key = &"a11_vent"
+key = &"a11_enter"
 
 [sub_resource type="Resource" id="a11_finished"]
 script = ExtResource("goal")
 id = &"a11_finished"
-text = "逃出实验室，回到原来的家。"
+text = "完成选择并确认救援结果。"
 kind = 3
 target_id = &"a11_finished"
 
 [resource]
 script = ExtResource("quest")
 id = &"a11_finished"
-title = "05 · 逃跑"
-description = "结局篇 · 沿着前代实验猫留下的路线穿过通风管道，回到原来的家。"
+title = "05 · 离开分站"
+description = "结局篇 · 完成选择并确认救援结果。"
 priority = 114
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("a11_finished")])
-result_text = "实验失败。全剧终。"
+result_text = "这一段经历已经结束。"

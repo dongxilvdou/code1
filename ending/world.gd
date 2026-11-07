@@ -140,7 +140,6 @@ func visual_snapshot() -> Dictionary:
 	if day==null or day.manager==null:return {}
 	var state:={}
 	for key in ["br_auto_stopped","br_power_safe","br_module","br_routing"]:state[key]=day.flag(key)
-	state.br_auto_stopped=state.br_auto_stopped or day.value("ending_choice",0)==2
 	return state
 
 func _exit_tree() -> void:
