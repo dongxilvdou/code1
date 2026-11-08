@@ -43,10 +43,12 @@ func open_mouse_scene(kind: String) -> void:
 		button("查看纸条",detail,chapter.open_mouse_note).grab_focus()
 	elif kind=="mouse_note":
 		title.text = "老鼠带来的纸条 / 逃跑计划"
-		description.text = "地下室逃跑计划。\n监控底下。沿着旧抓痕走。\n\n我：逃跑计划？它想离开这里？\n可今天留下的任务，却是让我吃掉它……"
+		description.text = "地下室逃跑计划。\n监控底下。沿着旧抓痕走。\n\n我：逃跑计划？它想离开这里？\n可今天留下的任务，却是让我吃掉它……\n\n折页背面 / 求助定位："+BranchCopy.STATION_ADDRESS
 		picture("res://assets/notes/escape.png",detail,Vector2(430,300))
 		button("放大纸条",detail,func():chapter.day.reader.open_sheet("escape"))
-		button("记住纸条上的内容",detail,chapter.confirm_mouse_note).grab_focus()
+		description.text+="\n\n已记入手记 · Esc 返回"
+		chapter.present_mouse_note(self)
+		button("返回",detail,chapter.open_mouse_story).grab_focus()
 	elif kind=="mouse_question":
 		description.text = "逃跑计划已经记下来了。\n\n阿嚼似乎认出了它的味道。\n我得问问它，为什么要阻止我。"
 		button("向阿嚼求证",detail,chapter.question_mouse).grab_focus()
@@ -68,7 +70,7 @@ func open_mouse_scene(kind: String) -> void:
 		button("再想想",detail,chapter.close_panel)
 	elif kind=="mouse_rest":
 		title.text = "第十天 / 猫窝"
-		description.text = BranchCopy.REST_SAVED if chapter.val("br_mouse")==2 else BranchCopy.REST_LOST
+		description.text = BranchCopy.rest_text(chapter.val("br_mouse"),chapter.day.value("br_memory_level",0))
 		button("休息到明天",detail,chapter.finish_day_ten).grab_focus()
 		shell.modulate.a = 0
 		rest_fade = create_tween()
@@ -92,7 +94,7 @@ func _input(event: InputEvent) -> void:
 				if not focused.disabled:focused.pressed.emit()
 			elif detail.get_child_count()>0 and detail.get_child(0) is Button:
 				(detail.get_child(0) as Button).pressed.emit()
-			elif mode=="mouse_note":chapter.confirm_mouse_note()
+			elif mode=="mouse_note":pass
 		else:return
 		get_viewport().set_input_as_handled()
 		return

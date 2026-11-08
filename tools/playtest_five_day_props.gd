@@ -42,6 +42,18 @@ func read_daily_note() -> void:
 	elif number==2:second.interact_item("dog_bowl")
 	else:chapter.interact_item({3:"book0",4:"dog",5:"medicine"}[number])
 	verify(day.manager.flags==flags and day.manager.values==values,"Task mutated before day "+str(number)+" note acknowledgement")
+	if number==5:
+		await settle(day.world.items.table.position+Vector3(0,.49,0))
+		verify(chapter.flag("a5_bell"),"Actual coffee table cannot trigger the day-five doorbell")
+		dismiss()
+		for _i in range(3):chapter.interact_item("mailbox")
+		chapter.interact_item("letter")
+		await ticks(4)
+		await process_frame;await process_frame;await process_frame
+		verify(day.reader.mode=="sheet" and day.Notes.read(day),"Visible day-five letter did not automatically unlock tasks")
+		await key(KEY_ESCAPE)
+		verify(game.player.active,"Closing the day-five letter did not restore control")
+		return
 	var reading_position: Vector3 = day.world.items.table.position+Vector3(0,.02,.75)
 	if number==1:reading_position = day.SPAWN
 	elif number==5:reading_position = Vector3(-4.45,.03,4.80)
@@ -54,13 +66,13 @@ func read_daily_note() -> void:
 		print("NOTE_DIAGNOSTIC ",number," player=",game.player.active," active=",day.active_play()," cine=",game.cinematic_active," dialog=",day.dialog," pause=",game.ui.pause_panel.visible," puzzle=",second.puzzle.mode," chapter_panel=",chapter.puzzle.mode," pos=",game.player.position," eye=",game.player.camera.global_position," target=",point," hit=",hit.get("position")," collider=",hit.get("collider"))
 	verify(selected=="note","Day "+str(number)+" paper cannot be selected at its real location: "+selected)
 	await key(KEY_E)
-	verify(day.dialog=="note" and not day.Notes.read(day),"Opening paper incorrectly unlocked day "+str(number))
+	await process_frame;await process_frame;await process_frame
+	verify(day.reader.mode=="daily" and day.Notes.read(day),"Successful display did not automatically unlock day "+str(number))
+	await key(KEY_E)
+	verify(day.reader.mode=="daily","E unexpectedly dismissed daily paper")
 	await key(KEY_ESCAPE)
-	verify(not day.Notes.read(day) and game.player.active,"Esc should close paper without unlocking")
-	await key(KEY_E)
-	await key(KEY_E)
-	await ticks(2)
-	verify(day.Notes.read(day) and game.player.active,"Acknowledging paper did not unlock day "+str(number))
+	verify(day.Notes.read(day) and game.player.active,"Esc failed to preserve reading or restore control")
+
 
 func aim_check(id: String, position_: Vector3) -> void:
 	await settle(position_)
@@ -173,6 +185,7 @@ func verify_returned_toy_dialogue() -> void:
 	verify(not chapter.flag("a4_toy") and not chapter.flag("yarn_solved"),"Optional cross-day route checkpoint was not restored")
 
 func run_tests() -> void:
+	create_timer(180).timeout.connect(func():printerr("REGRESSION_TIMEOUT");quit(2))
 	capture = "--capture" in OS.get_cmdline_user_args()
 	DirAccess.make_dir_recursive_absolute("res://logs/five_day_props")
 	game = load("res://scenes/main.tscn").instantiate()
@@ -297,12 +310,23 @@ func run_tests() -> void:
 			verify(day.manager.restore_save_data(mid),"Partial day-three save cannot reload")
 			chapter.restore()
 			verify(chapter.val("a_holding")==2 and is_instance_valid(chapter.held_visual),"Carried book lost after partial save reload")
-		await settle(chapter.world.shelves[i]+Vector3(0,.025,0))
-		verify(game.player.is_on_floor() and absf(game.player.position.y-chapter.world.shelves[i].y)<.10,"Actual bookcase ledge cannot support the cat: "+str(i)+" at "+str(game.player.position))
-		game.player.camera.look_at(chapter.target_position("shelf%d"%i))
-		verify(chapter.nearest_item()=="shelf%d"%i,"Looking at coloured book row does not select its return slot")
+		await settle(chapter.world.shelves[0]+Vector3(0,.025,0))
+		verify(game.player.is_on_floor() and absf(game.player.position.y-chapter.world.shelves[0].y)<.10,"Actual bookcase ledge cannot support the cat: "+str(i)+" at "+str(game.player.position))
+		game.player.camera.look_at(chapter.target_position("shelf0"))
+		verify(chapter.nearest_item()=="shelf0","Looking at coloured book row does not select its return slot")
 		await key(KEY_E)
 		verify(chapter.flag("book%d"%i),"Return to actual bookcase failed: "+str(i))
+	var book_goal: Array=preload("res://act2/puzzle_rules_v2.gd").BOOK_GOAL
+	verify(chapter.puzzle.mode=="books" and chapter.puzzle.book_order.size()==7,"Seven-spine sorting opens after returning three books")
+	for slot in range(7):
+		var target: int=chapter.puzzle.book_order.find(book_goal[slot])
+		if target!=slot:
+			for index in [slot,target]:
+				var board=chapter.puzzle.board
+				var event:=InputEventMouseButton.new();event.button_index=MOUSE_BUTTON_LEFT;event.position=board.global_position+Vector2((index+.5)*board.size.x/7,board.size.y*.5);event.pressed=true;root.push_input(event,true);await process_frame
+				event=event.duplicate();event.pressed=false;root.push_input(event,true);await process_frame
+	for button_ in chapter.puzzle.detail.find_children("*","Button",true,false):
+		if button_.text=="检查书序":button_.grab_focus();await key(KEY_SPACE);break
 	verify(chapter.flag("a3_books"),"Day-three bookcase task cannot complete")
 	chapter.interact_item("photo")
 	dismiss()
@@ -315,8 +339,10 @@ func run_tests() -> void:
 	chapter.solved("pipes")
 	dismiss()
 	await photograph("03_day3_sink",Vector3(1.42,.59,-4.32),Vector3(1.98,.42,-5.25))
-	await settle(chapter.world.items.can.position+Vector3(.60,-chapter.world.items.can.position.y+.02,0))
-	verify(await jump_to(chapter.world.items.can.position),"Existing cat-tree perch cannot be reached for watering-can pickup")
+	await settle(Vector3(-4.45,.02,2.60))
+	verify(await jump_to(Vector3(-5.23,.57,2.60)),"Existing sofa cannot be reached before watering-can pickup")
+	await jump_to(chapter.world.items.can.position)
+	verify(game.player.is_on_floor() and game.player.position.y>=.69 and game.player.position.distance_to(chapter.world.items.can.position)<1.6,"Watering can cannot be reached from an elevated sofa/window-sill surface")
 	chapter.interact_item("can")
 	verify(chapter.val("a_holding")==4 and game.player.jump_locked,"Full watering can must temporarily lock jumping")
 	chapter.interact_item("drain")
@@ -371,17 +397,11 @@ func run_tests() -> void:
 	await restored()
 	verify(chapter.today()==4,"Cannot advance to day four")
 	await read_daily_note()
-	for id in ["can","drain","pipes","camera","photo","plant","shelf0","shelf1","shelf2"]:verify(not chapter.world.items[id].visible,"Retired day-three prop/target remains: "+id)
+	for id in ["can","drain","pipes","camera","photo","plant","shelf0"]:verify(not chapter.world.items[id].visible,"Retired day-three prop/target remains: "+id)
 	verify(chapter.world.items.plant.get_meta("bound_furniture").visible,"Retiring the watering target hid the real plant")
 	verify(chapter.world.items.book0.visible,"Returned books must stay on the real bookcase")
 	verify(not chapter.world.Props.interactable(chapter.world.items.book0,4),"Returned books remain incorrectly pickable on day four")
-	await settle(day.world.items.table.position+Vector3(0,.49,0))
-	verify(chapter.flag("a4_bell"),"Actual coffee table cannot trigger the day-four doorbell")
-	dismiss()
-	for i in range(3):chapter.interact_item("mailbox")
-	chapter.interact_item("letter")
-	dismiss()
-	verify(chapter.flag("a4_letter"),"New mailbox and letter cannot complete")
+	verify(day.Notes.read(day) and not chapter.flag("a5_letter"),"Day four should use its daily paper, without consuming the day-five letter")
 	await settle(Vector3(4.12,.95,-5.40))
 	game.player.camera.look_at(chapter.target_position("fridge_lock"))
 	verify(chapter.nearest_item()=="fridge_lock","Real counter view cannot select refrigerator lock")
@@ -415,14 +435,14 @@ func run_tests() -> void:
 	dismiss()
 	await restored()
 	verify(chapter.today()==5,"Cannot advance to day five")
-	verify(day.world.items.note.visible and day.world.items.note.position.distance_to(Vector3(-4.30,.018,4.32))<.01,"Day-five paper is not beside the cat bed")
-	await photograph("07_day5_paper_by_bed",Vector3(-3.85,.63,4.84),day.world.items.note.position)
+	verify(not day.world.items.note.visible,"Day five must not show a replacement daily paper before its mailbox letter")
 	await read_daily_note()
 	for id in ["letter","fish","oven","fridge_lock"]:verify(not chapter.world.items[id].visible,"Retired day-four target remains: "+id)
 	verify(chapter.world.items.yarn.visible,"Optional toy route was removed at day change")
 	verify(chapter.world.items.medicine.visible,"Day-five medication not spawned")
 	await photograph("06_day5_medicines",Vector3(-3.08,.92,2.89),Vector3(-3.40,.55,2.02))
 	chapter.interact_item("medicine")
+	for i in range(7):chapter.puzzle.shake_medicine(i)
 	chapter.puzzle.selected = [1,3,5]
 	chapter.puzzle.check_medicine()
 	verify(chapter.val("a_holding")==8,"Seven labeled bottles cannot supply the selected three")

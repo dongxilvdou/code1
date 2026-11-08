@@ -65,6 +65,7 @@ func mark(key: String) -> void:
 	day.manager.set_flag(StringName(key),true)
 	day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName(key),1,"act4:"+key)
 func add_entry() -> void:
+	if not OS.has_feature("editor") and not "--quest-test" in OS.get_cmdline_user_args():return
 	var actions := game.ui.welcome.get_node("MenuActions") as Node
 	var button: Button=game.ui.button("第四幕 · 从第八天开始",actions,start_chapter,true)
 	actions.move_child(button,5)
@@ -78,13 +79,13 @@ func start_chapter() -> void:
 	for i in range(1,8):day.manager.set_flag(StringName("daily_note_ack_%d"%i),true)
 	set_value("act2_schedule_version",3);set_value("cook_state",3)
 	begin_day(8)
-func begin_day(number: int) -> void:
+func begin_day(number: int, state_committed := false) -> void:
 	if number not in [8,9,10,11] or not day.initialized:return
 	mouse_control.cancel()
 	panel.close()
 	third.reset_runtime()
 	game.get_node("ActTwo").reset_runtime()
-	set_value("current_day",number)
+	if not state_committed:set_value("current_day",number)
 	for key in ["holding","d2_holding","a_holding","a3_holding"]:set_value(key,0)
 	day.update_held_visual();second.update_held()
 	active_number=number;wash_time=0;bathing=false;pounce_time=0;chase_path.clear()
@@ -193,10 +194,8 @@ func _physics_process(delta: float) -> void:
 			bathing=false;mark("a8_wash");world.items.water.stop();story("水温和水流终于都稳定了。\n调小出水、试温，再缓缓加到舒适的流量。我试过不同的冷热和出水位置，现在记住了舒适的手感。\n\n接下来，前往二楼书房，寻找时间纸条并调整墙上的时钟。")
 	if flag("a8_clock"):
 		clock_tick+=delta
-		if clock_tick>=1:
-			set_value("clock_back_seconds",val("clock_back_seconds")+int(clock_tick))
-			clock_tick=fmod(clock_tick,1)
-		world.clock_pose(3*3600+42*60-val("clock_back_seconds"))
+		# Reverse-clock animation is runtime presentation, not a save transaction per second.
+		world.clock_pose(3*3600+42*60-val("clock_back_seconds")-int(clock_tick))
 	else:world.clock_pose(val("clock_h",8)*3600+val("clock_m",11)*60+val("clock_s",25))
 	if today()==9 and flag("a9_plants") and not flag("a9_mole"):
 		mole_clock+=delta
@@ -321,11 +320,15 @@ func open_mouse_note() -> void:
 	if today()!=10 or not flag("a10_catch") or mouse_control.running:return
 	open_panel("mouse_note")
 
+func present_mouse_note(view: Node) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_instance_valid(view) or view.mode!="mouse_note" or not view.shell.visible or today()!=10:return
+	if not game.get_node("StoryBranches").state.patch({"a10_note":true},{}):game.ui.toast("阅读记录保存失败，请重新打开纸条。",5)
+
 func confirm_mouse_note() -> void:
-	if panel.mode!="mouse_note" or today()!=10 or not flag("a10_catch") or mouse_control.running:return
-	mark("a10_note");restore()
-	if val("br_mouse")!=0:story("逃跑计划已经记在了线索册里。\n先回猫窝，明天去地下室看看。")
-	else:open_mouse_story()
+	# Compatibility for old development callers; reading is recorded only by presentation.
+	if today()==10 and flag("a10_note") and not mouse_control.running:open_mouse_story()
 
 func question_mouse() -> void:
 	if today()!=10 or not flag("a10_catch") or mouse_control.running:return
@@ -359,9 +362,9 @@ func eat_mouse() -> void:
 
 func finish_day_ten() -> void:
 	if today()!=10 or panel.mode!="mouse_rest" or not day_complete():return
-	if not game.get_node("StoryBranches").state.patch({"a10_complete":true},{"current_day":11}):
+	if not game.get_node("StoryBranches").state.commit_night_ten():
 		game.ui.toast("保存失败，请重试休息。",4);return
-	begin_day(11)
+	begin_day(11,true)
 
 func target_position(id: String) -> Vector3:
 	if id=="note":return day.note_target()
@@ -487,6 +490,7 @@ func close_panel() -> void:
 func day_complete() -> bool:
 	if not day.Notes.read(day):return false
 	for key in GOALS[today()]:
+		if today()==10 and key=="a10_asked" and flag("br_legacy_mouse_resolved"):continue
 		if not flag(key):return false
 	return true
 func guidance() -> String:

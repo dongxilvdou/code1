@@ -1,4 +1,5 @@
 extends SceneTree
+## Formal catalog integration. Sample q01-q05 rewards/prerequisites remain covered by test_quests.gd.
 var output_dir := OS.get_environment("CALICO_QUEST_CAPTURE_DIR")
 const Kind = CalicoQuestObjective.Kind
 const State = CalicoQuestManager.State
@@ -50,9 +51,12 @@ func key(code: Key) -> void:
 	await ticks(2)
 
 func run() -> void:
+	create_timer(90).timeout.connect(func():printerr("QUEST_GAME_TIMEOUT");quit(2))
 	if capture: DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	root.size = Vector2i(1280, 800)
+	root.content_scale_size=root.size
 	game = load("res://scenes/main.tscn").instantiate()
+	game.comic_intro_completed=true # Opening comic has its own test suite.
 	root.add_child(game)
 	current_scene = game
 	await ticks(10)
@@ -66,18 +70,22 @@ func run() -> void:
 	await ticks(10)
 	var manager: CalicoQuestManager = quests.manager
 	expect(not manager.autosave, "Tests cannot overwrite player save")
-	expect(manager.get_progress(&"q01", &"living") == 1, "Initial room tracked using map regions")
-	expect(manager.get_status(&"q01") == State.ACTIVE, "Arrival awaits real meow")
+	expect(manager.get_progress(&"day1_arrival", &"note_read") == 0, "Arrival awaits actual paper presentation")
+	expect(manager.get_status(&"day1_arrival") == State.ACTIVE, "Formal arrival task starts active")
 	var map: Control = game.get_node("VillaMap/MapHUD")
 	var panel: Control = quests.tracker.panel
-	expect(panel.visible and panel.position.y >= map.mini_back.get_global_rect().end.y + 10, "Tracker is under minimap")
+	expect(not panel.visible, "Main story card suppresses the duplicate quest sidebar")
 	expect(is_equal_approx(panel.position.x, map.mini_back.position.x), "Tracker left-aligns to map")
 	expect(panel.get_global_rect().end.y < quests.tracker.get_viewport_rect().size.y - 65, "Tracker clears bottom shortcuts")
 	await shot("01_under_minimap")
 	await key(KEY_Q)
-	expect(manager.get_status(&"q01") == State.COMPLETED, "Q input completes arrival")
-	expect(manager.values.exploration_points == 5, "Actual completion reward")
-	expect(manager.get_status(&"q02") == State.ACTIVE, "Next quest unlocked")
+	expect(manager.get_status(&"day1_arrival") == State.ACTIVE, "Meowing cannot bypass the formal tutorial")
+	var day=game.get_node("DayOne")
+	day.show_dialog("note")
+	for _i in range(4):await process_frame
+	expect(manager.get_progress(&"day1_arrival", &"note_read") == 1, "Displayed daily paper records the actual objective")
+	await key(KEY_ESCAPE)
+	expect(manager.get_status(&"day1_lights") == State.LOCKED, "Reading alone does not complete the tutorial")
 	await key(KEY_J)
 	expect(quests.tracker.journal_visible() and not game.player.active, "J opens journal and stops movement")
 	expect(not map.visible and not panel.visible, "Map and sidebar hidden in journal")
@@ -106,28 +114,29 @@ func run() -> void:
 	expect(not panel.visible, "Overview hides tracker")
 	game.toggle_overview()
 	await visit(Vector3(-2.6, .02, -3.7))
-	expect(manager.get_progress(&"q02", &"dining") == 1, "Dining region event")
+	expect(quests._last_room.contains("dining"), "Dining region still reported")
 	await visit(Vector3(2.5, .02, -4.2))
-	expect(manager.get_status(&"q02") == State.COMPLETED, "Kitchen region completes downstairs")
-	expect(manager.flags.downstairs_done and manager.get_status(&"q05") == State.AVAILABLE, "Flag and ANY prerequisite unlock optional quest")
+	expect(quests._last_room.contains("kitchen"), "Kitchen region still reported")
+	expect(manager.get_status(&"day1_arrival") == State.ACTIVE, "Room visits cannot replace the tutorial tasks")
 	quests.open_journal()
 	await ticks()
 	var accept_buttons: Array[Node] = quests.tracker.journal_list.find_children("*", "Button", true, false)
-	expect(accept_buttons.size() == 1, "Journal exposes available task acceptance")
-	if not accept_buttons.is_empty(): accept_buttons[0].pressed.emit()
+	expect(accept_buttons.is_empty(), "No unrelated sample task acceptance appears in the formal journal")
 	quests.close_journal()
-	expect(manager.get_status(&"q05") == State.ACTIVE, "Journal button accepts optional task")
+	expect(manager.get_status(&"day1_arrival") == State.ACTIVE, "Browsing journal preserves the active task")
 	root.size = Vector2i(960, 600)
+	root.content_scale_size=root.size
 	await ticks(8)
 	print("QUEST_LAYOUT ", JSON.stringify({"window": str(root.size), "viewport": str(quests.tracker.get_viewport_rect()), "panel": str(panel.get_global_rect()), "minimum": str(panel.get_combined_minimum_size())}))
 	expect(panel.get_global_rect().end.y < quests.tracker.get_viewport_rect().size.y - 65, "Small window fits sidebar")
 	await shot("03_small_window")
 	root.size = Vector2i(1280, 800)
 	await visit(Vector3(-2.5, 3.02, .9))
-	expect(manager.get_progress(&"q03", &"study") == 1, "Upstairs study is not confused with ground floor")
+	expect(quests._last_room.contains("floor_2"), "Upstairs study is not confused with ground floor")
 	await visit(Vector3(-3, 3.02, 4.8))
-	expect(manager.get_status(&"q03") == State.COMPLETED, "Terrace completes upstairs")
-	# Use the existing actual E-interaction position from the project's door tests.
+	expect(quests._last_room.contains("terrace"), "Terrace region still reported")
+	# Door collision and actual E input are covered by playtest_branch_routes.gd.
+	# Here, test the map's target selection without bypassing the formal tutorial's gates.
 	var door: Node
 	for candidate in get_nodes_in_group("villa_doors"):
 		if candidate.door_title == "工作书房门" and candidate.global_position.y < 1: door = candidate
@@ -139,24 +148,21 @@ func run() -> void:
 	await visit(Vector3(1.55, .02, 2.35))
 	game.update_target()
 	expect(game.nearest_door == door, "Existing interaction selects door")
-	await key(KEY_E)
-	expect(manager.get_progress(&"q04", &"door") == 0, "Door is not counted before opening animation finishes")
-	await ticks(65)
-	expect(manager.get_progress(&"q04", &"door") == 1, "Actual opened door counted once")
+	expect(not door.is_open, "Selecting a door cannot open it automatically")
 	await visit(Vector3(0, .02, -8))
-	expect(manager.get_status(&"q04") == State.COMPLETED and manager.flags.villa_explored, "North garden finishes main chain")
+	expect(quests._last_room.contains("garden"), "North garden region still reported")
 	for i in range(3):
 		await ticks(60)
 		await key(KEY_Q)
-	expect(manager.get_status(&"q05") == State.COMPLETED and manager.values.exploration_points == 55, "Optional quest and total reward")
+	expect(not manager.values.has("exploration_points"), "Removed sample quests cannot grant unrelated rewards")
 	quests.open_journal()
 	await shot("04_completed")
 	quests.close_journal()
 	# Reset is explicit and restores the tutorial without altering the house.
 	quests.restart_quests()
 	await visit(Vector3(-3.4, .02, 4.2))
-	expect(manager.get_status(&"q01") == State.ACTIVE and manager.values.is_empty(), "Explicit reset clears task rewards")
-	expect(manager.get_progress(&"q01", &"living") == 1, "Reset resumes room reporting")
+	expect(manager.get_status(&"day1_arrival") == State.ACTIVE and int(manager.values.get("current_day",1))==1, "Explicit reset starts the formal first day")
+	expect(manager.get_progress(&"day1_arrival", &"note_read") == 0, "Reset requires reading the new game's paper")
 	game.queue_free()
 	await ticks(2)
 	print("QUEST_GAME_TESTS ", JSON.stringify({"checks": checks, "failures": failures}))

@@ -55,6 +55,7 @@ func mark(key: String) -> void:
 	day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName(key),1,"act3:"+key)
 
 func add_entry() -> void:
+	if not OS.has_feature("editor") and not "--quest-test" in OS.get_cmdline_user_args():return
 	var actions: Node = game.ui.welcome.get_node("MenuActions")
 	var entry: Button = game.ui.button("第三幕 · 从第六天开始",actions,start_chapter,true)
 	actions.move_child(entry,4)

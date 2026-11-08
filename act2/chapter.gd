@@ -34,6 +34,7 @@ func _ready() -> void:
 	call_deferred("add_chapter_entry")
 
 func add_chapter_entry() -> void:
+	if not OS.has_feature("editor") and not "--quest-test" in OS.get_cmdline_user_args():return
 	var column = game.ui.welcome.get_node("MenuActions")
 	var entry: Button = game.ui.button("第二幕 · 从第三天开始",column,start_chapter,true)
 	column.move_child(entry,3)
@@ -368,7 +369,6 @@ func interact_item(id: String) -> void:
 			game.ui.toast("信掉下来了！" if flag("letter_dropped") else "信松动了一点，再摇一摇。",3)
 	elif id=="letter":
 		if not flag("letter_dropped"):return
-		mark("a5_letter")
 		day.reader.open_sheet("letter")
 	elif id=="fridge_lock":
 		if today()<4:

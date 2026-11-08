@@ -12,7 +12,8 @@ var care_memory: Node
 var recording: AudioStreamPlayer
 var needs_restore := true
 var previous_day := 0
-var restore_clock := 0.0
+var alert: Node
+var memory_replay := false
 
 func _ready() -> void:
 	game=get_parent();day=game.get_node("DayOne")
@@ -21,6 +22,7 @@ func _ready() -> void:
 	recording=AudioStreamPlayer.new();recording.volume_db=-14;recording.stream=load("res://story_branches/audio/transfer_log.wav");add_child(recording)
 	world=preload("res://story_branches/world.gd").new();world.name="BranchWorld";add_child(world);world.build(self)
 	panels=load("res://story_branches/panels.gd").new();panels.chapter=self;add_child(panels)
+	alert=preload("res://story_branches/day_eleven_alert.gd").new();alert.name="DayElevenAlert";add_child(alert);alert.setup(self)
 	call_deferred("ensure_bound")
 
 func ensure_bound() -> bool:
@@ -34,31 +36,33 @@ func ensure_bound() -> bool:
 func prepare_session(new_game: bool) -> bool:
 	if not ensure_bound():return false
 	state.replay=false;state.busy=false
-	if new_game:return true
+	if new_game:
+		cancel_runtime();previous_day=0;needs_restore=true
+		return true
 	return state.migrate_legacy(false)
 
 func facts() -> Dictionary:return state.snapshot() if state.manager!=null else {}
 func value(key: String) -> int:return int(facts().get(key,0))
 func flag(key: String) -> bool:return bool(facts().get(key,false))
 
-func _physics_process(delta: float) -> void:
-	if not day.initialized or not game.started or not ensure_bound():return
+func _physics_process(_delta: float) -> void:
+	if not day.initialized or not game.started or not ensure_bound() or not game.get_node("QuestSystem").session_started:return
 	if previous_day!=day.value("current_day",1):previous_day=day.value("current_day",1);needs_restore=true
 	if is_instance_valid(film) and film.running:return
 	if is_instance_valid(care_memory) and care_memory.running:return
 	if game.get_node("ActFour").mouse_control.running:return
 	if needs_restore:restore_world()
-	restore_clock+=delta
-	if restore_clock>.3 and day.active_play():
-		restore_clock=0
-		world.restore(facts())
 	if not panels.opened and day.active_play():
 		if value("br_phase")==2:show_final()
 		elif value("br_phase")==1:start_ending_film(false)
 		elif value("br_mouse_intent")!=0:start_mouse_film(true)
+		elif not flag("br_legacy_flow") and value("br_memory_level")>0 and not state.busy:
+			for level in range(1,value("br_memory_level")+1):
+				if not value("br_memory_seen_mask")&(1<<(level-1)):play_memory(level,false);break
 
 func restore_world() -> void:
 	needs_restore=false
+	state.reconcile_memory()
 	state.reconcile_progress()
 	world.restore(facts())
 	var fourth=game.get_node("ActFour")
@@ -67,10 +71,14 @@ func restore_world() -> void:
 	if ending.world:ending.world.retrofit.apply_visual_state(facts());ending.world.vent_service.apply_visual_state(facts())
 
 func target_hint() -> String:
+	var document: String=world.nearest_document()
+	if not document.is_empty():return "E 查看"+preload("res://story_branches/evidence_data.gd").data(document).title
 	if world.nearest_item().is_empty():return ""
 	return "E 检查桌下维修盒" if day.value("current_day",1)>=7 else "维护盒 · 接口没有供电"
 
 func try_interact() -> bool:
+	var document: String=world.nearest_document()
+	if not document.is_empty():day.reader.open_evidence(document);return true
 	if world.nearest_item().is_empty():return false
 	if day.value("current_day",1)==6:game.ui.toast("接口没有供电，等电脑恢复后再检查。",4)
 	elif day.value("current_day",1)==7 and not flag("a7_login"):game.ui.toast("先登录桌上的电脑，再检查维护附件。",4)
@@ -146,9 +154,15 @@ func show_final() -> void:
 	state.replay=false;state.busy=false
 	open_panel("final")
 
-func play_memory() -> void:
-	panels.close();state.busy=true
-	film=load("res://story_branches/memory_film.gd").new();film.chapter=self;add_child(film);film.play()
+func play_memory(level := 0, readonly := true) -> void:
+	if is_instance_valid(film) and film.running:return
+	if level==0:level=maxi(1,value("br_memory_level"))
+	var system=game.get_node("QuestSystem")
+	if system.tracker.journal_visible():system.close_journal()
+	var return_view:="repair" if flag("br_legacy_flow") else "records" if panels.opened else ""
+	if panels.opened:panels.close()
+	state.busy=true;memory_replay=readonly;state.replay=readonly
+	film=load("res://story_branches/memory_film.gd").new();film.chapter=self;film.level=level;film.readonly=readonly;film.return_view=return_view;add_child(film);film.play()
 
 func play_care_memory() -> void:
 	if is_instance_valid(care_memory) or (is_instance_valid(film) and film.running):return
@@ -162,6 +176,8 @@ func play_care_memory() -> void:
 func play_recording() -> void:recording.play()
 
 func cancel_runtime() -> void:
+	if is_instance_valid(world):world.reset_session()
+	if is_instance_valid(alert):alert.reset()
 	recording.stop()
 	if is_instance_valid(care_memory):care_memory.finish();care_memory=null
 	if is_instance_valid(film):film.cancel();film.queue_free();film=null

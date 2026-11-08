@@ -46,7 +46,7 @@ func configure(source: CalicoQuestCatalog) -> bool:
 			if ids.has(goal.id): validation_errors.append(str(quest.id) + " 存在重复目标 ID。")
 			ids[goal.id] = true
 		for dependency in quest.prerequisite_quests:
-			if dependency == null or not definitions.has(dependency.id):
+			if dependency == null or not dependency is CalicoQuest or not definitions.has(dependency.id):
 				validation_errors.append(str(quest.id) + " 的前置任务未加入 Catalog。")
 		for condition in quest.extra_conditions:
 			if condition == null or condition.key == &"": validation_errors.append(str(quest.id) + " 存在空前置条件。")
@@ -65,7 +65,7 @@ func _check_cycle(id: StringName, path: Dictionary, visited: Dictionary) -> void
 	if visited.has(id): return
 	path[id] = true
 	for dependency in definitions[id].prerequisite_quests:
-		if dependency != null and definitions.has(dependency.id): _check_cycle(dependency.id, path, visited)
+		if dependency is CalicoQuest and definitions.has(dependency.id): _check_cycle(dependency.id, path, visited)
 	path.erase(id)
 	visited[id] = true
 
@@ -82,7 +82,7 @@ func _reset_state() -> void:
 func start_new_game() -> void:
 	if _busy: return
 	_reset_state()
-	values["br_schema"] = 1
+	values["br_schema"] = 2
 	_refresh_available()
 	_commit()
 

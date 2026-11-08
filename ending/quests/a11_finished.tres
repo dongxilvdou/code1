@@ -18,7 +18,7 @@ key = &"a11_enter"
 [sub_resource type="Resource" id="a11_finished"]
 script = ExtResource("goal")
 id = &"a11_finished"
-text = "完成选择并确认救援结果。"
+text = "完成确定并确认救援结果。"
 kind = 3
 target_id = &"a11_finished"
 
@@ -26,7 +26,7 @@ target_id = &"a11_finished"
 script = ExtResource("quest")
 id = &"a11_finished"
 title = "05 · 离开分站"
-description = "结局篇 · 完成选择并确认救援结果。"
+description = "结局篇 · 完成确定并确认救援结果。"
 priority = 114
 extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("prior")])
 objectives = Array[ExtResource("goal")]([SubResource("a11_finished")])

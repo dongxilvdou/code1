@@ -65,6 +65,7 @@ func _ready() -> void:
 	ui.hide();pause_card.hide()
 
 func begin() -> bool:
+	if chapter.flag("br_imprint_cleared"):return false
 	if running or chapter.today()!=10 or chapter.val("br_mouse")!=0 or chapter.val("br_mouse_intent")!=1:return false
 	for key in ["a10_catch","a10_note","a10_asked","a10_refused"]:
 		if not chapter.flag(key):return false

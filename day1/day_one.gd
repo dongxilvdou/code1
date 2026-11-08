@@ -276,7 +276,7 @@ func update_held_visual() -> void:
 func show_dialog(kind: String) -> void:
 	if kind=="note" and value("current_day",1)==5:return
 	if kind=="note":
-		note_day=value("current_day",1);dialog="note";page=0;reader.open_daily(note_day);return
+		note_day=value("current_day",1);dialog="";page=0;reader.open_daily(note_day);return
 	dialog = kind
 	page = 0
 	game.cinematic_active = true
@@ -290,10 +290,22 @@ func render_page() -> void:
 			var note_text: String=Notes.CONTENT[note_day]
 			if note_day==11:
 				note_text+="\n\n我：又是没有署名的命令。\n昨天那张逃跑计划，也指向地下室。\n那里也许有答案，也许有能出去的路。"
-			hud.show_page("第 %d 天的小纸条"%note_day,note_text+"\n\n读完后按下方按钮开始今天任务；Esc 暂时收起。",true)
-			hud.next_button.text = "我读完了，开始今天任务  ·  E / 空格"
+			hud.show_page("第 %d 天的小纸条"%note_day,note_text+"\n\n已记入手记。Esc 返回。",true)
+			hud.next_button.text = "返回 · Esc"
 		"ending":hud.show_page("不是我的毛……","毛线球上缠着几根灰白色的猫毛。\n可我的毛不是这样的。\n\n在我来之前，还有别的猫住过这里吗？\n毛线球已经送回窝了。接下来，把大狗嚼的盘子洗干净吧。",true)
 		"rest":hud.show_page("第一天结束","今天，我学会了关灯、整理房间，也喂饱了自己和大狗嚼。给予器上的猫爪印……是谁留下的？\n\n蜷进窝里，好好睡一觉吧。\n醒来就是第二天，桌上会有新的小纸条。",true)
+
+func confirm_daily_read(number: int) -> bool:
+	if number<1 or number>11 or number!=value("current_day",1):return false
+	var flags:={"daily_note_ack_%d"%number:true,Notes.FLAGS[number]:true}
+	var branches=game.get_node("StoryBranches")
+	if not branches.state.patch(flags,{}):return false
+	manager.report_event(CalicoQuestObjective.Kind.CUSTOM,StringName(Notes.FLAGS[number]),1,"autoread:day%d"%number)
+	reconcile_progress();restore_world()
+	for name_ in ["ActTwo","ActThree","ActFour"]:
+		var chapter=game.get_node(name_)
+		if chapter.active():chapter.restore()
+	return true
 
 func advance_dialog() -> void:
 	if dialog.is_empty():return
@@ -304,8 +316,7 @@ func advance_dialog() -> void:
 		return
 	if dialog=="intro":mark("intro_seen")
 	if dialog=="note":
-		manager.set_flag(StringName("daily_note_ack_%d"%note_day),true)
-		mark(Notes.FLAGS[note_day])
+		confirm_daily_read(note_day)
 	var start_next := dialog=="rest"
 	if start_next:mark("day_complete")
 	dialog = ""

@@ -1,4 +1,6 @@
 extends CanvasLayer
+signal content_presented(entry_id: String, source: String)
+var presentation_generation := 0
 const Catalog=preload("res://ui/notes_catalog.gd")
 const QuestSkin=preload("res://quest_system/quest_theme.gd")
 var day
@@ -10,6 +12,7 @@ var title: Label
 var list: VBoxContainer
 var scroll: ScrollContainer
 var confirm: Button
+var recording_button: Button
 var mode=""
 var selected=""
 var zoomed=false
@@ -34,6 +37,7 @@ func _ready() -> void:
  var controls=HBoxContainer.new();column.add_child(controls)
  make_button("放大 / 还原",controls,func():zoomed=not zoomed;layout())
  make_button("图片 / 清晰文字",controls,func():text_mode=not text_mode;layout())
+ recording_button=make_button("重听现场录音",controls,func():day.game.get_node("StoryBranches").play_recording());recording_button.hide()
  confirm=make_button("",controls,accept)
  make_button("返回 · Esc",controls,cancel)
  shell.hide()
@@ -50,9 +54,14 @@ func begin(kind: String) -> void:
  shell.show();zoomed=false;text_mode=false
 func open_daily(number: int) -> void:
  begin("daily");show_entry("day%d"%number);rebuild_list(false)
- confirm.text="我读完了，开始今天任务 · E";confirm.show();confirm.grab_focus()
+ confirm.hide()
 func open_sheet(id: String) -> void:
- begin("sheet");show_entry(id);rebuild_list(false);confirm.text="收起 · E";confirm.show()
+ begin("sheet");show_entry(id);rebuild_list(false);confirm.hide()
+func open_evidence(id: String, page := "") -> void:
+ var branches=day.game.get_node("StoryBranches")
+ var reason: String=preload("res://story_branches/evidence_data.gd").access_reason(id,branches.facts())
+ if not reason.is_empty():day.game.ui.toast(reason,5);return
+ begin("evidence");show_entry("evidence_"+id+("_"+page if not page.is_empty() else ""));rebuild_list(false);confirm.hide()
 func open_album() -> void:
  begin("album");rebuild_list(true)
  var ids=Catalog.collected(day)
@@ -71,9 +80,33 @@ func rebuild_list(album: bool) -> void:
  var count=Label.new();count.text="第一天纸片：%d / 4\nC 随时翻阅线索册"%found;list.add_child(count)
 func show_entry(id: String) -> void:
  selected=id
+ recording_button.visible=id=="evidence_d5_recording"
  var entry=Catalog.data(id);title.text=entry.title;text.text=entry.text
  image.texture=Catalog.texture(id) if not id.is_empty() else null
  scroll.scroll_vertical=0;scroll.scroll_horizontal=0;layout()
+ presentation_generation+=1
+ present_after_frame(id,presentation_generation,mode)
+func present_after_frame(id: String, generation: int, source: String) -> void:
+ await get_tree().process_frame
+ await get_tree().process_frame
+ if not is_inside_tree() or generation!=presentation_generation or selected!=id or mode!=source or not shell.is_visible_in_tree():return
+ if text.text.is_empty() and image.texture==null:return
+ content_presented.emit(id,source)
+ if source=="album":return
+ var branches=day.game.get_node("StoryBranches")
+ var ok:=true
+ if id.begins_with("evidence_"):
+  var parts=id.split("_");ok=branches.state.record_evidence_view(parts[1],parts[2] if parts.size()>2 else "")
+ elif id.begins_with("day"):ok=day.confirm_daily_read(int(id.trim_prefix("day")))
+ elif id=="letter":
+  ok=branches.state.patch({"a5_letter":true,"a5_note":true,"daily_note_ack_5":true},{})
+  if ok:
+   day.manager.report_event(CalicoQuestObjective.Kind.CUSTOM,&"a4_letter",1,"autoread:letter")
+   day.game.get_node("ActTwo").restore()
+ elif id=="k2_manual":ok=branches.state.record_manual_view()
+ elif id=="escape":
+  ok=branches.state.patch({"a10_note":true},{})
+ if not ok:day.game.ui.toast("已显示，但保存失败；请重新打开重试。"+branches.state.last_error,6)
 func layout() -> void:
  if shell==null:return
  var viewport=get_viewport().get_visible_rect().size
@@ -86,25 +119,26 @@ func layout() -> void:
 func _process(_delta: float) -> void:
  if not mode.is_empty():layout()
 func accept() -> void:
- var daily=mode=="daily";close()
- if daily:day.advance_dialog()
+ close()
 func cancel() -> void:
- var daily=mode=="daily";close()
- if daily:day.dialog="";day.refresh_hud()
+ close()
 func close() -> void:
  if mode.is_empty():return
- mode="";shell.hide()
+ if selected=="evidence_d5_recording":day.game.get_node("StoryBranches").recording.stop()
+ mode="";presentation_generation+=1;shell.hide()
  day.game.cinematic_active=snapshot.get("cinematic",false);day.player.set_control(snapshot.get("control",true));Input.mouse_mode=snapshot.get("mouse",Input.MOUSE_MODE_CAPTURED)
  var focus=snapshot.get("focus")
  if is_instance_valid(focus) and focus is Control and focus.is_visible_in_tree():focus.grab_focus()
  snapshot.clear()
+ var branch_panels=day.game.get_node("StoryBranches").panels
+ if branch_panels.opened and branch_panels.active_view=="box":branch_panels.manual_read=day.flag("br_k2_manual_read");branch_panels.show_view("box")
 func _input(event: InputEvent) -> void:
  if not event is InputEventKey or not event.pressed or event.echo:return
  if mode.is_empty():
   if event.keycode==KEY_C and day.active_play():open_album();get_viewport().set_input_as_handled()
   return
  if event.keycode==KEY_ESCAPE:cancel()
- elif event.keycode in [KEY_E,KEY_ENTER,KEY_SPACE] and mode!="album":accept()
+ elif event.keycode in [KEY_E,KEY_ENTER,KEY_SPACE]:pass
  elif event.keycode==KEY_C:cancel()
  else:
   get_viewport().set_input_as_handled();return

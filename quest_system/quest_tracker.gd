@@ -152,10 +152,16 @@ func refresh() -> void:
 
 func relevant_today(quest: CalicoQuest) -> bool:
 	var today := int(manager.values.get("current_day",1))
+	var legacy: bool=manager.flags.get("br_legacy_flow",false)
+	var route:=int(manager.values.get("br_route",0))
+	if today==11 and not legacy and str(quest.id) in ["a11_memory","a11_traces"] and route!=1:return false
 	if str(quest.id).begins_with("br_"):
 		if manager.flags.get("a11_finished",false):return false
 		if str(quest.id)=="br_k2_ready":return today in [7,8,9,10] and int(manager.values.get("br_mouse",0))==0
-		return today>=7 and (str(quest.id) in ["br_index","br_k2_ready"] or (today==11 and manager.flags.get("a11_enter",false)))
+		if str(quest.id) in ["br_docs","br_memory_m1","br_memory_m2","br_memory","br_return_plan"]:return today>=7 and today<=10 and not legacy
+		if str(quest.id)=="br_imprint_cleared":return today>=7 and (today<11 or route==3 or legacy)
+		if str(quest.id)=="br_records" and not legacy:return false
+		return today>=7 and (str(quest.id)=="br_index" or (today==11 and manager.flags.get("a11_enter",false) and (legacy or route==3)))
 	if today>=6 and not str(quest.id).begins_with("a%d_"%today):return false
 	return true
 
@@ -210,7 +216,13 @@ func _refresh_journal() -> void:
 		if manager.flags.get("br_k2_owned",false):_button("装备 / K-2 便携校准器",journal_list,branches.open_equipment)
 		if manager.flags.get("a9_jigsaw",false):_button("回忆 / 笼外的视线",journal_list,branches.play_care_memory)
 		if manager.flags.get("br_index",false):_button("线索 / 原始记录索引",journal_list,func():system.close_journal();branches.open_panel("index"))
-		if manager.flags.get("br_memory",false):_button("回忆 / 研究员经历",journal_list,func():system.close_journal();branches.play_memory())
+		for level in range(1,int(manager.values.get("br_memory_level",0))+1):
+			_button("回忆 / M%d · "%level+["","铺毯子的人","照片里的自己","被封存的会话"][level],journal_list,func():system.close_journal();branches.play_memory(level,true))
+		if manager.flags.get("br_legacy_flow",false) and manager.flags.get("br_memory",false):_button("回忆 / 研究员经历",journal_list,func():system.close_journal();branches.play_memory(3,true))
+		if int(manager.values.get("current_day",1))>=7 and not manager.flags.get("br_legacy_flow",false):
+			_label("资料核对：M%d / 3\n回迁准备：%s\n强制通道：%s"%[int(manager.values.get("br_memory_level",0)),"已齐备" if manager.flags.get("br_return_plan_ready",false) else "尚未齐备","已永久解除" if manager.flags.get("br_imprint_cleared",false) else "未解除"],16,PAPER,journal_list)
+			for id in preload("res://story_branches/evidence_data.gd").IDS:
+				if not manager.flags.get("br_doc_"+id+"_read",false):_label("待调查 · "+preload("res://story_branches/evidence_data.gd").data(id).location_hint,14,MUTED,journal_list)
 	for state in [CalicoQuestManager.State.ACTIVE,CalicoQuestManager.State.AVAILABLE,CalicoQuestManager.State.LOCKED,CalicoQuestManager.State.COMPLETED,CalicoQuestManager.State.FAILED]:
 		for quest in manager.sorted_quests():
 			if manager.flags.get("a11_finished",false) and not quest.main_quest and state!=CalicoQuestManager.State.COMPLETED:continue

@@ -17,8 +17,9 @@ func run() -> void:
 	verify(branch.care_memory!=null and branch.care_memory.running,"Care flashback cannot replay")
 	branch.care_memory.finish();verify(not branch.state.busy and game.player.active,"Care replay did not restore control")
 	var flags={"a11_enter":true,"a11_memory":true}
-	for key in preload("res://story_branches/rules.gd").HUMAN_FACTS:flags[key]=true
-	day.manager.apply_story_patch(flags,{"current_day":11},false)
+	for key in preload("res://story_branches/legacy_rules.gd").HUMAN_FACTS:flags[key]=true
+	day.manager.apply_story_patch(flags,{"current_day":11,"br_schema":1},false)
+	verify(branch.state.migrate_legacy(),"Explicit old menu fixture migrates")
 	verify(branch.state.commit_ending(2),"Cannot prepare ending menu check")
 	branch.start_ending_film(false);branch.film.toggle_pause();await ticks(2)
 	verify(branch.film.paused,"Ending pause menu did not open")

@@ -38,6 +38,7 @@ func click_named(parent: Node,label_: String) -> void:
  if found:
   if found is LinkButton or str(found.name)=="BrowserIcon":await click_control(found)
   else:found.grab_focus();await key(KEY_SPACE)
+  await process_frame;await process_frame
 func click_cell(i: int,columns: int,rows: int) -> void:
  var board=chapter.puzzle.board
  var event=InputEventMouseButton.new();event.button_index=MOUSE_BUTTON_LEFT;event.pressed=true

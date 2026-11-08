@@ -75,6 +75,7 @@ func inspect_save() -> Dictionary:
 	if probe.configure(catalog):
 		probe.save_path = manager.save_path
 		info.valid = probe.load_game()
+		if info.valid:info.valid=preload("res://story_branches/state.gd").validate_snapshot(probe.flags,probe.values).is_empty()
 		if info.valid:info.day = int(probe.values.get("current_day",1))
 	probe.free()
 	return info
@@ -93,7 +94,7 @@ func prepare_session(new_game: bool) -> bool:
 	var branches=game.get_node_or_null("StoryBranches")
 	if not new_game:
 		if not save_enabled or not manager.load_game(false):
-			menu_error="无法读取存档，原文件已保留。";manager.autosave=old_autosave;return false
+			menu_error="无法读取存档，原文件已保留。";manager.autosave=false;manager.last_save_error=menu_error;return false
 	else:
 		if persistence_allowed() and FileAccess.file_exists(manager.save_path):
 			var path:=ProjectSettings.globalize_path(manager.save_path)
@@ -102,7 +103,7 @@ func prepare_session(new_game: bool) -> bool:
 		manager.start_new_game()
 	if branches and not branches.prepare_session(new_game):
 		menu_error=branches.state.last_error
-		manager.restore_story_snapshot(before);manager.autosave=old_autosave
+		manager.restore_story_snapshot(before);manager.autosave=false;manager.last_save_error=menu_error
 		return false
 	if new_game and persistence_allowed() and not manager.save_game():
 		menu_error=manager.last_save_error

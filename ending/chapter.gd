@@ -40,6 +40,8 @@ func enter_laboratory() -> void:
 	# Older saves used a11_complete for crossing the threshold. The ending has its own flag.
 	world.restore(true,flag("a11_vent"))
 	day.world.items.note.hide()
+	if not flag("br_legacy_flow"):
+		dispatch_route();return
 	show_panel("arrival","地下室 / 留观区","一排排观察笼。空的。\n\n笼门上留下了编号。更里面，那张检查台连着一组弧形玻璃和电缆。\n\n昨天的纸条上写着：监控底下，沿着旧抓痕走。\n我得先找到能出去的路。",[["recall","回想昨天的纸条"]])
 
 func restore() -> void:
@@ -49,6 +51,9 @@ func restore() -> void:
 	day.world.items.note.hide()
 	World.Props.activate(fourth.world.items.escape_note,false)
 	if day.value("br_phase",0)>0:return
+	if not flag("br_legacy_flow"):
+		if not flag("br_lab_route_introduced") and ui.mode.is_empty() and day.active_play():dispatch_route()
+		refresh_hud();return
 	if not flag("a11_memory") and ui.mode.is_empty():
 		memory()
 	refresh_hud()
@@ -109,11 +114,11 @@ func try_interact() -> bool:
 
 func interact_item(id: String) -> void:
 	if not active() or flag("a11_escape"):return
-	if id=="device":game.get_node("StoryBranches").open_terminal()
+	if id=="device":game.get_node("StoryBranches").open_terminal() if flag("br_legacy_flow") or day.value("br_route",0)==3 else game.get_node("StoryBranches").open_panel("route")
 	elif id=="report":
 		show_panel("report",World.Copy.REPORT_TITLE,World.Copy.REPORT,[["close","放回原处"]])
 	elif id=="cage":
-		if not flag("a11_memory"):memory();return
+		if not flag("a11_memory") and (flag("br_legacy_flow") or day.value("br_route",0)==1):memory();return
 		mark("a11_cage")
 		show_panel("cage","前代实验猫","这里有一道旧抓痕。有猫……来过这里。\n\n笼角卡着几根灰白色的猫毛，托盘上是反复抓挠留下的凹痕。\n一串沾灰的爪印从笼门边延伸出去，朝着西侧墙角。\n\n纸条上说：监控底下。",[["close","沿着爪印寻找"]])
 	elif id=="camera":show_panel("camera","监控底下","黑色镜头朝着观察笼。镜头下方靠近地面的位置，有一道松动的金属格栅。",[["close","检查下方的通风口"]])
@@ -124,13 +129,18 @@ func show_panel(kind: String, title: String, text_: String, options: Array) -> v
 	ui.show_panel(kind,title,text_,options)
 
 func memory() -> void:
-	show_panel("memory","昨天的纸条",BranchCopy.paper_memory(day.value("br_mouse",0)),[["look","我应该到处看看"]])
+	show_panel("memory","昨天的纸条",BranchCopy.paper_memory(day.value("br_mouse",0),flag("br_imprint_cleared")),[["look","我应该到处看看"]])
 
 func on_action(id: String) -> void:
 	if not active():return
-	if id=="inspect":open_model_inspection()
+	if id=="inspect":
+		if flag("br_legacy_flow"):open_model_inspection()
 	elif id=="recall" and ui.mode=="arrival":memory()
-	elif id.begins_with("choice"):game.get_node("StoryBranches").open_terminal()
+	elif id=="route_continue":close_panel()
+	elif id=="guide_vent":close_panel();game.get_node("StoryBranches").open_panel("vent")
+	elif id=="return_terminal":close_panel();game.get_node("StoryBranches").open_terminal()
+	elif id.begins_with("choice"):
+		if flag("br_legacy_flow"):game.get_node("StoryBranches").open_terminal()
 	elif id=="look":
 		if ui.mode!="memory":return
 		mark("a11_memory");close_panel()
@@ -159,11 +169,16 @@ func finish_ending() -> void:
 	game.get_node("StoryBranches").show_final()
 
 func guidance() -> String:
+	if not flag("br_legacy_flow"):
+		if flag("a11_finished"):return "本次经历已经结束，可只读重播。"
+		match day.value("br_route",0):
+			2:return "沿通风口离开\n老鼠已指出监控下方的通路。打开格栅，不必维修转移装置。"
+			3:return "安全回迁\n核对原身体与维持电路，修复模块、验证反向接线和03:42:00。"
 	if flag("a11_finished"):return "这一段经历已经结束。"
 	if flag("a11_escape"):return "沿着旧抓痕，穿过通风管道。"
 	if not flag("a11_memory"):return "03 昨天的逃跑计划\n回想纸条，寻找观察笼与监控下方的痕迹。"
 	if not flag("a11_cage"):return "04 前代实验猫\n检查敞开的 01 号观察笼，寻找猫毛、旧抓痕与离开的路径。"
-	return "05 决定如何离开\n可以沿监控下方的通风口寻找出口，也可以核对转化装置与原身体。"
+	return "05 监控底下\n沿旧抓痕检查通风格栅。"
 
 func refresh_hud() -> void:
 	if not active():return
@@ -176,3 +191,27 @@ func reset_runtime() -> void:
 	initialized=false;needs_restore=true
 	ui.close();world.restore(false,false)
 	if film!=null:film.reset();film.queue_free();film=null
+
+func dispatch_route() -> void:
+	match day.value("br_route",0):
+		1:start_default_route()
+		2:start_escape_route()
+		3:start_return_route()
+
+func start_default_route() -> void:
+	if not game.get_node("StoryBranches").state.patch({"br_lab_route_introduced":true},{}):return
+	show_panel("arrival","地下室 / 留观区","一排空的观察笼。昨天纸条上的旧抓痕图，来自曾经逃走的灰白猫。\n\n送纸条的老鼠已经死了，留下的路径仍在。监控底下，也许能出去。",[["recall","回想昨天的纸条"]])
+
+func start_escape_route() -> void:
+	show_panel("escape_guide","监控下方的通路","获救的老鼠从墙脚出现，在监控下方停住。\n纸条写着：地下室逃跑计划，沿着旧抓痕走。\n阿嚼：它一直在替逃走的灰白猫送消息。\n\n强制通道已经永久解除。现在，可以沿它指出的通路离开。",[["guide_vent","检查通风格栅"]])
+	present_guide()
+
+func present_guide() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if ui.mode!="escape_guide" or not ui.visible:return
+	if not game.get_node("StoryBranches").state.patch({"br_lab_route_introduced":true,"br_escape_path_known":true,"a11_memory":true},{}):game.ui.toast("通路记录未保存，请重新查看。",5)
+
+func start_return_route() -> void:
+	if not game.get_node("StoryBranches").state.patch({"br_lab_route_introduced":true},{}):return
+	show_panel("return_arrival","地下室 / 回迁维护","H-031，照片里的那个人就是我。\n原始档案与03:42:00已经核对。现在必须确认玻璃后身体的实际生命体征。\n\n夜间报警来自转移装置复核；独立生命维持仍在运行。\n"+("K-2 的永久解除结果仍有效，现场只需要核验。" if flag("br_imprint_cleared") else "强制通道尚未清除。记忆恢复没有让我的身体自由。"),[["return_terminal","核对原身体与设备"]])

@@ -4,32 +4,30 @@
 [ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
 [ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
 
-[sub_resource type="Resource" id="prior0"]
+[sub_resource type="Resource" id="day"]
 script = ExtResource("condition")
-key = &"br_records"
+kind = 1
+key = &"current_day"
+required_value = 7
 
-[sub_resource type="Resource" id="prior1"]
-script = ExtResource("condition")
-key = &"br_power_safe"
-
-[sub_resource type="Resource" id="prior2"]
-script = ExtResource("condition")
-key = &"br_body_seen"
-
-[sub_resource type="Resource" id="goal"]
+[sub_resource type="Resource" id="goal0"]
 script = ExtResource("goal")
 id = &"br_memory"
-text = "恢复研究员记忆。"
+text = "核对封存会话、身份、签名与03:42:00"
 kind = 3
 target_id = &"br_memory"
+
+[sub_resource type="Resource" id="known"]
+script = ExtResource("condition")
+key = &"br_memory_m2"
 
 [resource]
 script = ExtResource("quest")
 id = &"br_memory"
-title = "恢复研究员记忆"
-description = "可选调查 · 恢复研究员记忆，完成确认后保存。"
+title = "恢复被封存的经历"
+description = "可选调查 · 恢复被封存的经历"
 main_quest = false
-priority = 113
-extra_conditions = Array[ExtResource("condition")]([SubResource("prior0"), SubResource("prior1"), SubResource("prior2")])
-objectives = Array[ExtResource("goal")]([SubResource("goal")])
-result_text = "调查进度已记录。"
+priority = 110
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("known")])
+objectives = Array[ExtResource("goal")]([SubResource("goal0")])
+result_text = "已记入手记。"

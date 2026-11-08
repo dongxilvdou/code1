@@ -1,5 +1,5 @@
 extends RefCounted
-## One persisted acknowledgement per day; merely opening/cancelling a note does not unlock tasks.
+## A successfully presented page records reading; task actions remain separate.
 const FLAGS := ["","note_read","d2_note","a3_note","a4_note","a5_note","a6_note","a7_note","a8_note","a9_note","a10_note_read","a11_note"]
 const CONTENT := ["",
 	"① 先试试走路、跑步，打开客厅门。\n② 跳上单人沙发和茶几，把水杯放回杯垫。\n③ 关掉客厅的灯，收集一楼四张纸片。\n④ 解开喂食器，喂饱自己和大狗嚼。",
@@ -16,6 +16,7 @@ const CONTENT := ["",
 
 static func read(day: Node, number: int = 0) -> bool:
 	var current: int = day.value("current_day",1) if number==0 else number
+	if current==11 and day.flag("br_day11_alert_received"):return true
 	if current==5:return day.flag("a5_letter")
 	return day.flag("daily_note_ack_%d"%clampi(current,1,11))
 

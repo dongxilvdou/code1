@@ -85,6 +85,7 @@ func check_ruler_mouse_direction() -> void:
   if motion.x!=0:verify(absf(displacement.y)<absf(displacement.x)*.1,"Horizontal ruler drag should follow screen left/right: "+str(displacement))
  print("RULER_MOUSE_DIRECTIONS verified left/right/up/down through viewport input")
 func run_tests() -> void:
+ create_timer(180).timeout.connect(func():printerr("REGRESSION_TIMEOUT");quit(2))
  game=load("res://scenes/main.tscn").instantiate();game.get_node("QuestSystem").save_enabled=false;root.add_child(game);current_scene=game
  game.start_game();await ticks(8)
  day=game.get_node("DayOne");second=game.get_node("DayTwo");dismiss()
@@ -97,8 +98,10 @@ func run_tests() -> void:
  verify(day.reader.mode=="daily" and not day.Notes.read(day),"Opening a note acknowledged it")
  await key(KEY_ESCAPE)
  verify(not day.Notes.read(day) and game.player.active and not game.cinematic_active,"Cancelling note trapped control or changed progress")
- day.show_dialog("note");await key(KEY_E)
- verify(day.Notes.read(day) and game.player.active,"Reading physical daily note cannot start tasks")
+ day.show_dialog("note");await process_frame;await process_frame;await process_frame
+ verify(day.Notes.read(day) and day.reader.mode=="daily","Displayed note did not automatically start tasks")
+ await key(KEY_E);verify(day.reader.mode=="daily","Second E must not dismiss a task note")
+ await key(KEY_ESCAPE);verify(game.player.active and not game.cinematic_active,"Reading physical daily note cannot restore gameplay")
  await check_day_one_coaster()
  day.start_balance();day.set_process(false)
  await key(KEY_E);verify(day.balancing and not day.tv_stable,"Old E shortcut completed the new balance task")
@@ -121,7 +124,7 @@ func run_tests() -> void:
  for key_ in Catalog.PAPER_KEYS:
   day.perform_interaction("paper_"+key_)
   verify(day.reader.mode=="sheet","Collected paper cannot be inspected")
-  await key(KEY_E)
+  await key(KEY_ESCAPE)
  verify(day.paper_count()==4 and day.flag("papers_done"),"Four physical papers do not complete the collection")
  await key(KEY_C);await photo_("clue_album")
  verify(day.reader.mode=="album" and Catalog.collected(day).size()>=5,"Early clue album does not retain all papers")
@@ -215,8 +218,12 @@ func run_tests() -> void:
  verify(fourth.flag("a10_catch") and fourth.panel.mode=="mouse_warning" and not fourth.flag("a10_eat"),"Short chase broke the existing investigation sequence")
  fourth.open_mouse_note()
  for dismiss_key in [KEY_ESCAPE,KEY_E]:
-  day.reader.open_sheet("escape");await key(dismiss_key)
-  verify(day.reader.mode.is_empty() and fourth.panel.mode=="mouse_note" and not fourth.flag("a10_note"),"Enlarged note input closed or advanced the underlying day-ten dialogue")
+  day.reader.open_sheet("escape");await process_frame;await process_frame;await process_frame
+  await key(dismiss_key)
+  if dismiss_key==KEY_E:
+   verify(day.reader.mode=="sheet","E must not dismiss enlarged task paper")
+   await key(KEY_ESCAPE)
+  verify(day.reader.mode.is_empty() and fourth.panel.mode=="mouse_note" and fourth.flag("a10_note") and not fourth.flag("a10_asked"),"Enlarged note did not record reading or changed underlying dialogue")
   verify(game.cinematic_active and not game.player.active,"Closing an enlarged note resumed gameplay behind the dialogue")
  await key(KEY_ESCAPE)
  verify(day.active_play() and fourth.panel.mode.is_empty(),"Exiting day-ten note after magnifying it left control locked")
