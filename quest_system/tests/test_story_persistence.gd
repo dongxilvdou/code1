@@ -34,12 +34,12 @@ func run() -> void:
 	var notifications: Array=[]
 	system.manager.changed.connect(func():notifications.append(int(system.manager.values.get("br_schema",0))))
 	check(system.prepare_session(false),"Legacy session cannot prepare")
-	check(notifications==[1],"Chapter notifications occurred before silent migration finished")
+	check(notifications==[2],"Chapter notifications occurred before silent migration finished")
 	check(not game.started and not game.get_node("DayOne").initialized,"Migration started gameplay")
-	check(FileAccess.get_file_as_string(path_+".branches_v1.bak")==original,"Migration did not preserve one-time original backup")
+	check(FileAccess.get_file_as_string(path_+".branches_v2.bak")==original,"Migration did not preserve one-time original backup")
 	check(system.manager.values.br_mouse==1 and system.manager.values.br_ending==0 and not system.manager.flags.get("br_memory",false),"Legacy semantics changed")
 	var saved: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(path_))
-	check(saved.values.br_schema==1 and saved.flags.br_mouse_resolved,"Migration was not saved before restore")
+	check(saved.values.br_schema==2 and saved.flags.br_mouse_resolved,"Migration was not saved before restore")
 	await leave()
 
 	fixture({"a10_catch":true,"a10_note":true,"a10_asked":true,"a10_refused":true,"br_k2_owned":true,"br_k2_ready":true,"br_k2_spent":true,"daily_note_ack_10":true,"a10_note_read":true},{"current_day":10,"br_schema":1,"br_mouse":0,"br_mouse_intent":2})
@@ -90,7 +90,7 @@ func run() -> void:
 
 	path_="user://branch_regression/%d/migration_failure/slot.json"%OS.get_process_id()
 	fixture({"a10_eat":true},{"current_day":10})
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path_+".branches_v1.bak"))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path_+".branches_v2.bak"))
 	original=FileAccess.get_file_as_string(path_)
 	system=await boot();var before=system.manager.make_save_data()
 	check(not system.prepare_session(false),"Migration backup failure was ignored")

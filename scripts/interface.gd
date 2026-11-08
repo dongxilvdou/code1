@@ -339,6 +339,7 @@ func make_settings() -> void:
 	demo_option.add_theme_font_override("font",font);demo_option.add_theme_font_size_override("font_size",17)
 	demo_option.toggled.connect(func(enabled: bool):demo_toggled.emit(enabled))
 	column.add_child(demo_option)
+	demo_option.visible=OS.has_feature("editor") or "--quest-test" in OS.get_cmdline_user_args()
 	demo_controls=VBoxContainer.new();demo_controls.name="DemoDayControls"
 	demo_controls.add_theme_constant_override("separation",8);column.add_child(demo_controls)
 	var day_row:=HBoxContainer.new();day_row.add_theme_constant_override("separation",12);demo_controls.add_child(day_row)

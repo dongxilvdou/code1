@@ -43,6 +43,7 @@ func prepare(number: int, mouse := 0) -> void:
 	var flags={day.Notes.FLAGS[number]:true,"daily_note_ack_%d"%number:true}
 	if number==11:flags.merge({"a10_eat":mouse==1,"br_mouse_resolved":mouse!=0,"a11_enter":true,"a11_memory":true})
 	day.manager.apply_story_patch(flags,{"br_schema":1,"br_mouse":mouse,"br_mouse_intent":0},false)
+	if number==11:verify(branch.state.migrate_legacy(),"Explicit old day11 fixture migrates")
 	ending.initialized=true;ending.needs_restore=true
 	await ticks(3);dismiss();branch.restore_world()
 func capture(label_: String) -> void:
@@ -75,7 +76,7 @@ func unit_checks() -> void:
 	verify(not probe.apply_story_patch({"br_k2_spent":true},{"br_mouse_intent":2},true),"Failed physical save was accepted")
 	verify(before==probe.make_save_data(),"Failed atomic save polluted flags, values or event history")
 	verify(not probe.apply_story_patch({}, {"bad":1.5},false),"Float was accepted in integer state")
-	var flags={"current_day":10,"a10_catch":true,"a10_note":true,"a10_asked":true,"br_k2_owned":true,"br_k2_ready":true}
+	var flags={"current_day":10,"a10_catch":true,"a10_note":true,"a10_asked":true,"br_k2_owned":true,"br_k2_ready":true,"br_k2_manual_read":true}
 	verify(Rules.evaluate("rescue_mouse",flags).allowed,"Ready device cannot rescue")
 	for key_ in ["a10_catch","a10_note","a10_asked","br_k2_owned","br_k2_ready"]:
 		var missing=flags.duplicate();missing[key_]=false;verify(not Rules.evaluate("rescue_mouse",missing).allowed,"Missing prerequisite accepted: "+key_)
@@ -100,7 +101,7 @@ func equipment_and_mouse() -> void:
 	if not branch.panels.opened:branch.open_equipment("box")
 	branch.panels.box_code="999";await click(branch.panels.actions,"打开维护盒")
 	verify(not branch.flag("br_k2_owned"),"Wrong box code granted device")
-	branch.panels.box_code=Copy.BOX_CODE;await click(branch.panels.actions,"打开维护盒");await click(branch.panels.actions,"阅读折页说明");await click(branch.panels.actions,"带上校准器")
+	branch.panels.box_code=Copy.BOX_CODE;await click(branch.panels.actions,"打开维护盒");await click(branch.panels.actions,"阅读折页说明");await ticks(5);await key(KEY_ESCAPE);await click(branch.panels.actions,"带上校准器")
 	verify(branch.flag("br_k2_owned") and branch.world.chest.visible,"Cross-day device was not equipped")
 	await click(branch.panels.actions,"离线自检");verify(not branch.flag("br_k2_ready"),"Wrong settings passed self test")
 	options(branch.panels.actions,Copy.K2_ANSWER);await click(branch.panels.actions,"离线自检")
@@ -128,7 +129,7 @@ func equipment_and_mouse() -> void:
 
 func ordinary_mouse() -> void:
 	await prepare(10)
-	day.manager.apply_story_patch({"a10_catch":true,"a10_note":true,"a10_asked":true,"br_k2_owned":true,"br_k2_ready":true},{},false)
+	day.manager.apply_story_patch({"a10_catch":true,"a10_note":true,"a10_asked":true,"br_k2_owned":true,"br_k2_ready":true,"br_k2_manual_read":true},{},false)
 	fourth.restore();fourth.open_mouse_story()
 	await click(fourth.panel.detail,"普通拒绝");await click(branch.panels.actions,"直接拒绝")
 	verify(fourth.mouse_control.running and branch.value("br_mouse_intent")==1,"Ordinary refusal did not start saved forced action")

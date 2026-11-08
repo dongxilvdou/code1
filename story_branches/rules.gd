@@ -1,89 +1,90 @@
 extends RefCounted
-## Pure prerequisites. UI and execution share the same checks.
-const COPY = preload("res://story_branches/data.gd")
-const STEPS := ["index","k2_owned","k2_ready","auto_stopped","body_seen","power_safe","records","memory","rewrite_off","channel_off","imprint_cleared","module","routing","target_verified"]
-const HUMAN_FACTS := ["br_auto_stopped","br_body_seen","br_power_safe","br_records","br_memory","br_rewrite_off","br_channel_off","br_imprint_cleared","br_module","br_routing","br_target_verified"]
-const NAMES := {"br_auto_stopped":"暂停自动启动","br_body_seen":"核对原身体","br_power_safe":"验证维持电路隔离","br_records":"收录三类档案","br_memory":"恢复研究员记忆","br_rewrite_off":"停用自动重写","br_channel_off":"清除强制通道","br_imprint_cleared":"验证自主响应","br_module":"更换耦合模块","br_routing":"验证反向连接","br_target_verified":"核对目标和时间"}
+## All new-session route and evidence rules are pure. Old saves opt in explicitly.
+const COPY=preload("res://story_branches/data.gd")
+const Evidence=preload("res://story_branches/evidence_data.gd")
+const Legacy=preload("res://story_branches/legacy_rules.gd")
+const STEPS := ["index","k2_owned","k2_ready","auto_stopped","body_seen","power_safe","records","memory","rewrite_off","channel_off","imprint_cleared","imprint_verified","module","routing","target_verified"]
+const HUMAN_FACTS := ["br_memory","br_return_plan_ready","br_auto_stopped","br_body_seen","br_power_safe","br_rewrite_off","br_channel_off","br_imprint_cleared","br_imprint_verified","br_module","br_routing","br_target_verified"]
+const NAMES := {"br_imprint_verified":"现场核验自主响应","br_return_plan_ready":"回迁准备已核对","br_auto_stopped":"暂停自动启动","br_body_seen":"核对原身体","br_power_safe":"验证维持电路隔离","br_records":"收录三类档案","br_memory":"恢复研究员记忆","br_rewrite_off":"停用自动重写","br_channel_off":"清除强制通道","br_imprint_cleared":"验证自主响应","br_module":"更换耦合模块","br_routing":"验证反向连接","br_target_verified":"核对目标和时间"}
+
+static func reconciled(facts: Dictionary) -> Dictionary:
+	var f:=facts.duplicate(true)
+	var level:=int(f.get("br_memory_level",0))
+	if f.get("a3_photo",false) and f.get("br_doc_d1_read",false):level=maxi(level,1)
+	if level>=1 and f.get("a7_read_photo",false) and f.get("br_doc_d2_read",false) and f.get("br_doc_d3_read",false):level=maxi(level,2)
+	f.br_doc_d5_read=int(f.get("br_d5_read_mask",0))==3
+	if level>=2 and f.get("br_doc_d4_read",false) and f.br_doc_d5_read:level=3;f.br_memory_verified=true
+	f.br_memory_level=level;f.br_memory_m1=level>=1;f.br_memory_m2=level>=2;f.br_memory=level>=3
+	f.br_return_plan_ready=return_ready(f)
+	return f
+
+static func return_ready(facts: Dictionary) -> bool:
+	for key in ["a3_photo","a7_read_photo","br_memory_m1","br_memory_m2","br_memory","br_memory_verified"]:
+		if not facts.get(key,false):return false
+	if int(facts.get("br_memory_level",0))!=3 or int(facts.get("br_d5_read_mask",0))!=3:return false
+	for id in Evidence.IDS:
+		if not facts.get("br_doc_"+id+"_read",false):return false
+	return true
+
+static func choose_route(facts: Dictionary) -> int:
+	if not facts.get("br_mouse_resolved",false) or int(facts.get("br_mouse_intent",0))!=0 or int(facts.get("br_mouse",0)) not in [1,2]:return 0
+	if return_ready(facts):return 3
+	return 2 if int(facts.get("br_mouse",0))==2 else 1
 
 static func evaluate(action: String, facts: Dictionary, busy := false) -> Dictionary:
+	if facts.get("br_legacy_flow",false):return Legacy.evaluate(action,facts,busy)
 	var missing: Array[String]=[]
-	var number: int=int(facts.get("current_day",1))
-	var ending: int=int(facts.get("br_ending",0))
+	var number:=int(facts.get("current_day",1));var route:=int(facts.get("br_route",0))
 	var need: Array=[]
-	if busy:missing.append("请先结束当前演出。")
-	if ending!=0:missing.append("本次离开方式已经确认。")
+	if busy:missing.append("请先结束当前演出或阅读。")
+	if int(facts.get("br_ending",0))!=0:missing.append("终章已经启动。")
 	match action:
 		"index":
-			if number==7:need=["a7_login","a7_read_photo","a7_read_site","a7_read_chat","a7_read_news"]
-			elif number>=11:need=["a11_enter"]
-			else:missing.append("请在电脑原始记录或地下终端保留索引。")
+			need=["a7_read_photo","a7_read_site","a7_read_chat","a7_read_news"]
+			if number<7:missing.append("先恢复电脑并完成调查。")
 		"k2_owned","k2_ready":
-			if number<7 or number>10:missing.append("维护附件仅在第七至十天准备。")
-			if number==7:need.append("a7_login")
+			if number<7 or number>10:missing.append("维护附件在第七至十天准备。")
+			need=["a7_login","br_k2_manual_read"]
 			if action=="k2_ready":need.append("br_k2_owned")
-			if facts.get("br_k2_spent",false):missing.append("设备已使用，需要实验室维护。")
+			if facts.get("br_k2_spent",false):missing.append("设备已消耗，永久解除结果仍然保留。")
 		"rescue_mouse","refuse_mouse":
 			if number!=10:missing.append("只能在第十天处理命令。")
 			need=["a10_catch","a10_note","a10_asked"]
-			if int(facts.get("br_mouse",0))!=0:missing.append("老鼠的结果已经确定。")
-			if int(facts.get("br_mouse_intent",0))!=0:missing.append("上一次决定尚在处理中。")
+			if int(facts.get("br_mouse",0))!=0 or int(facts.get("br_mouse_intent",0))!=0:missing.append("老鼠事件已经处理或正在恢复。")
+			if facts.get("br_imprint_cleared",false):missing.append("强制通道已经解除，不能重新启动受控事件。")
 			if action=="rescue_mouse":
-				need.append_array(["br_k2_owned","br_k2_ready"])
-				if facts.get("br_k2_spent",false):missing.append("校准器已经耗尽。")
-		"escape_cat":
-			if number!=11:missing.append("尚未到达地下室。")
-			need=["a11_enter","a11_memory","a11_cage","a11_vent"]
-			if int(facts.get("br_mouse_intent",0))!=0:missing.append("请先处理尚未结束的命令。")
-		"return_human":
-			if number!=11:missing.append("尚未到达地下室。")
-			need=["a11_enter"]+HUMAN_FACTS
-			if int(facts.get("br_mouse_intent",0))!=0:missing.append("请先处理尚未结束的命令。")
+				need.append_array(["br_k2_owned","br_k2_ready","br_k2_manual_read"])
+				if facts.get("br_k2_spent",false):missing.append("设备已经消耗。")
+		"default_finish","escape_cat","return_human":
+			if number!=11 or not facts.get("br_route_locked",false):missing.append("尚未完成第十晚路线提交。")
+			var expected: int={"default_finish":1,"escape_cat":2,"return_human":3}[action]
+			if route!=expected:missing.append("这项操作不属于本次已确定的路线。")
+			need=["a11_enter"]
+			if action=="default_finish":need.append_array(["a11_memory","a11_cage","a11_vent"])
+			elif action=="escape_cat":
+				need.append_array(["br_escape_path_known","a11_vent","br_imprint_cleared"])
+				if int(facts.get("br_mouse",0))!=2:missing.append("引路的老鼠并未获救。")
+			else:
+				need.append_array(HUMAN_FACTS)
+				if not facts.get("br_night_return_ready",false) or not return_ready(facts):missing.append("第十晚尚未形成完整回迁方案。")
+			if int(facts.get("br_mouse_intent",0))!=0:missing.append("先完成老鼠事件。")
 		_:
 			if action not in STEPS:missing.append("未知操作。")
-			if number!=11:missing.append("请先进入地下室。")
-			need=["a11_enter"]
+			if number!=11 or route!=3 or not facts.get("br_route_locked",false):missing.append("这项现场操作仅供已确定的回迁路线。")
+			need=["a11_enter","br_memory","br_return_plan_ready"]
 			match action:
+				"memory","records":missing.append("资料和记忆在第十晚前核对；此处仅可回看。")
 				"power_safe":need.append_array(["br_auto_stopped","br_body_seen"])
-				"records","memory":need.append_array(["br_body_seen","br_power_safe"])
-				"rewrite_off":need.append_array(["br_memory","br_power_safe","br_records"])
-				"channel_off":need.append("br_rewrite_off")
-				"imprint_cleared":need.append_array(["br_channel_off","br_memory","br_power_safe"])
+				"rewrite_off":need.append_array(["br_power_safe","br_body_seen"])
+				"channel_off":need.append_array(["br_rewrite_off","br_power_safe"])
+				"imprint_cleared":need.append_array(["br_channel_off","br_power_safe"])
+				"imprint_verified":need.append_array(["br_imprint_cleared","br_power_safe","br_body_seen"])
 				"module":need.append("br_power_safe")
-				"routing":need.append_array(["br_module","br_memory","br_power_safe","br_imprint_cleared"])
-				"target_verified":need.append_array(["br_routing","br_body_seen","br_records"])
-			if action=="memory":need.append("br_records")
+				"routing":need.append_array(["br_module","br_power_safe","br_imprint_cleared"])
+				"target_verified":need.append_array(["br_routing","br_body_seen"])
 	for key in need:
-		if not facts.get(key,false):missing.append(NAMES.get(key,{"a10_catch":"抓住老鼠","a10_note":"查看老鼠纸条","a10_asked":"听完阿嚼的话","br_k2_owned":"取得校准器","br_k2_ready":"完成校准","a11_enter":"进入地下室","a11_memory":"回想逃跑纸条","a11_cage":"调查01号笼","a11_vent":"完全打开格栅"}.get(key,"完成前置调查")))
+		if not facts.get(key,false):missing.append(NAMES.get(key,{"a11_enter":"进入地下室","a11_memory":"回想纸条","a11_cage":"检查旧抓痕","a11_vent":"打开格栅","br_k2_manual_read":"阅读设备折页","br_return_plan_ready":"形成回迁准备","br_escape_path_known":"听完通路引导"}.get(key,"完成前置调查")))
 	return {"allowed":missing.is_empty(),"missing_reasons":missing}
 
 static func validate_input(action: String, input: Dictionary) -> String:
-	match action:
-		"k2_owned":
-			if str(input.get("code",""))!=COPY.BOX_CODE:return "维护盒使用接收载体尾号。"
-			if not input.get("manual_read",false):return "先检查设备并读完折页说明。"
-		"k2_ready":
-			var choices: Array=input.get("choices",[])
-			if choices.size()!=3:return "请设置载体、工作模式和输出档位。"
-			if choices[0]!=COPY.K2_ANSWER[0]:return "载体不匹配：应匹配当前承载意识的身体。"
-			if choices[1]!=COPY.K2_ANSWER[1]:return "模式不符：本机不读取个人记忆。"
-			if choices[2]!=COPY.K2_ANSWER[2]:return "输出过高：使用最低可用输出。"
-		"body_seen","records":
-			if int(input.get("read_mask",0))!=7:return "请先完整核对三项内容。"
-		"power_safe":
-			var switches: Array=input.get("switches",[])
-			if switches.size()!=3:return "请检查三路拨钮。"
-			if not switches[0]:return "维持供电必须保留。"
-			if switches[1]:return "先隔离转移执行回路。"
-			if not switches[2]:return "维护总线未连接。"
-		"memory":
-			if input.get("choices",[])!=COPY.MEMORY_ANSWER:return "配对与档案不符，请重新查看身份、护理和操作记录。"
-		"channel_off":
-			if not input.get("confirmed",false):return "请确认仅移除强制指令通道。"
-		"imprint_cleared":
-			if not input.get("refused",false):return "离线验证尚未收到自主拒绝。"
-		"routing":
-			if input.get("choices",[])!=COPY.ROUTING_ANSWER:return "连接不符：从当前猫载体读取，写入原身体，以原始档案核验。"
-		"target_verified":
-			if input.get("target",-1)!=0:return "目标不匹配：请选择 H-031 原身体。"
-			if input.get("time",[])!=COPY.VERIFY_TIME:return "时间与最后一次操作日志不匹配。"
-	return ""
+	return Legacy.validate_input(action,input)

@@ -11,7 +11,8 @@ enum MatchMode { ALL, ANY }
 @export_group("前置条件")
 @export var prerequisite_mode: MatchMode = MatchMode.ALL
 ## 将已有任务 .tres 拖入数组。禁止自引用或循环依赖。
-@export var prerequisite_quests: Array[CalicoQuest] = []
+## Resource references avoid a script self-reference retained by typed self arrays.
+@export var prerequisite_quests: Array[Resource] = []
 @export var extra_conditions: Array[CalicoQuestCondition] = []
 @export_group("任务内容")
 @export var objectives: Array[CalicoQuestObjective] = []

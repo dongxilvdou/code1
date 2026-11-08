@@ -22,7 +22,7 @@ func _ready() -> void:
 	for i in range(4):column.get_child(1).get_child(i).text=tab_names[i]
 
 func open(game_: Node, world_: Node, dev := false) -> void:
-	message="";box_code="";box_open=false;manual_read=false;box_errors=0
+	message="";box_code="";box_open=false;manual_read=chapter.flag("br_k2_manual_read");box_errors=0
 	body_mask=7 if chapter.flag("br_body_seen") else 0;record_mask=7 if chapter.flag("br_records") else 0
 	switches=[true,false,true] if chapter.flag("br_power_safe") else [true,true,false]
 	k2_choices=Copy.K2_ANSWER.duplicate() if chapter.flag("br_k2_ready") else [0,0,2]
@@ -34,7 +34,7 @@ func open(game_: Node, world_: Node, dev := false) -> void:
 func fresh(title_: String, content: String) -> void:
 	session=chapter.facts()
 	super.fresh(title_,content)
-	column.get_child(1).visible=chapter.flag("a11_enter") and chapter.day.value("current_day",1)==11 and active_view!="final"
+	column.get_child(1).visible=chapter.flag("a11_enter") and chapter.day.value("current_day",1)==11 and active_view!="final" and (chapter.flag("br_legacy_flow") or chapter.value("br_route")==3)
 	column.get_child(column.get_child_count()-1).visible=active_view!="final"
 	if not message.is_empty():
 		var feedback:=Label.new();feedback.text=message;feedback.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;feedback.add_theme_color_override("font_color",Color("98643d"));actions.add_child(feedback)
@@ -54,17 +54,32 @@ func select_row(label_: String, options: Array, selected: int, callback: Callabl
 
 func show_view(id: String) -> void:
 	if not opened:return
+	if not chapter.flag("br_legacy_flow") and chapter.value("current_day")==11:
+		var repairs:=["body","photos","repair","power","records","memory","memory_confirm","imprint","channel_confirm","offline","routing","precheck","human_confirm"]
+		if id in repairs and chapter.value("br_route")!=3:id="route"
+		if id in ["vent","cat_confirm"] and chapter.value("br_route")==3:id="route"
+		if id=="memory" or id=="memory_confirm":
+			active_view="memory";fresh("已核对的个人经历",Copy.memory_caption(3))
+			button("只读重播记忆",chapter.play_memory.bind(3,true));button("返回维修",show_view.bind("repair"));return
+	if not opened:return
 	if id=="front":id="overview" if chapter.flag("a11_enter") else "box"
 	active_view=id
 	match id:
 		"mouse_rescue_confirm","mouse_refuse_confirm":
 			var rescue: bool=id=="mouse_rescue_confirm"
-			fresh("命令冲突 / 确认决定","设备只剩一次使用机会。你要趁短暂干扰放走老鼠吗？" if rescue else "你想转身离开，但身体已经开始发紧。仍然直接尝试拒绝吗？")
+			fresh("命令冲突 / 确认决定","设备只剩一次使用机会。你要永久解除强制通道并放走老鼠吗？" if rescue else "你想转身离开，但身体已经开始发紧。仍然直接尝试拒绝吗？")
 			button("启动并放走" if rescue else "直接拒绝",func():
 				if not chapter.choose_mouse(rescue):message=chapter.state.last_error;show_view(id))
 			button("返回",func():close();game.get_node("ActFour").open_mouse_story())
+		"tv_alert":
+			fresh("电视 / 夜间自动复核","实验出错\n请前往地下室修复实验\n\n转移装置复核异常。生命维持回路独立，未被切断。地下室入口仍使用走廊原有电路锁。")
+			button("返回 · Esc",close)
+		"route":
+			fresh("已确定的调查方向","回迁准备已经在第十晚完成。先核对实际生命体征，再安全修复转移装置。" if chapter.value("br_route")==3 else "老鼠已经指出监控下方的通路。强制通道已永久解除，可以沿通道离开。" if chapter.value("br_route")==2 else "昨天留下的纸条指向监控底下。先查看01号笼里的旧抓痕，再寻找出口。")
+			button("核对原身体" if chapter.value("br_route")==3 else "继续寻找出口",show_view.bind("body") if chapter.value("br_route")==3 else close)
 		"overview":
-			fresh("转化装置","它说能让我回去。可它连我是谁都不肯告诉我。\n\n先核对身体和记录，再决定是否启动。调查装置与出口都不会立即锁定离开方式。")
+			if not chapter.flag("br_legacy_flow") and chapter.value("br_route")!=3:show_view("route");return
+			fresh("转化装置","回迁资料已经齐备。我是 H-031，现在要先确认原身体的实际状态。\n\n夜间复核异常不涉及独立生命维持；现场核对通过后，才能修复转移条件。")
 			aim(world.retrofit.get_node("DrawerCam"),1|4|16,game.player.camera.environment)
 			button("检查转移条件",show_view.bind("body"))
 			button("停止本轮自动启动",func():
@@ -116,21 +131,23 @@ func show_view(id: String) -> void:
 		"routing":show_routing()
 		"precheck":show_precheck()
 		"human_confirm":
-			fresh("返回原身体 / 最终确认","你的意识将离开 C-031，返回 H-031。米酥的生命维持会继续。\n\n转移启动后，本次流程不能中途改选出口。")
+			fresh("返回原身体 / 最终确认","你的意识将离开 C-031，返回 H-031。米酥的生命维持会继续。\n\n本次路线已在第十晚确定。确认后开始安全回迁演出。")
 			button("确认回到原身体",func():
 				if not chapter.confirm_ending(2):message=chapter.state.last_error;show_view("human_confirm"),not chapter.state.allowed("return_human").allowed)
 			button("继续调查",show_view.bind("precheck"))
 		"vent":show_vent()
 		"cat_confirm":
-			fresh("通往外面的路 / 最终确认","通道只够猫通过。继续前进将保留现在的身体。你也可以返回检查转移装置。")
+			fresh("通往外面的路 / 最终确认","通道只够猫通过。路线已经确定，沿通道离开将保留现在的身体。")
 			aim(world.vent_service.get_node("VentCam"),1|4|16,game.player.camera.environment)
 			button("确认以猫身离开",func():
-				if not chapter.confirm_ending(3):message=chapter.state.last_error;show_view("cat_confirm"),not chapter.state.allowed("escape_cat").allowed)
+				if not chapter.confirm_ending(3):message=chapter.state.last_error;show_view("cat_confirm"),not chapter.state.allowed("default_finish" if chapter.value("br_route")==1 and not chapter.flag("br_legacy_flow") else "escape_cat").allowed)
 			button("继续调查",close)
 		"final":
-			fresh("回到自己的身体" if chapter.value("br_ending")==2 else "带着猫的身体回家",Copy.ending_text(chapter.value("br_ending"),chapter.value("br_mouse"),chapter.flag("br_memory"),chapter.flag("br_imprint_cleared")))
+			fresh("回到自己的身体" if chapter.value("br_ending")==2 else "带着猫的身体回家",Copy.ending_text(chapter.value("br_ending"),chapter.value("br_mouse"),chapter.flag("br_memory"),chapter.flag("br_imprint_cleared")) if chapter.flag("br_legacy_flow") else Copy.route_ending_text(chapter.value("br_route"),chapter.value("br_mouse"),chapter.value("br_memory_level"),chapter.flag("br_imprint_cleared")))
 			if chapter.flag("br_legacy_completed") and not chapter.flag("br_rescue_done"):text_.text="旧版本的猫身归家记录已经完成。\n旧记录没有保存新增的救援过程，可以重看扩展尾声。"
-			var rescue:=stage("rescue_stage");rescue.show();rescue.apply_visual_state({"br_mouse":chapter.value("br_mouse"),"branch":chapter.value("br_ending")});aim(rescue.get_node("RescueCam"),256,rescue.get_node("StageCamera").environment)
+			if chapter.value("br_route")==1 and not chapter.flag("br_legacy_flow"):
+				show_default_home();button("重看结局",func():chapter.start_ending_film(true));button("返回主菜单",chapter.return_menu);return
+			var rescue:=stage("rescue_stage");rescue.show();rescue.apply_visual_state({"br_mouse":chapter.value("br_mouse"),"branch":chapter.value("br_ending")});final_people(rescue);aim(rescue.get_node("RescueCam"),256,rescue.get_node("StageCamera").environment)
 			button("重看结局",func():chapter.start_ending_film(true));button("返回主菜单",chapter.return_menu)
 
 func show_box() -> void:
@@ -146,7 +163,7 @@ func show_box() -> void:
 	else:
 		box.apply_visual_state({"box_open":true,"box_digits":box_code})
 		button("检查设备",func():message="K-2：一个凹下的按钮，三枚指示灯，背后有短挂带。";show_view("box"))
-		button("阅读折页说明",func():manual_read=true;message=Copy.K2_MANUAL;show_view("box"))
+		button("阅读折页说明",func():chapter.day.reader.open_sheet("k2_manual"))
 		button("带上校准器",func():
 			if attempt("k2_owned",{"code":box_code,"manual_read":manual_read},"box"):show_view("k2"),not manual_read)
 
@@ -162,9 +179,9 @@ func show_device_settings() -> void:
 		text_.text+="\n\n本次命令已有结果。设备现在保留作线索。"
 		readonly=true
 	select_row("载体编号",["H-031","C-031","D-017"],k2_choices[0],func(v: int):k2_choices[0]=v,readonly)
-	select_row("工作模式",["记忆读取","强制通道干扰","自动执行"],k2_choices[1],func(v: int):k2_choices[1]=v,readonly)
+	select_row("工作模式",["记忆读取","强制通道清除","自动执行"],k2_choices[1],func(v: int):k2_choices[1]=v,readonly)
 	select_row("输出档位",["低","中","高"],k2_choices[2],func(v: int):k2_choices[2]=v,readonly)
-	button("需重新维护，本流程中不可再次使用" if chapter.flag("br_k2_spent") else "载体匹配完成，可用次数 1" if readonly else "离线自检",func():attempt("k2_ready",{"choices":k2_choices},"k2"),readonly)
+	button("设备已消耗；永久解除结果保留" if chapter.flag("br_k2_spent") else "载体匹配完成，可用次数 1" if readonly else "离线自检",func():attempt("k2_ready",{"choices":k2_choices},"k2"),readonly)
 	button("合上说明",close)
 
 func show_repair() -> void:
@@ -172,7 +189,7 @@ func show_repair() -> void:
 	fresh("维修 / 独立维持回路",Copy.REPAIR+"\n\n自动启动已暂停。急停只隔离本轮转移，不切断维持供电。")
 	aim(world.retrofit.get_node("ServiceCam"),1|4|16,game.player.camera.environment)
 	button("检查电路隔离",show_view.bind("power"))
-	button("核对记忆证据" if not chapter.flag("br_memory") else "重看研究员记忆",show_view.bind("memory") if not chapter.flag("br_memory") else chapter.play_memory,not chapter.state.allowed("memory").allowed)
+	button("核验已恢复的资料与记忆",show_view.bind("records"))
 	button("处理强制指令通道",show_view.bind("imprint"))
 	button("打开侧抽屉",func():world.retrofit.play_action(&"drawer");message="替换模块就在抽屉里。";show_module_button(),not chapter.flag("br_power_safe"))
 	button("反向传输接线",show_view.bind("routing"));button("转移预检",show_view.bind("precheck"))
@@ -190,8 +207,13 @@ func show_power() -> void:
 	button("返回维修",show_view.bind("repair"))
 
 func show_records() -> void:
+	if not chapter.flag("br_legacy_flow"):
+		fresh("回迁资料 / 只读核验","前十天的资料已与身份、签名和03:42:00匹配。不需要重新收录。\n原始档案保持只读；此处不重新选择路线。")
+		for id in preload("res://story_branches/evidence_data.gd").IDS:
+			button("✓ "+preload("res://story_branches/evidence_data.gd").data(id).title,func():chapter.day.reader.open_evidence(id,"access" if id=="d5" else ""))
+		button("只读重播 M3",chapter.play_memory.bind(3,true));button("返回维修",show_view.bind("repair"));return
 	var allowed: bool=chapter.flag("br_body_seen") and chapter.flag("br_power_safe")
-	fresh("原始档案","逐项阅读身份、护理与转化日志，再收录档案。" if allowed else "完整日志需要先核对原身体并验证维持供电。照片和编号备份随时可查。")
+	fresh("原始档案","逐项阅读身份、护理与转化日志，再收录档案。" if allowed else "完整日志需要先核对原身体并验证维持供电。")
 	for i in range(3):button(("✓ " if record_mask&(1<<i) else "□ ")+Copy.RECORD_TABS[i],read_record.bind(i),not allowed)
 	button("收录档案",func():attempt("records",{"read_mask":record_mask},"records"),not allowed or record_mask!=7 or chapter.flag("br_records"))
 	button("补查照片与编号",show_view.bind("photos"));button("核对记忆证据",show_view.bind("memory"),not chapter.flag("br_records"))
@@ -206,7 +228,10 @@ func show_imprint() -> void:
 	fresh("维修 / 强制指令通道","记忆访问与强制执行是独立通道。先停用自动重写，再清除通道，最后验证自主响应。")
 	if chapter.flag("br_imprint_cleared"):
 		text_.text="强制响应 0，自主输入有效。\n我能停下来。它没有再把我拉回去。"
-		text_.text+="\n先前只是临时干扰，本次永久关闭强制通道。" if chapter.flag("br_k2_spent") else "\n这次来得太晚了。" if chapter.value("br_mouse")==1 else ""
+		text_.text+="\nK-2 的永久解除结果已保留；本次只核验，不重复激活。" if chapter.flag("br_k2_spent") else "\n这次来得太晚了。" if chapter.value("br_mouse")==1 else ""
+		if not chapter.flag("br_legacy_flow"):
+			button("✓ 现场核验通过" if chapter.flag("br_imprint_verified") else "核验已解除状态",func():attempt("imprint_verified",{},"imprint"),chapter.flag("br_imprint_verified") or not chapter.state.allowed("imprint_verified").allowed)
+			button("返回维修",show_view.bind("repair"));return
 	button("✓ 已停用自动重写" if chapter.flag("br_rewrite_off") else "停用自动重写",func():attempt("rewrite_off",{},"imprint"),chapter.flag("br_rewrite_off") or not chapter.state.allowed("rewrite_off").allowed)
 	button("✓ 已清除强制通道" if chapter.flag("br_channel_off") else "清除强制通道",show_view.bind("channel_confirm"),chapter.flag("br_channel_off") or not chapter.state.allowed("channel_off").allowed)
 	button("✓ 自主响应已验证" if chapter.flag("br_imprint_cleared") else "运行离线验证",show_view.bind("offline"),chapter.flag("br_imprint_cleared") or not chapter.state.allowed("imprint_cleared").allowed)
@@ -241,10 +266,10 @@ func show_precheck() -> void:
 func show_vent() -> void:
 	fresh("监控底下 / 通风格栅","右扣已经锈断。左扣、弯折边和格栅还可以松开。\n未完全打开时离开，需重新拨开。")
 	aim(world.vent_service.get_node("VentCam"),1|4|16,game.player.camera.environment)
-	if not chapter.flag("a11_memory") or not chapter.flag("a11_cage"):
+	if not chapter.flag("a11_memory") or (not chapter.flag("br_escape_path_known") if chapter.value("br_route")==2 and not chapter.flag("br_legacy_flow") else not chapter.flag("a11_cage")):
 		text_.text="先回想纸条，再检查01号笼里的猫毛和旧抓痕。";button("继续调查",close);return
 	if chapter.flag("a11_vent"):
-		text_.text="格栅已经打开。前代灰白猫从这里离开了笼子。\n打开出口还不意味着已经选择逃走。";button("查看猫身出口",show_view.bind("cat_confirm"));button("继续调查",close);return
+		text_.text="格栅已经打开。前代灰白猫曾沿旧抓痕离开。\n可以按已确定的路线沿通道前进。";button("查看猫身出口",show_view.bind("cat_confirm"));button("继续调查",close);return
 	button(["拨开左扣","压下弯折边","推开格栅"][mini(vent_step,2)],func():
 		vent_step+=1
 		if vent_step==3:
@@ -262,6 +287,7 @@ func close() -> void:
 
 func _input(event: InputEvent) -> void:
 	if not opened:return
+	if not game.get_node("DayOne").reader.mode.is_empty():return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_ESCAPE:
 			if active_view!="final":close()
@@ -277,3 +303,20 @@ func _exit_tree() -> void:
 	# siblings may already be gone; ordinary close() is only for a live scene.
 	opened=false
 	stages.clear();camera=null;box=null;chest_attachment=null
+
+func show_default_home() -> void:
+	var old: Node3D=stages.get("default_home")
+	if not is_instance_valid(old):
+		old=preload("res://ending/film.gd").new();game.add_child(old);old.build(game.get_node("Ending"));stages.default_home=old
+	old.show();old.start_home();old.home_time=6.4;old.update_home()
+	camera.global_transform=old.camera.global_transform;camera.cull_mask=32;camera.environment=old.camera.environment;camera.make_current()
+
+func final_people(rescue: Node3D) -> void:
+	var actors=preload("res://story_branches/actors.gd")
+	if not rescue.has_node("Investigator"):
+		var investigator=actors.person(rescue,"调查",256);investigator.position=Vector3(.15,0,-.3)
+	if chapter.value("br_ending")==2:
+		var human: Node3D=rescue.get_node_or_null("Researcher")
+		if human==null:human=actors.person(rescue,"研究员",256)
+		human.position=Vector3(-.45,0,1.1);human.carry(true)
+		rescue.get_node("MisoVisual").position=human.position+Vector3(0,.94,.44);rescue.get_node("MisoVisual").rotation.y=PI/2

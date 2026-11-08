@@ -22,7 +22,8 @@ func dismiss4() -> void:
 
 func read_note() -> void:
 	fourth.interact_item("note")
-	await key(KEY_E)
+	await process_frame;await process_frame;await process_frame
+	await key(KEY_ESCAPE)
 	verify(day.Notes.read(day),"Daily note did not unlock this day")
 
 func photo(name_: String, eye: Vector3, target: Vector3) -> void:
@@ -49,6 +50,7 @@ func mouse_photo(name_: String) -> void:
 	root.get_texture().get_image().save_png("res://.godot/day10_"+name_+".png")
 
 func run_tests() -> void:
+	create_timer(180).timeout.connect(func():printerr("REGRESSION_TIMEOUT");quit(2))
 	capture="--capture" in OS.get_cmdline_user_args()
 	if capture:DirAccess.make_dir_recursive_absolute("res://logs/act4_polish")
 	game=load("res://scenes/main.tscn").instantiate()
@@ -216,6 +218,7 @@ func run_tests() -> void:
 	await ticks(2)
 	verify(not actor.enabled and not actor.sound.playing,"Caught mouse kept squeaking")
 	fourth.interact_item("escape_note")
+	await process_frame;await process_frame;await process_frame
 	await key(KEY_E)
 	verify(fourth.flag("a10_note") and fourth.panel.mode=="mouse_question","Reading did not unlock asking the dog")
 	verify(day.manager.get_status(&"a10_note")==CalicoQuestManager.State.COMPLETED,"Reading quest was lost after reordering")
@@ -236,9 +239,13 @@ func run_tests() -> void:
 	verify(fourth.flag("a10_asked") and fourth.panel.mode=="mouse_refusal","Full dog conversation did not unlock refusal")
 	await mouse_photo("refusal")
 	verify(day.manager.get_status(&"a10_asked")==CalicoQuestManager.State.COMPLETED,"Dog quest did not complete")
-	fourth.open_mouse_note();await key(KEY_E)
+	fourth.open_mouse_note();await process_frame;await process_frame;await process_frame;await key(KEY_E)
 	verify(fourth.panel.mode=="mouse_refusal","Re-reading reset the completed investigation")
-	await key(KEY_E)
+	fourth.refuse_mouse()
+	var branch_panel=game.get_node("StoryBranches").panels
+	for button_ in branch_panel.actions.find_children("*","Button",true,false):
+		if button_.text=="直接拒绝":button_.grab_focus();break
+	await key(KEY_SPACE)
 	verify(fourth.mouse_control.running and fourth.flag("a10_refused") and not fourth.flag("a10_eat"),"Refusal did not begin the involuntary action")
 	var refused_save: Dictionary=day.manager.make_save_data()
 	fourth.mouse_control.cancel();dismiss4()
@@ -293,10 +300,12 @@ func run_tests() -> void:
 	legacy.quests["a10_eat"].status=CalicoQuestManager.State.COMPLETED
 	legacy.quests["a10_eat"].progress["a10_eat"]=1
 	legacy.quests.erase("a10_asked")
+	legacy.values["br_schema"]=0
 	verify(day.manager.restore_save_data(legacy),"Old eaten save cannot reload")
+	verify(game.get_node("StoryBranches").state.migrate_legacy(),"Old eaten event migrates through the actual service")
 	fourth.restore()
-	verify(fourth.flag("a10_asked") and not fourth.mouse_control.running and not fourth.day_complete(),"Old save replayed eating or lost the unread paper")
-	fourth.interact_item("escape_note");await key(KEY_E);dismiss4()
+	verify(fourth.flag("br_legacy_mouse_resolved") and not fourth.flag("a10_asked") and not fourth.mouse_control.running and not fourth.day_complete(),"Old save replayed eating or lost the unread paper")
+	fourth.interact_item("escape_note");await process_frame;await process_frame;await process_frame;dismiss4()
 	verify(fourth.day_complete() and day.manager.get_status(&"a10_asked")==CalicoQuestManager.State.COMPLETED,"Old-save quest migration cannot finish")
 	verify(day.manager.restore_save_data(completed_save),"Completed save cannot reload")
 	fourth.restore()
@@ -305,7 +314,10 @@ func run_tests() -> void:
 	await mouse_photo("rest")
 	verify(fourth.today()==10 and fourth.panel.mode=="mouse_rest","Rest skipped the closing monologue")
 	verify(fourth.panel.description.text=="我今天到底怎么了，为什么身体不受控制，为什么一定要吃了它，主人......到底是谁？","Closing monologue differs from requested text")
-	await key(KEY_E);dismiss4()
+	await key(KEY_E);await ticks(3)
+	var alert_controller=game.get_node("StoryBranches").alert
+	if is_instance_valid(alert_controller.intro):alert_controller.intro.skip()
+	dismiss4()
 	verify(fourth.today()==11,"Day-ten completion cannot advance")
 	await read_note()
 	for level in range(3):
@@ -317,7 +329,7 @@ func run_tests() -> void:
 		var failed_board=fourth.panel.display
 		failed_board.set_process(false)
 		failed_board._process((failed_board.result.finish+.8)*.55)
-		failed_board.set_process(true)
+		if is_instance_valid(failed_board):failed_board.set_process(true)
 		await ticks(3)
 		verify(fourth.val("locks")==level and not fourth.panel.feedback.text.is_empty(),"Failed animation advanced the lock or omitted feedback")
 		verify(fourth.panel.paper_scroll.get_global_rect().encloses(fourth.panel.feedback.get_global_rect()),"Circuit failure feedback is outside the visible scroll area")
@@ -344,7 +356,11 @@ func run_tests() -> void:
 	verify(ending.flag("a11_memory") and not ending.flag("a11_choice"),"Escape memory requires the transformation device")
 	ending.interact_item("cage");ending.on_action("close")
 	ending.interact_item("vent")
-	verify(ending.flag("a11_cage") and ending.flag("a11_vent") and ending.ui.mode=="escape","Active investigation cannot reach the exit")
+	var branches=game.get_node("StoryBranches")
+	for label in ["拨开左扣","压下弯折边","推开格栅"]:
+		for button_ in branches.panels.actions.find_children("*","Button",true,false):
+			if button_.text==label:button_.grab_focus();await key(KEY_SPACE);break
+	verify(ending.flag("a11_cage") and ending.flag("a11_vent") and branches.panels.active_view=="vent","Active investigation cannot reach the exit")
 	ending.reset_runtime();dismiss4()
 	game._seed_demo_day(10)
 	verify(fourth.today()==10 and not fourth.flag("a10_catch") and not fourth.flag("a10_asked"),"Demo day ten skipped its investigation")

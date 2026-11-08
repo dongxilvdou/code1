@@ -17,6 +17,8 @@ var original_screen: Material
 var original_art: Array = []
 var indicator: StandardMaterial3D
 var curtain_secret: Node3D
+var story_tv_active := false
+var story_previous_screen: Material
 
 func _ready() -> void:
 	game = get_parent();player = game.get_node("Miso")
@@ -79,7 +81,7 @@ func target_hint() -> String:
 	var curtain_hint: String=curtain_secret.target_hint()
 	if not curtain_hint.is_empty():return curtain_hint
 	match target_id():
-		"tv":return "[ E ]  电视没有电" if not television_powered() else "[ E ]  "+("关闭电视" if entries.tv.playing else "打开电视")
+		"tv":return "[ E ]  查看电视报错" if story_tv_active else "[ E ]  电视没有电" if not television_powered() else "[ E ]  "+("关闭电视" if entries.tv.playing else "打开电视")
 		"banana":return "[ E ]  看看这根香蕉"
 	return ""
 
@@ -87,12 +89,14 @@ func try_interact() -> bool:
 	if curtain_secret.try_interact():return true
 	var id := target_id()
 	if id.is_empty():return false
+	if id=="tv" and story_tv_active:game.get_node("StoryBranches").open_panel("tv_alert");return true
 	if id=="tv" and not television_powered():game.ui.toast("停电了，电视没有反应。",3);return true
 	if entries[id].playing:finish(id)
 	else:start(id)
 	return true
 
 func start(id: String) -> bool:
+	if id=="tv" and story_tv_active:return false
 	if id=="tv" and not television_powered():return false
 	if not entries.has(id) or not _gameplay_available():return false
 	var entry: Dictionary = entries[id]
@@ -133,6 +137,16 @@ func _process(delta: float) -> void:
 			entry.plane.look_at(view.global_position,Vector3.UP,true)
 		var distance_: float = entry.plane.global_position.distance_to(player.camera.global_position)
 		entry.video.volume_db = -8.0+linear_to_db(clampf(1.5/maxf(1.5,distance_),.03,1))
+
+func set_story_tv_override(active: bool, texture: Texture2D) -> void:
+	if active==story_tv_active:return
+	if active:
+		finish("tv");story_previous_screen=screen.material_override
+		var material:=StandardMaterial3D.new();material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;material.albedo_texture=texture;material.emission_enabled=true;material.emission_texture=texture;material.emission=Color.WHITE;material.emission_energy_multiplier=.45
+		screen.material_override=material;indicator.emission_energy_multiplier=.8
+	else:
+		screen.material_override=story_previous_screen;indicator.emission_energy_multiplier=0;story_previous_screen=null
+	story_tv_active=active
 
 func _exit_tree() -> void:
 	for id in entries:finish(id)

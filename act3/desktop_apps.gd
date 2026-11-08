@@ -20,6 +20,7 @@ var moving=false
 var custom_position=Vector2(-1,-1)
 var viewport_size=Vector2.ZERO
 var last_layout=Vector2.ZERO
+var presentation_generation:=0
 
 func _ready() -> void:
  set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);mouse_filter=Control.MOUSE_FILTER_IGNORE;theme=DeskTheme.resource()
@@ -49,7 +50,14 @@ func open_app(id: String) -> void:
  if app==id and not panel.visible:panel.show();return
  app=id;page="";zoomed=false;history.clear();custom_position=Vector2(-1,-1)
  browser_page="news" if computer.chapter.val("desktop_browser_page")==1 else "site";render()
-func record(key: String) -> void:computer.chapter.record_evidence(key)
+func record(key: String) -> void:
+ record_after_frame(key,presentation_generation,app,page)
+func record_after_frame(key: String,generation: int, expected_app: String,expected_page: String) -> void:
+ await get_tree().process_frame
+ await get_tree().process_frame
+ if generation!=presentation_generation or app!=expected_app or page!=expected_page or not panel.is_visible_in_tree():return
+ computer.chapter.record_evidence(key)
+ computer.chapter.game.get_node("StoryBranches").state.reconcile_memory()
 func show_page(value: String) -> void:page=value;zoomed=false;render()
 func show_browser(value: String) -> void:
  browser_page=value;page="";computer.chapter.set_value("desktop_browser_page",1 if value=="news" else 0);render()
@@ -59,7 +67,9 @@ func close_app() -> void:
  if not history.is_empty():
   var previous=history.pop_back();app=previous.app;page=previous.page;zoomed=false;render()
  else:close_all()
-func close_all() -> void:app="";page="";zoomed=false;history.clear();panel.hide()
+func close_all() -> void:
+ presentation_generation+=1;app="";page="";zoomed=false;history.clear();panel.hide()
+ computer.chapter.game.get_node("StoryBranches").recording.stop()
 func back() -> bool:
  if app.is_empty():return false
  if not panel.visible:close_all();return true
@@ -68,6 +78,8 @@ func back() -> bool:
  else:close_app()
  return true
 func render() -> void:
+ presentation_generation+=1
+ if is_instance_valid(computer.chapter.game.get_node("StoryBranches").recording):computer.chapter.game.get_node("StoryBranches").recording.stop()
  clear(toolbar);clear(body);file_tree=null;address=null;panel.show();scroll.scroll_vertical=0
  var names={"computer":"此电脑","documents":"文档","photos":"照片","recycle":"回收站","browser":"浏览器","chat":"微信"}
  heading.text=names.get(app,"电脑");status.text=""
@@ -186,7 +198,9 @@ func render_explorer() -> void:
   var nav_button=button(entry[0],nav,open_app.bind(entry[1]));nav_button.alignment=HORIZONTAL_ALIGNMENT_LEFT
   if entry[1]==app:nav_button.add_theme_stylebox_override("normal",DeskTheme.box(Color("e3edf7")))
  var content=inset(split,20)
- if page in ["photo","lab_photo"]:
+ if page.begins_with("evidence_"):
+  render_evidence(content)
+ elif page in ["photo","lab_photo"]:
   paragraph("实验室工作照.jpg",19,content);show_photo(content,"res://story_branches/art/clues/lab_photo.png")
   paragraph(preload("res://story_branches/data.gd").LAB_PHOTO+"\n是照片里的那个人……原来，那里不是家里。",16,content);record("photo");status.text="实验室工作照.jpg  ·  图片查看器"
  elif app=="recycle":
@@ -209,6 +223,9 @@ func render_explorer() -> void:
  elif app=="documents":
   paragraph("文档",23,content)
   button("维护附件 / K-2",content,func():computer.chapter.game.get_node("StoryBranches").open_equipment())
+  for entry in [["d2","人员档案 / H-031"],["d5","住宅分站 / 封存记录"],["d6","H-031 归档 / 回迁方案"]]:
+   var reason: String=preload("res://story_branches/evidence_data.gd").access_reason(entry[0],computer.chapter.game.get_node("StoryBranches").facts())
+   button(entry[1]+("  ·  尚未开放" if not reason.is_empty() else ""),content,show_page.bind("evidence_"+entry[0]))
   if computer.chapter.flag("a7_login") and computer.chapter.evidence_count()==Data.KEYS.size():
    paragraph("原始记录",22,content);paragraph(preload("res://story_branches/data.gd").RECORD_INDEX,19,content)
    paragraph(preload("res://story_branches/data.gd").SYNC_STATUS,17,content,DeskTheme.MUTED);status.text="原始记录 · 本地索引"
@@ -252,3 +269,30 @@ func layout_window() -> void:
  viewport_size=viewport;last_layout=dimensions
 func _process(_delta: float) -> void:
  if not app.is_empty() and viewport_size!=get_viewport().get_visible_rect().size:layout_window()
+
+func render_evidence(content: VBoxContainer) -> void:
+ var parts=page.split("_");var id: String=parts[1];var tab: String=parts[2] if parts.size()>2 else "recording" if id=="d5" else ""
+ var branches=computer.chapter.game.get_node("StoryBranches")
+ var evidence=preload("res://story_branches/evidence_data.gd")
+ var reason: String=evidence.access_reason(id,branches.facts())
+ if not reason.is_empty():
+  paragraph("目录尚未开放",23,content);paragraph(reason,18,content);return
+ var entry: Dictionary=evidence.data(id,tab)
+ paragraph(entry.title,23,content);paragraph(entry.body,19,content)
+ if id=="d5":
+  var tabs=HBoxContainer.new();content.add_child(tabs)
+  button("录音与完整字幕",tabs,show_page.bind("evidence_d5_recording"));button("访问说明",tabs,show_page.bind("evidence_d5_access"))
+  if tab=="recording":button("播放 / 重听现场录音",content,branches.play_recording)
+  if branches.flag("br_memory_verified"):paragraph("身份、签名与时间匹配，个人经历访问已恢复。",18,content)
+ var caption=paragraph("正在记录阅读……",15,content,DeskTheme.MUTED)
+ evidence_after_frame(id,tab,presentation_generation,page,caption)
+ button("返回文档目录",content,show_page.bind(""))
+
+func evidence_after_frame(id: String,tab: String,generation: int,expected_page: String,caption: Label) -> void:
+ await get_tree().process_frame
+ await get_tree().process_frame
+ if generation!=presentation_generation or page!=expected_page or not panel.is_visible_in_tree() or not computer.shell.visible:return
+ var branches=computer.chapter.game.get_node("StoryBranches")
+ var ok: bool=branches.state.record_evidence_view(id,tab)
+ if is_instance_valid(caption):caption.text="已记入手记" if ok else "保存失败，请重新打开重试："+branches.state.last_error
+ if ok and id=="d5" and branches.flag("br_memory_verified") and is_instance_valid(caption):caption.text+=" · 身份、签名与时间匹配，个人经历访问已恢复。"

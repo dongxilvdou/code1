@@ -9,7 +9,8 @@ func run_tests() -> void:
 	game=load("res://scenes/main.tscn").instantiate();game.get_node("QuestSystem").save_enabled=false
 	root.add_child(game);current_scene=game;await ticks(12);game.start_game();await ticks(12)
 	var day=game.get_node("DayOne");var fourth=game.get_node("ActFour");var ending=game.get_node("Ending")
-	fourth.third.previous.seed_previous_days();fourth.mark("a6_permission");fourth.begin_day(11);fourth.mark("daily_note_ack_11")
+	game._seed_demo_day(11);fourth.mark("daily_note_ack_11")
+	day.manager.apply_story_patch({"br_day11_alert_received":true},{"br_day11_intro_state":2},false)
 	clear_modals();await ticks(4)
 	go(Vector3(5.20,.02,2.20));await ticks(8)
 	verify(await walk_until("z",-2.80,450),"Descent blocked with current daily note acknowledged")

@@ -39,8 +39,9 @@ func run_tests() -> void:
  var apps=third.computer.apps
  apps.open_app("recycle");apps.show_page("photo");apps.render();await ticks(2)
  verify(third.evidence_count()==1,"Viewing the same photograph adds duplicate progress")
- apps.open_app("browser");apps.open_app("chat");apps.show_page("conversation")
- apps.news_from_chat();apps.show_page("article_0");await ticks(2)
+ apps.open_app("browser");await process_frame;await process_frame;await process_frame
+ apps.open_app("chat");apps.show_page("conversation");await process_frame;await process_frame;await process_frame
+ apps.news_from_chat();apps.show_page("article_0");await process_frame;await process_frame;await process_frame;await ticks(2)
  verify(third.evidence_count()==4 and third.day_complete(),"New pages do not combine with a previously collected photograph")
  verify(day.manager.get_status(&"a7_investigate")==CalicoQuestManager.State.COMPLETED,"Quest tracker did not finish after all four records")
 
