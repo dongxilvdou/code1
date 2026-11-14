@@ -184,6 +184,12 @@ func refresh_hud() -> void:
 	if not active():return
 	day.hud.day_title.text="结局篇 / 地下室逃跑计划"
 	day.hud.guidance.text=guidance();day.hud.status.text="循着前代实验猫的痕迹，寻找出口。"
+	if not flag("br_legacy_flow") and day.value("br_route",0)==3:
+		day.hud.day_title.text="结局篇 / 安全回迁"
+		day.hud.status.text="核对原身体与维持电路，完成安全回迁准备。"
+	if flag("a11_finished"):
+		day.hud.day_title.text="结局篇 / 本次经历已结束"
+		day.hud.status.text="可在结局面板回看本次经历。"
 	day.hud.carry.text=""
 
 func reset_runtime() -> void:

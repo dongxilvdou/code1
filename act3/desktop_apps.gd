@@ -168,7 +168,7 @@ func render_chat() -> void:
  paragraph("X主任",21,conversation);conversation.add_child(HSeparator.new())
  var time=paragraph("一个月前  09:12",13,conversation,Color("929292"));time.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
  bubble(conversation,"有关实验室负面消息，你联系人去处理一下。",false)
- bubble(conversation,"xxxxxxxxxxxxx",false,true)
+ bubble(conversation,Data.CHAT_NEWS_LINK,false,true)
  bubble(conversation,"收到。",true)
  var space=Control.new();space.size_flags_vertical=Control.SIZE_EXPAND_FILL;conversation.add_child(space)
  conversation.add_child(HSeparator.new());paragraph("☺   ▧   ▢    ⋯",20,conversation,DeskTheme.MUTED)

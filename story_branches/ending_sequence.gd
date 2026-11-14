@@ -56,7 +56,7 @@ func _tick(delta: float) -> void:
 			else:
 				if hands:hands.hide()
 				cat.curious=1
-				aim(chapter.game.get_node("Ending").world.retrofit.get_node("DrawerCam"),1|4|16,chapter.game.player.camera.environment)
+				frame_care_cat()
 				caption.text="米酥的原生意识已从休眠恢复，生命体征稳定。\n研究员：米酥，是我。别怕。"
 				ask("它抬起头，随后又缩了回去。",[["蹲下，等它靠近",begin_care]])
 		"care":
@@ -100,11 +100,15 @@ func _tick(delta: float) -> void:
 				else:start_rescue()
 		"rescue":update_rescue()
 
-func begin_care() -> void:
-	clear_choice();segment="care";local_time=0
-	if hands:hands.hide()
+func frame_care_cat() -> void:
 	var marker: Node3D=chapter.game.get_node("Ending").world.retrofit.get_node("CareHandStop")
 	camera.global_position=marker.global_position+Vector3(.40,.40,.40);camera.look_at(cat.global_position+Vector3(0,.13,0));camera.cull_mask=1|4|16
+	camera.fov=55;camera.environment=chapter.game.player.camera.environment
+	cat.look_at(Vector3(camera.global_position.x,cat.global_position.y,camera.global_position.z))
+
+func begin_care() -> void:
+	clear_choice();segment="care";local_time=0
+	frame_care_cat()
 	if hands:hands.queue_free()
 	hands=Actors.hands(camera,4)
 
