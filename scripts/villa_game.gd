@@ -62,9 +62,10 @@ func update_target() -> void:
 	var distance := 1.40
 	var eye: Vector3 = player.camera.global_position
 	var forward: Vector3 = -player.camera.global_basis.z
-	# Cage doors share E/hints, but stay out of tutorial locks and mouse-chase
-	# routines that deliberately open/close every ordinary room door.
-	for door in get_tree().get_nodes_in_group("villa_doors")+get_tree().get_nodes_in_group("lab_cages"):
+	# Special doors keep separate groups so tutorial/chase routines cannot unlock
+	# them. Unlocked lab doors still need ordinary E/hints after entering the lab.
+	for door in get_tree().get_nodes_in_group("villa_doors")+get_tree().get_nodes_in_group("lab_cages")+get_tree().get_nodes_in_group("laboratory_lock_doors"):
+		if door.is_in_group("laboratory_lock_doors") and door.locked:continue
 		var target: Vector3 = door.interaction_position()
 		var delta := target-eye
 		if delta.length()>distance or forward.dot(delta.normalized())<.20:continue

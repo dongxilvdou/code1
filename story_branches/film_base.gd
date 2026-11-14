@@ -86,7 +86,10 @@ func _process(delta: float) -> void:
 	var width:=minf(520,viewport.x*.40) if choice_align_right else minf(650,viewport.x-80)
 	if choice_content.get_child_count()>0:choice_content.get_child(0).custom_minimum_size.x=width-48
 	choices.custom_minimum_size.x=width;choices.size=Vector2(width,0)
-	choices.position=Vector2(viewport.x-width-24,viewport.y-choices.size.y-100) if choice_align_right else (viewport-choices.size)*.5
+	var caption_height:=maxf(115,caption.get_minimum_size().y)
+	caption.offset_top=-caption_height-35
+	# Keep the full subtitle area clear when ending choices appear on the right.
+	choices.position=Vector2(viewport.x-width-24,viewport.y-caption_height-35-24-choices.size.y) if choice_align_right else (viewport-choices.size)*.5
 	pause_card.size=Vector2(minf(380,viewport.x-80),0);pause_card.position=(viewport-pause_card.size)*.5
 	if paused or waiting:return
 	clock+=delta
