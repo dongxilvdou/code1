@@ -6,19 +6,19 @@
 [ext_resource type="PackedScene" uid="uid://deekua2v7orhw" path="res://villa_maps/villa_map.tscn" id="4_jyhfs"]
 [ext_resource type="PackedScene" path="res://quest_system/quest_system.tscn" id="5_tbgi4"]
 [ext_resource type="PackedScene" path="res://scenes/cinematics/OpeningCutscene.tscn" id="6_intro"]
-[ext_resource type="Script" path="res://day1/day_one.gd" id="7_day"]
-[ext_resource type="Resource" path="res://act2/quests/catalog.tres" id="8_tasks"]
-[ext_resource type="Script" path="res://day2/day_two.gd" id="9_day2"]
+[ext_resource type="Script" path="res://chapters/day1/day_one.gd" id="7_day"]
+[ext_resource type="Resource" path="res://chapters/act2/quests/catalog.tres" id="8_tasks"]
+[ext_resource type="Script" path="res://chapters/day2/day_two.gd" id="9_day2"]
 
-[ext_resource type="Script" path="res://act2/chapter.gd" id="10_act2"]
-[ext_resource type="Script" path="res://act3/chapter.gd" id="11_act3"]
-[ext_resource type="Script" path="res://act4/chapter.gd" id="12_act4"]
-[ext_resource type="Script" path="res://ending/chapter.gd" id="13_ending"]
+[ext_resource type="Script" path="res://chapters/act2/chapter.gd" id="10_act2"]
+[ext_resource type="Script" path="res://chapters/act3/chapter.gd" id="11_act3"]
+[ext_resource type="Script" path="res://chapters/act4/chapter.gd" id="12_act4"]
+[ext_resource type="Script" path="res://chapters/ending/chapter.gd" id="13_ending"]
 [ext_resource type="Script" path="res://scripts/cinematics/dog_secret.gd" id="14_dog_secret"]
 [ext_resource type="Script" path="res://scripts/cinematics/bedroom_secret.gd" id="15_bedroom_secret"]
 [ext_resource type="Script" path="res://scripts/cinematics/house_memes.gd" id="16_house_memes"]
 
-[ext_resource type="Script" path="res://story_branches/chapter.gd" id="17_branches"]
+[ext_resource type="Script" path="res://chapters/story_branches/chapter.gd" id="17_branches"]
 
 [node name="CatHouse_GardenVilla" type="Node3D" unique_id=2024947797]
 script = ExtResource("1_game")

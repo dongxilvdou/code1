@@ -1,7 +1,7 @@
 extends SceneTree
-const Rules=preload("res://story_branches/rules.gd")
-const Service=preload("res://story_branches/state.gd")
-const Copy=preload("res://story_branches/data.gd")
+const Rules=preload("res://chapters/story_branches/rules.gd")
+const Service=preload("res://chapters/story_branches/state.gd")
+const Copy=preload("res://chapters/story_branches/data.gd")
 var game
 var day
 var branch

@@ -6,7 +6,7 @@ import struct
 import wave
 
 def main():
-    target = Path(__file__).resolve().parents[1] / "story_branches/audio/transfer_log.wav"
+    target = Path(__file__).resolve().parents[1] / "chapters/story_branches/audio/transfer_log.wav"
     target.parent.mkdir(parents=True, exist_ok=True)
     rate = 22050
     noise = random.Random(31)

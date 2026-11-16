@@ -7,7 +7,7 @@ func verify(ok: bool, label: String) -> void:
 func migration_tests() -> void:
 	var m := CalicoQuestManager.new()
 	root.add_child(m)
-	verify(m.configure(load("res://day2/quests/catalog.tres")),"catalog validation")
+	verify(m.configure(load("res://chapters/day2/quests/catalog.tres")),"catalog validation")
 	m.start_new_game()
 	var old := m.make_save_data()
 	old.erase("paper_layout")

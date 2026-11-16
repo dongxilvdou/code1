@@ -1,7 +1,7 @@
 extends RefCounted
-const BranchCopy=preload("res://story_branches/data.gd")
-const Investigation=preload("res://act3/investigation_data.gd")
-const Daily=preload("res://day1/daily_notes.gd")
+const BranchCopy=preload("res://chapters/story_branches/data.gd")
+const Investigation=preload("res://chapters/act3/investigation_data.gd")
+const Daily=preload("res://chapters/day1/daily_notes.gd")
 const PAPER_KEYS=["living","dining","kitchen","study1"]
 const PAPERS=[
  {"title":"纸片一 · 图案的先后","text":"太阳在鱼骨之前。\n\n机器上的位置，并不是开锁的顺序。"},
@@ -13,7 +13,7 @@ static var textures: Dictionary={}
 static func data(id: String) -> Dictionary:
  if id=="k2_manual":return {"title":"K-2 折页说明","text":BranchCopy.K2_MANUAL}
  if id.begins_with("evidence_"):
-  var parts=id.split("_");var entry=preload("res://story_branches/evidence_data.gd").data(parts[1],parts[2] if parts.size()>2 else "")
+  var parts=id.split("_");var entry=preload("res://chapters/story_branches/evidence_data.gd").data(parts[1],parts[2] if parts.size()>2 else "")
   return {"title":entry.get("title","资料"),"text":entry.get("body","")}
  if id=="clock_record":return {"title":"最后一次操作 / 03:42:00","text":BranchCopy.TIME_RECORD}
  if id=="branch_index":return {"title":"原始记录索引","text":BranchCopy.RECORD_INDEX}
@@ -28,9 +28,9 @@ static func data(id: String) -> Dictionary:
  match id:
   "escape":return {"title":"被折过的小纸条","text":"地下室逃跑计划。\n\n监控底下。\n沿着旧抓痕走。\n\nD-017 / C-031\n\n纸条折页背面 / 求助定位：\n"+BranchCopy.STATION_ADDRESS+"\n请把这页交给屋外能联系救援的人。"}
   "letter":return {"title":"今天的照料清单","text":"大狗嚼今天需要吃药。\n七只药瓶无法开盖，只能摇晃听声音。\n药片越多，碰撞声越响、越密。\n请从药片最少的三瓶里取药，\n照顾它吃下去。\n\n没有署名，也没有写它为什么需要吃药。"}
-  "photo":return {"title":"收好的照片 / 米酥","text":preload("res://story_branches/data.gd").PHOTO_NAME+"\n照片背面：\n"+preload("res://story_branches/data.gd").PHOTO_BACK}
+  "photo":return {"title":"收好的照片 / 米酥","text":preload("res://chapters/story_branches/data.gd").PHOTO_NAME+"\n照片背面：\n"+preload("res://chapters/story_branches/data.gd").PHOTO_BACK}
   "pipes":return {"title":"柜门里的镜头","text":"水槽柜里藏着一个摄像头。\n它是在监视谁呢？"}
-  "lab_photo":return {"title":"被删除的实验室照片","text":preload("res://story_branches/data.gd").LAB_PHOTO+"\n是照片里的那个人……原来，那里不是家里。"}
+  "lab_photo":return {"title":"被删除的实验室照片","text":preload("res://chapters/story_branches/data.gd").LAB_PHOTO+"\n是照片里的那个人……原来，那里不是家里。"}
   "lab_site":return {"title":"XX生物实验室官网","text":Investigation.SITE}
   "lab_chat":return {"title":"X主任的聊天记录","text":Investigation.CHAT}
   "lab_news":return {"title":"关于实验室的负面报道","text":Investigation.news_summary()}
@@ -47,8 +47,8 @@ static func load_image(path: String) -> Texture2D:
  var texture=ImageTexture.create_from_image(image);textures[path]=texture;return texture
 static func texture(id: String) -> Texture2D:
  if id=="k2_manual" or id.begins_with("evidence_") or id.begins_with("branch_") or id=="clock_record":return null
- if id=="lab_photo":return load_image("res://story_branches/art/clues/lab_photo.png")
- return load_image("res://story_branches/art/clues/memory_photo.png" if id=="photo" else "res://assets/notes/%s.png"%id)
+ if id=="lab_photo":return load_image("res://chapters/story_branches/art/clues/lab_photo.png")
+ return load_image("res://chapters/story_branches/art/clues/memory_photo.png" if id=="photo" else "res://assets/notes/%s.png"%id)
 static func collected(day: Node) -> Array[String]:
  var result: Array[String]=[]
  for number in range(1,12):
@@ -62,7 +62,7 @@ static func collected(day: Node) -> Array[String]:
  if day.flag("a8_clock"):result.append("clock_record")
  for item in [["br_index","branch_index"],["br_body_seen","branch_body"],["br_records","branch_records"],["br_memory","branch_memory"]]:
   if day.flag(item[0]):result.append(item[1])
- for id in preload("res://story_branches/evidence_data.gd").IDS:
+ for id in preload("res://chapters/story_branches/evidence_data.gd").IDS:
   if id=="d5":
    var mask: int=day.value("br_d5_read_mask",0)
    if mask&1:result.append("evidence_d5_recording")

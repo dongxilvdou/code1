@@ -17,7 +17,7 @@ def material(name, color, fur=False):
     p.inputs['Roughness'].default_value=.88 if fur else .48
     if fur:
         t=m.node_tree.nodes.new('ShaderNodeTexImage')
-        t.image=bpy.data.images.load(str(ROOT/'act4/textures/rodent_fur.png'),check_existing=True)
+        t.image=bpy.data.images.load(str(ROOT/'chapters/act4/textures/rodent_fur.png'),check_existing=True)
         uv=m.node_tree.nodes.new('ShaderNodeTexCoord');mapping=m.node_tree.nodes.new('ShaderNodeMapping')
         mapping.inputs['Scale'].default_value=(4,4,4)
         m.node_tree.links.new(uv.outputs['UV'],mapping.inputs['Vector']);m.node_tree.links.new(mapping.outputs['Vector'],t.inputs['Vector'])

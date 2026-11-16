@@ -5,8 +5,8 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = (ROOT / 'story_branches/data.gd').read_text(encoding='utf-8')
-OUT = ROOT / 'story_branches/art/clues'
+DATA = (ROOT / 'chapters/story_branches/data.gd').read_text(encoding='utf-8')
+OUT = ROOT / 'chapters/story_branches/art/clues'
 FONT = Path('C:/Windows/Fonts/msyh.ttc')
 
 def copy(key):
@@ -20,7 +20,7 @@ def centered(draw, line, y, size, width, fill='#43554b'):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     # Keep the existing memo's paper, tape, margins and UV dimensions.
-    memo_path = ROOT / 'act3/textures/password_note.png'
+    memo_path = ROOT / 'chapters/act3/textures/password_note.png'
     memo = Image.open(memo_path).convert('RGB')
     d = ImageDraw.Draw(memo)
     d.rectangle((65, 205, 705, 955), fill=memo.getpixel((64, 170)))
@@ -31,8 +31,8 @@ def main():
     memo.save(memo_path)
     # New copies replace captions only. Original photos stay untouched.
     for source, target, caption, y_ratio in [
-        ('act2/memory_photo.png', 'memory_photo.png', copy('PHOTO_NAME')+'\n'+copy('PHOTO_BACK').split('\n')[-1], .831),
-        ('act3/textures/lab_photo.png', 'lab_photo.png', copy('LAB_PHOTO'), .91),
+        ('chapters/act2/memory_photo.png', 'memory_photo.png', copy('PHOTO_NAME')+'\n'+copy('PHOTO_BACK').split('\n')[-1], .831),
+        ('chapters/act3/textures/lab_photo.png', 'lab_photo.png', copy('LAB_PHOTO'), .91),
     ]:
         image = Image.open(ROOT / source).convert('RGB')
         width, height = image.size

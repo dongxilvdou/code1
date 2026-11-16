@@ -1,6 +1,6 @@
 extends SceneTree
-const Service=preload("res://story_branches/state.gd")
-const Rules=preload("res://story_branches/rules.gd")
+const Service=preload("res://chapters/story_branches/state.gd")
+const Rules=preload("res://chapters/story_branches/rules.gd")
 var game
 var checks := 0
 var failures: Array[String]=[]
@@ -14,7 +14,7 @@ func check(ok: bool,message: String) -> void:
 	checks+=1
 	if not ok:failures.append(message);printerr("STORY_SAVE_FAILED ",message)
 func fixture(flags: Dictionary,values: Dictionary) -> void:
-	var manager:=CalicoQuestManager.new();manager.configure(load("res://act2/quests/catalog.tres"));manager.save_path=path_
+	var manager:=CalicoQuestManager.new();manager.configure(load("res://chapters/act2/quests/catalog.tres"));manager.save_path=path_
 	var data:=manager.make_save_data();data.flags=flags;data.flags["intro_seen"]=true;data.values=values
 	check(manager.restore_save_data(data,false) and manager.save_game(),"Cannot create isolated save fixture")
 	manager.free()

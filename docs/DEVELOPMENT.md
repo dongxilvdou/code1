@@ -5,7 +5,7 @@
 - `project.godot`：Godot 4.7.1，Forward+；主场景是 `scenes/main.tscn`。
 - `scripts/game.gd` 管理菜单、开始/继续、音量和视角；`scripts/villa_game.gd` 接入房间、门及可选彩蛋。
 - `scenes/player.tscn` 的 `Miso` 是现有 CharacterBody3D。当前猫包装为 `scenes/calico.tscn`，实际使用 `assets/models/pets/house_cat.glb` 与 `scripts/imported_cat.gd`。文件入口名保留 Calico，不代表仍使用早期程序猫。
-- `scenes/cat_studio.tscn`、根目录「查看猫模型.cmd」查看当前猫模型；较早的程序化建模源文件保留供对照，不作为当前玩家的默认替代品。
+- 在 Godot 中打开 `scenes/cat_studio.tscn` 并按 F6 查看当前猫模型。较早的程序化建模源文件保留供对照。
 
 ## 地图与家具
 
@@ -23,16 +23,16 @@
 
 ## 剧情与任务
 
-`day1/daily_notes.gd` 保存每日任务清单与确认规则。`DayOne` 同时承载共享状态及 HUD，其他章节复用它；目录名不表示其内容只在第一天使用。
+`chapters/day1/daily_notes.gd` 保存每日任务清单与确认规则。`DayOne` 同时承载共享状态及 HUD，其他章节复用它；目录名不表示其内容只在第一天使用。
 
 | 内容 | 主要入口 |
 | --- | --- |
-| 第 1、2 天 | `day1/day_one.gd`、`day2/day_two.gd` |
-| 第 3–5 天 | `act2/chapter.gd`、`act2/puzzles.gd` |
-| 第 6、7 天 | `act3/chapter.gd`、电脑和电路组件 |
-| 第 8–11 天 | `act4/chapter.gd`、`act4/world.gd` |
-| 地下室结局 | `ending/chapter.gd`、`ending/world.gd`、`ending/film.gd` |
-| 通用任务目录、状态与保存 | `act2/quests/catalog.tres`、`quest_system/` |
+| 第 1、2 天 | `chapters/day1/day_one.gd`、`chapters/day2/day_two.gd` |
+| 第 3–5 天 | `chapters/act2/chapter.gd`、`chapters/act2/puzzles.gd` |
+| 第 6、7 天 | `chapters/act3/chapter.gd`、电脑和电路组件 |
+| 第 8–11 天 | `chapters/act4/chapter.gd`、`chapters/act4/world.gd` |
+| 地下室结局 | `chapters/ending/chapter.gd`、`chapters/ending/world.gd`、`chapters/ending/film.gd` |
+| 通用任务目录、状态与保存 | `chapters/act2/quests/catalog.tres`、`quest_system/` |
 
 修改任务时保留既有 ID、存档字段及跨天状态。一次性道具的显示与碰撞由任务日期和完成标记恢复；不能仅删除画面上的模型。读完当日清单才解锁任务，开始新游戏与继续已有存档分别走原入口。
 
@@ -43,7 +43,7 @@
 - 次卧按钮：`scripts/cinematics/bedroom_secret.gd`。
 - 电视和香蕉：`scripts/cinematics/house_memes.gd`。
 - 环境声：`scripts/environment_ambience.gd`，维护说明在 `assets/audio/summer_afternoon.md`。
-- 药瓶音效：`tools/build_medicine_audio.py`，说明在 `act3/audio/medicine_sound_notes.md`。
+- 药瓶音效：`tools/build_medicine_audio.py`，说明在 `chapters/act3/audio/medicine_sound_notes.md`。
 
 正常运行使用工程内转换后的音视频，不要求原始 MP4/AAC 路径存在。重新制作资源时才需要相应的 Python、Blender 或 FFmpeg 环境。
 

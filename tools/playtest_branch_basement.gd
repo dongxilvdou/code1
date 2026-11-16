@@ -46,7 +46,7 @@ func run() -> void:
 		verify(ending.nearest_item()=="report","Report E unavailable: crouch="+str(crouch))
 		Input.action_release("crouch")
 	ending.interact_item("report")
-	verify(ending.ui.body.text==preload("res://story_branches/data.gd").REPORT,"Report text changed")
+	verify(ending.ui.body.text==preload("res://chapters/story_branches/data.gd").REPORT,"Report text changed")
 	verify(not day.flag("br_records"),"Report incorrectly grants branch records")
 	await photo("07_report_fulltext");ending.on_action("close");await ticks(3)
 	verify(game.player.active and not game.cinematic_active,"Report leaves input disabled")
@@ -57,7 +57,7 @@ func run() -> void:
 	game.player.camera.make_current();await photo("02_cat_device")
 	game.cat_camera.global_position=Vector3(-3.0,-2.05,-2.4);game.cat_camera.look_at(Vector3(-4.6,-2.23,-.7));game.cat_camera.make_current()
 	await photo("03_cage_and_vent");game.player.camera.make_current()
-	var inspect=load("res://story_branches/inspection.gd").new();game.add_child(inspect)
+	var inspect=load("res://chapters/story_branches/inspection.gd").new();game.add_child(inspect)
 	var original_camera: Camera3D=root.get_camera_3d();var original_pos: Vector3=game.player.global_position
 	inspect.open(game,world,true);await ticks(3)
 	world.retrofit.play_action(&"drawer");await create_timer(.35).timeout

@@ -1,5 +1,5 @@
 extends "res://tools/playtest_v2.gd"
-const BalanceModel=preload("res://day1/balance_model.gd")
+const BalanceModel=preload("res://chapters/day1/balance_model.gd")
 func run_tests() -> void:
  create_timer(85).timeout.connect(func():printerr("TUNING timeout");quit(2))
  for rate in [30,60,120]:

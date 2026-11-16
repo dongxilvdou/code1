@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 7
+
+[sub_resource type="Resource" id="goal0"]
+script = ExtResource("goal")
+id = &"br_memory_m2"
+text = "工作照、身份与转移日志核对"
+kind = 3
+target_id = &"br_memory_m2"
+
+[sub_resource type="Resource" id="known"]
+script = ExtResource("condition")
+key = &"br_memory_m1"
+
+[resource]
+script = ExtResource("quest")
+id = &"br_memory_m2"
+title = "照片里的人"
+description = "可选调查 · 照片里的人"
+main_quest = false
+priority = 110
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("known")])
+objectives = Array[ExtResource("goal")]([SubResource("goal0")])
+result_text = "已记入手记。"

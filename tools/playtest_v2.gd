@@ -1,6 +1,6 @@
 extends "res://tools/playtest_map_stairs.gd"
-const Rules=preload("res://act2/puzzle_rules_v2.gd")
-const YarnRules=preload("res://act2/yarn_rules.gd")
+const Rules=preload("res://chapters/act2/puzzle_rules_v2.gd")
+const YarnRules=preload("res://chapters/act2/yarn_rules.gd")
 const Catalog=preload("res://ui/notes_catalog.gd")
 var day
 var second
@@ -139,7 +139,7 @@ func run_tests() -> void:
  verify(third.flag("a7_read_chat"),"Chat record is not discoverable")
  await capture("chat");await click_named(apps.body,"xxxxxxxxxxxxx")
  verify(apps.app=="browser" and apps.browser_page=="news" and apps.history.size()==1,"Chat link did not navigate to browser and retain chat")
- await capture("news");await click_named(apps.body,preload("res://act3/investigation_data.gd").NEWS[0].title)
+ await capture("news");await click_named(apps.body,preload("res://chapters/act3/investigation_data.gd").NEWS[0].title)
  verify(third.evidence_count()==4 and third.flag("a7_investigate") and third.day_complete(),"Four evidence pages do not complete day seven")
  for id in ["lab_photo","lab_site","lab_chat","lab_news"]:verify(id in Catalog.collected(day),"Evidence is missing from clue album: "+id)
  var snapshot=day.manager.make_save_data();day.manager.restore_save_data(snapshot)

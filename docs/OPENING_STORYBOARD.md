@@ -21,6 +21,6 @@
 
 音乐和猫叫复用已有资源，无旁白配音。完成或跳过之后不再重复旧自述；第一天仍必须阅读地垫旁纸条才能解锁任务。继续存档不强制播放。
 
-双击项目根目录“预览漫画开场.cmd”或在编辑器打开 scenes/cinematics/OpeningPreview.tscn 按 F6。预览不读写玩家正常存档。正式新游戏从主菜单进入。
+双击 `tools/launchers/预览漫画开场.cmd`，或在编辑器打开 `scenes/cinematics/OpeningPreview.tscn` 按 F6。预览使用独立会话。正式新游戏从主菜单进入。
 完整使用与调节说明见 [漫画开场说明](../assets/cinematics/comic/README.md)。
 

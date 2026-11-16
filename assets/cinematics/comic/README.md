@@ -5,7 +5,7 @@
 ## 播放
 
 - 主菜单“新游戏”播放；“继续游戏”沿用存档流程。
-- 双击项目根目录 `预览漫画开场.cmd` 可单独预览；预览场景禁用保存，不会重置正常存档。
+- 双击 `tools/launchers/预览漫画开场.cmd` 可单独预览。预览使用独立会话。
 - Godot 编辑器打开 `scenes/cinematics/OpeningPreview.tscn`，按 F6。
 - 默认自动播放约 55 秒。空格、Enter、E、点击画面或左下角按钮进入下一格；Esc / 右下角按钮跳过整个开场。
 - `OpeningCutscene` 节点可配置 `autoplay`、`allow_advance`、`allow_skip`、`playback_policy`。修改在本过场内生效，不增加全局输入映射。

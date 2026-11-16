@@ -1,6 +1,6 @@
 extends SceneTree
-const Rules=preload("res://story_branches/rules.gd")
-const State=preload("res://story_branches/state.gd")
+const Rules=preload("res://chapters/story_branches/rules.gd")
+const State=preload("res://chapters/story_branches/state.gd")
 class Harness extends Node:
 	var manager: CalicoQuestManager
 	var save_enabled := false
@@ -41,7 +41,7 @@ func evidence() -> void:
 func run() -> void:
 	create_timer(60).timeout.connect(func():printerr("PRE11_TIMEOUT");quit(2))
 	harness=Harness.new();root.add_child(harness);harness.manager=CalicoQuestManager.new();harness.add_child(harness.manager)
-	verify(harness.manager.configure(load("res://act2/quests/catalog.tres")),"Formal catalog validates")
+	verify(harness.manager.configure(load("res://chapters/act2/quests/catalog.tres")),"Formal catalog validates")
 	state=State.new();state.configure(harness)
 	reset(7)
 	verify(not state.record_evidence_view("d2"),"Original four investigations required")

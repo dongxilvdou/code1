@@ -201,7 +201,7 @@ for x in [-.155,.155]:
     lathe('Hopper lid',[(0,1.02),(.136,1.02),(.136,1.05),(0,1.05)],'sage',c=(x,0,0))
     box('Pour chute',(x,.17,.26),(.115,.08,.12),'steel',.008)
     box('Chute opening',(x,.13,.27),(.09,.005,.08),'dark',.004)
-# The current clue panel is added by day2/world.gd; do not bake the obsolete paw code.
+# The current clue panel is added by chapters/day2/world.gd; do not bake the obsolete paw code.
 text('Brand','MISO / AJIAO',(0,.66,.228),.026,'sage')
 for x in [-.29,.29]:
     for z in [-.17,.17]:ball('Feet',(x,.01,z),(.04,.02,.04),'rubber')

@@ -1,6 +1,6 @@
 extends "res://tools/playtest_map_stairs.gd"
 const Catalog=preload("res://ui/notes_catalog.gd")
-const Balance=preload("res://day1/balance_model.gd")
+const Balance=preload("res://chapters/day1/balance_model.gd")
 var checks:=0
 var day
 var second

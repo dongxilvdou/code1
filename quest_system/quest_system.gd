@@ -75,7 +75,7 @@ func inspect_save() -> Dictionary:
 	if probe.configure(catalog):
 		probe.save_path = manager.save_path
 		info.valid = probe.load_game()
-		if info.valid:info.valid=preload("res://story_branches/state.gd").validate_snapshot(probe.flags,probe.values).is_empty()
+		if info.valid:info.valid=preload("res://chapters/story_branches/state.gd").validate_snapshot(probe.flags,probe.values).is_empty()
 		if info.valid:info.day = int(probe.values.get("current_day",1))
 	probe.free()
 	return info

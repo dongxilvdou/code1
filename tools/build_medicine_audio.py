@@ -46,7 +46,7 @@ def build_clip(index, count):
 
 
 def main():
-    output = ROOT / "act3/audio"
+    output = ROOT / "chapters/act3/audio"
     clips = [build_clip(i, n) for i, n in enumerate(COUNTS)]
     # One common gain preserves the perceptual differences; never normalize per bottle.
     common_gain = .78 / max(float(np.max(np.abs(clip))) for clip in clips)

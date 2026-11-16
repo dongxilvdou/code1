@@ -139,7 +139,7 @@ static func finish_imported(visual: Node3D, id: String) -> void:
 				mesh.set_surface_override_material(surface,material("sealed_amber",Color("806048"),.34))
 			elif key.begins_with("medicine_") and id.begins_with("medicine_"):
 				var label_mat := original.duplicate() as StandardMaterial3D
-				label_mat.albedo_texture = load("res://act3/textures/sealed_%s.png"%id)
+				label_mat.albedo_texture = load("res://chapters/act3/textures/sealed_%s.png"%id)
 				mesh.set_surface_override_material(surface,label_mat)
 			elif key=="amber" and id=="feeder":
 				var glass := material("amber_glass",Color(.64,.43,.22,.23),.16)

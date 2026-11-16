@@ -21,7 +21,7 @@ func click(parent: Node, caption: String) -> bool:
 func settle_memory() -> void:
 	for _i in range(8):
 		await ticks(4)
-		if is_instance_valid(branch.film) and branch.film.running and branch.film.get_script()==load("res://story_branches/memory_film.gd"):await key(KEY_SPACE)
+		if is_instance_valid(branch.film) and branch.film.running and branch.film.get_script()==load("res://chapters/story_branches/memory_film.gd"):await key(KEY_SPACE)
 		else:break
 
 func setup_day(number: int) -> void:

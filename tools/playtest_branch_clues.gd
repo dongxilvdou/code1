@@ -36,7 +36,7 @@ func run() -> void:
 	computer.apps.open_app("documents");await ticks(2)
 	var found := false
 	for label in computer.apps.body.find_children("*","Label",true,false):
-		if label.text==preload("res://story_branches/data.gd").RECORD_INDEX:found=true
+		if label.text==preload("res://chapters/story_branches/data.gd").RECORD_INDEX:found=true
 	verify(found,"Original-record index is absent from existing desktop")
 	await photo("13_computer_index")
 	computer.close_computer();third.panel.close();game.cinematic_active=false;game.player.set_control(true)
@@ -44,7 +44,7 @@ func run() -> void:
 	var real_cage: Node3D=game.get_node("Apartment/Basement/MedicalLaboratory/ObservationCage_03")
 	var cage_transform: Transform3D=real_cage.global_transform
 	for skip_ in [true,false]:
-		var memory=load("res://story_branches/memory_player.gd").new();game.add_child(memory);memory.play(game)
+		var memory=load("res://chapters/story_branches/memory_player.gd").new();game.add_child(memory);memory.play(game)
 		await ticks(5)
 		verify(not game.player.active and game.cinematic_active,"Memory does not block real player")
 		if skip_:
