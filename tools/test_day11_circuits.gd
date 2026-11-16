@@ -1,5 +1,5 @@
 extends SceneTree
-const Circuit=preload("res://act4/circuit.gd")
+const Circuit=preload("res://chapters/act4/circuit.gd")
 var checks:=0
 var failures: Array[String]=[]
 func _initialize() -> void:call_deferred("run")

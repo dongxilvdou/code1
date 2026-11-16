@@ -3,7 +3,7 @@ from pathlib import Path
 import math, wave
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1]
-out=ROOT/'act4/audio';out.mkdir(exist_ok=True)
+out=ROOT/'chapters/act4/audio';out.mkdir(exist_ok=True)
 for variant in range(3):
     sr=44100;audio=np.zeros(int(sr*1.10),dtype=np.float64);rng=np.random.default_rng(170+variant)
     for i in range(3+variant%2):

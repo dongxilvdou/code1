@@ -112,11 +112,13 @@ func run() -> void:
 	await key(KEY_M)
 	expect(game.get_node("VillaMap/MapHUD").big_open,"Map unavailable")
 	await key(KEY_ESCAPE)
-	# First-day note still gates tasks and can be acknowledged normally.
+	# The current reader records the note after presentation. Esc returns to play.
 	var day = game.get_node("DayOne")
 	day.show_dialog("note")
 	expect(not game.player.active and not day.flag("daily_note_ack_1"),"Note gating")
-	day.advance_dialog()
+	await ticks(5)
+	await process_frame
+	await key(KEY_ESCAPE)
 	expect(game.player.active and day.flag("daily_note_ack_1"),"Note acknowledgement")
 	await leave()
 	for time in [0.1,10.0,15.0,28.0,38.0,52.0]:

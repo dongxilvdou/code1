@@ -53,7 +53,7 @@ L 为 `Apartment/Basement/MedicalLaboratory` 局部坐标，原点世界坐标�
 
 终端的维修、三项核对、档案收录和 K-2 四态属于可操作预览；模型提供 `apply_visual_state(snapshot)`、`play_action(action)` 和 `submission_requested` 接口，不提交 `br_*` 存档标志。关闭会清空未提交的会话预览，恢复相机、输入和模型初始姿态。
 
-双击根目录 **预览地下室改造.cmd** 可打开真实主场景的无存档开发预览。可查看抽屉、格栅、身体、档案、K-2、护理回忆和撤离布景；Esc 返回猫视角。此入口在加入主场景树前禁用 QuestSystem 保存，使用隔离会话。
+双击 `tools/launchers/预览地下室改造.cmd` 可打开真实主场景的无存档开发预览。可查看抽屉、格栅、身体、档案、K-2、护理回忆和撤离布景；Esc 返回猫视角。此入口在加入主场景树前禁用 QuestSystem 保存，使用隔离会话。
 
 ## 验证结果
 
@@ -85,6 +85,6 @@ L 为 `Apartment/Basement/MedicalLaboratory` 局部坐标，原点世界坐标�
 
 ## 后续维护
 
-场景、状态及文字入口见 [story_branches/README.md](../story_branches/README.md)。在 Godot 中运行 `tools/build_branch_basement_models.gd` 只生成七个新增子场景；不要用旧 `tools/build_basement.gd` 覆盖本次保存场景。文字贴图生成器为 `tools/build_branch_clues.py`，原照片始终保留。
+场景、状态及文字入口见 [chapters/story_branches/README.md](../chapters/story_branches/README.md)。在 Godot 中运行 `tools/build_branch_basement_models.gd` 只生成七个新增子场景；不要用旧 `tools/build_basement.gd` 覆盖本次保存场景。文字贴图生成器为 `tools/build_branch_clues.py`，原照片始终保留。
 
 本次修改前的相关文件副本在本机 `logs/basement_review/before_changes.zip`；Git 仍保留完整基准。测试日志属于忽略的本机产物，没有推送到远程仓库。

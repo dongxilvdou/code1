@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
+[sub_resource type="Resource" id="prior0"]
+script = ExtResource("condition")
+key = &"br_k2_owned"
+
+[sub_resource type="Resource" id="goal"]
+script = ExtResource("goal")
+id = &"br_k2_ready"
+text = "维护附件校准。"
+kind = 3
+target_id = &"br_k2_ready"
+
+[resource]
+script = ExtResource("quest")
+id = &"br_k2_ready"
+title = "维护附件校准"
+description = "可选调查 · 维护附件校准，完成确认后保存。"
+main_quest = false
+priority = 71
+extra_conditions = Array[ExtResource("condition")]([SubResource("prior0")])
+objectives = Array[ExtResource("goal")]([SubResource("goal")])
+result_text = "调查进度已记录。"

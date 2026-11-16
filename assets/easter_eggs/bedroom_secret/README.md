@@ -9,7 +9,7 @@
 声音提高到源音轨的 1.4 倍并限幅。结束后恢复进入前的房门、灯光、材质、
 摄像机、界面及鼠标控制，不写入任务或存档状态。
 
-双击项目根目录的 `预览次卧彩蛋.cmd` 可直接试按钮。预览不会读取或覆盖正常存档。
+双击 `tools/launchers/预览次卧彩蛋.cmd` 可在独立会话中试按钮。
 
 - 控制器：`scripts/cinematics/bedroom_secret.gd`，主场景的 `BedroomSecret` 节点。
 - 按钮独立资源：`furniture_pack/scenes/hidden_red_button.tscn`。

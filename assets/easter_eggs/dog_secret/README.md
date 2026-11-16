@@ -24,9 +24,9 @@
 
 转码：Ogg Theora / Vorbis、960×540、30 FPS、6 秒。实时抠像及溢绿处理见 `shaders/dog_secret_key.gdshader`。此方式依据 [Godot 视频播放文档](https://docs.godotengine.org/en/stable/tutorials/animation/playing_videos.html)。工具 `tools/build_dog_secret_video.py --ffmpeg <ffmpeg.exe路径>` 可重建资源与校验清单。
 
-脚本：`scripts/cinematics/dog_secret.gd`。场景入口仅在 `scenes/main.tscn` 增加 `DogSecret` 节点；普通闲聊钩子分别位于 `act3/chapter.gd`、`act4/chapter.gd`。
+脚本：`scripts/cinematics/dog_secret.gd`。场景入口仅在 `scenes/main.tscn` 增加 `DogSecret` 节点；普通闲聊钩子分别位于 `chapters/act3/chapter.gd`、`chapters/act4/chapter.gd`。
 
-独立预览：双击项目根目录 `预览大狗彩蛋.cmd`。它创建临时第八天会话并把概率设为 100%，便于查看，**不读取或写入正常存档**。正式游戏默认仍是 50%。
+双击 `tools/launchers/预览大狗彩蛋.cmd` 可打开独立预览。它在临时第八天会话中将触发概率设为 100%。正式游戏默认仍是 50%。
 
 ## 验证
 

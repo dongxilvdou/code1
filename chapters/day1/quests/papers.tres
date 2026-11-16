@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3 uid="uid://cvlpxj4du1hs0"]
+
+[ext_resource type="Script" uid="uid://ckic3pnixb8df" path="res://quest_system/types/quest_condition.gd" id="1_1sw1t"]
+[ext_resource type="Script" uid="uid://c3x0yng5f7vwk" path="res://quest_system/types/quest_result.gd" id="2_8xxff"]
+[ext_resource type="Script" uid="uid://wysbtefcww71" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Resource" uid="uid://b6npnvl62ktit" path="res://chapters/day1/quests/lights.tres" id="pre"]
+[ext_resource type="Script" uid="uid://hp5cinuqpqdn" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
+[sub_resource type="Resource" id="collect_paper"]
+script = ExtResource("goal")
+id = &"collect_paper"
+text = "收集一楼的四张纸片"
+kind = 3
+target_id = &"collect_paper"
+target_count = 4
+
+[resource]
+script = ExtResource("quest")
+id = &"day1_papers"
+title = "02 · 散落的纸片"
+description = "客厅、餐厅、厨房和一楼书房，各有一张纸片。靠近后按 E 拾取。"
+priority = 98
+prerequisite_quests = Array[ExtResource("quest")]([ExtResource("pre")])
+objectives = Array[ExtResource("goal")]([SubResource("collect_paper")])
+result_text = "去厨房解开给予器，给自己和大狗嚼喂食"

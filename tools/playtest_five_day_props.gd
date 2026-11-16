@@ -316,7 +316,7 @@ func run_tests() -> void:
 		verify(chapter.nearest_item()=="shelf0","Looking at coloured book row does not select its return slot")
 		await key(KEY_E)
 		verify(chapter.flag("book%d"%i),"Return to actual bookcase failed: "+str(i))
-	var book_goal: Array=preload("res://act2/puzzle_rules_v2.gd").BOOK_GOAL
+	var book_goal: Array=preload("res://chapters/act2/puzzle_rules_v2.gd").BOOK_GOAL
 	verify(chapter.puzzle.mode=="books" and chapter.puzzle.book_order.size()==7,"Seven-spine sorting opens after returning three books")
 	for slot in range(7):
 		var target: int=chapter.puzzle.book_order.find(book_goal[slot])

@@ -15,6 +15,6 @@ func run() -> void:
 	day.dialog="";day.hud.overlay.hide();fourth.panel.close();ending.ui.close()
 	game.player.position=Vector3(.60,-2.68,-2.55);game.player.velocity=Vector3.ZERO
 	game.cinematic_active=false;game.player.set_control(true)
-	var inspect=load("res://story_branches/inspection.gd").new();game.add_child(inspect)
+	var inspect=load("res://chapters/story_branches/inspection.gd").new();game.add_child(inspect)
 	inspect.open(game,ending.world,true)
 	print("BRANCH_PREVIEW ready; save_enabled=false; branch submissions are preview-only")

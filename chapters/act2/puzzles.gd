@@ -1,0 +1,423 @@
+extends "res://chapters/day2/puzzle_ui.gd"
+## Puzzle state lives in the quest manager; closing a panel never discards it.
+const Rules=preload("res://chapters/act2/puzzle_rules_v2.gd")
+var book_order: Array=[]
+var book_selected=-1
+const YarnPuzzle=preload("res://chapters/act2/yarn_puzzle.gd")
+var yarn_puzzle: PanelContainer
+const WateringPreview = preload("res://chapters/act2/watering_preview.gd")
+var watering: SubViewportContainer
+var chapter
+var board: Control
+var tiles: Array = []
+var rotations: Array = []
+var arrows: Array = []
+var selected: Array = []
+var sequence: Array = []
+var voice_tween: Tween
+var slide_hint_tile := -1
+const DIRECTIONS := [Vector2i(0,-1),Vector2i(1,0),Vector2i(0,1),Vector2i(-1,0)]
+const MED_COUNTS := [8,2,7,1,9,3,8]
+const SLIDE_GOAL := [1,2,3,8,0,4,7,6,5]
+
+func open(kind: String, text := "") -> void:
+	if is_instance_valid(yarn_puzzle):yarn_puzzle.suspend()
+	paper_panel.show()
+	if is_instance_valid(watering):watering.set_flow(false)
+	watering = null
+	super.open("story",text)
+	mode = kind
+	for n in detail.get_children():
+		detail.remove_child(n)
+		n.queue_free()
+	match kind:
+		"books":
+			title.text="书架第一层 / 从高到低"
+			description.text="地上的三本书和原有的四本书放在了一起。点击两个书脊交换位置，把七本书从左到右按高度由高到低排列。"
+			book_order.clear();book_selected=-1
+			for i in range(Rules.BOOK_COUNT):book_order.append(chapter.val("book_slot_%d"%i,Rules.BOOK_INITIAL[i]))
+			make_board(Vector2(630,310))
+			button("检查书序",detail,check_books)
+		"pipes":
+			title.text="水槽之下 / 接回水路"
+			description.text="4 行 × 5 列。点击旋转管道，经过 A、B 两处检修点，接到右下出口。\n有螺栓的管道不能转动，通水部分不能漏水。"
+			rotations.clear()
+			var initial=Rules.initial_pipes()
+			if chapter.val("pipes_v2_version")<2:
+				save_array("pipe_v2",initial)
+				chapter.set_value("pipes_v2_version",2)
+			for i in range(20):rotations.append(0 if i in Rules.FIXED else chapter.val("pipe_v2_%d"%i,initial[i])%4)
+			make_board(Vector2(580,400))
+			var actions=HBoxContainer.new();detail.add_child(actions)
+			button("检查水路",actions,check_pipes);button("重新开始",actions,reset_pipes)
+		"slide":
+			title.text = "猫用冰箱 / 八数码锁"
+			description.text = "点击空格相邻的数字块移动。目标按顺时针排列，空格在中央：\n1  2  3    /    8  □  4    /    7  6  5"
+			tiles.clear()
+			for i in range(9):tiles.append(chapter.val("tile_%d"%i,-1))
+			if not slide_reachable(tiles):
+				var migrated := not tiles.has(-1)
+				shuffle_tiles()
+				if migrated:feedback.text = "目标排列已更新，旧机关已重新排列，其他任务进度保留。"
+			make_board(Vector2(330,300))
+			slide_hint_tile=-1
+			button("提示下一步（根据当前排列）",detail,show_slide_hint)
+			button("重新打乱（始终可解）",detail,shuffle_tiles)
+		"yarn":
+			paper_panel.hide()
+			if not is_instance_valid(yarn_puzzle):
+				yarn_puzzle=YarnPuzzle.new();shell.add_child(yarn_puzzle)
+				yarn_puzzle.completed.connect(func():solved.emit("yarn"))
+			yarn_puzzle.open_puzzle(chapter);board=yarn_puzzle.board
+		"medicine":
+			title.text = "七只密封药瓶 / 听声音"
+			description.text = "瓶盖无法打开，也看不见里面。点击瓶子，听三次摇晃。\n药少时是分开的轻响，药多时碰撞更密、更响。可反复试听，选出药片最少的三瓶。"
+			selected.clear()
+			for i in range(7):
+				if chapter.val("med_selection_mask") & (1<<i):selected.append(i)
+			make_board(Vector2(588,180))
+			var choose_row := HBoxContainer.new()
+			detail.add_child(choose_row)
+			for i in range(7):
+				var choose := button("选 / 取消 %d"%(i+1),choose_row,toggle_medicine.bind(i))
+				choose.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				choose.add_theme_font_size_override("font_size",14)
+			button("从选中的三瓶取药",detail,check_medicine)
+		"voice":
+			title.text = "再叫一次我的名字"
+			description.text = "大狗嚼：我觉得你很熟悉……可我连自己的名字也忘记了。\n先试试四种猫语声调，正确时它会摇尾巴。"
+			selected.clear()
+			sequence.clear()
+			var row := HBoxContainer.new()
+			detail.add_child(row)
+			for i in range(4):button(["一声 喵→","二声 喵↗","三声 喵∨","四声 喵↘"][i],row,try_tone.bind(i))
+		"aim":
+			title.text = "浇水 / 把水送进花盆"
+			description.text = "移动鼠标瞄准花盆开口，按住左键浇水。\n离开开口时不会累计进度；松开可重新瞄准。"
+			make_board(Vector2(580,300))
+			watering = WateringPreview.new()
+			board.add_child(watering)
+			watering.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			watering.use_plant(chapter.world.items.plant.get_meta("bound_furniture"))
+		"photo":
+			title.text = "书页里掉落的合照"
+			description.text = "照片里，男性研究员穿着白大褂，旁边蹲着米酥。\n\n照片背面：\n"+preload("res://chapters/story_branches/data.gd").PHOTO_BACK+"\n\n"+preload("res://chapters/story_branches/data.gd").PHOTO_ASIDE
+			var picture := TextureRect.new()
+			picture.texture = load("res://chapters/story_branches/art/clues/memory_photo.png")
+			picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			picture.custom_minimum_size = Vector2(540,270)
+			detail.add_child(picture)
+			button("收好照片",detail,close)
+		_:
+			title.text = "第二幕 / "+["","","","被观察的日常","只剩一条鱼","记得你的名字"][clampi(chapter.today(),3,5)]
+			button("继续 · E / 空格",detail,close).grab_focus()
+
+func make_board(dimensions: Vector2) -> void:
+	var center := CenterContainer.new()
+	detail.add_child(center)
+	board = Control.new()
+	board.custom_minimum_size = dimensions
+	center.add_child(board)
+	board.draw.connect(draw_board)
+	board.gui_input.connect(board_input)
+
+func cell_rect(i: int, columns: int, rows: int) -> Rect2:
+	var s := board.size/Vector2(columns,rows)
+	return Rect2(Vector2(i%columns,i/columns)*s+Vector2(5,5),s-Vector2(10,10))
+
+func draw_board() -> void:
+	var gold := QuestTheme.ACCENT
+	var sage := QuestTheme.SUCCESS
+	if mode=="books":draw_books()
+	elif mode=="pipes":
+		var water=Rules.water(rotations)
+		for i in range(20):
+			var r=cell_rect(i,5,4)
+			board.draw_style_box(QuestTheme.panel(8),r)
+			var ink=Color("c66b54") if i in water.leaks else Color("347e83") if i in water.wet else gold
+			for d in pipe_ends(i):board.draw_line(r.get_center(),r.get_center()+Vector2(DIRECTIONS[d])*board.size/Vector2(10,8),ink,10,true)
+			board.draw_circle(r.get_center(),7,ink)
+			if i in Rules.FIXED:
+				for offset in [Vector2(9,9),Vector2(r.size.x-9,r.size.y-9)]:
+					board.draw_circle(r.position+offset,4,QuestTheme.MUTED)
+					board.draw_line(r.position+offset-Vector2(2,0),r.position+offset+Vector2(2,0),QuestTheme.TEXT,1)
+			if i in Rules.CHECKPOINTS:board.draw_string(font,r.position+Vector2(8,22),"A" if i==7 else "B",HORIZONTAL_ALIGNMENT_LEFT,-1,18,QuestTheme.TEXT)
+		board.draw_string(font,Vector2(0,18),"入",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
+		board.draw_string(font,board.size-Vector2(22,8),"出",HORIZONTAL_ALIGNMENT_LEFT,-1,16,QuestTheme.TEXT)
+	elif mode=="slide":
+		for i in range(9):
+			var r := cell_rect(i,3,3)
+			if tiles[i]==0:continue
+			board.draw_style_box(QuestTheme.panel(10),r)
+			if tiles[i]==slide_hint_tile:board.draw_rect(r.grow(-3),QuestTheme.ACCENT,false,3)
+			board.draw_string(font,r.get_center()+Vector2(-9,10),str(tiles[i]),HORIZONTAL_ALIGNMENT_LEFT,-1,30,gold)
+	elif mode=="medicine":
+		for i in range(7):
+			var r := cell_rect(i,7,1)
+			var body := QuestTheme.panel(13)
+			body.bg_color = Color("73553d")
+			body.border_color = Color("c9ddba") if selected.has(i) else Color("a18a65")
+			body.set_border_width_all(3 if selected.has(i) else 1)
+			board.draw_style_box(body,Rect2(r.position+Vector2(9,32),r.size-Vector2(18,62)))
+			var cap := QuestTheme.panel(5)
+			cap.bg_color = Color("ded8bf")
+			board.draw_style_box(cap,Rect2(r.position+Vector2(15,18),Vector2(r.size.x-30,22)))
+			for x in range(5):board.draw_line(r.position+Vector2(20+x*7,21),r.position+Vector2(20+x*7,36),Color("a9a38d"),1)
+			board.draw_rect(Rect2(r.position+Vector2(15,66),Vector2(r.size.x-30,45)),Color("e2dcc5"))
+			board.draw_string(font,r.position+Vector2(24,96),"%02d"%(i+1),HORIZONTAL_ALIGNMENT_LEFT,-1,20,Color("455950"))
+			board.draw_string(font,r.position+Vector2(10,165),"已听" if chapter.val("med_heard_mask") & (1<<i) else "摇一摇",HORIZONTAL_ALIGNMENT_LEFT,-1,14,sage if selected.has(i) else gold)
+	elif mode=="aim":pass # The live viewport renders the actual models and water volume.
+
+func pipe_ends(i: int) -> Array:return Rules.pipe_ends(i,rotations)
+func connected_pipes() -> Array:return Rules.water(rotations).wet
+func check_pipes() -> void:
+	var water=Rules.water(rotations)
+	if water.passed:solved.emit("pipes")
+	else:feedback.text="还没有接通。检查红色漏水口，并让水流经过 A、B 两处检修点。"
+func reset_pipes() -> void:
+	rotations=Rules.initial_pipes();save_array("pipe_v2",rotations);feedback.text="已恢复初始水路。";board.queue_redraw()
+func rotate_pipe(i: int) -> void:
+	if i in Rules.FIXED:feedback.text="这段管道被螺栓固定住了。";return
+	rotations[i]=(rotations[i]+1)%4;save_array("pipe_v2",rotations);feedback.text="";board.queue_redraw()
+func draw_books() -> void:
+	for slot in range(Rules.BOOK_COUNT):
+		var id: int=book_order[slot];var height=185*Rules.BOOK_SCALES[id]
+		var r=Rect2(slot*90+19,275-height,52,height)
+		var style=QuestTheme.panel(4);style.bg_color=Rules.BOOK_COLORS[id];style.shadow_size=2
+		if slot==book_selected:style.border_color=QuestTheme.ACCENT;style.set_border_width_all(4)
+		board.draw_style_box(style,r)
+		board.draw_line(r.position+Vector2(6,7),r.position+Vector2(6,r.size.y-7),style.bg_color.lightened(.22),2,true)
+		for y in [16.0,height-17]:board.draw_line(r.position+Vector2(10,y),r.position+Vector2(43,y),Color("dcc694"),2,true)
+		var name_: String=Rules.BOOK_NAMES[id]
+		for j in range(name_.length()):board.draw_string(font,r.position+Vector2(19,42+j*21),name_[j],HORIZONTAL_ALIGNMENT_LEFT,-1,16,Color("f7efdb"))
+	board.draw_line(Vector2(5,277),Vector2(625,277),QuestTheme.MUTED,4)
+func select_book(slot: int) -> void:
+	if book_selected<0:book_selected=slot
+	else:
+		var book=book_order[slot];book_order[slot]=book_order[book_selected];book_order[book_selected]=book;book_selected=-1
+		save_array("book_slot",book_order);chapter.world.place_stored_books()
+	board.queue_redraw()
+func check_books() -> void:
+	if book_order==Rules.BOOK_GOAL:solved.emit("books")
+	else:feedback.text="还没有排好。从左到右，最高的书在最左边，最矮的在最右边。"
+
+func shuffle_tiles() -> void:
+	slide_hint_tile=-1
+	feedback.text=""
+	tiles = SLIDE_GOAL.duplicate()
+	var previous := -1
+	for turn in range(60):
+		var empty := tiles.find(0)
+		var options: Array = []
+		for i in range(9):
+			if abs(i%3-empty%3)+abs(i/3-empty/3)==1 and i!=previous:options.append(i)
+		var target: int = options.pick_random()
+		tiles[empty] = tiles[target]
+		tiles[target] = 0
+		previous = empty
+	if tiles==SLIDE_GOAL:tiles = [1,2,3,8,6,4,7,0,5]
+	save_array("tile",tiles)
+	if is_instance_valid(board):board.queue_redraw()
+
+func move_tile(i: int) -> void:
+	var empty := tiles.find(0)
+	if abs(i%3-empty%3)+abs(i/3-empty/3)!=1:return
+	slide_hint_tile=-1
+	feedback.text=""
+	tiles[empty] = tiles[i]
+	tiles[i] = 0
+	save_array("tile",tiles)
+	if tiles==SLIDE_GOAL:solved.emit("slide")
+
+func slide_key(state: Array) -> int:
+	var key:=0
+	for value in state:key=(key<<4)|int(value)
+	return key
+
+func slide_distance(state: Array) -> int:
+	var cost:=0
+	for i in range(9):
+		if state[i]==0:continue
+		var goal:=SLIDE_GOAL.find(state[i])
+		cost+=absi(i%3-goal%3)+absi(i/3-goal/3)
+	return cost
+
+func hint_push(heap: Array, entry: Array) -> void:
+	heap.append(entry)
+	var i:=heap.size()-1
+	while i>0:
+		var parent: int=(i-1)/2
+		if heap[parent][0]<=entry[0]:break
+		heap[i]=heap[parent];i=parent
+	heap[i]=entry
+
+func hint_pop(heap: Array) -> Array:
+	var best: Array=heap[0]
+	var last: Array=heap.pop_back()
+	if heap.is_empty():return best
+	var i:=0
+	while i*2+1<heap.size():
+		var child:=i*2+1
+		if child+1<heap.size() and heap[child+1][0]<heap[child][0]:child+=1
+		if last[0]<=heap[child][0]:break
+		heap[i]=heap[child];i=child
+	heap[i]=last
+	return best
+
+func slide_next_tile(state: Array) -> int:
+	if not slide_reachable(state) or state==SLIDE_GOAL:return -1
+	var heap: Array=[]
+	var visited: Dictionary={slide_key(state):0}
+	hint_push(heap,[slide_distance(state)*100,0,state.duplicate(),state.find(0),-1])
+	while not heap.is_empty():
+		var entry:=hint_pop(heap)
+		var board_state: Array=entry[2]
+		var steps: int=entry[1]
+		if steps>visited.get(slide_key(board_state),steps):continue
+		if board_state==SLIDE_GOAL:return entry[4]
+		var empty: int=entry[3]
+		for i in range(9):
+			if absi(i%3-empty%3)+absi(i/3-empty/3)!=1:continue
+			var next:=board_state.duplicate()
+			next[empty]=next[i];next[i]=0
+			var key:=slide_key(next)
+			if visited.get(key,999)<=steps+1:continue
+			visited[key]=steps+1
+			var distance:=slide_distance(next)
+			hint_push(heap,[(steps+1+distance)*100+distance,steps+1,next,i,board_state[i] if steps==0 else entry[4]])
+	return -1
+
+func show_slide_hint() -> void:
+	if tiles==SLIDE_GOAL:feedback.text="排列已经正确。";return
+	slide_hint_tile=slide_next_tile(tiles)
+	if slide_hint_tile<0:feedback.text="当前排列无法求解，请重新打乱。";return
+	var index:=tiles.find(slide_hint_tile)
+	var empty:=tiles.find(0)
+	var direction: String="右" if empty==index+1 else "左" if empty==index-1 else "下" if empty>index else "上"
+	feedback.text="下一步：点击数字 %d，向%s移入空格。高亮的就是这一块。"%[slide_hint_tile,direction]
+	board.queue_redraw()
+
+func slide_reachable(values: Array) -> bool:
+	if values.size()!=9:return false
+	var sorted := values.duplicate()
+	sorted.sort()
+	if sorted!=[0,1,2,3,4,5,6,7,8]:return false
+	# An odd-width board preserves inversion parity under every legal move.
+	var inversions := 0
+	for i in range(9):
+		for j in range(i+1,9):
+			if values[i]!=0 and values[j]!=0 and values[i]>values[j]:inversions += 1
+	return inversions%2==1
+
+func check_medicine() -> void:
+	selected.sort()
+	for i in selected:
+		if not chapter.val("med_heard_mask") & (1<<i):
+			feedback.text = "先摇晃选中的药瓶，听一听里面的声音。"
+			return
+	if selected==[1,3,5]:
+		chapter.set_value("med_selection_mask",0)
+		solved.emit("medicine")
+	else:feedback.text = "还不对。比较每次摇晃里的碰撞声：越少、越疏、越轻，药片越少。"
+
+func shake_medicine(i: int) -> void:
+	chapter.set_value("med_heard_mask",chapter.val("med_heard_mask") | (1<<i))
+	audio.stream = load("res://chapters/act3/audio/bottle_%d.wav"%i)
+	audio.volume_db = 0
+	audio.pitch_scale = 1.0
+	audio.play()
+	feedback.text = "正在摇晃 %d 号药瓶。听完后，可以再次点击比较。"%(i+1)
+	board.queue_redraw()
+
+func toggle_medicine(i: int) -> void:
+	if selected.has(i):selected.erase(i)
+	elif selected.size()<3:selected.append(i)
+	else:
+		feedback.text = "最多选择三瓶，先取消一瓶再重新选择。"
+		return
+	var mask := 0
+	for entry in selected:mask |= 1<<entry
+	chapter.set_value("med_selection_mask",mask)
+	feedback.text = "已选择 %d / 3 瓶。"%selected.size()
+	board.queue_redraw()
+
+func try_tone(i: int) -> void:
+	play_voice(i,false)
+	if i in [0,3]:
+		chapter.dog_react()
+		if not selected.has(i):selected.append(i)
+		feedback.text = "它摇了摇尾巴，似乎认出了这个声调。"
+	else:feedback.text = "它抬起头，但没有认出这个声音。"
+	if selected.size()==2 and detail.get_child_count()==1:
+		description.text = "找到了两种声调。把它们分别配上长音或短音，按顺序叫两声。\n骨头刻字：阿嚼 · → 短，↘ 长。选错可以重新叫。"
+		var row := HBoxContainer.new()
+		detail.add_child(row)
+		for tone in [0,3]:
+			for long_note in [false,true]:button(("一声" if tone==0 else "四声")+(" · 长" if long_note else " · 短"),row,add_voice.bind(tone,long_note))
+
+func add_voice(tone: int, long_note: bool) -> void:
+	play_voice(tone,long_note)
+	sequence.append(tone*2+int(long_note))
+	feedback.text = "已经叫了 %d / 2 声"%sequence.size()
+	if sequence.size()==2:
+		if sequence==[0,7]:solved.emit("voice")
+		else:
+			sequence.clear()
+			feedback.text = "它歪了歪头。再想想两声的顺序与长短。"
+
+func play_voice(tone: int, long_note: bool) -> void:
+	if voice_tween and voice_tween.is_valid():voice_tween.kill()
+	var duration := .85 if long_note else .38
+	audio.stream = load("res://assets/meow.wav")
+	audio.pitch_scale = [.95,.75,1.05,1.35][tone]
+	audio.play()
+	voice_tween = create_tween()
+	if tone==2:
+		voice_tween.tween_property(audio,"pitch_scale",.65,duration*.5)
+		voice_tween.tween_property(audio,"pitch_scale",1.05,duration*.5)
+	else:voice_tween.tween_property(audio,"pitch_scale",[.95,1.3,1.05,.70][tone],duration)
+	voice_tween.tween_callback(audio.stop)
+
+func save_array(prefix: String, values: Array) -> void:
+	# Publish one complete board state, with at most one autosave per action.
+	var dirty=false
+	for i in range(values.size()):
+		var key="%s_%d"%[prefix,i]
+		if chapter.val(key,-999)!=int(values[i]):chapter.day.manager.values[key]=int(values[i]);dirty=true
+	if dirty and not values.is_empty():chapter.set_value("%s_0"%prefix,int(values[0]))
+
+func board_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton or not event.pressed or event.button_index!=MOUSE_BUTTON_LEFT:return
+	if not Rect2(Vector2.ZERO,board.size).has_point(event.position):return
+	var columns=7 if mode in ["medicine","books"] else 5 if mode=="pipes" else 3
+	var rows=1 if mode in ["medicine","books"] else 4 if mode=="pipes" else 3
+	var p=event.position/board.size*Vector2(columns,rows)
+	var i=int(p.y)*columns+int(p.x)
+	match mode:
+		"books":select_book(int(p.x))
+		"pipes":rotate_pipe(i)
+		"slide":move_tile(i)
+		"medicine":
+			if i in range(7):shake_medicine(i)
+	board.queue_redraw()
+
+func close() -> void:
+	if is_instance_valid(yarn_puzzle):yarn_puzzle.suspend()
+	if is_instance_valid(watering):watering.set_flow(false)
+	super.close()
+
+func pour_at(mouse: Vector2, pressed: bool, delta: float) -> void:
+	if mode!="aim" or not shell.visible or not is_instance_valid(watering):return
+	var hit: bool = watering.aim_at(mouse)
+	watering.set_flow(pressed and Rect2(Vector2.ZERO,watering.size).has_point(mouse))
+	if pressed and hit:chapter.aim_progress += delta
+	watering.progress = clampf(chapter.aim_progress/2.5,0,1)
+	feedback.text = "清水正在浇进花盆  %d%%"%int(watering.progress*100) if pressed and hit else "把光圈移到盆口，按住左键浇水 · %d%%"%int(watering.progress*100)
+	if chapter.aim_progress>=2.5:solved.emit("aim")
+
+func _process(delta: float) -> void:
+	if mode=="yarn" and shell.visible:return
+	super._process(delta)
+	if mode!="aim" or not shell.visible or not is_instance_valid(watering):return
+	pour_at(watering.get_local_mouse_position(),Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT),delta)

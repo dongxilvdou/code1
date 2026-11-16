@@ -59,7 +59,7 @@ func open_sheet(id: String) -> void:
  begin("sheet");show_entry(id);rebuild_list(false);confirm.hide()
 func open_evidence(id: String, page := "") -> void:
  var branches=day.game.get_node("StoryBranches")
- var reason: String=preload("res://story_branches/evidence_data.gd").access_reason(id,branches.facts())
+ var reason: String=preload("res://chapters/story_branches/evidence_data.gd").access_reason(id,branches.facts())
  if not reason.is_empty():day.game.ui.toast(reason,5);return
  begin("evidence");show_entry("evidence_"+id+("_"+page if not page.is_empty() else ""));rebuild_list(false);confirm.hide()
 func open_album() -> void:

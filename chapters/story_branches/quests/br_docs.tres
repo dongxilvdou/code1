@@ -1,0 +1,68 @@
+[gd_resource type="Resource" script_class="CalicoQuest" format=3]
+
+[ext_resource type="Script" path="res://quest_system/types/quest_condition.gd" id="condition"]
+[ext_resource type="Script" path="res://quest_system/types/quest_objective.gd" id="goal"]
+[ext_resource type="Script" path="res://quest_system/types/quest_definition.gd" id="quest"]
+
+[sub_resource type="Resource" id="day"]
+script = ExtResource("condition")
+kind = 1
+key = &"current_day"
+required_value = 7
+
+[sub_resource type="Resource" id="goal0"]
+script = ExtResource("goal")
+id = &"br_doc_d1_read"
+text = "主卧照护交接单"
+kind = 3
+target_id = &"br_doc_d1_read"
+
+[sub_resource type="Resource" id="goal1"]
+script = ExtResource("goal")
+id = &"br_doc_d2_read"
+text = "电脑人员档案"
+kind = 3
+target_id = &"br_doc_d2_read"
+
+[sub_resource type="Resource" id="goal2"]
+script = ExtResource("goal")
+id = &"br_doc_d3_read"
+text = "二楼书房转移副本"
+kind = 3
+target_id = &"br_doc_d3_read"
+
+[sub_resource type="Resource" id="goal3"]
+script = ExtResource("goal")
+id = &"br_doc_d4_read"
+text = "一楼工作书房举报稿"
+kind = 3
+target_id = &"br_doc_d4_read"
+
+[sub_resource type="Resource" id="goal4"]
+script = ExtResource("goal")
+id = &"br_doc_d5_read"
+text = "封存会话两个页签"
+kind = 3
+target_id = &"br_doc_d5_read"
+
+[sub_resource type="Resource" id="goal5"]
+script = ExtResource("goal")
+id = &"br_doc_d6_read"
+text = "H-031回迁规程"
+kind = 3
+target_id = &"br_doc_d6_read"
+
+[sub_resource type="Resource" id="known"]
+script = ExtResource("condition")
+key = &"a7_login"
+
+[resource]
+script = ExtResource("quest")
+id = &"br_docs"
+title = "住宅分站留存资料"
+description = "可选调查 · 住宅分站留存资料"
+main_quest = false
+priority = 110
+extra_conditions = Array[ExtResource("condition")]([SubResource("day"), SubResource("known")])
+objectives = Array[ExtResource("goal")]([SubResource("goal0"), SubResource("goal1"), SubResource("goal2"), SubResource("goal3"), SubResource("goal4"), SubResource("goal5")])
+result_text = "已记入手记。"

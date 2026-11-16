@@ -1,5 +1,5 @@
 extends SceneTree
-const Rules=preload("res://story_branches/rules.gd")
+const Rules=preload("res://chapters/story_branches/rules.gd")
 var checks := 0
 var failures: Array[String]=[]
 func _initialize() -> void:call_deferred("run")
@@ -24,14 +24,14 @@ func run() -> void:
 	check(branch.world.documents.size()==3,"Exactly three new world documents")
 	for document in branch.world.documents.values():
 		check(document.find_children("*","CollisionObject3D",true,false).is_empty(),"Evidence adds no invisible blocking colliders")
-	for path in ["res://story_branches/panels.gd","res://story_branches/data.gd","res://act4/panels.gd"]:
+	for path in ["res://chapters/story_branches/panels.gd","res://chapters/story_branches/data.gd","res://chapters/act4/panels.gd"]:
 		var text=FileAccess.get_file_as_string(path)
 		for phrase in ["短暂干扰","先前只是临时干扰","强制通道干扰","我读完了，开始今天任务"]:check(not phrase in text,"Retired instruction absent: "+phrase)
-	check(not "restore_clock" in FileAccess.get_file_as_string("res://story_branches/chapter.gd"),"No periodic save/world rebuild loop")
-	var definition=load("res://story_branches/quests/br_memory.tres")
+	check(not "restore_clock" in FileAccess.get_file_as_string("res://chapters/story_branches/chapter.gd"),"No periodic save/world rebuild loop")
+	var definition=load("res://chapters/story_branches/quests/br_memory.tres")
 	check(not definition.extra_conditions.any(func(c):return c.key in [&"br_body_seen",&"br_power_safe",&"br_records"]),"Pre-day11 memory has no basement dependency cycle")
 	var standalone=load("res://quest_system/quest_system.tscn").instantiate()
-	check(standalone.catalog.resource_path=="res://act2/quests/catalog.tres","Reusable controller references formal catalog");standalone.free()
+	check(standalone.catalog.resource_path=="res://chapters/act2/quests/catalog.tres","Reusable controller references formal catalog");standalone.free()
 	print("STORY_RETIREMENT_AUDIT ",JSON.stringify({"checks":checks,"failures":failures}))
 	root_scene.get_node("StoryBranches").cancel_runtime();root_scene.stop_audio();root_scene.queue_free();await process_frame;await process_frame
 	quit(0 if failures.is_empty() else 1)

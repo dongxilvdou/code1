@@ -1,5 +1,5 @@
 extends "res://tools/playtest_v2.gd"
-const Evidence=preload("res://act3/investigation_data.gd")
+const Evidence=preload("res://chapters/act3/investigation_data.gd")
 var baseline: Dictionary
 var completions: Array[StringName]=[]
 

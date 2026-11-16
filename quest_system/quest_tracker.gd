@@ -221,8 +221,8 @@ func _refresh_journal() -> void:
 		if manager.flags.get("br_legacy_flow",false) and manager.flags.get("br_memory",false):_button("回忆 / 研究员经历",journal_list,func():system.close_journal();branches.play_memory(3,true))
 		if int(manager.values.get("current_day",1))>=7 and not manager.flags.get("br_legacy_flow",false):
 			_label("资料核对：M%d / 3\n回迁准备：%s\n强制通道：%s"%[int(manager.values.get("br_memory_level",0)),"已齐备" if manager.flags.get("br_return_plan_ready",false) else "尚未齐备","已永久解除" if manager.flags.get("br_imprint_cleared",false) else "未解除"],16,PAPER,journal_list)
-			for id in preload("res://story_branches/evidence_data.gd").IDS:
-				if not manager.flags.get("br_doc_"+id+"_read",false):_label("待调查 · "+preload("res://story_branches/evidence_data.gd").data(id).location_hint,14,MUTED,journal_list)
+			for id in preload("res://chapters/story_branches/evidence_data.gd").IDS:
+				if not manager.flags.get("br_doc_"+id+"_read",false):_label("待调查 · "+preload("res://chapters/story_branches/evidence_data.gd").data(id).location_hint,14,MUTED,journal_list)
 	for state in [CalicoQuestManager.State.ACTIVE,CalicoQuestManager.State.AVAILABLE,CalicoQuestManager.State.LOCKED,CalicoQuestManager.State.COMPLETED,CalicoQuestManager.State.FAILED]:
 		for quest in manager.sorted_quests():
 			if manager.flags.get("a11_finished",false) and not quest.main_quest and state!=CalicoQuestManager.State.COMPLETED:continue
