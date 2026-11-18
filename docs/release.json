@@ -2,14 +2,13 @@
   "repository": "dongxilvdou/code1",
   "game": {
     "status": "published",
-    "filename": "cat_win.zip",
-    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-11-02/cat_win.zip",
+    "filename": "hajimi-windows.zip",
+    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-11-18/hajimi-windows.zip",
     "label": "Windows 64位 · ZIP",
-    "bytes": 220699011,
-    "sha256": "2cb4f1b47de69f8df57005f4534b5989f96ecd4c7a9da7cf065982cf6ca3cbc7",
-    "release_tag": "windows-2026-11-02",
-    "executable": "cat_win.exe",
-    "pack_file": "cat_win.pck"
+    "bytes": 268845363,
+    "sha256": "2bb1c6fdfda0787e7182a413f3fa1e27fc7ff3d5b54f1a93540cd699d307a14d",
+    "release_tag": "windows-2026-11-18",
+    "executable": "哈基米模拟器.exe"
   },
   "soundtrack": {
     "status": "pending",
