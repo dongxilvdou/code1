@@ -7,3 +7,22 @@
 @media(max-width:760px){.hero{height:calc(100svh - var(--header));min-height:760px}.hero-picture img{object-position:70% bottom}.question-content h2{font-size:clamp(28px,8.7vw,34px);letter-spacing:.02em}}
 @media(max-width:370px){.site-header{padding:0 16px}.site-header nav{gap:16px}.wordmark{font-size:19px}.hero-copy{padding-left:22px;padding-right:22px}.hero h1{font-size:53px}.download-button{padding:12px 11px;gap:7px}.download-button span{font-size:11px}.download-button svg{width:18px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;scroll-snap-type:none}*,*:before,*:after{animation:none!important;transition:none!important}.album-art{transform:none}}
+
+.gameplay-frame img {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.story-panorama.gameplay-frame {
+  width: min(calc(100% - 46px), 920px);
+  margin-inline: auto;
+}
+
+.story-panorama.gameplay-frame figcaption {
+  position: static;
+  padding: 10px 0 0;
+  background: none;
+  color: var(--muted);
+}
