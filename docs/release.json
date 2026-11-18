@@ -3,11 +3,11 @@
   "game": {
     "status": "published",
     "filename": "hajimi-windows.zip",
-    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-11-18/hajimi-windows.zip",
+    "url": "https://github.com/dongxilvdou/code1/releases/download/windows-2026-11-18-r2/hajimi-windows.zip",
     "label": "Windows 64位 · ZIP",
-    "bytes": 268845363,
-    "sha256": "2bb1c6fdfda0787e7182a413f3fa1e27fc7ff3d5b54f1a93540cd699d307a14d",
-    "release_tag": "windows-2026-11-18",
+    "bytes": 268845960,
+    "sha256": "123d51c136d160ca15c1e43fe571681f081215c38367d6bcca7573de9108e480",
+    "release_tag": "windows-2026-11-18-r2",
     "executable": "哈基米模拟器.exe"
   },
   "soundtrack": {
