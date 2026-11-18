@@ -97,3 +97,45 @@ dialog?.addEventListener('click', event => {
   if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) dialog.close();
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) allAudio.forEach(audio => audio.pause()); });
+
+function setupGameplayGallery(gallery) {
+  const track = gallery.querySelector('.gameplay-track');
+  const slides = Array.from(track.children);
+  const controls = gallery.querySelector('.gameplay-controls');
+  const caption = gallery.querySelector('[data-gallery-caption]');
+  const counter = gallery.querySelector('[data-gallery-count]');
+  const announcement = gallery.querySelector('[data-gallery-announcement]');
+  let active = 0;
+
+  function showCaption(index) {
+    if (index === active) return;
+    active = index;
+    const title = slides[active].dataset.caption;
+    caption.textContent = title;
+    counter.textContent = `${active + 1} / ${slides.length}`;
+    announcement.textContent = `第 ${active + 1} 张，共 ${slides.length} 张。${title}`;
+  }
+
+  function visibleSlide() {
+    return Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+  }
+
+  function move(offset) {
+    const index = (visibleSlide() + offset + slides.length) % slides.length;
+    track.scrollTo({ left: index * track.clientWidth, behavior: 'instant' });
+    showCaption(index);
+  }
+
+  gallery.querySelector('[data-gallery-prev]').addEventListener('click', () => move(-1));
+  gallery.querySelector('[data-gallery-next]').addEventListener('click', () => move(1));
+  track.addEventListener('scroll', () => showCaption(visibleSlide()), { passive: true });
+  track.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    move(event.key === 'ArrowLeft' ? -1 : 1);
+  });
+  controls.hidden = false;
+  gallery.dataset.ready = '';
+}
+
+document.querySelectorAll('[data-gameplay-gallery]').forEach(setupGameplayGallery);
